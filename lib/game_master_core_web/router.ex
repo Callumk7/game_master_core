@@ -15,6 +15,7 @@ defmodule GameMasterCoreWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_current_scope_for_api_user
   end
 
   scope "/", GameMasterCoreWeb do
@@ -23,10 +24,9 @@ defmodule GameMasterCoreWeb.Router do
     get "/", PageController, :home
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", GameMasterCoreWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", GameMasterCoreWeb do
+    pipe_through :api
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:game_master_core, :dev_routes) do

@@ -210,6 +210,25 @@ defmodule GameMasterCoreWeb.UserAuthTest do
     end
   end
 
+  describe "fetch_current_scope_for_api_user/2" do
+    test "authenticates user from api token", %{conn: conn, user: user} do
+      user_token = Accounts.create_user_api_token(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{user_token}")
+        |> UserAuth.fetch_current_scope_for_api_user([])
+
+      assert conn.assigns.current_scope.user.id == user.id
+    end
+
+    test "does not authenticate if data is missing", %{conn: conn, user: user} do
+      _ = Accounts.create_user_api_token(user)
+      conn = UserAuth.fetch_current_scope_for_api_user(conn, [])
+      refute conn.assigns[:current_scope]
+    end
+  end
+
   describe "on_mount :mount_current_scope" do
     setup %{conn: conn} do
       %{conn: UserAuth.fetch_current_scope_for_user(conn, [])}

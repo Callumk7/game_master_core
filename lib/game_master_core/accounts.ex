@@ -254,8 +254,8 @@ defmodule GameMasterCore.Accounts do
   It cannot be recovered from the database.
   """
   def create_user_api_token(user) do
-    {encoded_token, user_token} = UserToken.build_email_token(user, "api-token")
-    Repo.insert!(user_token)
+    {encoded_token, user_token_struct} = UserToken.build_email_token(user, "api-token")
+    Repo.insert!(user_token_struct)
     encoded_token
   end
 

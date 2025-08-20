@@ -265,6 +265,23 @@ defmodule GameMasterCoreWeb.UserAuth do
   def signed_in_path(_), do: ~p"/"
 
   @doc """
+  Plug for routes that require the user to be authenticated via API token.
+  """
+  def fetch_current_scope_for_api_user(conn, _opts) do
+    with [<<bearer::binary-size(6), " ", token::binary>>] <-
+           get_req_header(conn, "authorization"),
+         true <- String.downcase(bearer) == "bearer",
+         {:ok, user} <- Accounts.fetch_user_by_api_token(token) do
+      assign(conn, :current_scope, Scope.for_user(user))
+    else
+      _ ->
+        conn
+        |> send_resp(:unauthorized, "No access for you")
+        |> halt()
+    end
+  end
+
+  @doc """
   Plug for routes that require the user to be authenticated.
   """
   def require_authenticated_user(conn, _opts) do
