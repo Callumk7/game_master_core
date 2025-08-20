@@ -15,6 +15,9 @@ defmodule GameMasterCoreWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :require_auth_token do
     plug :fetch_current_scope_for_api_user
   end
 
@@ -24,8 +27,15 @@ defmodule GameMasterCoreWeb.Router do
     get "/", PageController, :home
   end
 
-  scope "/api", GameMasterCoreWeb do
+  scope "/token", GameMasterCoreWeb do
     pipe_through :api
+
+    post "/", TokenController, :create
+  end
+
+  scope "/api", GameMasterCoreWeb do
+    pipe_through [:api, :require_auth_token]
+    resources "/games", GameController, except: [:new, :edit]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

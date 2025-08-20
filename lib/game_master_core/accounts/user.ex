@@ -9,6 +9,8 @@ defmodule GameMasterCore.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
+    many_to_many :games, GameMasterCore.Games.Game, join_through: "game_members"
+
     timestamps(type: :utc_datetime)
   end
 
