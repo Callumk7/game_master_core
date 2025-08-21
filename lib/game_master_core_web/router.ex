@@ -35,7 +35,12 @@ defmodule GameMasterCoreWeb.Router do
 
   scope "/api", GameMasterCoreWeb do
     pipe_through [:api, :require_auth_token]
-    resources "/games", GameController, except: [:new, :edit]
+
+    resources "/games", GameController, except: [:new, :edit] do
+      get "/members", GameController, :list_members
+      post "/members", GameController, :add_member
+      delete "/members/:user_id", GameController, :remove_member
+    end
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

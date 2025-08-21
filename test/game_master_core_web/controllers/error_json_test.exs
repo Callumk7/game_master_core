@@ -2,7 +2,9 @@ defmodule GameMasterCoreWeb.ErrorJSONTest do
   use GameMasterCoreWeb.ConnCase, async: true
 
   test "renders 404" do
-    assert GameMasterCoreWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
+    assert GameMasterCoreWeb.ErrorJSON.render("404.json", %{}) == %{
+             errors: %{detail: "Not Found"}
+           }
   end
 
   test "renders 500" do
