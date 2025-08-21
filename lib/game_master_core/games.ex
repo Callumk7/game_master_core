@@ -171,17 +171,19 @@ defmodule GameMasterCore.Games do
   Only the game owner can add members.
   """
   def add_member(%Scope{} = scope, %Game{} = game, user_id, role \\ "member") do
-    true = game.owner_id == scope.user.id
+    if game.owner_id == scope.user.id do
+      attrs = %{
+        game_id: game.id,
+        user_id: user_id,
+        role: role
+      }
 
-    attrs = %{
-      game_id: game.id,
-      user_id: user_id,
-      role: role
-    }
-
-    %GameMembership{}
-    |> GameMembership.changeset(attrs)
-    |> Repo.insert()
+      %GameMembership{}
+      |> GameMembership.changeset(attrs)
+      |> Repo.insert()
+    else
+      {:error, :unauthorized}
+    end
   end
 
   @doc """
