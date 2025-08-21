@@ -18,8 +18,13 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
   setup :register_and_log_in_user
 
-  setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  setup %{conn: conn, user: user} do
+    user_token = GameMasterCore.Accounts.create_user_api_token(user)
+    conn = 
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("authorization", "Bearer #{user_token}")
+    {:ok, conn: conn}
   end
 
   describe "index" do

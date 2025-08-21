@@ -9,25 +9,17 @@ defmodule GameMasterCore.Games.GameMembership do
     belongs_to :user, User
     belongs_to :game, Game
     field :role, :string, default: "member"
-    field :joined_at, :utc_datetime
-    field :status, :string, default: "active"
 
     timestamps(type: :utc_datetime)
   end
 
   def changeset(membership, attrs) do
     membership
-    |> cast(attrs, [:role, :joined_at, :status])
-    |> maybe_put_joined_at()
-    |> validate_required([:role, :joined_at])
+    |> cast(attrs, [:user_id, :game_id, :role])
+    |> validate_required([:user_id, :game_id, :role])
     |> validate_inclusion(:role, ["member", "owner"])
-    |> validate_inclusion(:status, ["active", "inactive", "banned"])
-  end
-
-  defp maybe_put_joined_at(changeset) do
-    case get_field(changeset, :joined_at) do
-      nil -> put_change(changeset, :joined_at, DateTime.utc_now())
-      _ -> changeset
-    end
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:game_id)
+    |> unique_constraint([:user_id, :game_id])
   end
 end

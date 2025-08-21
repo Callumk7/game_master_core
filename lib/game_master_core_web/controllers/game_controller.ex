@@ -40,4 +40,27 @@ defmodule GameMasterCoreWeb.GameController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def add_member(conn, %{"game_id" => game_id, "user_id" => user_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+    role = Map.get(conn.params, "role", "member")
+
+    with {:ok, _membership} <- Games.add_member(conn.assigns.current_scope, game, user_id, role) do
+      send_resp(conn, :created, "")
+    end
+  end
+
+  def remove_member(conn, %{"game_id" => game_id, "user_id" => user_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+
+    with {:ok, _} <- Games.remove_member(conn.assigns.current_scope, game, user_id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  def list_members(conn, %{"game_id" => game_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+    members = Games.list_members(conn.assigns.current_scope, game)
+    render(conn, :members, members: members)
+  end
 end

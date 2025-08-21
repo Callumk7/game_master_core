@@ -36,7 +36,7 @@ defmodule GameMasterCore.GamesTest do
       assert game.name == "some name"
       assert game.description == "some description"
       assert game.setting == "some setting"
-      assert game.user_id == scope.user.id
+      assert game.owner_id == scope.user.id
     end
 
     test "create_game/2 with invalid data returns error changeset" do
@@ -47,7 +47,12 @@ defmodule GameMasterCore.GamesTest do
     test "update_game/3 with valid data updates the game" do
       scope = user_scope_fixture()
       game = game_fixture(scope)
-      update_attrs = %{name: "some updated name", description: "some updated description", setting: "some updated setting"}
+
+      update_attrs = %{
+        name: "some updated name",
+        description: "some updated description",
+        setting: "some updated setting"
+      }
 
       assert {:ok, %Game{} = game} = Games.update_game(scope, game, update_attrs)
       assert game.name == "some updated name"

@@ -7,6 +7,7 @@ defmodule GameMasterCore.Games do
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Games.Game
+  alias GameMasterCore.Games.GameMembership
   alias GameMasterCore.Accounts.Scope
 
   @doc """
@@ -41,7 +42,14 @@ defmodule GameMasterCore.Games do
 
   """
   def list_games(%Scope{} = scope) do
-    Repo.all_by(Game, owner_id: scope.user.id)
+    user_id = scope.user.id
+
+    from(g in Game,
+      left_join: m in GameMembership,
+      on: g.id == m.game_id and m.user_id == ^user_id,
+      where: g.owner_id == ^user_id or not is_nil(m.id)
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -59,7 +67,14 @@ defmodule GameMasterCore.Games do
 
   """
   def get_game!(%Scope{} = scope, id) do
-    Repo.get_by!(Game, id: id, owner_id: scope.user.id)
+    user_id = scope.user.id
+
+    from(g in Game,
+      left_join: m in GameMembership,
+      on: g.id == m.game_id and m.user_id == ^user_id,
+      where: g.id == ^id and (g.owner_id == ^user_id or not is_nil(m.id))
+    )
+    |> Repo.one!()
   end
 
   @doc """
@@ -75,11 +90,15 @@ defmodule GameMasterCore.Games do
 
   """
   def create_game(%Scope{} = scope, attrs) do
-    attrs_with_owner = Map.put(attrs, "owner_id", scope.user.id)
+    string_attrs = 
+      attrs
+      |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+      |> Enum.into(%{})
+      |> Map.put("owner_id", scope.user.id)
 
     with {:ok, game = %Game{}} <-
            %Game{}
-           |> Game.changeset(attrs_with_owner, scope)
+           |> Game.changeset(string_attrs, scope)
            |> Repo.insert() do
       broadcast(scope, {:created, game})
       {:ok, game}
@@ -99,7 +118,7 @@ defmodule GameMasterCore.Games do
 
   """
   def update_game(%Scope{} = scope, %Game{} = game, attrs) do
-    true = game.owner_id == scope.user.id
+    true = can_modify_game?(scope, game)
 
     with {:ok, game = %Game{}} <-
            game
@@ -123,7 +142,7 @@ defmodule GameMasterCore.Games do
 
   """
   def delete_game(%Scope{} = scope, %Game{} = game) do
-    true = game.owner_id == scope.user.id
+    true = can_modify_game?(scope, game)
 
     with {:ok, game = %Game{}} <-
            Repo.delete(game) do
@@ -142,8 +161,67 @@ defmodule GameMasterCore.Games do
 
   """
   def change_game(%Scope{} = scope, %Game{} = game, attrs \\ %{}) do
-    true = game.owner_id == scope.user.id
+    true = can_modify_game?(scope, game)
 
     Game.changeset(game, attrs, scope)
+  end
+
+  @doc """
+  Adds a user as a member to a game.
+  Only the game owner can add members.
+  """
+  def add_member(%Scope{} = scope, %Game{} = game, user_id, role \\ "member") do
+    true = game.owner_id == scope.user.id
+
+    attrs = %{
+      game_id: game.id,
+      user_id: user_id,
+      role: role
+    }
+
+    %GameMembership{}
+    |> GameMembership.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Removes a member from a game.
+  Only the game owner can remove members.
+  """
+  def remove_member(%Scope{} = scope, %Game{} = game, user_id) do
+    true = game.owner_id == scope.user.id
+
+    case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
+      nil -> {:error, :not_found}
+      membership -> Repo.delete(membership)
+    end
+  end
+
+  @doc """
+  Lists all members of a game.
+  Only accessible by the owner or existing members.
+  """
+  def list_members(%Scope{} = scope, %Game{} = game) do
+    true = can_access_game?(scope, game)
+
+    from(m in GameMembership,
+      join: u in assoc(m, :user),
+      where: m.game_id == ^game.id,
+      select: %{id: m.id, user: u, role: m.role, joined_at: m.inserted_at}
+    )
+    |> Repo.all()
+  end
+
+  defp can_modify_game?(%Scope{} = scope, %Game{} = game) do
+    game.owner_id == scope.user.id
+  end
+
+  defp can_access_game?(%Scope{} = scope, %Game{} = game) do
+    user_id = scope.user.id
+
+    game.owner_id == user_id ||
+      Repo.exists?(
+        from m in GameMembership, where: m.game_id == ^game.id and m.user_id == ^user_id
+      )
   end
 end
