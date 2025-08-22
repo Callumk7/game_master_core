@@ -1,5 +1,6 @@
 defmodule GameMasterCoreWeb.Admin.GameController do
   use GameMasterCoreWeb, :controller
+  import Phoenix.Component, only: [to_form: 1]
 
   alias GameMasterCore.Games
   alias GameMasterCore.Games.Game
@@ -62,5 +63,48 @@ defmodule GameMasterCoreWeb.Admin.GameController do
     conn
     |> put_flash(:info, "Game deleted successfully.")
     |> redirect(to: ~p"/admin/games")
+  end
+
+  def list_members(conn, %{"game_id" => game_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+    members = Games.list_members(conn.assigns.current_scope, game)
+    form = to_form(%{"user_id" => "", "role" => "member"})
+    render(conn, :list_members, game: game, members: members, form: form)
+  end
+
+  def add_member(conn, %{"game_id" => game_id, "user_id" => user_id, "role" => role}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+
+    case Games.add_member(conn.assigns.current_scope, game, String.to_integer(user_id), role) do
+      {:ok, _membership} ->
+        conn
+        |> put_flash(:info, "Member added successfully.")
+        |> redirect(to: ~p"/admin/games/#{game_id}/members")
+
+      {:error, :unauthorized} ->
+        conn
+        |> put_flash(:error, "You are not authorized to add members to this game.")
+        |> redirect(to: ~p"/admin/games/#{game_id}/members")
+
+      {:error, changeset} ->
+        members = Games.list_members(conn.assigns.current_scope, game)
+        render(conn, :list_members, game: game, members: members, changeset: changeset)
+    end
+  end
+
+  def remove_member(conn, %{"game_id" => game_id, "user_id" => user_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+
+    case Games.remove_member(conn.assigns.current_scope, game, String.to_integer(user_id)) do
+      {:ok, _membership} ->
+        conn
+        |> put_flash(:info, "Member removed successfully.")
+        |> redirect(to: ~p"/admin/games/#{game_id}/members")
+
+      {:error, :not_found} ->
+        conn
+        |> put_flash(:error, "Member not found.")
+        |> redirect(to: ~p"/admin/games/#{game_id}/members")
+    end
   end
 end

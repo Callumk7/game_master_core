@@ -93,6 +93,10 @@ defmodule GameMasterCoreWeb.Router do
   scope "/admin", GameMasterCoreWeb.Admin do
     pipe_through [:browser, :require_authenticated_user]
 
-    resources "/games", GameController
+    resources "/games", GameController do
+      get "/members", GameController, :list_members
+      post "/members", GameController, :add_member
+      delete "/members/:user_id", GameController, :remove_member
+    end
   end
 end

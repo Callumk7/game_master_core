@@ -1,0 +1,71 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <div class="mx-auto max-w-sm">
+    <.header>
+      Members for {@game.name}
+      <:subtitle>Manage game members</:subtitle>
+      <:actions>
+        <.button href={~p"/admin/games/#{@game}"}>
+          Back to Game
+        </.button>
+      </:actions>
+    </.header>
+
+    <div class="mt-8">
+      <h3 class="text-md font-semibold leading-8">Current Members</h3>
+      <%= if @members == [] do %>
+        <p class="text-sm text-base-content/70">No members yet.</p>
+      <% else %>
+        <div class="mt-4 space-y-3">
+          <%= for member <- @members do %>
+            <div class="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg">
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  {member.user.email}
+                </p>
+                <p class="text-sm text-gray-500">
+                  Role: {member.role}
+                </p>
+                <p class="text-xs text-gray-400">
+                  Joined: {Calendar.strftime(member.joined_at, "%B %d, %Y")}
+                </p>
+              </div>
+              <.link
+                href={~p"/admin/games/#{@game}/members/#{member.user.id}"}
+                method="delete"
+                data-confirm="Are you sure you want to remove this member?"
+                class="text-red-600 hover:text-red-900 text-sm font-medium"
+              >
+                Remove
+              </.link>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-8">
+      <h3 class="text-md font-semibold leading-8">Add New Member</h3>
+      <.form
+        for={@form}
+        action={~p"/admin/games/#{@game}/members"}
+        method="post"
+        class="mt-4 space-y-4 flex flex-col"
+        id="add-member-form"
+      >
+        <.input field={@form[:user_id]} type="number" label="User ID" required />
+        <p class="text-sm text-base-content/70">Enter the user ID to add as a member.</p>
+
+        <.input
+          field={@form[:role]}
+          type="select"
+          label="Role"
+          options={[{"Member", "member"}, {"Admin", "admin"}]}
+        />
+
+        <.button type="submit">
+          Add Member
+        </.button>
+      </.form>
+    </div>
+  </div>
+</Layouts.app>
