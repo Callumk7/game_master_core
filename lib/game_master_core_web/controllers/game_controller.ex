@@ -48,6 +48,7 @@ defmodule GameMasterCoreWeb.GameController do
     case Games.add_member(conn.assigns.current_scope, game, user_id, role) do
       {:ok, _membership} ->
         send_resp(conn, :created, "")
+
       {:error, :unauthorized} ->
         send_resp(conn, :forbidden, "")
     end

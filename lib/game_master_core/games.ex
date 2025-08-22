@@ -90,7 +90,7 @@ defmodule GameMasterCore.Games do
 
   """
   def create_game(%Scope{} = scope, attrs) do
-    string_attrs = 
+    string_attrs =
       attrs
       |> Enum.map(fn {k, v} -> {to_string(k), v} end)
       |> Enum.into(%{})
