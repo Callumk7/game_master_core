@@ -1,0 +1,22 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Game {@game.id}
+    <:subtitle>This is a game record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/games"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+      <.button navigate={~p"/admin/games/#{@game}/members"}>
+        <.icon name="hero-users" /> Manage Members
+      </.button>
+      <.button variant="primary" navigate={~p"/admin/games/#{@game}/edit?return_to=show"}>
+        <.icon name="hero-pencil-square" /> Edit game
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Name">{@game.name}</:item>
+    <:item title="Description">{@game.description}</:item>
+  </.list>
+</Layouts.app>

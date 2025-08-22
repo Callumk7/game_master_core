@@ -40,6 +40,11 @@ defmodule GameMasterCoreWeb.Router do
       get "/members", GameController, :list_members
       post "/members", GameController, :add_member
       delete "/members/:user_id", GameController, :remove_member
+<<<<<<< HEAD
+=======
+
+      resources "/notes", NoteController, except: [:new, :edit]
+>>>>>>> testing-html-contexts
     end
   end
 
@@ -86,5 +91,15 @@ defmodule GameMasterCoreWeb.Router do
 
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
+  end
+
+  scope "/admin", GameMasterCoreWeb.Admin do
+    pipe_through [:browser, :require_authenticated_user]
+
+    resources "/games", GameController do
+      get "/members", GameController, :list_members
+      post "/members", GameController, :add_member
+      delete "/members/:user_id", GameController, :remove_member
+    end
   end
 end

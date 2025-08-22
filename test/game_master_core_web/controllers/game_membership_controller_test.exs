@@ -63,7 +63,11 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
         |> put_req_header("authorization", "Bearer #{user_token}")
 
       conn = post(conn, ~p"/api/games/#{game.id}/members", user_id: other_user.id)
+<<<<<<< HEAD
       assert response(conn, 500)
+=======
+      assert response(conn, 403)
+>>>>>>> testing-html-contexts
     end
   end
 end

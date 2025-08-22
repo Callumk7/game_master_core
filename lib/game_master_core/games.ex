@@ -90,7 +90,11 @@ defmodule GameMasterCore.Games do
 
   """
   def create_game(%Scope{} = scope, attrs) do
+<<<<<<< HEAD
     string_attrs = 
+=======
+    string_attrs =
+>>>>>>> testing-html-contexts
       attrs
       |> Enum.map(fn {k, v} -> {to_string(k), v} end)
       |> Enum.into(%{})
@@ -171,6 +175,7 @@ defmodule GameMasterCore.Games do
   Only the game owner can add members.
   """
   def add_member(%Scope{} = scope, %Game{} = game, user_id, role \\ "member") do
+<<<<<<< HEAD
     true = game.owner_id == scope.user.id
 
     attrs = %{
@@ -182,6 +187,21 @@ defmodule GameMasterCore.Games do
     %GameMembership{}
     |> GameMembership.changeset(attrs)
     |> Repo.insert()
+=======
+    if game.owner_id == scope.user.id do
+      attrs = %{
+        game_id: game.id,
+        user_id: user_id,
+        role: role
+      }
+
+      %GameMembership{}
+      |> GameMembership.changeset(attrs)
+      |> Repo.insert()
+    else
+      {:error, :unauthorized}
+    end
+>>>>>>> testing-html-contexts
   end
 
   @doc """

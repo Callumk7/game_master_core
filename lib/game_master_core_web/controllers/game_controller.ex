@@ -45,8 +45,17 @@ defmodule GameMasterCoreWeb.GameController do
     game = Games.get_game!(conn.assigns.current_scope, game_id)
     role = Map.get(conn.params, "role", "member")
 
+<<<<<<< HEAD
     with {:ok, _membership} <- Games.add_member(conn.assigns.current_scope, game, user_id, role) do
       send_resp(conn, :created, "")
+=======
+    case Games.add_member(conn.assigns.current_scope, game, user_id, role) do
+      {:ok, _membership} ->
+        send_resp(conn, :created, "")
+
+      {:error, :unauthorized} ->
+        send_resp(conn, :forbidden, "")
+>>>>>>> testing-html-contexts
     end
   end
 
