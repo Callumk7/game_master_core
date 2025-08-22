@@ -89,4 +89,10 @@ defmodule GameMasterCoreWeb.Router do
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
+
+  scope "/admin", GameMasterCoreWeb.Admin do
+    pipe_through [:browser, :require_authenticated_user]
+
+    resources "/games", GameController
+  end
 end
