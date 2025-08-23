@@ -191,4 +191,7 @@ defmodule GameMasterCore.Characters do
 
     Character.changeset(character, attrs, scope, character.game_id)
   end
+
+  def link_note(%Scope{} = scope, %Character{} = character, %Note{} = note) do
+  end
 end
