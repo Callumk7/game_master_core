@@ -9,6 +9,8 @@ defmodule GameMasterCore.Notes do
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Games.Game
+  alias GameMasterCore.Characters
+  alias GameMasterCore.Links
 
   @doc """
   Subscribes to scoped notifications about any note changes.
@@ -207,6 +209,74 @@ defmodule GameMasterCore.Notes do
       end
     else
       {:error, :game_id_required}
+    end
+  end
+
+  ## Note Links
+
+  @doc """
+  Links a character to a note.
+  """
+  def link_character(%Scope{} = scope, note_id, character_id) do
+    with {:ok, note} <- get_scoped_note(scope, note_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.link(note, character)
+    end
+  end
+
+  @doc """
+  Unlinks a character from a note.
+  """
+  def unlink_character(%Scope{} = scope, note_id, character_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(note, character)
+    end
+  end
+
+  @doc """
+  Checks if a character is linked to a note.
+  """
+  def character_linked?(%Scope{} = scope, note_id, character_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(note, character)
+    else
+      _ -> false
+    end
+  end
+
+  @doc """
+  Returns all characters linked to a note.
+  """
+  def linked_characters(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} ->
+        links = Links.links_for(note)
+        Map.get(links, :characters, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  # Private helper functions for character links
+
+  defp get_scoped_character(scope, character_id) do
+    try do
+      character = Characters.get_character!(scope, character_id)
+      {:ok, character}
+    rescue
+      Ecto.NoResultsError -> {:error, :character_not_found}
+    end
+  end
+
+  defp get_scoped_note(scope, note_id) do
+    try do
+      note = get_note!(scope, note_id)
+      {:ok, note}
+    rescue
+      Ecto.NoResultsError -> {:error, :note_not_found}
     end
   end
 end
