@@ -9,6 +9,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.GamesFixtures
+    import GameMasterCore.NotesFixtures
 
     @invalid_attrs %{name: nil, level: nil, description: nil, class: nil, image_url: nil}
 
@@ -123,6 +124,160 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       assert %Ecto.Changeset{} = Characters.change_character(scope, character)
+    end
+  end
+
+  describe "character links" do
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.NotesFixtures
+
+    test "link_note/3 successfully links a character and note" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      
+      assert {:ok, _link} = Characters.link_note(scope, character.id, note.id)
+      assert Characters.note_linked?(scope, character.id, note.id)
+    end
+
+    test "link_note/3 with invalid character_id returns error" do
+      scope = user_scope_fixture()
+      note = note_fixture(scope)
+      
+      assert {:error, :character_not_found} = Characters.link_note(scope, 999, note.id)
+    end
+
+    test "link_note/3 with invalid note_id returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      
+      assert {:error, :note_not_found} = Characters.link_note(scope, character.id, 999)
+    end
+
+    test "link_note/3 with cross-scope character returns error" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      note = note_fixture(scope2)
+      
+      assert {:error, :character_not_found} = Characters.link_note(scope1, character.id, note.id)
+    end
+
+    test "link_note/3 with cross-scope note returns error" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      note = note_fixture(scope1)
+      
+      assert {:error, :note_not_found} = Characters.link_note(scope2, character.id, note.id)
+    end
+
+    test "link_note/3 prevents duplicate links" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      
+      assert {:ok, _link} = Characters.link_note(scope, character.id, note.id)
+      assert {:error, %Ecto.Changeset{}} = Characters.link_note(scope, character.id, note.id)
+    end
+
+    test "unlink_note/3 successfully removes a character-note link" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      
+      {:ok, _link} = Characters.link_note(scope, character.id, note.id)
+      assert Characters.note_linked?(scope, character.id, note.id)
+      
+      assert {:ok, _link} = Characters.unlink_note(scope, character.id, note.id)
+      refute Characters.note_linked?(scope, character.id, note.id)
+    end
+
+    test "unlink_note/3 with non-existent link returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      
+      assert {:error, :not_found} = Characters.unlink_note(scope, character.id, note.id)
+    end
+
+    test "unlink_note/3 with invalid character_id returns error" do
+      scope = user_scope_fixture()
+      note = note_fixture(scope)
+      
+      assert {:error, :character_not_found} = Characters.unlink_note(scope, 999, note.id)
+    end
+
+    test "unlink_note/3 with invalid note_id returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      
+      assert {:error, :note_not_found} = Characters.unlink_note(scope, character.id, 999)
+    end
+
+    test "note_linked?/3 returns false for unlinked entities" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      
+      refute Characters.note_linked?(scope, character.id, note.id)
+    end
+
+    test "note_linked?/3 with invalid character_id returns false" do
+      scope = user_scope_fixture()
+      note = note_fixture(scope)
+      
+      refute Characters.note_linked?(scope, 999, note.id)
+    end
+
+    test "note_linked?/3 with invalid note_id returns false" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      
+      refute Characters.note_linked?(scope, character.id, 999)
+    end
+
+    test "linked_notes/2 returns all notes linked to a character" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note1 = note_fixture(scope)
+      note2 = note_fixture(scope)
+      unlinked_note = note_fixture(scope)
+      
+      {:ok, _} = Characters.link_note(scope, character.id, note1.id)
+      {:ok, _} = Characters.link_note(scope, character.id, note2.id)
+      
+      linked_notes = Characters.linked_notes(scope, character.id)
+      assert length(linked_notes) == 2
+      assert note1 in linked_notes
+      assert note2 in linked_notes
+      refute unlinked_note in linked_notes
+    end
+
+    test "linked_notes/2 returns empty list for character with no linked notes" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      
+      assert Characters.linked_notes(scope, character.id) == []
+    end
+
+    test "linked_notes/2 with invalid character_id returns empty list" do
+      scope = user_scope_fixture()
+      
+      assert Characters.linked_notes(scope, 999) == []
+    end
+
+    test "linked_notes/2 respects scope boundaries" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      note = note_fixture(scope1)
+      
+      {:ok, _} = Characters.link_note(scope1, character.id, note.id)
+      
+      # Same character ID in different scope should return empty
+      assert Characters.linked_notes(scope2, character.id) == []
     end
   end
 end
