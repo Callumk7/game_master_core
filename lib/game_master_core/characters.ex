@@ -8,7 +8,6 @@ defmodule GameMasterCore.Characters do
 
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Games.Game
   alias GameMasterCore.Notes
   alias GameMasterCore.Links
 
@@ -38,8 +37,8 @@ defmodule GameMasterCore.Characters do
   Returns this list of characters for a specific game.
   Only users who can access the game can see its characters.
   """
-  def list_characters_for_game(%Scope{} = _scope, %Game{} = game) do
-    from(c in Character, where: c.game_id == ^game.id)
+  def list_characters_for_game(%Scope{} = scope) do
+    from(c in Character, where: c.game_id == ^scope.game.id)
     |> Repo.all()
   end
 
@@ -58,17 +57,17 @@ defmodule GameMasterCore.Characters do
       ** (Ecto.NoResultsError)
 
   """
-  def get_character_for_game!(%Scope{} = _scope, %Game{} = game, id) do
-    Repo.get_by!(Character, id: id, game_id: game.id)
+  def get_character_for_game!(%Scope{} = scope, id) do
+    Repo.get_by!(Character, id: id, game_id: scope.game.id)
   end
 
   @doc """
   Create a character for a specific game.
   """
-  def create_character_for_game(%Scope{} = scope, %Game{} = game, attrs) do
+  def create_character_for_game(%Scope{} = scope, attrs) do
     with {:ok, character = %Character{}} <-
            %Character{}
-           |> Character.changeset(attrs, scope, game.id)
+           |> Character.changeset(attrs, scope, scope.game.id)
            |> Repo.insert() do
       broadcast(scope, {:created, character})
       {:ok, character}

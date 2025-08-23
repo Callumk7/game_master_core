@@ -8,7 +8,6 @@ defmodule GameMasterCore.Notes do
 
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Games.Game
   alias GameMasterCore.Characters
   alias GameMasterCore.Links
 
@@ -44,9 +43,9 @@ defmodule GameMasterCore.Notes do
       [%Note{}, ...]
 
   """
-  def list_notes_for_game(%Scope{} = _scope, %Game{} = game) do
+  def list_notes_for_game(%Scope{} = scope) do
     # Games.get_game! already validates access, so if we got the game, we can access its notes
-    from(n in Note, where: n.game_id == ^game.id)
+    from(n in Note, where: n.game_id == ^scope.game.id)
     |> Repo.all()
   end
 
@@ -65,9 +64,8 @@ defmodule GameMasterCore.Notes do
       ** (Ecto.NoResultsError)
 
   """
-  def get_note_for_game!(%Scope{} = _scope, %Game{} = game, id) do
-    # Games.get_game! already validates access, so if we got the game, we can access its notes
-    Repo.get_by!(Note, id: id, game_id: game.id)
+  def get_note_for_game!(%Scope{} = scope, id) do
+    Repo.get_by!(Note, id: id, game_id: scope.game.id)
   end
 
   @doc """
@@ -82,11 +80,10 @@ defmodule GameMasterCore.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_note_for_game(%Scope{} = scope, %Game{} = game, attrs) do
-    # Games.get_game! already validates access, so if we got the game, we can create notes for it
+  def create_note_for_game(%Scope{} = scope, attrs) do
     with {:ok, note = %Note{}} <-
            %Note{}
-           |> Note.changeset(attrs, scope, game.id)
+           |> Note.changeset(attrs, scope, scope.game.id)
            |> Repo.insert() do
       broadcast(scope, {:created, note})
       {:ok, note}

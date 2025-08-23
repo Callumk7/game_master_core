@@ -4,6 +4,7 @@ defmodule GameMasterCoreWeb.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
+  alias GameMasterCore.Games
   alias GameMasterCore.Accounts
   alias GameMasterCore.Accounts.Scope
 
@@ -293,6 +294,20 @@ defmodule GameMasterCoreWeb.UserAuth do
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
       |> halt()
+    end
+  end
+
+  @doc """
+  Assign the current game to the assigns.
+  """
+  def assign_current_game(conn, _opts) do
+    current_scope = conn.assigns.current_scope
+
+    if game_id = conn.params["game_id"] do
+      game = Games.get_game!(current_scope, game_id)
+      assign(conn, :current_scope, Scope.put_game(current_scope, game))
+    else
+      conn
     end
   end
 

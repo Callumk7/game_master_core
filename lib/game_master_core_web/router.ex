@@ -34,7 +34,7 @@ defmodule GameMasterCoreWeb.Router do
   end
 
   scope "/api", GameMasterCoreWeb do
-    pipe_through [:api, :require_auth_token]
+    pipe_through [:api, :require_auth_token, :assign_current_game]
 
     resources "/games", GameController, except: [:new, :edit] do
       get "/members", GameController, :list_members
