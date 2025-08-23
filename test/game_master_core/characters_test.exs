@@ -161,7 +161,8 @@ defmodule GameMasterCore.CharactersTest do
       character = character_fixture(scope1)
       note = note_fixture(scope2)
       
-      assert {:error, :character_not_found} = Characters.link_note(scope1, character.id, note.id)
+      # Character exists in scope1, note is in scope2, so note_not_found is returned first
+      assert {:error, :note_not_found} = Characters.link_note(scope1, character.id, note.id)
     end
 
     test "link_note/3 with cross-scope note returns error" do
@@ -170,7 +171,8 @@ defmodule GameMasterCore.CharactersTest do
       character = character_fixture(scope1)
       note = note_fixture(scope1)
       
-      assert {:error, :note_not_found} = Characters.link_note(scope2, character.id, note.id)
+      # Character is in scope1, note is in scope1, but called with scope2, so character_not_found is returned first
+      assert {:error, :character_not_found} = Characters.link_note(scope2, character.id, note.id)
     end
 
     test "link_note/3 prevents duplicate links" do

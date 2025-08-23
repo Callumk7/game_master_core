@@ -21,4 +21,50 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> put_view(html: GameMasterCoreWeb.ErrorHTML, json: GameMasterCoreWeb.ErrorJSON)
     |> render(:"404")
   end
+
+  # Handle character/note not found errors
+  def call(conn, {:error, :character_not_found}) do
+    conn
+    |> put_status(:not_found)
+    |> json(%{error: "Character not found"})
+  end
+
+  def call(conn, {:error, :note_not_found}) do
+    conn
+    |> put_status(:not_found)
+    |> json(%{error: "Note not found"})
+  end
+
+  # Handle link validation errors
+  def call(conn, {:error, :missing_entity_type}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Entity type is required"})
+  end
+
+  def call(conn, {:error, :invalid_entity_type}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{
+      error: "Invalid entity type. Supported types: note, faction, item, location, quest"
+    })
+  end
+
+  def call(conn, {:error, :missing_entity_id}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Entity ID is required"})
+  end
+
+  def call(conn, {:error, :invalid_entity_id}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Invalid entity ID format"})
+  end
+
+  def call(conn, {:error, {:unsupported_link_type, entity_type}}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{error: "Linking characters to #{entity_type} is not yet supported"})
+  end
 end

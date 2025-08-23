@@ -42,7 +42,12 @@ defmodule GameMasterCoreWeb.Router do
       delete "/members/:user_id", GameController, :remove_member
 
       resources "/notes", NoteController, except: [:new, :edit]
-      resources "/characters", CharacterController, except: [:new, :edit]
+
+      resources "/characters", CharacterController, except: [:new, :edit] do
+        get "/links", CharacterController, :list_links
+        post "/links", CharacterController, :create_link
+        delete "/links/:entity_type/:entity_id", CharacterController, :delete_link
+      end
     end
   end
 

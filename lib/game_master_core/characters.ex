@@ -9,6 +9,8 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Games.Game
+  alias GameMasterCore.Notes
+  alias GameMasterCore.Links
 
   @doc """
   Subscribes to scoped notifications about any character changes.
@@ -190,5 +192,109 @@ defmodule GameMasterCore.Characters do
     true = character.user_id == scope.user.id
 
     Character.changeset(character, attrs, scope, character.game_id)
+  end
+
+  ## Character Links
+
+  @doc """
+  Links a character to a note.
+
+  ## Examples
+
+      iex> link_note(scope, character_id, note_id)
+      {:ok, %CharacterNote{}}
+
+      iex> link_note(scope, bad_character_id, note_id)
+      {:error, :character_not_found}
+
+  """
+  def link_note(%Scope{} = scope, character_id, note_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.link(character, note)
+    end
+  end
+
+  @doc """
+  Unlinks a character from a note.
+
+  ## Examples
+
+      iex> unlink_note(scope, character_id, note_id)
+      {:ok, %CharacterNote{}}
+
+      iex> unlink_note(scope, character_id, note_id)
+      {:error, :not_found}
+
+  """
+  def unlink_note(%Scope{} = scope, character_id, note_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(character, note)
+    end
+  end
+
+  @doc """
+  Checks if a character is linked to a note.
+
+  ## Examples
+
+      iex> note_linked?(scope, character_id, note_id)
+      true
+
+      iex> note_linked?(scope, character_id, note_id)
+      false
+
+  """
+  def note_linked?(%Scope{} = scope, character_id, note_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(character, note)
+    else
+      _ -> false
+    end
+  end
+
+  @doc """
+  Returns all notes linked to a character.
+
+  ## Examples
+
+      iex> linked_notes(scope, character_id)
+      [%Note{}, %Note{}]
+
+      iex> linked_notes(scope, bad_character_id)
+      []
+
+  """
+  def linked_notes(%Scope{} = scope, character_id) do
+    case get_scoped_character(scope, character_id) do
+      {:ok, character} ->
+        links = Links.links_for(character)
+        Map.get(links, :notes, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  # Private helper functions for character links
+
+  defp get_scoped_character(scope, character_id) do
+    try do
+      character = get_character!(scope, character_id)
+      {:ok, character}
+    rescue
+      Ecto.NoResultsError -> {:error, :character_not_found}
+    end
+  end
+
+  defp get_scoped_note(scope, note_id) do
+    try do
+      note = Notes.get_note!(scope, note_id)
+      {:ok, note}
+    rescue
+      Ecto.NoResultsError -> {:error, :note_not_found}
+    end
   end
 end
