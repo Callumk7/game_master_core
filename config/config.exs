@@ -27,8 +27,8 @@ config :game_master_core, :scopes,
     schema_key: :game_id,
     schema_type: :id,
     schema_table: :games,
-    test_data_fixture: GameMasterCore.GamesFixtures,
-    test_setup_helper: :register_and_log_in_user
+    test_data_fixture: GameMasterCore.AccountsFixtures,
+    test_setup_helper: :register_and_log_in_user_with_game
   ]
 
 config :game_master_core,

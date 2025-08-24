@@ -57,6 +57,18 @@ defmodule GameMasterCoreWeb.ConnCase do
   end
 
   @doc """
+  Setup helper that registers and logs in users with a game.
+
+      setup :register_and_log_in_user_with_game
+
+  It stores an updated connection and a scope with game in the test context.
+  """
+  def register_and_log_in_user_with_game(%{conn: conn} = context) do
+    %{conn: conn, user: user, scope: _scope} = register_and_log_in_user(context)
+    %{conn: conn, scope: GameMasterCore.AccountsFixtures.game_scope_fixture(user)}
+  end
+
+  @doc """
   Logs the given `user` into the `conn`.
 
   It returns an updated `conn`.
