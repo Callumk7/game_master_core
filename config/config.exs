@@ -18,6 +18,17 @@ config :game_master_core, :scopes,
     schema_table: :users,
     test_data_fixture: GameMasterCore.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
+  ],
+  game: [
+    module: GameMasterCore.Accounts.Scope,
+    assign_key: :current_scope,
+    access_path: [:game, :id],
+    route_prefix: "/games/:game",
+    schema_key: :game_id,
+    schema_type: :id,
+    schema_table: :games,
+    test_data_fixture: GameMasterCore.GamesFixtures,
+    test_setup_helper: :register_and_log_in_user
   ]
 
 config :game_master_core,

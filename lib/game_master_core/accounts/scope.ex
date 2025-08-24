@@ -17,8 +17,9 @@ defmodule GameMasterCore.Accounts.Scope do
   """
 
   alias GameMasterCore.Accounts.User
+  alias GameMasterCore.Games.Game
 
-  defstruct user: nil
+  defstruct user: nil, game: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +31,8 @@ defmodule GameMasterCore.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  def put_game(%__MODULE__{} = scope, %Game{} = game) do
+    %{scope | game: game}
+  end
 end

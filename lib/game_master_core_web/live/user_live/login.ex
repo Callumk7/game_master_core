@@ -126,6 +126,7 @@ defmodule GameMasterCoreWeb.UserLive.Login do
   end
 
   defp local_mail_adapter? do
-    Application.get_env(:game_master_core, GameMasterCore.Mailer)[:adapter] == Swoosh.Adapters.Local
+    Application.get_env(:game_master_core, GameMasterCore.Mailer)[:adapter] ==
+      Swoosh.Adapters.Local
   end
 end

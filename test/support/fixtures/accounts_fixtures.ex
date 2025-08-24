@@ -50,6 +50,22 @@ defmodule GameMasterCore.AccountsFixtures do
     Scope.for_user(user)
   end
 
+  def game_scope_fixture do
+    import GameMasterCore.GamesFixtures, only: [game_fixture: 1]
+    
+    scope = user_scope_fixture()
+    game = game_fixture(scope)
+    Scope.put_game(scope, game)
+  end
+
+  def game_scope_fixture(user) do
+    import GameMasterCore.GamesFixtures, only: [game_fixture: 1]
+    
+    scope = user_scope_fixture(user)
+    game = game_fixture(scope)
+    Scope.put_game(scope, game)
+  end
+
   def set_password(user) do
     {:ok, {user, _expired_tokens}} =
       Accounts.update_user_password(user, %{password: valid_user_password()})

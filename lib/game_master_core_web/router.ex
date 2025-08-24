@@ -15,6 +15,9 @@ defmodule GameMasterCoreWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :require_auth_token do
     plug :fetch_current_scope_for_api_user
   end
 
@@ -24,8 +27,32 @@ defmodule GameMasterCoreWeb.Router do
     get "/", PageController, :home
   end
 
-  scope "/api", GameMasterCoreWeb do
+  scope "/token", GameMasterCoreWeb do
     pipe_through :api
+
+    post "/", TokenController, :create
+  end
+
+  scope "/api", GameMasterCoreWeb do
+    pipe_through [:api, :require_auth_token, :assign_current_game]
+
+    resources "/games", GameController, except: [:new, :edit] do
+      get "/members", GameController, :list_members
+      post "/members", GameController, :add_member
+      delete "/members/:user_id", GameController, :remove_member
+
+      resources "/notes", NoteController, except: [:new, :edit] do
+        get "/links", NoteController, :list_links
+        post "/links", NoteController, :create_link
+        delete "/links/:entity_type/:entity_id", NoteController, :delete_link
+      end
+
+      resources "/characters", CharacterController, except: [:new, :edit] do
+        get "/links", CharacterController, :list_links
+        post "/links", CharacterController, :create_link
+        delete "/links/:entity_type/:entity_id", CharacterController, :delete_link
+      end
+    end
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
@@ -71,5 +98,15 @@ defmodule GameMasterCoreWeb.Router do
 
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
+  end
+
+  scope "/admin", GameMasterCoreWeb.Admin do
+    pipe_through [:browser, :require_authenticated_user]
+
+    resources "/games", GameController do
+      get "/members", GameController, :list_members
+      post "/members", GameController, :add_member
+      delete "/members/:user_id", GameController, :remove_member
+    end
   end
 end
