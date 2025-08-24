@@ -68,9 +68,10 @@ defmodule GameMasterCoreWeb.NoteController do
   def list_links(conn, %{"note_id" => note_id}) do
     note = Notes.get_note_for_game!(conn.assigns.current_scope, note_id)
 
-    links = Notes.linked_characters(conn.assigns.current_scope, note.id)
+    characters = Notes.linked_characters(conn.assigns.current_scope, note.id)
+    factions = Notes.linked_factions(conn.assigns.current_scope, note.id)
 
-    render(conn, :links, note: note, characters: links)
+    render(conn, :links, note: note, characters: characters, factions: factions)
   end
 
   def delete_link(conn, %{
@@ -92,6 +93,10 @@ defmodule GameMasterCoreWeb.NoteController do
 
   defp create_note_link(scope, note_id, :character, character_id) do
     Notes.link_character(scope, note_id, character_id)
+  end
+
+  defp create_note_link(scope, note_id, :faction, faction_id) do
+    Notes.link_faction(scope, note_id, faction_id)
   end
 
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do

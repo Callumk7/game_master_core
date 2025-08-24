@@ -2,7 +2,8 @@ defmodule GameMasterCore.Links do
   import Ecto.Query, warn: false
   alias GameMasterCore.Repo
 
-  alias GameMasterCore.Characters.{Character, CharacterNote}
+  alias GameMasterCore.Characters.{Character, CharacterNote, CharacterFaction}
+  alias GameMasterCore.Factions.{Faction, FactionNote}
   alias GameMasterCore.Notes.Note
 
   @doc """
@@ -16,6 +17,18 @@ defmodule GameMasterCore.Links do
 
       {%Note{} = note, %Character{} = character} ->
         create_character_note_link(character, note)
+
+      {%Note{} = note, %Faction{} = faction} ->
+        create_faction_note_link(faction, note)
+
+      {%Faction{} = faction, %Note{} = note} ->
+        create_faction_note_link(faction, note)
+
+      {%Character{} = character, %Faction{} = faction} ->
+        create_character_faction_link(character, faction)
+
+      {%Faction{} = faction, %Character{} = character} ->
+        create_character_faction_link(character, faction)
 
       # Add more entity combinations as needed
       _ ->
@@ -64,10 +77,16 @@ defmodule GameMasterCore.Links do
   def links_for(entity) do
     case entity do
       %Character{} = character ->
-        %{notes: get_notes_for_character(character)}
+        %{
+          notes: get_notes_for_character(character),
+          factions: get_factions_for_character(character)
+        }
 
       %Note{} = note ->
-        %{characters: get_characters_for_note(note)}
+        %{characters: get_characters_for_note(note), factions: get_factions_for_note(note)}
+
+      %Faction{} = faction ->
+        %{notes: get_notes_for_faction(faction), characters: get_characters_for_faction(faction)}
 
       _ ->
         %{}
@@ -113,6 +132,62 @@ defmodule GameMasterCore.Links do
       join: cn in CharacterNote,
       on: cn.character_id == c.id,
       where: cn.note_id == ^note.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Faction <-> Note links
+
+  defp create_faction_note_link(faction, note) do
+    %FactionNote{}
+    |> FactionNote.changeset(%{
+      faction_id: faction.id,
+      note_id: note.id
+    })
+    |> Repo.insert()
+  end
+
+  defp get_factions_for_note(note) do
+    from(f in Faction,
+      join: facn in FactionNote,
+      on: facn.faction_id == f.id,
+      where: facn.note_id == ^note.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_notes_for_faction(faction) do
+    from(n in Note,
+      join: facn in FactionNote,
+      on: facn.faction_id == n.id,
+      where: facn.faction_id == ^faction.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Character <-> Faction links
+  defp create_character_faction_link(character, faction) do
+    %CharacterFaction{}
+    |> CharacterFaction.changeset(%{
+      character_id: character.id,
+      faction_id: faction.id
+    })
+    |> Repo.insert()
+  end
+
+  defp get_factions_for_character(character) do
+    from(f in Faction,
+      join: fc in CharacterFaction,
+      on: fc.faction_id == f.id,
+      where: fc.character_id == ^character.id
+    )
+  end
+
+  defp get_characters_for_faction(faction) do
+    from(c in Character,
+      join: fc in CharacterFaction,
+      on: fc.character_id == c.id,
+      where: fc.faction_id == ^faction.id
     )
     |> Repo.all()
   end

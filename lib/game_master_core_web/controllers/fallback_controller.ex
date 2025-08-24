@@ -63,6 +63,12 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> json(%{error: "Invalid entity ID format"})
   end
 
+  def call(conn, {:error, :unsupported_link_type}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{error: "Linking these types of entities is not yet supported"})
+  end
+
   def call(conn, {:error, {:unsupported_link_type, source_type, target_type}}) do
     conn
     |> put_status(:unprocessable_entity)

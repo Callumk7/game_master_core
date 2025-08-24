@@ -5,6 +5,7 @@ defmodule GameMasterCore.CharactersTest do
 
   describe "characters" do
     alias GameMasterCore.Characters.Character
+    alias GameMasterCore.Accounts.Scope
 
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.CharactersFixtures
@@ -125,6 +126,75 @@ defmodule GameMasterCore.CharactersTest do
       character = character_fixture(scope)
       assert %Ecto.Changeset{} = Characters.change_character(scope, character)
     end
+
+    test "list_characters_for_game/1 returns characters for a specific game" do
+      scope = user_scope_fixture()
+      game1 = game_fixture(scope)
+      game2 = game_fixture(scope)
+
+      scope1 = Scope.put_game(scope, game1)
+      scope2 = Scope.put_game(scope, game2)
+
+      _character1 = character_fixture(scope1, %{game_id: game1.id, name: "Game 1 Character"})
+      _character2 = character_fixture(scope1, %{game_id: game1.id, name: "Game 1 Character"})
+      _character3 = character_fixture(scope2, %{game_id: game2.id, name: "Game 2 Character"})
+
+      characters1 = Characters.list_characters_for_game(scope1)
+      characters2 = Characters.list_characters_for_game(scope2)
+
+      assert length(characters1) == 2
+      assert length(characters2) == 1
+      assert hd(characters1).name == "Game 1 Character"
+      assert hd(characters2).name == "Game 2 Character"
+    end
+
+    test "list_characters_for_game/1 returns empty list for game with no characters" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+
+      scope = Scope.put_game(scope, game)
+
+      assert Characters.list_characters_for_game(scope) == []
+    end
+
+    test "get_character_for_game!/2 returns character only if it belongs to the game" do
+      scope = user_scope_fixture()
+      game1 = game_fixture(scope)
+      game2 = game_fixture(scope)
+      character1 = character_fixture(scope, %{game_id: game1.id})
+
+      scope1 = Scope.put_game(scope, game1)
+      scope2 = Scope.put_game(scope, game2)
+
+      assert Characters.get_character_for_game!(scope1, character1.id) == character1
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Characters.get_character_for_game!(scope2, character1.id)
+      end
+    end
+
+    test "create_character_for_game/2 creates a character associated with the game" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+
+      scope = Scope.put_game(scope, game)
+
+      valid_attrs = %{
+        name: "some name",
+        level: 42,
+        description: "some description",
+        class: "some class",
+        image_url: "some image_url",
+        game_id: game.id
+      }
+
+      assert {:ok, %Character{} = character} =
+               Characters.create_character_for_game(scope, valid_attrs)
+
+      assert character.game_id == scope.game.id
+      assert character.user_id == scope.user.id
+      assert character.name == "some name"
+    end
   end
 
   describe "character links" do
@@ -136,7 +206,7 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
-      
+
       assert {:ok, _link} = Characters.link_note(scope, character.id, note.id)
       assert Characters.note_linked?(scope, character.id, note.id)
     end
@@ -144,14 +214,14 @@ defmodule GameMasterCore.CharactersTest do
     test "link_note/3 with invalid character_id returns error" do
       scope = user_scope_fixture()
       note = note_fixture(scope)
-      
+
       assert {:error, :character_not_found} = Characters.link_note(scope, 999, note.id)
     end
 
     test "link_note/3 with invalid note_id returns error" do
       scope = user_scope_fixture()
       character = character_fixture(scope)
-      
+
       assert {:error, :note_not_found} = Characters.link_note(scope, character.id, 999)
     end
 
@@ -160,7 +230,7 @@ defmodule GameMasterCore.CharactersTest do
       scope2 = user_scope_fixture()
       character = character_fixture(scope1)
       note = note_fixture(scope2)
-      
+
       # Character exists in scope1, note is in scope2, so note_not_found is returned first
       assert {:error, :note_not_found} = Characters.link_note(scope1, character.id, note.id)
     end
@@ -170,7 +240,7 @@ defmodule GameMasterCore.CharactersTest do
       scope2 = user_scope_fixture()
       character = character_fixture(scope1)
       note = note_fixture(scope1)
-      
+
       # Character is in scope1, note is in scope1, but called with scope2, so character_not_found is returned first
       assert {:error, :character_not_found} = Characters.link_note(scope2, character.id, note.id)
     end
@@ -179,7 +249,7 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
-      
+
       assert {:ok, _link} = Characters.link_note(scope, character.id, note.id)
       assert {:error, %Ecto.Changeset{}} = Characters.link_note(scope, character.id, note.id)
     end
@@ -188,10 +258,10 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
-      
+
       {:ok, _link} = Characters.link_note(scope, character.id, note.id)
       assert Characters.note_linked?(scope, character.id, note.id)
-      
+
       assert {:ok, _link} = Characters.unlink_note(scope, character.id, note.id)
       refute Characters.note_linked?(scope, character.id, note.id)
     end
@@ -200,21 +270,21 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
-      
+
       assert {:error, :not_found} = Characters.unlink_note(scope, character.id, note.id)
     end
 
     test "unlink_note/3 with invalid character_id returns error" do
       scope = user_scope_fixture()
       note = note_fixture(scope)
-      
+
       assert {:error, :character_not_found} = Characters.unlink_note(scope, 999, note.id)
     end
 
     test "unlink_note/3 with invalid note_id returns error" do
       scope = user_scope_fixture()
       character = character_fixture(scope)
-      
+
       assert {:error, :note_not_found} = Characters.unlink_note(scope, character.id, 999)
     end
 
@@ -222,21 +292,21 @@ defmodule GameMasterCore.CharactersTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
-      
+
       refute Characters.note_linked?(scope, character.id, note.id)
     end
 
     test "note_linked?/3 with invalid character_id returns false" do
       scope = user_scope_fixture()
       note = note_fixture(scope)
-      
+
       refute Characters.note_linked?(scope, 999, note.id)
     end
 
     test "note_linked?/3 with invalid note_id returns false" do
       scope = user_scope_fixture()
       character = character_fixture(scope)
-      
+
       refute Characters.note_linked?(scope, character.id, 999)
     end
 
@@ -246,10 +316,10 @@ defmodule GameMasterCore.CharactersTest do
       note1 = note_fixture(scope)
       note2 = note_fixture(scope)
       unlinked_note = note_fixture(scope)
-      
+
       {:ok, _} = Characters.link_note(scope, character.id, note1.id)
       {:ok, _} = Characters.link_note(scope, character.id, note2.id)
-      
+
       linked_notes = Characters.linked_notes(scope, character.id)
       assert length(linked_notes) == 2
       assert note1 in linked_notes
@@ -260,13 +330,13 @@ defmodule GameMasterCore.CharactersTest do
     test "linked_notes/2 returns empty list for character with no linked notes" do
       scope = user_scope_fixture()
       character = character_fixture(scope)
-      
+
       assert Characters.linked_notes(scope, character.id) == []
     end
 
     test "linked_notes/2 with invalid character_id returns empty list" do
       scope = user_scope_fixture()
-      
+
       assert Characters.linked_notes(scope, 999) == []
     end
 
@@ -275,9 +345,9 @@ defmodule GameMasterCore.CharactersTest do
       scope2 = user_scope_fixture()
       character = character_fixture(scope1)
       note = note_fixture(scope1)
-      
+
       {:ok, _} = Characters.link_note(scope1, character.id, note.id)
-      
+
       # Same character ID in different scope should return empty
       assert Characters.linked_notes(scope2, character.id) == []
     end

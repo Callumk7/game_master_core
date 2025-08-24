@@ -10,6 +10,7 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Notes
   alias GameMasterCore.Links
+  alias GameMasterCore.Factions
 
   @doc """
   Subscribes to scoped notifications about any character changes.
@@ -206,6 +207,16 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Links a faction to a note.
+  """
+  def link_faction(%Scope{} = scope, character_id, faction_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.link(character, faction)
+    end
+  end
+
+  @doc """
   Unlinks a character from a note.
 
   ## Examples
@@ -285,6 +296,15 @@ defmodule GameMasterCore.Characters do
       {:ok, note}
     rescue
       Ecto.NoResultsError -> {:error, :note_not_found}
+    end
+  end
+
+  defp get_scoped_faction(scope, faction_id) do
+    try do
+      faction = Factions.get_faction!(scope, faction_id)
+      {:ok, faction}
+    rescue
+      Ecto.NoResultsError -> {:error, :faction_not_found}
     end
   end
 end
