@@ -95,7 +95,7 @@ defmodule GameMasterCoreWeb.NoteController do
   end
 
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do
-    {:error, {:unsupported_link_type, entity_type}}
+    {:error, {:unsupported_link_type, :note, entity_type}}
   end
 
   defp delete_note_link(scope, note_id, :character, character_id) do
@@ -103,6 +103,6 @@ defmodule GameMasterCoreWeb.NoteController do
   end
 
   defp delete_note_link(_scope, _note_id, entity_type, _entity_id) do
-    {:error, {:unsupported_link_type, entity_type}}
+    {:error, {:unsupported_link_type, :note, entity_type}}
   end
 end

@@ -101,7 +101,7 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   defp create_character_link(_scope, _character_id, entity_type, _entity_id) do
-    {:error, {:unsupported_link_type, entity_type}}
+    {:error, {:unsupported_link_type, :character, entity_type}}
   end
 
   defp delete_character_link(scope, character_id, :note, note_id) do
@@ -109,6 +109,6 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   defp delete_character_link(_scope, _character_id, entity_type, _entity_id) do
-    {:error, {:unsupported_link_type, entity_type}}
+    {:error, {:unsupported_link_type, :character, entity_type}}
   end
 end

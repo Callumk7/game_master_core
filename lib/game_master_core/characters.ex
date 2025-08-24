@@ -47,15 +47,6 @@ defmodule GameMasterCore.Characters do
   Only users who can access the game can access its characters.
 
   Raises `Ecto.NoResultsError` if the Character does not exist.
-
-  ## Examples
-
-      iex> get_character_for_game!(scope, game, 123)
-      %Character{}
-
-      iex> get_character_for_game!(scope, game, 456)
-      ** (Ecto.NoResultsError)
-
   """
   def get_character_for_game!(%Scope{} = scope, id) do
     Repo.get_by!(Character, id: id, game_id: scope.game.id)

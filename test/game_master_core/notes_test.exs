@@ -6,7 +6,7 @@ defmodule GameMasterCore.NotesTest do
   describe "notes" do
     alias GameMasterCore.Notes.Note
 
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
     import GameMasterCore.NotesFixtures
     import GameMasterCore.GamesFixtures
     import GameMasterCore.CharactersFixtures
@@ -61,7 +61,7 @@ defmodule GameMasterCore.NotesTest do
 
     test "update_note/3 with invalid scope doesn't raise but doesn't permit update" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       note = note_fixture(scope)
 
       # The function no longer raises but the update should not be allowed
@@ -85,7 +85,7 @@ defmodule GameMasterCore.NotesTest do
 
     test "delete_note/2 with invalid scope doesn't raise but works based on game permissions" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       note = note_fixture(scope)
       # The function no longer raises but works based on game permissions
       assert {:ok, _} = Notes.delete_note(scope, note)
@@ -100,20 +100,25 @@ defmodule GameMasterCore.NotesTest do
 
   describe "game-based notes" do
     alias GameMasterCore.Notes.Note
+    alias GameMasterCore.Accounts.Scope
 
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
     import GameMasterCore.NotesFixtures
     import GameMasterCore.GamesFixtures
 
-    test "list_notes_for_game/2 returns notes for a specific game" do
+    test "list_notes_for_game/1 returns notes for a specific game" do
       scope = user_scope_fixture()
       game1 = game_fixture(scope)
       game2 = game_fixture(scope)
-      note1 = note_fixture(scope, %{game_id: game1.id, name: "Game 1 Note"})
-      note2 = note_fixture(scope, %{game_id: game2.id, name: "Game 2 Note"})
+      
+      scope1 = Scope.put_game(scope, game1)
+      scope2 = Scope.put_game(scope, game2)
+      
+      _note1 = note_fixture(scope, %{game_id: game1.id, name: "Game 1 Note"})
+      _note2 = note_fixture(scope, %{game_id: game2.id, name: "Game 2 Note"})
 
-      notes1 = Notes.list_notes_for_game(scope, game1)
-      notes2 = Notes.list_notes_for_game(scope, game2)
+      notes1 = Notes.list_notes_for_game(scope1)
+      notes2 = Notes.list_notes_for_game(scope2)
 
       assert length(notes1) == 1
       assert length(notes2) == 1
@@ -121,26 +126,28 @@ defmodule GameMasterCore.NotesTest do
       assert hd(notes2).name == "Game 2 Note"
     end
 
-    test "get_note_for_game!/3 returns note only if it belongs to the game" do
+    test "get_note_for_game!/2 returns note only if it belongs to the game" do
       scope = user_scope_fixture()
       game1 = game_fixture(scope)
       game2 = game_fixture(scope)
       note1 = note_fixture(scope, %{game_id: game1.id})
 
-      assert Notes.get_note_for_game!(scope, game1, note1.id) == note1
+      scope1 = Scope.put_game(scope, game1)
+      scope2 = Scope.put_game(scope, game2)
+
+      assert Notes.get_note_for_game!(scope1, note1.id) == note1
 
       assert_raise Ecto.NoResultsError, fn ->
-        Notes.get_note_for_game!(scope, game2, note1.id)
+        Notes.get_note_for_game!(scope2, note1.id)
       end
     end
 
-    test "create_note_for_game/3 creates a note associated with the game" do
-      scope = user_scope_fixture()
-      game = game_fixture(scope)
+    test "create_note_for_game/2 creates a note associated with the game" do
+      scope = game_scope_fixture()
       attrs = %{name: "Game Note", content: "Some content"}
 
-      assert {:ok, %Note{} = note} = Notes.create_note_for_game(scope, game, attrs)
-      assert note.game_id == game.id
+      assert {:ok, %Note{} = note} = Notes.create_note_for_game(scope, attrs)
+      assert note.game_id == scope.game.id
       assert note.user_id == scope.user.id
       assert note.name == "Game Note"
     end

@@ -54,15 +54,6 @@ defmodule GameMasterCore.Notes do
   Only users who can access the game can access its notes.
 
   Raises `Ecto.NoResultsError` if the Note does not exist.
-
-  ## Examples
-
-      iex> get_note_for_game!(scope, game, 123)
-      %Note{}
-
-      iex> get_note_for_game!(scope, game, 456)
-      ** (Ecto.NoResultsError)
-
   """
   def get_note_for_game!(%Scope{} = scope, id) do
     Repo.get_by!(Note, id: id, game_id: scope.game.id)

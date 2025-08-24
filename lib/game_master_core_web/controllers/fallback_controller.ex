@@ -46,7 +46,8 @@ defmodule GameMasterCoreWeb.FallbackController do
     conn
     |> put_status(:bad_request)
     |> json(%{
-      error: "Invalid entity type. Supported types: note, faction, item, location, quest"
+      error:
+        "Invalid entity type. Supported types: note, character, faction, item, location, quest"
     })
   end
 
@@ -62,9 +63,9 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> json(%{error: "Invalid entity ID format"})
   end
 
-  def call(conn, {:error, {:unsupported_link_type, entity_type}}) do
+  def call(conn, {:error, {:unsupported_link_type, source_type, target_type}}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> json(%{error: "Linking characters to #{entity_type} is not yet supported"})
+    |> json(%{error: "Linking #{source_type}s to #{target_type} is not yet supported"})
   end
 end
