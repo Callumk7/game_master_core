@@ -325,12 +325,12 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
     } do
       conn =
         post(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links", %{
-          "entity_type" => "faction",
+          "entity_type" => "item",
           "entity_id" => 1
         })
 
       response = json_response(conn, 422)
-      assert response["error"] == "Linking notes to faction is not yet supported"
+      assert response["error"] == "Linking notes to item is not yet supported"
     end
 
     test "create_link prevents duplicate links", %{
@@ -415,9 +415,9 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       game: game,
       note: note
     } do
-      conn = delete(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/faction/1")
+      conn = delete(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/item/1")
       response = json_response(conn, 422)
-      assert response["error"] == "Linking notes to faction is not yet supported"
+      assert response["error"] == "Linking notes to item is not yet supported"
     end
 
     test "denies access to links for notes in games user cannot access", %{

@@ -236,6 +236,17 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  def linked_characters(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :characters, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
   defp get_scoped_faction(scope, faction_id) do
     try do
       faction = get_faction!(scope, faction_id)
