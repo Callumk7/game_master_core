@@ -48,6 +48,12 @@ defmodule GameMasterCore.Links do
       {%Note{} = note, %Character{} = character} ->
         remove_character_note_link(character, note)
 
+      {%Note{} = note, %Faction{} = faction} ->
+        remove_faction_note_link(faction, note)
+
+      {%Faction{} = faction, %Note{} = note} ->
+        remove_faction_note_link(faction, note)
+
       _ ->
         {:error, :unsupported_link_type}
     end
@@ -64,6 +70,12 @@ defmodule GameMasterCore.Links do
 
       {%Note{} = note, %Character{} = character} ->
         character_note_exists?(character, note)
+
+      {%Note{} = note, %Faction{} = faction} ->
+        faction_note_exists?(faction, note)
+
+      {%Faction{} = faction, %Note{} = note} ->
+        faction_note_exists?(faction, note)
 
       _ ->
         false
@@ -145,6 +157,20 @@ defmodule GameMasterCore.Links do
       note_id: note.id
     })
     |> Repo.insert()
+  end
+
+  defp remove_faction_note_link(faction, note) do
+    case Repo.get_by(FactionNote, faction_id: faction.id, note_id: note.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp faction_note_exists?(faction, note) do
+    Repo.exists?(
+      from facn in FactionNote,
+        where: facn.faction_id == ^faction.id and facn.note_id == ^note.id
+    )
   end
 
   defp get_factions_for_note(note) do
