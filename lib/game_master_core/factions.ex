@@ -213,6 +213,29 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  @doc """
+  Returns all notes linked to a character.
+
+  ## Examples
+
+      iex> linked_notes(scope, character_id)
+      [%Note{}, %Note{}]
+
+      iex> linked_notes(scope, bad_character_id)
+      []
+
+  """
+  def linked_notes(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :notes, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
   defp get_scoped_faction(scope, faction_id) do
     try do
       faction = get_faction!(scope, faction_id)

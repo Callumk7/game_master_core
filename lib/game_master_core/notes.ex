@@ -295,6 +295,16 @@ defmodule GameMasterCore.Notes do
     end
   end
 
+  @doc """
+  Returns all links for a note.
+  """
+  def links(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} -> Links.links_for(note)
+      {:error, _} -> %{}
+    end
+  end
+
   # Private helper functions for character links
 
   defp get_scoped_character(scope, character_id) do

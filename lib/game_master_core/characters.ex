@@ -279,6 +279,13 @@ defmodule GameMasterCore.Characters do
     end
   end
 
+  def links(%Scope{} = scope, character_id) do
+    case get_scoped_character(scope, character_id) do
+      {:ok, character} -> Links.links_for(character)
+      {:error, _} -> %{}
+    end
+  end
+
   # Private helper functions for character links
 
   defp get_scoped_character(scope, character_id) do

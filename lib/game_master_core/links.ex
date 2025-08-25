@@ -181,6 +181,7 @@ defmodule GameMasterCore.Links do
       on: fc.faction_id == f.id,
       where: fc.character_id == ^character.id
     )
+    |> Repo.all()
   end
 
   defp get_characters_for_faction(faction) do

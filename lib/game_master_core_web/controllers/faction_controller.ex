@@ -71,6 +71,15 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
+  def list_links(conn, %{"faction_id" => faction_id}) do
+    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, faction_id)
+
+    notes = Factions.linked_notes(conn.assigns.current_scope, faction_id)
+    characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
+
+    render(conn, :links, faction: faction, notes: notes, characters: characters)
+  end
+
   # Private helpers for link management
 
   defp create_faction_link(scope, faction_id, :note, note_id) do
