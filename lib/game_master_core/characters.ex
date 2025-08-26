@@ -236,6 +236,16 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Unlinks a character from a faction.
+  """
+  def unlink_faction(%Scope{} = scope, character_id, faction_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.unlink(character, faction)
+    end
+  end
+
+  @doc """
   Checks if a character is linked to a note.
 
   ## Examples
@@ -251,6 +261,15 @@ defmodule GameMasterCore.Characters do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.linked?(character, note)
+    else
+      _ -> false
+    end
+  end
+
+  def faction_linked?(%Scope{} = scope, character_id, faction_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.linked?(character, faction)
     else
       _ -> false
     end
@@ -273,6 +292,20 @@ defmodule GameMasterCore.Characters do
       {:ok, character} ->
         links = Links.links_for(character)
         Map.get(links, :notes, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all factions linked to a character.
+  """
+  def linked_factions(%Scope{} = scope, character_id) do
+    case get_scoped_character(scope, character_id) do
+      {:ok, character} ->
+        links = Links.links_for(character)
+        Map.get(links, :factions, [])
 
       {:error, _} ->
         []

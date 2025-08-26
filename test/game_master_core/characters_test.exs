@@ -201,6 +201,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.NotesFixtures
+    import GameMasterCore.FactionsFixtures
 
     test "link_note/3 successfully links a character and note" do
       scope = user_scope_fixture()
@@ -350,6 +351,160 @@ defmodule GameMasterCore.CharactersTest do
 
       # Same character ID in different scope should return empty
       assert Characters.linked_notes(scope2, character.id) == []
+    end
+
+    test "link_faction/3 successfully links a character and faction" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+
+      assert {:ok, _link} = Characters.link_faction(scope, character.id, faction.id)
+      assert Characters.faction_linked?(scope, character.id, faction.id)
+    end
+
+    test "link_faction/3 with invalid character_id returns error" do
+      scope = user_scope_fixture()
+      faction = faction_fixture(scope)
+
+      assert {:error, :character_not_found} = Characters.link_faction(scope, 999, faction.id)
+    end
+
+    test "link_faction/3 with invalid faction_id returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+
+      assert {:error, :faction_not_found} = Characters.link_faction(scope, character.id, 999)
+    end
+
+    test "link_faction/3 with cross-scope character returns error" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      faction = faction_fixture(scope2)
+
+      # Character exists in scope1, faction is in scope2, so faction_not_found is returned first
+      assert {:error, :faction_not_found} =
+               Characters.link_faction(scope1, character.id, faction.id)
+    end
+
+    test "link_faction/3 with cross-scope faction returns error" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      faction = faction_fixture(scope1)
+
+      # Character is in scope1, faction is in scope1, but called with scope2, so character_not_found is returned first
+      assert {:error, :character_not_found} =
+               Characters.link_faction(scope2, character.id, faction.id)
+    end
+
+    test "link_faction/3 prevents duplicate links" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+
+      assert {:ok, _link} = Characters.link_faction(scope, character.id, faction.id)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Characters.link_faction(scope, character.id, faction.id)
+    end
+
+    test "unlink_faction/3 successfully removes a character-faction link" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+
+      {:ok, _link} = Characters.link_faction(scope, character.id, faction.id)
+      assert Characters.faction_linked?(scope, character.id, faction.id)
+
+      assert {:ok, _link} = Characters.unlink_faction(scope, character.id, faction.id)
+      refute Characters.faction_linked?(scope, character.id, faction.id)
+    end
+
+    test "unlink_faction/3 with non-existent link returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+
+      assert {:error, :not_found} = Characters.unlink_faction(scope, character.id, faction.id)
+    end
+
+    test "unlink_faction/3 with invalid character_id returns error" do
+      scope = user_scope_fixture()
+      faction = faction_fixture(scope)
+
+      assert {:error, :character_not_found} = Characters.unlink_faction(scope, 999, faction.id)
+    end
+
+    test "unlink_faction/3 with invalid faction_id returns error" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+
+      assert {:error, :faction_not_found} = Characters.unlink_faction(scope, character.id, 999)
+    end
+
+    test "faction_linked?/3 returns false for unlinked entities" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+
+      refute Characters.faction_linked?(scope, character.id, faction.id)
+    end
+
+    test "faction_linked?/3 with invalid character_id returns false" do
+      scope = user_scope_fixture()
+      faction = faction_fixture(scope)
+
+      refute Characters.faction_linked?(scope, 999, faction.id)
+    end
+
+    test "faction_linked?/3 with invalid faction_id returns false" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+
+      refute Characters.faction_linked?(scope, character.id, 999)
+    end
+
+    test "linked_factions/2 returns all factions linked to a character" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      faction1 = faction_fixture(scope)
+      faction2 = faction_fixture(scope)
+      unlinked_faction = faction_fixture(scope)
+
+      {:ok, _} = Characters.link_faction(scope, character.id, faction1.id)
+      {:ok, _} = Characters.link_faction(scope, character.id, faction2.id)
+
+      linked_factions = Characters.linked_factions(scope, character.id)
+      assert length(linked_factions) == 2
+      assert faction1 in linked_factions
+      assert faction2 in linked_factions
+      refute unlinked_faction in linked_factions
+    end
+
+    test "linked_factions/2 returns empty list for character with no linked factions" do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+
+      assert Characters.linked_factions(scope, character.id) == []
+    end
+
+    test "linked_factions/2 with invalid character_id returns empty list" do
+      scope = user_scope_fixture()
+
+      assert Characters.linked_factions(scope, 999) == []
+    end
+
+    test "linked_factions/2 respects scope boundaries" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      character = character_fixture(scope1)
+      faction = faction_fixture(scope1)
+
+      {:ok, _} = Characters.link_faction(scope1, character.id, faction.id)
+
+      # Same character ID in different scope should return empty
+      assert Characters.linked_factions(scope2, character.id) == []
     end
   end
 end
