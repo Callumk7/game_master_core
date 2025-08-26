@@ -77,6 +77,12 @@ defmodule GameMasterCore.Links do
       {%Faction{} = faction, %Note{} = note} ->
         faction_note_exists?(faction, note)
 
+      {%Faction{} = faction, %Character{} = character} ->
+        character_faction_exists?(character, faction)
+
+      {%Character{} = character, %Faction{} = faction} ->
+        character_faction_exists?(character, faction)
+
       _ ->
         false
     end
@@ -170,6 +176,13 @@ defmodule GameMasterCore.Links do
     Repo.exists?(
       from facn in FactionNote,
         where: facn.faction_id == ^faction.id and facn.note_id == ^note.id
+    )
+  end
+
+  defp character_faction_exists?(character, faction) do
+    Repo.exists?(
+      from fc in CharacterFaction,
+        where: fc.character_id == ^character.id and fc.faction_id == ^faction.id
     )
   end
 

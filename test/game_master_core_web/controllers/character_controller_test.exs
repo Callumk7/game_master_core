@@ -90,7 +90,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
 
     test "renders character when data is valid", %{
       conn: conn,
-      character: %Character{id: id} = character,
+      character: %Character{id: id} = _character,
       game: game
     } do
       conn = put(conn, ~p"/api/games/#{game.id}/characters/#{id}", character: @update_attrs)
@@ -314,12 +314,12 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
     } do
       conn =
         post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
-          "entity_type" => "faction",
+          "entity_type" => "item",
           "entity_id" => 1
         })
 
       response = json_response(conn, 422)
-      assert response["error"] == "Linking characters to faction is not yet supported"
+      assert response["error"] == "Linking characters to item is not yet supported"
     end
 
     test "create_link prevents duplicate links", %{
@@ -415,7 +415,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
 
     test "denies access to links for characters in games user cannot access", %{
       conn: conn,
-      scope: scope
+      scope: _scope
     } do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)

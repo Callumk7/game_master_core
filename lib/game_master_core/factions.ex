@@ -203,6 +203,22 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  def note_linked?(%Scope{} = scope, faction_id, note_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(faction, note)
+    else
+      _ -> false
+    end
+  end
+
+  def unlink_note(%Scope{} = scope, faction_id, note_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(faction, note)
+    end
+  end
+
   @doc """
   Links a faction to a character.
   """
@@ -210,6 +226,22 @@ defmodule GameMasterCore.Factions do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
       Links.link(faction, character)
+    end
+  end
+
+  def character_linked?(%Scope{} = scope, faction_id, character_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.linked?(faction, character)
+    else
+      _ -> false
+    end
+  end
+
+  def unlink_character(%Scope{} = scope, faction_id, character_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.unlink(faction, character)
     end
   end
 
