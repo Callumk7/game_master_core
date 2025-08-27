@@ -306,6 +306,13 @@ defmodule GameMasterCore.Accounts do
     :ok
   end
 
+  @doc """
+  DO NOT USE IN PRODUCTION: Get all users.
+  """
+  def list_users do
+    Repo.all(User)
+  end
+
   ## Token helper
 
   defp update_user_and_delete_all_tokens(changeset) do

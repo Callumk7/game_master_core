@@ -1,0 +1,36 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Listing Characters
+    <:actions>
+      <.button href={~p"/admin/games/#{@game.id}/characters/new"}>
+        <.icon name="hero-plus" /> New Character
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table
+    id="characters"
+    rows={@characters}
+    row_click={&JS.navigate(~p"/admin/games/#{@game.id}/characters/#{&1}")}
+  >
+    <:col :let={character} label="Name">{character.name}</:col>
+    <:col :let={character} label="Class">{character.class}</:col>
+    <:col :let={character} label="Level">{character.level}</:col>
+    <:col :let={character} label="Description">{character.description}</:col>
+    <:action :let={character}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/games/#{@game.id}/characters/#{character}"}>Show</.link>
+      </div>
+      <.link navigate={~p"/admin/games/#{@game.id}/characters/#{character}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={character}>
+      <.link
+        href={~p"/admin/games/#{@game.id}/characters/#{character}"}
+        method="delete"
+        data-confirm="Are you sure?"
+      >
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

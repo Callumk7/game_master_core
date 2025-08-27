@@ -1,0 +1,22 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Character {@character.id}
+    <:subtitle>This is a character record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/games/#{@game.id}/characters"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+      <.button variant="primary" navigate={~p"/admin/games/#{@game.id}/characters/#{@character}/edit?return_to=show"}>
+        <.icon name="hero-pencil-square" /> Edit character
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Name">{@character.name}</:item>
+    <:item title="Description">{@character.description}</:item>
+    <:item title="Class">{@character.class}</:item>
+    <:item title="Level">{@character.level}</:item>
+    <:item title="Image url">{@character.image_url}</:item>
+  </.list>
+</Layouts.app>

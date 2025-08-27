@@ -1,0 +1,19 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Faction {@faction.id}
+    <:subtitle>This is a faction record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/admin/games/#{@game.id}/factions"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+      <.button variant="primary" navigate={~p"/admin/games/#{@game.id}/factions/#{@faction}/edit?return_to=show"}>
+        <.icon name="hero-pencil-square" /> Edit faction
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Name">{@faction.name}</:item>
+    <:item title="Description">{@faction.description}</:item>
+  </.list>
+</Layouts.app>
