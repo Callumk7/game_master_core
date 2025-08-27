@@ -1,18 +1,18 @@
 defmodule GameMasterCoreWeb.FactionJSON do
-  alias GameMasterCore.Factions.Faction
+  import GameMasterCoreWeb.JSONHelpers
 
   @doc """
   Renders a list of factions.
   """
   def index(%{factions: factions}) do
-    %{data: for(faction <- factions, do: data(faction))}
+    %{data: for(faction <- factions, do: faction_data(faction))}
   end
 
   @doc """
   Renders a single faction.
   """
   def show(%{faction: faction}) do
-    %{data: data(faction)}
+    %{data: faction_data(faction)}
   end
 
   @doc """
@@ -28,33 +28,6 @@ defmodule GameMasterCoreWeb.FactionJSON do
           characters: for(character <- characters, do: character_data(character))
         }
       }
-    }
-  end
-
-  defp data(%Faction{} = faction) do
-    %{
-      id: faction.id,
-      name: faction.name,
-      description: faction.description
-    }
-  end
-
-  defp note_data(note) do
-    %{
-      id: note.id,
-      name: note.name,
-      content: note.content
-    }
-  end
-
-  defp character_data(character) do
-    %{
-      id: character.id,
-      name: character.name,
-      description: character.description,
-      class: character.class,
-      level: character.level,
-      image_url: character.image_url
     }
   end
 end

@@ -1,18 +1,18 @@
 defmodule GameMasterCoreWeb.GameJSON do
-  alias GameMasterCore.Games.Game
+  import GameMasterCoreWeb.JSONHelpers
 
   @doc """
   Renders a list of games.
   """
   def index(%{games: games}) do
-    %{data: for(game <- games, do: data(game))}
+    %{data: for(game <- games, do: game_data(game))}
   end
 
   @doc """
   Renders a single game.
   """
   def show(%{game: game}) do
-    %{data: data(game)}
+    %{data: game_data(game)}
   end
 
   @doc """
@@ -22,12 +22,17 @@ defmodule GameMasterCoreWeb.GameJSON do
     %{data: for(member <- members, do: member_data(member))}
   end
 
-  defp data(%Game{} = game) do
+  def entities(%{game: game, entities: entities}) do
     %{
-      id: game.id,
-      name: game.name,
-      description: game.description,
-      setting: game.setting
+      data: %{
+        game_id: game.id,
+        game_name: game.name,
+        entities: %{
+          notes: for(note <- entities.notes, do: note_data(note)),
+          characters: for(character <- entities.characters, do: character_data(character)),
+          factions: for(faction <- entities.factions, do: faction_data(faction))
+        }
+      }
     }
   end
 

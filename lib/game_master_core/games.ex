@@ -4,6 +4,9 @@ defmodule GameMasterCore.Games do
   """
 
   import Ecto.Query, warn: false
+  alias GameMasterCore.Notes
+  alias GameMasterCore.Factions
+  alias GameMasterCore.Characters
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Games.Game
@@ -212,6 +215,19 @@ defmodule GameMasterCore.Games do
       select: %{id: m.id, user: u, role: m.role, joined_at: m.inserted_at}
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Returns all the entities that exist in the game.
+  """
+  def get_entities(%Scope{} = scope, %Game{} = game) do
+    true = can_access_game?(scope, game)
+
+    characters = Characters.list_characters_for_game(scope)
+    factions = Factions.list_factions_for_game(scope)
+    notes = Notes.list_notes_for_game(scope)
+
+    %{notes: notes, characters: characters, factions: factions}
   end
 
   defp can_modify_game?(%Scope{} = scope, %Game{} = game) do
