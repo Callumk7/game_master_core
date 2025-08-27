@@ -17,3 +17,5 @@
 
 - [ ] Add tests for deleting entities when they have attached links
 
+- [ ] Currently, we show 404 not found when a user tries to access a game they don't have access to. It should be a 403.
+
