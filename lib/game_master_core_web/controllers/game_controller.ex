@@ -67,4 +67,11 @@ defmodule GameMasterCoreWeb.GameController do
     members = Games.list_members(conn.assigns.current_scope, game)
     render(conn, :members, members: members)
   end
+
+  def list_entities(conn, %{"game_id" => game_id}) do
+    game = Games.get_game!(conn.assigns.current_scope, game_id)
+    entities = Games.get_entities(conn.assigns.current_scope, game)
+
+    render(conn, :entities, game: game, entities: entities)
+  end
 end
