@@ -1,0 +1,34 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Listing Factions
+    <:actions>
+      <.button href={~p"/admin/games/#{@game.id}/factions/new"}>
+        <.icon name="hero-plus" /> New Faction
+      </.button>
+    </:actions>
+  </.header>
+
+  <.table
+    id="factions"
+    rows={@factions}
+    row_click={&JS.navigate(~p"/admin/games/#{@game.id}/factions/#{&1}")}
+  >
+    <:col :let={faction} label="Name">{faction.name}</:col>
+    <:col :let={faction} label="Description">{faction.description}</:col>
+    <:action :let={faction}>
+      <div class="sr-only">
+        <.link navigate={~p"/admin/games/#{@game.id}/factions/#{faction}"}>Show</.link>
+      </div>
+      <.link navigate={~p"/admin/games/#{@game.id}/factions/#{faction}/edit"}>Edit</.link>
+    </:action>
+    <:action :let={faction}>
+      <.link
+        href={~p"/admin/games/#{@game.id}/factions/#{faction}"}
+        method="delete"
+        data-confirm="Are you sure?"
+      >
+        Delete
+      </.link>
+    </:action>
+  </.table>
+</Layouts.app>

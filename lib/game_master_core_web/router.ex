@@ -115,6 +115,8 @@ defmodule GameMasterCoreWeb.Router do
       delete "/members/:user_id", GameController, :remove_member
 
       resources "/notes", NoteController
+      resources "/characters", CharacterController
+      resources "/factions", FactionController
     end
   end
 end

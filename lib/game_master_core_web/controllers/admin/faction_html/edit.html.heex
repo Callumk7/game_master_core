@@ -1,0 +1,8 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <.header>
+    Edit Faction {@faction.id}
+    <:subtitle>Use this form to manage faction records in your database.</:subtitle>
+  </.header>
+
+  <.faction_form changeset={@changeset} action={~p"/admin/games/#{@game.id}/factions/#{@faction}"} return_to={~p"/admin/games/#{@game.id}/factions"} />
+</Layouts.app>
