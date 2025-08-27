@@ -1,0 +1,308 @@
+defmodule GameMasterCore.Factions do
+  @moduledoc """
+  The Factions context.
+  """
+
+  import Ecto.Query, warn: false
+  alias GameMasterCore.Repo
+
+  alias GameMasterCore.Factions.Faction
+  alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Notes
+  alias GameMasterCore.Links
+  alias GameMasterCore.Characters
+
+  @doc """
+  Subscribes to scoped notifications about any faction changes.
+
+  The broadcasted messages match the pattern:
+
+    * {:created, %Faction{}}
+    * {:updated, %Faction{}}
+    * {:deleted, %Faction{}}
+
+  """
+  def subscribe_factions(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(GameMasterCore.PubSub, "user:#{key}:factions")
+  end
+
+  defp broadcast(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(GameMasterCore.PubSub, "user:#{key}:factions", message)
+  end
+
+  @doc """
+  Returns the list of factions for a game.
+  Only users who can access the game can see its factions.
+  """
+  def list_factions_for_game(%Scope{} = scope) do
+    from(f in Faction, where: f.game_id == ^scope.game.id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Get a single faction for a specific game.
+  Only users who can access the game can access its factions.
+
+  Raises `Ecto.NoResultsError` if the Faction does not exist.
+
+  ## Examples
+
+      iex> get_faction_for_game!(scope, 123)
+      %Faction{}
+
+      iex> get_faction_for_game!(scope, 456)
+      ** (Ecto.NoResultsError)
+  """
+  def get_faction_for_game!(%Scope{} = scope, id) do
+    Repo.get_by!(Faction, id: id, game_id: scope.game.id)
+  end
+
+  @doc """
+  Creates a faction for a specific game.
+  """
+  def create_faction_for_game(%Scope{} = scope, attrs) do
+    with {:ok, faction = %Faction{}} <-
+           %Faction{}
+           |> Faction.changeset(attrs, scope, scope.game.id)
+           |> Repo.insert() do
+      broadcast(scope, {:created, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Returns the list of factions for a user.
+
+  ## Examples
+
+      iex> list_factions(scope)
+      [%Faction{}, ...]
+
+  """
+  def list_factions(%Scope{} = scope) do
+    Repo.all_by(Faction, user_id: scope.user.id)
+  end
+
+  @doc """
+  Gets a single faction by user scope.
+
+  Raises `Ecto.NoResultsError` if the Faction does not exist.
+
+  ## Examples
+
+      iex> get_faction!(scope, 123)
+      %Faction{}
+
+      iex> get_faction!(scope, 456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_faction!(%Scope{} = scope, id) do
+    Repo.get_by!(Faction, id: id, user_id: scope.user.id)
+  end
+
+  @doc """
+  Creates a faction.
+
+  ## Examples
+
+      iex> create_faction(scope, %{field: value})
+      {:ok, %Faction{}}
+
+      iex> create_faction(scope, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_faction(%Scope{} = scope, attrs) do
+    # This function now requires game_id in attrs
+    game_id = Map.get(attrs, "game_id") || Map.get(attrs, :game_id)
+
+    if game_id do
+      with {:ok, faction = %Faction{}} <-
+             %Faction{}
+             |> Faction.changeset(attrs, scope, game_id)
+             |> Repo.insert() do
+        broadcast(scope, {:created, faction})
+        {:ok, faction}
+      end
+    else
+      {:error, :game_id_required}
+    end
+  end
+
+  @doc """
+  Updates a faction.
+
+  ## Examples
+
+      iex> update_faction(scope, faction, %{field: new_value})
+      {:ok, %Faction{}}
+
+      iex> update_faction(scope, faction, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_faction(%Scope{} = scope, %Faction{} = faction, attrs) do
+    # Note: game access already validated in controller before fetching the faction
+    with {:ok, faction = %Faction{}} <-
+           faction
+           |> Faction.changeset(attrs, scope, faction.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Deletes a faction.
+
+  ## Examples
+
+      iex> delete_faction(scope, faction)
+      {:ok, %Faction{}}
+
+      iex> delete_faction(scope, faction)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_faction(%Scope{} = scope, %Faction{} = faction) do
+    # Note: game access already validated in controller before fetching the faction
+    with {:ok, faction = %Faction{}} <-
+           Repo.delete(faction) do
+      broadcast(scope, {:deleted, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking faction changes.
+
+  ## Examples
+
+      iex> change_faction(scope, faction)
+      %Ecto.Changeset{data: %Faction{}}
+
+  """
+  def change_faction(%Scope{} = scope, %Faction{} = faction, attrs \\ %{}) do
+    true = faction.user_id == scope.user.id
+
+    Faction.changeset(faction, attrs, scope, faction.game_id)
+  end
+
+  @doc """
+  Links a faction to a note.
+  """
+  def link_note(%Scope{} = scope, faction_id, note_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.link(faction, note)
+    end
+  end
+
+  def note_linked?(%Scope{} = scope, faction_id, note_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(faction, note)
+    else
+      _ -> false
+    end
+  end
+
+  def unlink_note(%Scope{} = scope, faction_id, note_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(faction, note)
+    end
+  end
+
+  @doc """
+  Links a faction to a character.
+  """
+  def link_character(%Scope{} = scope, faction_id, character_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.link(faction, character)
+    end
+  end
+
+  def character_linked?(%Scope{} = scope, faction_id, character_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.linked?(faction, character)
+    else
+      _ -> false
+    end
+  end
+
+  def unlink_character(%Scope{} = scope, faction_id, character_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.unlink(faction, character)
+    end
+  end
+
+  @doc """
+  Returns all notes linked to a character.
+
+  ## Examples
+
+      iex> linked_notes(scope, character_id)
+      [%Note{}, %Note{}]
+
+      iex> linked_notes(scope, bad_character_id)
+      []
+
+  """
+  def linked_notes(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :notes, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  def linked_characters(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :characters, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  defp get_scoped_faction(scope, faction_id) do
+    try do
+      faction = get_faction!(scope, faction_id)
+      {:ok, faction}
+    rescue
+      Ecto.NoResultsError -> {:error, :faction_not_found}
+    end
+  end
+
+  defp get_scoped_note(scope, note_id) do
+    try do
+      note = Notes.get_note!(scope, note_id)
+      {:ok, note}
+    rescue
+      Ecto.NoResultsError -> {:error, :note_not_found}
+    end
+  end
+
+  defp get_scoped_character(scope, character_id) do
+    try do
+      character = Characters.get_character!(scope, character_id)
+      {:ok, character}
+    rescue
+      Ecto.NoResultsError -> {:error, :character_not_found}
+    end
+  end
+end

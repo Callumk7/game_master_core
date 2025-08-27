@@ -18,13 +18,14 @@ defmodule GameMasterCoreWeb.CharacterJSON do
   @doc """
   Renders character links.
   """
-  def links(%{character: character, notes: notes}) do
+  def links(%{character: character, notes: notes, factions: factions}) do
     %{
       data: %{
         character_id: character.id,
         character_name: character.name,
         links: %{
-          notes: for(note <- notes, do: note_data(note))
+          notes: for(note <- notes, do: note_data(note)),
+          factions: for(faction <- factions, do: faction_data(faction))
         }
       }
     }
@@ -46,6 +47,14 @@ defmodule GameMasterCoreWeb.CharacterJSON do
       id: note.id,
       name: note.name,
       content: note.content
+    }
+  end
+
+  defp faction_data(faction) do
+    %{
+      id: faction.id,
+      name: faction.name,
+      description: faction.description
     }
   end
 end

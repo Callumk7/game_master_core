@@ -52,7 +52,7 @@ defmodule GameMasterCore.AccountsFixtures do
 
   def game_scope_fixture do
     import GameMasterCore.GamesFixtures, only: [game_fixture: 1]
-    
+
     scope = user_scope_fixture()
     game = game_fixture(scope)
     Scope.put_game(scope, game)
@@ -60,7 +60,7 @@ defmodule GameMasterCore.AccountsFixtures do
 
   def game_scope_fixture(user) do
     import GameMasterCore.GamesFixtures, only: [game_fixture: 1]
-    
+
     scope = user_scope_fixture(user)
     game = game_fixture(scope)
     Scope.put_game(scope, game)

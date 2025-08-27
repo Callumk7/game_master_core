@@ -35,6 +35,12 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> json(%{error: "Note not found"})
   end
 
+  def call(conn, {:error, :faction_not_found}) do
+    conn
+    |> put_status(:not_found)
+    |> json(%{error: "Faction not found"})
+  end
+
   # Handle link validation errors
   def call(conn, {:error, :missing_entity_type}) do
     conn
@@ -61,6 +67,15 @@ defmodule GameMasterCoreWeb.FallbackController do
     conn
     |> put_status(:bad_request)
     |> json(%{error: "Invalid entity ID format"})
+  end
+
+  def call(conn, {:error, :unsupported_link_type}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error:
+        "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+    })
   end
 
   def call(conn, {:error, {:unsupported_link_type, source_type, target_type}}) do

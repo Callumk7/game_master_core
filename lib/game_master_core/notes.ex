@@ -9,6 +9,7 @@ defmodule GameMasterCore.Notes do
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Characters
+  alias GameMasterCore.Factions
   alias GameMasterCore.Links
 
   @doc """
@@ -213,12 +214,32 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Links a faction to a note.
+  """
+  def link_faction(%Scope{} = scope, note_id, faction_id) do
+    with {:ok, note} <- get_scoped_note(scope, note_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.link(note, faction)
+    end
+  end
+
+  @doc """
   Unlinks a character from a note.
   """
   def unlink_character(%Scope{} = scope, note_id, character_id) do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.unlink(note, character)
+    end
+  end
+
+  @doc """
+  Unlinks a faction from a note.
+  """
+  def unlink_faction(%Scope{} = scope, note_id, faction_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(note, faction)
     end
   end
 
@@ -235,6 +256,18 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Checks if a faction is linked to a note.
+  """
+  def faction_linked?(%Scope{} = scope, note_id, faction_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(note, faction)
+    else
+      _ -> false
+    end
+  end
+
+  @doc """
   Returns all characters linked to a note.
   """
   def linked_characters(%Scope{} = scope, note_id) do
@@ -245,6 +278,30 @@ defmodule GameMasterCore.Notes do
 
       {:error, _} ->
         []
+    end
+  end
+
+  @doc """
+  Returns all factions linked to a note.
+  """
+  def linked_factions(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} ->
+        links = Links.links_for(note)
+        Map.get(links, :factions, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all links for a note.
+  """
+  def links(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} -> Links.links_for(note)
+      {:error, _} -> %{}
     end
   end
 
@@ -265,6 +322,15 @@ defmodule GameMasterCore.Notes do
       {:ok, note}
     rescue
       Ecto.NoResultsError -> {:error, :note_not_found}
+    end
+  end
+
+  defp get_scoped_faction(scope, faction_id) do
+    try do
+      faction = Factions.get_faction!(scope, faction_id)
+      {:ok, faction}
+    rescue
+      Ecto.NoResultsError -> {:error, :faction_not_found}
     end
   end
 end

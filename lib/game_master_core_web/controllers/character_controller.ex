@@ -21,7 +21,10 @@ defmodule GameMasterCoreWeb.CharacterController do
            ) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/games/#{character.game_id}/characters/#{character}")
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/characters/#{character}"
+      )
       |> render(:show, character: character)
     end
   end
@@ -74,9 +77,9 @@ defmodule GameMasterCoreWeb.CharacterController do
   def list_links(conn, %{"character_id" => character_id}) do
     character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
 
-    links = Characters.linked_notes(conn.assigns.current_scope, character.id)
+    links = Characters.links(conn.assigns.current_scope, character.id)
 
-    render(conn, :links, character: character, notes: links)
+    render(conn, :links, character: character, notes: links.notes, factions: links.factions)
   end
 
   def delete_link(conn, %{
@@ -98,6 +101,10 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   defp create_character_link(scope, character_id, :note, note_id) do
     Characters.link_note(scope, character_id, note_id)
+  end
+
+  defp create_character_link(scope, character_id, :faction, faction_id) do
+    Characters.link_faction(scope, character_id, faction_id)
   end
 
   defp create_character_link(_scope, _character_id, entity_type, _entity_id) do

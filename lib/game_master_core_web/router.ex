@@ -52,6 +52,12 @@ defmodule GameMasterCoreWeb.Router do
         post "/links", CharacterController, :create_link
         delete "/links/:entity_type/:entity_id", CharacterController, :delete_link
       end
+
+      resources "/factions", FactionController, except: [:new, :edit] do
+        get "/links", FactionController, :list_links
+        post "/links", FactionController, :create_link
+        delete "/links/:entity_type/:entity_id", FactionController, :delete_link
+      end
     end
   end
 

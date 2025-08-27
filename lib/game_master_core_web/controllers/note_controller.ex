@@ -68,9 +68,10 @@ defmodule GameMasterCoreWeb.NoteController do
   def list_links(conn, %{"note_id" => note_id}) do
     note = Notes.get_note_for_game!(conn.assigns.current_scope, note_id)
 
-    links = Notes.linked_characters(conn.assigns.current_scope, note.id)
+    links = Notes.links(conn.assigns.current_scope, note.id)
 
-    render(conn, :links, note: note, characters: links)
+    # TODO: Change the links function to take the links object and render the map
+    render(conn, :links, note: note, characters: links.characters, factions: links.factions)
   end
 
   def delete_link(conn, %{
@@ -94,12 +95,20 @@ defmodule GameMasterCoreWeb.NoteController do
     Notes.link_character(scope, note_id, character_id)
   end
 
+  defp create_note_link(scope, note_id, :faction, faction_id) do
+    Notes.link_faction(scope, note_id, faction_id)
+  end
+
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :note, entity_type}}
   end
 
   defp delete_note_link(scope, note_id, :character, character_id) do
     Notes.unlink_character(scope, note_id, character_id)
+  end
+
+  defp delete_note_link(scope, note_id, :faction, faction_id) do
+    Notes.unlink_faction(scope, note_id, faction_id)
   end
 
   defp delete_note_link(_scope, _note_id, entity_type, _entity_id) do

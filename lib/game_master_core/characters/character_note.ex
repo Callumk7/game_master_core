@@ -12,6 +12,7 @@ defmodule GameMasterCore.Characters.CharacterNote do
     timestamps(type: :utc_datetime)
   end
 
+  @doc false
   def changeset(character_note, attrs) do
     character_note
     |> cast(attrs, [:character_id, :note_id])
