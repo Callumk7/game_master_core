@@ -408,9 +408,9 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       game: game,
       character: character
     } do
-      conn = delete(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links/faction/1")
+      conn = delete(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links/item/1")
       response = json_response(conn, 422)
-      assert response["error"] == "Linking characters to faction is not yet supported"
+      assert response["error"] == "Linking characters to item is not yet supported"
     end
 
     test "denies access to links for characters in games user cannot access", %{
