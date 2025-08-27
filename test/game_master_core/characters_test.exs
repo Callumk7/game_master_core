@@ -197,7 +197,7 @@ defmodule GameMasterCore.CharactersTest do
     end
   end
 
-  describe "character links" do
+  describe "character - note links" do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.NotesFixtures
@@ -352,6 +352,12 @@ defmodule GameMasterCore.CharactersTest do
       # Same character ID in different scope should return empty
       assert Characters.linked_notes(scope2, character.id) == []
     end
+  end
+
+  describe "character - faction links" do
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.FactionsFixtures
 
     test "link_faction/3 successfully links a character and faction" do
       scope = user_scope_fixture()

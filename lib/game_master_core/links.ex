@@ -197,7 +197,7 @@ defmodule GameMasterCore.Links do
   defp get_notes_for_faction(faction) do
     from(n in Note,
       join: facn in FactionNote,
-      on: facn.faction_id == n.id,
+      on: facn.note_id == n.id,
       where: facn.faction_id == ^faction.id
     )
     |> Repo.all()

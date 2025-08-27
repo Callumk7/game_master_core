@@ -9,6 +9,11 @@
 - [ ] Setup Manual API tests in Yaak
 - [ ] Check error codes in production build
 
+- [ ] There is double fetching going on when getting a scoped character, and the character data having already been fetched. This is the same for each entity type so far:
+    - Character
+    - Faction
+    - Note
+    - ***NOTE*** This could be ok actually as the purpose may be to just check permissions of the user.
 
-
+- [ ] Add tests for deleting entities when they have attached links
 

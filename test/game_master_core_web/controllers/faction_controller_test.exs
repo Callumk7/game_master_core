@@ -18,7 +18,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   }
   @invalid_attrs %{name: nil, description: nil}
 
-  setup :register_and_log_in_user_with_game
+  setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
     user_token = GameMasterCore.Accounts.create_user_api_token(user)
@@ -33,18 +33,18 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   end
 
   describe "index" do
-    test "lists all factions", %{conn: conn, scope: scope} do
-      conn = get(conn, ~p"/api/games/#{scope.game}/factions")
+    test "lists all factions", %{conn: conn, game: game, scope: scope} do
+      conn = get(conn, ~p"/api/games/#{game}/factions")
       assert json_response(conn, 200)["data"] == []
     end
   end
 
   describe "create faction" do
-    test "renders faction when data is valid", %{conn: conn, scope: scope} do
-      conn = post(conn, ~p"/api/games/#{scope.game}/factions", faction: @create_attrs)
+    test "renders faction when data is valid", %{conn: conn, game: game} do
+      conn = post(conn, ~p"/api/games/#{game}/factions", faction: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, ~p"/api/games/#{scope.game}/factions/#{id}")
+      conn = get(conn, ~p"/api/games/#{game}/factions/#{id}")
 
       assert %{
                "id" => ^id,
@@ -53,8 +53,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, scope: scope} do
-      conn = post(conn, ~p"/api/games/#{scope.game}/factions", faction: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, game: game} do
+      conn = post(conn, ~p"/api/games/#{game}/factions", faction: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -65,12 +65,12 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
     test "renders faction when data is valid", %{
       conn: conn,
       faction: %Faction{id: id} = faction,
-      scope: scope
+      game: game
     } do
-      conn = put(conn, ~p"/api/games/#{scope.game}/factions/#{faction}", faction: @update_attrs)
+      conn = put(conn, ~p"/api/games/#{game}/factions/#{faction}", faction: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, ~p"/api/games/#{scope.game}/factions/#{id}")
+      conn = get(conn, ~p"/api/games/#{game}/factions/#{id}")
 
       assert %{
                "id" => ^id,
@@ -79,8 +79,12 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, faction: faction, scope: scope} do
-      conn = put(conn, ~p"/api/games/#{scope.game}/factions/#{faction}", faction: @invalid_attrs)
+    test "renders errors when data is invalid", %{
+      conn: conn,
+      faction: faction,
+      game: game
+    } do
+      conn = put(conn, ~p"/api/games/#{game}/factions/#{faction}", faction: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -88,18 +92,18 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   describe "delete faction" do
     setup [:create_faction]
 
-    test "deletes chosen faction", %{conn: conn, faction: faction, scope: scope} do
-      conn = delete(conn, ~p"/api/games/#{scope.game}/factions/#{faction}")
+    test "deletes chosen faction", %{conn: conn, faction: faction, game: game} do
+      conn = delete(conn, ~p"/api/games/#{game}/factions/#{faction}")
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{scope.game}/factions/#{faction}")
+        get(conn, ~p"/api/games/#{game}/factions/#{faction}")
       end
     end
   end
 
-  defp create_faction(%{scope: scope}) do
-    faction = faction_fixture(scope)
+  defp create_faction(%{scope: scope, game: game}) do
+    faction = faction_fixture(scope, %{game_id: game.id})
 
     %{faction: faction}
   end

@@ -107,6 +107,8 @@ defmodule GameMasterCore.NotesTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
     import GameMasterCore.NotesFixtures
     import GameMasterCore.GamesFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.CharactersFixtures
 
     test "list_notes_for_game/1 returns notes for a specific game" do
       scope = user_scope_fixture()
@@ -155,11 +157,15 @@ defmodule GameMasterCore.NotesTest do
     end
   end
 
-  describe "note links" do
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+  describe "note - character links" do
+    alias GameMasterCore.Notes.Note
+    alias GameMasterCore.Accounts.Scope
+
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
     import GameMasterCore.NotesFixtures
-    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.GamesFixtures
     import GameMasterCore.FactionsFixtures
+    import GameMasterCore.CharactersFixtures
 
     test "link_character/3 successfully links a note and character" do
       scope = user_scope_fixture()
@@ -310,6 +316,17 @@ defmodule GameMasterCore.NotesTest do
       # Same note ID in different scope should return empty
       assert Notes.linked_characters(scope2, note.id) == []
     end
+  end
+
+  describe "note - faction links" do
+    alias GameMasterCore.Notes.Note
+    alias GameMasterCore.Accounts.Scope
+
+    import GameMasterCore.AccountsFixtures
+    import GameMasterCore.NotesFixtures
+    import GameMasterCore.GamesFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.CharactersFixtures
 
     test "link_faction/3 successfully links a note and faction" do
       scope = user_scope_fixture()
