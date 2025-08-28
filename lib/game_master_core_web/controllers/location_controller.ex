@@ -12,10 +12,14 @@ defmodule GameMasterCoreWeb.LocationController do
   end
 
   def create(conn, %{"location" => location_params}) do
-    with {:ok, %Location{} = location} <- Locations.create_location(conn.assigns.current_scope, location_params) do
+    with {:ok, %Location{} = location} <-
+           Locations.create_location(conn.assigns.current_scope, location_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", ~p"/api/locations/#{location}")
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/locations/#{location}"
+      )
       |> render(:show, location: location)
     end
   end
@@ -28,7 +32,8 @@ defmodule GameMasterCoreWeb.LocationController do
   def update(conn, %{"id" => id, "location" => location_params}) do
     location = Locations.get_location!(conn.assigns.current_scope, id)
 
-    with {:ok, %Location{} = location} <- Locations.update_location(conn.assigns.current_scope, location, location_params) do
+    with {:ok, %Location{} = location} <-
+           Locations.update_location(conn.assigns.current_scope, location, location_params) do
       render(conn, :show, location: location)
     end
   end
