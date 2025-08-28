@@ -7,13 +7,13 @@ defmodule GameMasterCoreWeb.LocationController do
   action_fallback GameMasterCoreWeb.FallbackController
 
   def index(conn, _params) do
-    locations = Locations.list_locations(conn.assigns.current_scope)
+    locations = Locations.list_locations_for_game(conn.assigns.current_scope)
     render(conn, :index, locations: locations)
   end
 
   def create(conn, %{"location" => location_params}) do
     with {:ok, %Location{} = location} <-
-           Locations.create_location(conn.assigns.current_scope, location_params) do
+           Locations.create_location_for_game(conn.assigns.current_scope, location_params) do
       conn
       |> put_status(:created)
       |> put_resp_header(
@@ -25,12 +25,12 @@ defmodule GameMasterCoreWeb.LocationController do
   end
 
   def show(conn, %{"id" => id}) do
-    location = Locations.get_location!(conn.assigns.current_scope, id)
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
     render(conn, :show, location: location)
   end
 
   def update(conn, %{"id" => id, "location" => location_params}) do
-    location = Locations.get_location!(conn.assigns.current_scope, id)
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
 
     with {:ok, %Location{} = location} <-
            Locations.update_location(conn.assigns.current_scope, location, location_params) do
@@ -39,7 +39,7 @@ defmodule GameMasterCoreWeb.LocationController do
   end
 
   def delete(conn, %{"id" => id}) do
-    location = Locations.get_location!(conn.assigns.current_scope, id)
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
 
     with {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
       send_resp(conn, :no_content, "")
