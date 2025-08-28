@@ -1,0 +1,125 @@
+defmodule GameMasterCoreWeb.LocationController do
+  use GameMasterCoreWeb, :controller
+
+  alias GameMasterCore.Locations
+  alias GameMasterCore.Locations.Location
+
+  import GameMasterCoreWeb.Controllers.LinkHelpers
+
+  action_fallback GameMasterCoreWeb.FallbackController
+
+  def index(conn, _params) do
+    locations = Locations.list_locations_for_game(conn.assigns.current_scope)
+    render(conn, :index, locations: locations)
+  end
+
+  def create(conn, %{"location" => location_params}) do
+    with {:ok, %Location{} = location} <-
+           Locations.create_location_for_game(conn.assigns.current_scope, location_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/locations/#{location}"
+      )
+      |> render(:show, location: location)
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
+    render(conn, :show, location: location)
+  end
+
+  def update(conn, %{"id" => id, "location" => location_params}) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
+
+    with {:ok, %Location{} = location} <-
+           Locations.update_location(conn.assigns.current_scope, location, location_params) do
+      render(conn, :show, location: location)
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
+
+    with {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  def create_link(conn, %{"location_id" => location_id} = params) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
+
+    entity_type = Map.get(params, "entity_type")
+    entity_id = Map.get(params, "entity_id")
+
+    with {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, _link} <-
+           create_location_link(conn.assigns.current_scope, location.id, entity_type, entity_id) do
+      conn
+      |> put_status(:created)
+      |> json(%{
+        message: "Link created successfully",
+        location_id: location.id,
+        entity_type: entity_type,
+        entity_id: entity_id
+      })
+    end
+  end
+
+  def list_links(conn, %{"location_id" => location_id}) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
+
+    links = Locations.links(conn.assigns.current_scope, location.id)
+
+    render(conn, :links,
+      location: location,
+      notes: links.notes,
+      factions: links.factions,
+      characters: links.characters
+    )
+  end
+
+  def delete_link(conn, %{
+        "location_id" => location_id,
+        "entity_type" => entity_type,
+        "entity_id" => entity_id
+      }) do
+    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
+
+    with {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, _link} <-
+           delete_location_link(conn.assigns.current_scope, location.id, entity_type, entity_id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  # Private helpers for link management
+
+  defp create_location_link(scope, location_id, :note, note_id) do
+    Locations.link_note(scope, location_id, note_id)
+  end
+
+  defp create_location_link(scope, location_id, :faction, faction_id) do
+    Locations.link_faction(scope, location_id, faction_id)
+  end
+
+  defp create_location_link(_scope, _location_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :location, entity_type}}
+  end
+
+  defp delete_location_link(scope, location_id, :note, note_id) do
+    Locations.unlink_note(scope, location_id, note_id)
+  end
+
+  defp delete_location_link(scope, location_id, :faction, faction_id) do
+    Locations.unlink_faction(scope, location_id, faction_id)
+  end
+
+  defp delete_location_link(_scope, _location_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :location, entity_type}}
+  end
+end

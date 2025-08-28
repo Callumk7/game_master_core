@@ -60,6 +60,12 @@ defmodule GameMasterCoreWeb.Router do
         post "/links", FactionController, :create_link
         delete "/links/:entity_type/:entity_id", FactionController, :delete_link
       end
+
+      resources "/locations", LocationController, except: [:new, :edit] do
+        get "/links", LocationController, :list_links
+        post "/links", LocationController, :create_link
+        delete "/links/:entity_type/:entity_id", LocationController, :delete_link
+      end
     end
   end
 
