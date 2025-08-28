@@ -19,6 +19,6 @@ defmodule GameMasterCore.Characters.CharacterLocation do
     |> validate_required([:character_id, :location_id])
     |> foreign_key_constraint(:character_id)
     |> foreign_key_constraint(:location_id)
-    |> unique_constraint([:character_id, :location_id])
+    |> unique_constraint([:location_id, :character_id])
   end
 end

@@ -14,28 +14,28 @@ defmodule GameMasterCore.Repo.Migrations.CreateJoinTablesForLocations do
 
     create unique_index(:location_notes, [:location_id, :note_id])
 
-    create table(:location_characters) do
+    create table(:character_locations) do
       add :location_id, references(:locations, on_delete: :nothing)
       add :character_id, references(:characters, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:location_characters, [:location_id])
-    create index(:location_characters, [:character_id])
+    create index(:character_locations, [:location_id])
+    create index(:character_locations, [:character_id])
 
-    create unique_index(:location_characters, [:location_id, :character_id])
+    create unique_index(:character_locations, [:location_id, :character_id])
 
-    create table(:location_factions) do
+    create table(:faction_locations) do
       add :location_id, references(:locations, on_delete: :nothing)
       add :faction_id, references(:factions, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:location_factions, [:location_id])
-    create index(:location_factions, [:faction_id])
+    create index(:faction_locations, [:location_id])
+    create index(:faction_locations, [:faction_id])
 
-    create unique_index(:location_factions, [:location_id, :faction_id])
+    create unique_index(:faction_locations, [:location_id, :faction_id])
   end
 end

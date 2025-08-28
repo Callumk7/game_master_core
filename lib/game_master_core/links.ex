@@ -2,9 +2,10 @@ defmodule GameMasterCore.Links do
   import Ecto.Query, warn: false
   alias GameMasterCore.Repo
 
-  alias GameMasterCore.Characters.{Character, CharacterNote, CharacterFaction}
-  alias GameMasterCore.Factions.{Faction, FactionNote}
+  alias GameMasterCore.Characters.{Character, CharacterNote, CharacterFaction, CharacterLocation}
+  alias GameMasterCore.Factions.{Faction, FactionNote, FactionLocation}
   alias GameMasterCore.Notes.Note
+  alias GameMasterCore.Locations.{Location, LocationNote}
 
   @doc """
   Creates a link between two entities.
@@ -29,6 +30,24 @@ defmodule GameMasterCore.Links do
 
       {%Faction{} = faction, %Character{} = character} ->
         create_character_faction_link(character, faction)
+
+      {%Location{} = location, %Note{} = note} ->
+        create_location_note_link(location, note)
+
+      {%Location{} = location, %Character{} = character} ->
+        create_character_location_link(character, location)
+
+      {%Location{} = location, %Faction{} = faction} ->
+        create_faction_location_link(faction, location)
+
+      {%Note{} = note, %Location{} = location} ->
+        create_location_note_link(location, note)
+
+      {%Character{} = character, %Location{} = location} ->
+        create_character_location_link(character, location)
+
+      {%Faction{} = faction, %Location{} = location} ->
+        create_faction_location_link(faction, location)
 
       # Add more entity combinations as needed
       _ ->
@@ -60,6 +79,24 @@ defmodule GameMasterCore.Links do
       {%Character{} = character, %Faction{} = faction} ->
         remove_character_faction_link(character, faction)
 
+      {%Location{} = location, %Note{} = note} ->
+        remove_location_note_link(location, note)
+
+      {%Location{} = location, %Character{} = character} ->
+        remove_character_location_link(character, location)
+
+      {%Location{} = location, %Faction{} = faction} ->
+        remove_faction_location_link(faction, location)
+
+      {%Note{} = note, %Location{} = location} ->
+        remove_location_note_link(location, note)
+
+      {%Character{} = character, %Location{} = location} ->
+        remove_character_location_link(character, location)
+
+      {%Faction{} = faction, %Location{} = location} ->
+        remove_faction_location_link(faction, location)
+
       _ ->
         {:error, :unsupported_link_type}
     end
@@ -89,6 +126,24 @@ defmodule GameMasterCore.Links do
       {%Character{} = character, %Faction{} = faction} ->
         character_faction_exists?(character, faction)
 
+      {%Location{} = location, %Note{} = note} ->
+        location_note_exists?(location, note)
+
+      {%Location{} = location, %Character{} = character} ->
+        character_location_exists?(character, location)
+
+      {%Location{} = location, %Faction{} = faction} ->
+        faction_location_exists?(faction, location)
+
+      {%Note{} = note, %Location{} = location} ->
+        location_note_exists?(location, note)
+
+      {%Character{} = character, %Location{} = location} ->
+        character_location_exists?(character, location)
+
+      {%Faction{} = faction, %Location{} = location} ->
+        faction_location_exists?(faction, location)
+
       _ ->
         false
     end
@@ -103,14 +158,30 @@ defmodule GameMasterCore.Links do
       %Character{} = character ->
         %{
           notes: get_notes_for_character(character),
-          factions: get_factions_for_character(character)
+          factions: get_factions_for_character(character),
+          locations: get_locations_for_character(character)
         }
 
       %Note{} = note ->
-        %{characters: get_characters_for_note(note), factions: get_factions_for_note(note)}
+        %{
+          characters: get_characters_for_note(note),
+          factions: get_factions_for_note(note),
+          locations: get_locations_for_note(note)
+        }
 
       %Faction{} = faction ->
-        %{notes: get_notes_for_faction(faction), characters: get_characters_for_faction(faction)}
+        %{
+          notes: get_notes_for_faction(faction),
+          characters: get_characters_for_faction(faction),
+          locations: get_locations_for_faction(faction)
+        }
+
+      %Location{} = location ->
+        %{
+          notes: get_notes_for_location(location),
+          characters: get_characters_for_location(location),
+          factions: get_factions_for_location(location)
+        }
 
       _ ->
         %{}
@@ -204,6 +275,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Character <-> Faction links
+
   defp create_character_faction_link(character, faction) do
     %CharacterFaction{}
     |> CharacterFaction.changeset(%{
@@ -241,6 +313,134 @@ defmodule GameMasterCore.Links do
       join: fc in CharacterFaction,
       on: fc.character_id == c.id,
       where: fc.faction_id == ^faction.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Location <-> Note links
+
+  defp create_location_note_link(location, note) do
+    %LocationNote{}
+    |> LocationNote.changeset(%{
+      location_id: location.id,
+      note_id: note.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_location_note_link(location, note) do
+    case Repo.get_by(LocationNote, location_id: location.id, note_id: note.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp location_note_exists?(location, note) do
+    Repo.exists?(
+      from ln in LocationNote,
+        where: ln.location_id == ^location.id and ln.note_id == ^note.id
+    )
+  end
+
+  defp get_notes_for_location(location) do
+    from(n in Note,
+      join: ln in LocationNote,
+      on: ln.note_id == n.id,
+      where: ln.location_id == ^location.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_locations_for_note(note) do
+    from(l in Location,
+      join: ln in LocationNote,
+      on: ln.location_id == l.id,
+      where: ln.note_id == ^note.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Character <-> Location links
+
+  defp create_character_location_link(character, location) do
+    %CharacterLocation{}
+    |> CharacterLocation.changeset(%{
+      character_id: character.id,
+      location_id: location.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_character_location_link(character, location) do
+    case Repo.get_by(CharacterLocation, character_id: character.id, location_id: location.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp character_location_exists?(character, location) do
+    Repo.exists?(
+      from cl in CharacterLocation,
+        where: cl.character_id == ^character.id and cl.location_id == ^location.id
+    )
+  end
+
+  defp get_locations_for_character(character) do
+    from(l in Location,
+      join: cl in CharacterLocation,
+      on: cl.location_id == l.id,
+      where: cl.character_id == ^character.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_characters_for_location(location) do
+    from(c in Character,
+      join: cl in CharacterLocation,
+      on: cl.character_id == c.id,
+      where: cl.location_id == ^location.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Faction <-> Location links
+  defp create_faction_location_link(faction, location) do
+    %FactionLocation{}
+    |> FactionLocation.changeset(%{
+      faction_id: faction.id,
+      location_id: location.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_faction_location_link(faction, location) do
+    case Repo.get_by(FactionLocation, faction_id: faction.id, location_id: location.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp faction_location_exists?(faction, location) do
+    Repo.exists?(
+      from fl in FactionLocation,
+        where: fl.faction_id == ^faction.id and fl.location_id == ^location.id
+    )
+  end
+
+  defp get_factions_for_location(location) do
+    from(f in Faction,
+      join: fl in FactionLocation,
+      on: fl.faction_id == f.id,
+      where: fl.location_id == ^location.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_locations_for_faction(faction) do
+    from(l in Location,
+      join: fl in FactionLocation,
+      on: fl.location_id == l.id,
+      where: fl.faction_id == ^faction.id
     )
     |> Repo.all()
   end

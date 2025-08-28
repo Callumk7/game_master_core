@@ -98,12 +98,18 @@ defmodule GameMasterCore.Locations do
 
   """
   def create_location(%Scope{} = scope, attrs) do
-    with {:ok, location = %Location{}} <-
-           %Location{}
-           |> Location.changeset(attrs, scope, scope.game.id)
-           |> Repo.insert() do
-      broadcast(scope, {:created, location})
-      {:ok, location}
+    game_id = Map.get(attrs, "game_id") || Map.get(attrs, :game_id)
+
+    if game_id do
+      with {:ok, location = %Location{}} <-
+             %Location{}
+             |> Location.changeset(attrs, scope, game_id)
+             |> Repo.insert() do
+        broadcast(scope, {:created, location})
+        {:ok, location}
+      end
+    else
+      {:error, :game_id_required}
     end
   end
 
@@ -124,7 +130,7 @@ defmodule GameMasterCore.Locations do
 
     with {:ok, location = %Location{}} <-
            location
-           |> Location.changeset(attrs, scope, scope.game.id)
+           |> Location.changeset(attrs, scope, location.game_id)
            |> Repo.update() do
       broadcast(scope, {:updated, location})
       {:ok, location}
@@ -165,7 +171,7 @@ defmodule GameMasterCore.Locations do
   def change_location(%Scope{} = scope, %Location{} = location, attrs \\ %{}) do
     true = location.user_id == scope.user.id
 
-    Location.changeset(location, attrs, scope, scope.game.id)
+    Location.changeset(location, attrs, scope, location.game_id)
   end
 
   ## Location Children

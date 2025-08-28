@@ -19,6 +19,6 @@ defmodule GameMasterCore.Factions.FactionLocation do
     |> validate_required([:faction_id, :location_id])
     |> foreign_key_constraint(:faction_id)
     |> foreign_key_constraint(:location_id)
-    |> unique_constraint([:faction_id, :location_id])
+    |> unique_constraint([:location_id, :faction_id])
   end
 end

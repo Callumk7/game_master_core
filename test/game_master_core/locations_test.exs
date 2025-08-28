@@ -12,6 +12,8 @@ defmodule GameMasterCore.LocationsTest do
     import GameMasterCore.GamesFixtures
 
     @invalid_attrs %{name: nil, type: nil, description: nil}
+    @valid_type "city"
+    @valid_updated_type "settlement"
 
     test "list_locations/1 returns all scoped locations" do
       scope = user_scope_fixture()
@@ -27,18 +29,26 @@ defmodule GameMasterCore.LocationsTest do
       location = location_fixture(scope)
       other_scope = user_scope_fixture()
       assert Locations.get_location!(scope, location.id) == location
-      assert_raise Ecto.NoResultsError, fn -> Locations.get_location!(other_scope, location.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Locations.get_location!(other_scope, location.id)
+      end
     end
 
     test "create_location/2 with valid data creates a location" do
       scope = user_scope_fixture()
       game = game_fixture(scope)
-      
-      valid_attrs = %{name: "some name", type: "some type", description: "some description", game_id: game.id}
+
+      valid_attrs = %{
+        name: "some name",
+        type: @valid_type,
+        description: "some description",
+        game_id: game.id
+      }
 
       assert {:ok, %Location{} = location} = Locations.create_location(scope, valid_attrs)
       assert location.name == "some name"
-      assert location.type == "some type"
+      assert location.type == "city"
       assert location.description == "some description"
       assert location.user_id == scope.user.id
     end
@@ -53,11 +63,18 @@ defmodule GameMasterCore.LocationsTest do
     test "update_location/3 with valid data updates the location" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
-      update_attrs = %{name: "some updated name", type: "some updated type", description: "some updated description"}
 
-      assert {:ok, %Location{} = location} = Locations.update_location(scope, location, update_attrs)
+      update_attrs = %{
+        name: "some updated name",
+        type: @valid_updated_type,
+        description: "some updated description"
+      }
+
+      assert {:ok, %Location{} = location} =
+               Locations.update_location(scope, location, update_attrs)
+
       assert location.name == "some updated name"
-      assert location.type == "some updated type"
+      assert location.type == "settlement"
       assert location.description == "some updated description"
     end
 
@@ -74,7 +91,10 @@ defmodule GameMasterCore.LocationsTest do
     test "update_location/3 with invalid data returns error changeset" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
-      assert {:error, %Ecto.Changeset{}} = Locations.update_location(scope, location, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Locations.update_location(scope, location, @invalid_attrs)
+
       assert location == Locations.get_location!(scope, location.id)
     end
 
@@ -101,7 +121,7 @@ defmodule GameMasterCore.LocationsTest do
 
   describe "location - character links" do
     alias GameMasterCore.Accounts.Scope
-    
+
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.CharactersFixtures
@@ -136,7 +156,8 @@ defmodule GameMasterCore.LocationsTest do
       character = character_fixture(scope2)
 
       # Location exists in scope1, character is in scope2, so character_not_found is returned first
-      assert {:error, :character_not_found} = Locations.link_character(scope1, location.id, character.id)
+      assert {:error, :character_not_found} =
+               Locations.link_character(scope1, location.id, character.id)
     end
 
     test "link_character/3 with cross-scope character returns error" do
@@ -146,7 +167,8 @@ defmodule GameMasterCore.LocationsTest do
       character = character_fixture(scope1)
 
       # Location is in scope1, character is in scope1, but called with scope2, so location_not_found is returned first
-      assert {:error, :location_not_found} = Locations.link_character(scope2, location.id, character.id)
+      assert {:error, :location_not_found} =
+               Locations.link_character(scope2, location.id, character.id)
     end
 
     test "link_character/3 prevents duplicate links" do
@@ -155,7 +177,9 @@ defmodule GameMasterCore.LocationsTest do
       character = character_fixture(scope)
 
       assert {:ok, _link} = Locations.link_character(scope, location.id, character.id)
-      assert {:error, %Ecto.Changeset{}} = Locations.link_character(scope, location.id, character.id)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Locations.link_character(scope, location.id, character.id)
     end
 
     test "unlink_character/3 successfully removes a location-character link" do
@@ -182,14 +206,14 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
 
-      assert {:error, :character_not_found} = Locations.unlink_character(scope, 999, character.id)
+      assert {:error, :location_not_found} = Locations.unlink_character(scope, 999, character.id)
     end
 
     test "unlink_character/3 with invalid character_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_character(scope, location.id, 999)
+      assert {:error, :character_not_found} = Locations.unlink_character(scope, location.id, 999)
     end
 
     test "character_linked?/3 returns false for unlinked entities" do
@@ -259,7 +283,7 @@ defmodule GameMasterCore.LocationsTest do
 
   describe "location - note links" do
     alias GameMasterCore.Accounts.Scope
-    
+
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.NotesFixtures
@@ -340,14 +364,14 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       note = note_fixture(scope)
 
-      assert {:error, :note_not_found} = Locations.unlink_note(scope, 999, note.id)
+      assert {:error, :location_not_found} = Locations.unlink_note(scope, 999, note.id)
     end
 
     test "unlink_note/3 with invalid note_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_note(scope, location.id, 999)
+      assert {:error, :note_not_found} = Locations.unlink_note(scope, location.id, 999)
     end
 
     test "note_linked?/3 returns false for unlinked entities" do
@@ -417,7 +441,7 @@ defmodule GameMasterCore.LocationsTest do
 
   describe "location - faction links" do
     alias GameMasterCore.Accounts.Scope
-    
+
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.FactionsFixtures
@@ -452,7 +476,8 @@ defmodule GameMasterCore.LocationsTest do
       faction = faction_fixture(scope2)
 
       # Location exists in scope1, faction is in scope2, so faction_not_found is returned first
-      assert {:error, :faction_not_found} = Locations.link_faction(scope1, location.id, faction.id)
+      assert {:error, :faction_not_found} =
+               Locations.link_faction(scope1, location.id, faction.id)
     end
 
     test "link_faction/3 with cross-scope faction returns error" do
@@ -462,7 +487,8 @@ defmodule GameMasterCore.LocationsTest do
       faction = faction_fixture(scope1)
 
       # Location is in scope1, faction is in scope1, but called with scope2, so location_not_found is returned first
-      assert {:error, :location_not_found} = Locations.link_faction(scope2, location.id, faction.id)
+      assert {:error, :location_not_found} =
+               Locations.link_faction(scope2, location.id, faction.id)
     end
 
     test "link_faction/3 prevents duplicate links" do
@@ -498,14 +524,14 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
-      assert {:error, :faction_not_found} = Locations.unlink_faction(scope, 999, faction.id)
+      assert {:error, :location_not_found} = Locations.unlink_faction(scope, 999, faction.id)
     end
 
     test "unlink_faction/3 with invalid faction_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_faction(scope, location.id, 999)
+      assert {:error, :faction_not_found} = Locations.unlink_faction(scope, location.id, 999)
     end
 
     test "faction_linked?/3 returns false for unlinked entities" do
