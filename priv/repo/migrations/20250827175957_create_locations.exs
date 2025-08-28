@@ -8,6 +8,7 @@ defmodule GameMasterCore.Repo.Migrations.CreateLocations do
       add :type, :string
       add :parent_id, references(:locations, on_delete: :nilify_all), null: true
       add :user_id, references(:users, type: :id, on_delete: :delete_all)
+      add :game_id, references(:games, type: :id, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
@@ -15,5 +16,7 @@ defmodule GameMasterCore.Repo.Migrations.CreateLocations do
     create index(:locations, [:user_id])
 
     create index(:locations, [:parent_id])
+
+    create index(:locations, [:game_id])
   end
 end
