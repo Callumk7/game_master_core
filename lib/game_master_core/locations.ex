@@ -31,6 +31,25 @@ defmodule GameMasterCore.Locations do
     Phoenix.PubSub.broadcast(GameMasterCore.PubSub, "user:#{key}:locations", message)
   end
 
+  def list_locations_for_game(%Scope{} = scope) do
+    from(l in Location, where: l.game_id == ^scope.game.id)
+    |> Repo.all()
+  end
+
+  def get_location_for_game!(%Scope{} = scope, id) do
+    Repo.get_by!(Location, id: id, game_id: scope.game.id)
+  end
+
+  def create_location_for_game(%Scope{} = scope, attrs) do
+    with {:ok, location = %Location{}} <-
+           %Location{}
+           |> Location.changeset(attrs, scope, scope.game.id)
+           |> Repo.insert() do
+      broadcast(scope, {:created, location})
+      {:ok, location}
+    end
+  end
+
   @doc """
   Returns the list of locations.
 
@@ -159,6 +178,8 @@ defmodule GameMasterCore.Locations do
   def list_children(%Scope{} = _scope, %Location{} = location) do
     Repo.all_by(Location, parent_id: location.id)
   end
+
+  # Child location functions
 
   @doc """
   Creates a child location.
