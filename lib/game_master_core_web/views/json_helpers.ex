@@ -1,7 +1,7 @@
 defmodule GameMasterCoreWeb.JSONHelpers do
   @moduledoc """
   Shared JSON data formatting functions for API responses.
-  
+
   This module provides consistent data transformation functions
   that can be used across different JSON views.
   """
@@ -9,6 +9,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Factions.Faction
+  alias GameMasterCore.Locations.Location
   alias GameMasterCore.Games.Game
 
   @doc """
@@ -70,4 +71,18 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       setting: game.setting
     }
   end
+
+  @doc """
+  Formats a location for JSON response.
+  """
+  def location_data(%Location{} = location) do
+    %{
+      id: location.id,
+      name: location.name,
+      description: location.description,
+      type: location.type,
+      has_parent: location.parent_id != nil
+    }
+  end
 end
+
