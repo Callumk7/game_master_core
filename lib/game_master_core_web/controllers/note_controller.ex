@@ -99,6 +99,14 @@ defmodule GameMasterCoreWeb.NoteController do
     Notes.link_faction(scope, note_id, faction_id)
   end
 
+  defp create_note_link(scope, note_id, :location, location_id) do
+    Notes.link_location(scope, note_id, location_id)
+  end
+
+  defp create_note_link(scope, note_id, :quest, quest_id) do
+    Notes.link_quest(scope, note_id, quest_id)
+  end
+
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :note, entity_type}}
   end

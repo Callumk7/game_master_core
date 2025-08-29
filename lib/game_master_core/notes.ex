@@ -225,6 +225,16 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Links a location to a note.
+  """
+  def link_location(%Scope{} = scope, note_id, location_id) do
+    with {:ok, note} <- get_scoped_note(scope, note_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.link(note, location)
+    end
+  end
+
+  @doc """
   Links a quest to a note.
   """
   def link_quest(%Scope{} = scope, note_id, quest_id) do
