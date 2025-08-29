@@ -11,6 +11,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.GamesFixtures
     import GameMasterCore.NotesFixtures
+    import GameMasterCore.QuestsFixtures
 
     @invalid_attrs %{name: nil, level: nil, description: nil, class: nil, image_url: nil}
 
@@ -202,6 +203,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.NotesFixtures
     import GameMasterCore.FactionsFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_note/3 successfully links a character and note" do
       scope = user_scope_fixture()
@@ -358,6 +360,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.FactionsFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_faction/3 successfully links a character and faction" do
       scope = user_scope_fixture()
@@ -511,6 +514,162 @@ defmodule GameMasterCore.CharactersTest do
 
       # Same character ID in different scope should return empty
       assert Characters.linked_factions(scope2, character.id) == []
+    end
+  end
+
+  describe "character - quest links" do
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
+
+    test "link_quest/3 successfully links a character and quest" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Characters.link_quest(scope, character.id, quest.id)
+      assert Characters.quest_linked?(scope, character.id, quest.id)
+    end
+
+    test "link_quest/3 with invalid character_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :character_not_found} = Characters.link_quest(scope, 999, quest.id)
+    end
+
+    test "link_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Characters.link_quest(scope, character.id, 999)
+    end
+
+    test "link_quest/3 with cross-scope character returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      character = character_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope2)
+
+      # Character exists in scope1, quest is in scope2, so quest_not_found is returned first
+      assert {:error, :quest_not_found} = Characters.link_quest(scope1, character.id, quest.id)
+    end
+
+    test "link_quest/3 with cross-scope quest returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      character = character_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      # Character is in scope1, quest is in scope1, but called with scope2, so character_not_found is returned first
+      assert {:error, :character_not_found} = Characters.link_quest(scope2, character.id, quest.id)
+    end
+
+    test "link_quest/3 prevents duplicate links" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Characters.link_quest(scope, character.id, quest.id)
+      assert {:error, %Ecto.Changeset{}} = Characters.link_quest(scope, character.id, quest.id)
+    end
+
+    test "unlink_quest/3 successfully removes a character-quest link" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      {:ok, _link} = Characters.link_quest(scope, character.id, quest.id)
+      assert Characters.quest_linked?(scope, character.id, quest.id)
+
+      assert {:ok, _link} = Characters.unlink_quest(scope, character.id, quest.id)
+      refute Characters.quest_linked?(scope, character.id, quest.id)
+    end
+
+    test "unlink_quest/3 with non-existent link returns error" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:error, :not_found} = Characters.unlink_quest(scope, character.id, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid character_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :character_not_found} = Characters.unlink_quest(scope, 999, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Characters.unlink_quest(scope, character.id, 999)
+    end
+
+    test "quest_linked?/3 returns false for unlinked entities" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      refute Characters.quest_linked?(scope, character.id, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid character_id returns false" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      refute Characters.quest_linked?(scope, 999, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid quest_id returns false" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+
+      refute Characters.quest_linked?(scope, character.id, 999)
+    end
+
+    test "linked_quests/2 returns all quests linked to a character" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest1 = quest_fixture(scope)
+      quest2 = quest_fixture(scope)
+      unlinked_quest = quest_fixture(scope)
+
+      {:ok, _} = Characters.link_quest(scope, character.id, quest1.id)
+      {:ok, _} = Characters.link_quest(scope, character.id, quest2.id)
+
+      linked_quests = Characters.linked_quests(scope, character.id)
+      assert length(linked_quests) == 2
+      assert quest1 in linked_quests
+      assert quest2 in linked_quests
+      refute unlinked_quest in linked_quests
+    end
+
+    test "linked_quests/2 returns empty list for character with no linked quests" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+
+      assert Characters.linked_quests(scope, character.id) == []
+    end
+
+    test "linked_quests/2 with invalid character_id returns empty list" do
+      scope = game_scope_fixture()
+
+      assert Characters.linked_quests(scope, 999) == []
+    end
+
+    test "linked_quests/2 respects scope boundaries" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      character = character_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      {:ok, _} = Characters.link_quest(scope1, character.id, quest.id)
+
+      # Same character ID in different scope should return empty
+      assert Characters.linked_quests(scope2, character.id) == []
     end
   end
 end
