@@ -119,7 +119,7 @@ defmodule GameMasterCore.CharactersTest do
       other_scope = user_scope_fixture()
       character = character_fixture(scope)
       # The function no longer raises but works based on game permissions
-      assert {:ok, _} = Characters.delete_character(scope, character)
+      assert {:ok, _} = Characters.delete_character(other_scope, character)
     end
 
     test "change_character/2 returns a character changeset" do
@@ -562,7 +562,8 @@ defmodule GameMasterCore.CharactersTest do
       quest = quest_fixture(scope1)
 
       # Character is in scope1, quest is in scope1, but called with scope2, so character_not_found is returned first
-      assert {:error, :character_not_found} = Characters.link_quest(scope2, character.id, quest.id)
+      assert {:error, :character_not_found} =
+               Characters.link_quest(scope2, character.id, quest.id)
     end
 
     test "link_quest/3 prevents duplicate links" do

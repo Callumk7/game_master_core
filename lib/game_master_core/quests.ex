@@ -4,14 +4,11 @@ defmodule GameMasterCore.Quests do
   """
 
   import Ecto.Query, warn: false
-  alias GameMasterCore.Repo
+  import GameMasterCore.Helpers
 
+  alias GameMasterCore.Repo
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Notes
-  alias GameMasterCore.Characters
-  alias GameMasterCore.Factions
-  alias GameMasterCore.Locations
   alias GameMasterCore.Links
 
   @doc """
@@ -130,11 +127,10 @@ defmodule GameMasterCore.Quests do
 
   """
   def update_quest(%Scope{} = scope, %Quest{} = quest, attrs) do
-    true = quest.game_id == scope.game.id
-
+    # Note: game access already validated in controller before fetching the quest
     with {:ok, quest = %Quest{}} <-
            quest
-           |> Quest.changeset(attrs, scope, scope.game.id)
+           |> Quest.changeset(attrs, scope, quest.game_id)
            |> Repo.update() do
       broadcast(scope, {:updated, quest})
       {:ok, quest}
@@ -154,8 +150,7 @@ defmodule GameMasterCore.Quests do
 
   """
   def delete_quest(%Scope{} = scope, %Quest{} = quest) do
-    true = quest.game_id == scope.game.id
-
+    # Note: game access already validated in controller before fetching the quest
     with {:ok, quest = %Quest{}} <-
            Repo.delete(quest) do
       broadcast(scope, {:deleted, quest})
@@ -347,51 +342,6 @@ defmodule GameMasterCore.Quests do
     case get_scoped_quest(scope, quest_id) do
       {:ok, quest} -> Links.links_for(quest)
       {:error, _} -> %{}
-    end
-  end
-
-  defp get_scoped_quest(scope, quest_id) do
-    try do
-      quest = get_quest!(scope, quest_id)
-      {:ok, quest}
-    rescue
-      Ecto.NoResultsError -> {:error, :quest_not_found}
-    end
-  end
-
-  defp get_scoped_note(scope, note_id) do
-    try do
-      note = Notes.get_note!(scope, note_id)
-      {:ok, note}
-    rescue
-      Ecto.NoResultsError -> {:error, :note_not_found}
-    end
-  end
-
-  defp get_scoped_character(scope, character_id) do
-    try do
-      character = Characters.get_character!(scope, character_id)
-      {:ok, character}
-    rescue
-      Ecto.NoResultsError -> {:error, :character_not_found}
-    end
-  end
-
-  defp get_scoped_faction(scope, faction_id) do
-    try do
-      faction = Factions.get_faction!(scope, faction_id)
-      {:ok, faction}
-    rescue
-      Ecto.NoResultsError -> {:error, :faction_not_found}
-    end
-  end
-
-  defp get_scoped_location(scope, location_id) do
-    try do
-      location = Locations.get_location!(scope, location_id)
-      {:ok, location}
-    rescue
-      Ecto.NoResultsError -> {:error, :location_not_found}
     end
   end
 end

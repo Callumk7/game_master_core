@@ -20,8 +20,7 @@ defmodule GameMasterCore.QuestsFixtures do
       end
 
     attrs =
-      attrs
-      |> Enum.into(%{
+      Enum.into(attrs, %{
         name: "some name",
         content: "some content"
       })

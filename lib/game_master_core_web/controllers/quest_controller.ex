@@ -49,7 +49,7 @@ defmodule GameMasterCoreWeb.QuestController do
   end
 
   # Quest links
-  def creat_link(conn, %{"quest_id" => quest_id} = params) do
+  def create_link(conn, %{"quest_id" => quest_id} = params) do
     quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
 
     entity_type = Map.get(params, "entity_type")
@@ -70,6 +70,29 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
+  def list_links(conn, %{"quest_id" => quest_id}) do
+    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
+
+    links = Quests.links(conn.assigns.current_scope, quest.id)
+
+    render(conn, :links, quest: quest, characters: links.characters, factions: links.factions, notes: links.notes, locations: links.locations)
+  end
+
+  def delete_link(conn, %{
+        "quest_id" => quest_id,
+        "entity_type" => entity_type,
+        "entity_id" => entity_id
+      }) do
+    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
+
+    with {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, _link} <-
+           delete_quest_link(conn.assigns.current_scope, quest.id, entity_type, entity_id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
   defp create_quest_link(scope, quest_id, :character, character_id) do
     Quests.link_character(scope, quest_id, character_id)
   end
@@ -87,6 +110,26 @@ defmodule GameMasterCoreWeb.QuestController do
   end
 
   defp create_quest_link(_scope, _quest_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :quest, entity_type}}
+  end
+
+  defp delete_quest_link(scope, quest_id, :character, character_id) do
+    Quests.unlink_character(scope, quest_id, character_id)
+  end
+
+  defp delete_quest_link(scope, quest_id, :faction, faction_id) do
+    Quests.unlink_faction(scope, quest_id, faction_id)
+  end
+
+  defp delete_quest_link(scope, quest_id, :note, note_id) do
+    Quests.unlink_note(scope, quest_id, note_id)
+  end
+
+  defp delete_quest_link(scope, quest_id, :location, location_id) do
+    Quests.unlink_location(scope, quest_id, location_id)
+  end
+
+  defp delete_quest_link(_scope, _quest_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :quest, entity_type}}
   end
 end

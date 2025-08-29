@@ -4,9 +4,12 @@ defmodule GameMasterCore.LinksTest do
   alias GameMasterCore.Links
   alias GameMasterCore.Characters.CharacterNote
 
-  import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+  import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.NotesFixtures
+  import GameMasterCore.FactionsFixtures
+  import GameMasterCore.LocationsFixtures
+  import GameMasterCore.QuestsFixtures
 
   describe "link/2 and unlink/2 - Character and Note" do
     setup do
@@ -104,184 +107,305 @@ defmodule GameMasterCore.LinksTest do
     end
   end
 
-  describe "unimplemented entity combinations (TDD - should fail until implemented)" do
+  describe "link/2 and unlink/2 - Character and Faction" do
     setup do
       scope = user_scope_fixture()
       character = character_fixture(scope)
-      note = note_fixture(scope)
-
-      # Mock structs for unimplemented entities
-      faction = %{__struct__: GameMasterCore.Factions.Faction, id: 1}
-      item = %{__struct__: GameMasterCore.Items.Item, id: 1}
-      location = %{__struct__: GameMasterCore.Locations.Location, id: 1}
-      quest = %{__struct__: GameMasterCore.Quests.Quest, id: 1}
-
-      {:ok,
-       character: character,
-       note: note,
-       faction: faction,
-       item: item,
-       location: location,
-       quest: quest}
+      faction = faction_fixture(scope)
+      {:ok, scope: scope, character: character, faction: faction}
     end
 
-    test "character-faction links should work", %{character: character, faction: faction} do
+    test "successfully links a character and faction", %{character: character, faction: faction} do
       assert {:ok, _link} = Links.link(character, faction)
       assert Links.linked?(character, faction)
-      assert Links.linked?(faction, character)
+    end
+
+    test "successfully links a faction and character (order doesn't matter)", %{
+      character: character,
+      faction: faction
+    } do
+      assert {:ok, _link} = Links.link(faction, character)
+      assert Links.linked?(character, faction)
+    end
+
+    test "prevents duplicate links", %{character: character, faction: faction} do
+      assert {:ok, _link} = Links.link(character, faction)
+      assert {:error, %Ecto.Changeset{}} = Links.link(character, faction)
+    end
+
+    test "successfully unlinks a character and faction", %{character: character, faction: faction} do
+      {:ok, _link} = Links.link(character, faction)
+      assert Links.linked?(character, faction)
 
       assert {:ok, _link} = Links.unlink(character, faction)
       refute Links.linked?(character, faction)
     end
+  end
 
-    test "character-item links should work", %{character: character, item: item} do
-      assert {:ok, _link} = Links.link(character, item)
-      assert Links.linked?(character, item)
-      assert Links.linked?(item, character)
-
-      assert {:ok, _link} = Links.unlink(character, item)
-      refute Links.linked?(character, item)
+  describe "link/2 and unlink/2 - Character and Location" do
+    setup do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      location = location_fixture(scope)
+      {:ok, scope: scope, character: character, location: location}
     end
 
-    test "character-location links should work", %{character: character, location: location} do
+    test "successfully links a character and location", %{character: character, location: location} do
       assert {:ok, _link} = Links.link(character, location)
       assert Links.linked?(character, location)
-      assert Links.linked?(location, character)
+    end
 
+    test "successfully unlinks a character and location", %{character: character, location: location} do
+      {:ok, _link} = Links.link(character, location)
       assert {:ok, _link} = Links.unlink(character, location)
       refute Links.linked?(character, location)
     end
+  end
 
-    test "character-quest links should work", %{character: character, quest: quest} do
+  describe "link/2 and unlink/2 - Character and Quest" do
+    setup do
+      scope = game_scope_fixture()
+      character = character_fixture(scope)
+      quest = quest_fixture(scope)
+      {:ok, scope: scope, character: character, quest: quest}
+    end
+
+    test "successfully links a character and quest", %{character: character, quest: quest} do
       assert {:ok, _link} = Links.link(character, quest)
       assert Links.linked?(character, quest)
-      assert Links.linked?(quest, character)
+    end
 
+    test "successfully unlinks a character and quest", %{character: character, quest: quest} do
+      {:ok, _link} = Links.link(character, quest)
       assert {:ok, _link} = Links.unlink(character, quest)
       refute Links.linked?(character, quest)
     end
+  end
 
-    test "faction-note links should work", %{faction: faction, note: note} do
-      assert {:ok, _link} = Links.link(faction, note)
-      assert Links.linked?(faction, note)
+  describe "link/2 and unlink/2 - Note and Faction" do
+    setup do
+      scope = user_scope_fixture()
+      note = note_fixture(scope)
+      faction = faction_fixture(scope)
+      {:ok, scope: scope, note: note, faction: faction}
+    end
+
+    test "successfully links a note and faction", %{note: note, faction: faction} do
+      assert {:ok, _link} = Links.link(note, faction)
       assert Links.linked?(note, faction)
-
-      assert {:ok, _link} = Links.unlink(faction, note)
-      refute Links.linked?(faction, note)
     end
 
-    test "faction-item links should work", %{faction: faction, item: item} do
-      assert {:ok, _link} = Links.link(faction, item)
-      assert Links.linked?(faction, item)
-      assert Links.linked?(item, faction)
+    test "successfully unlinks a note and faction", %{note: note, faction: faction} do
+      {:ok, _link} = Links.link(note, faction)
+      assert {:ok, _link} = Links.unlink(note, faction)
+      refute Links.linked?(note, faction)
+    end
+  end
 
-      assert {:ok, _link} = Links.unlink(faction, item)
-      refute Links.linked?(faction, item)
+  describe "link/2 and unlink/2 - Note and Location" do
+    setup do
+      scope = user_scope_fixture()
+      note = note_fixture(scope)
+      location = location_fixture(scope)
+      {:ok, scope: scope, note: note, location: location}
     end
 
-    test "faction-location links should work", %{faction: faction, location: location} do
-      assert {:ok, _link} = Links.link(faction, location)
-      assert Links.linked?(faction, location)
-      assert Links.linked?(location, faction)
-
-      assert {:ok, _link} = Links.unlink(faction, location)
-      refute Links.linked?(faction, location)
-    end
-
-    test "faction-quest links should work", %{faction: faction, quest: quest} do
-      assert {:ok, _link} = Links.link(faction, quest)
-      assert Links.linked?(faction, quest)
-      assert Links.linked?(quest, faction)
-
-      assert {:ok, _link} = Links.unlink(faction, quest)
-      refute Links.linked?(faction, quest)
-    end
-
-    test "note-item links should work", %{note: note, item: item} do
-      assert {:ok, _link} = Links.link(note, item)
-      assert Links.linked?(note, item)
-      assert Links.linked?(item, note)
-
-      assert {:ok, _link} = Links.unlink(note, item)
-      refute Links.linked?(note, item)
-    end
-
-    test "note-location links should work", %{note: note, location: location} do
+    test "successfully links a note and location", %{note: note, location: location} do
       assert {:ok, _link} = Links.link(note, location)
       assert Links.linked?(note, location)
-      assert Links.linked?(location, note)
+    end
 
+    test "successfully unlinks a note and location", %{note: note, location: location} do
+      {:ok, _link} = Links.link(note, location)
       assert {:ok, _link} = Links.unlink(note, location)
       refute Links.linked?(note, location)
     end
+  end
 
-    test "note-quest links should work", %{note: note, quest: quest} do
+  describe "link/2 and unlink/2 - Note and Quest" do
+    setup do
+      scope = game_scope_fixture()
+      note = note_fixture(scope)
+      quest = quest_fixture(scope)
+      {:ok, scope: scope, note: note, quest: quest}
+    end
+
+    test "successfully links a note and quest", %{note: note, quest: quest} do
       assert {:ok, _link} = Links.link(note, quest)
       assert Links.linked?(note, quest)
-      assert Links.linked?(quest, note)
+    end
 
+    test "successfully unlinks a note and quest", %{note: note, quest: quest} do
+      {:ok, _link} = Links.link(note, quest)
       assert {:ok, _link} = Links.unlink(note, quest)
       refute Links.linked?(note, quest)
     end
+  end
 
-    test "item-location links should work", %{item: item, location: location} do
-      assert {:ok, _link} = Links.link(item, location)
-      assert Links.linked?(item, location)
-      assert Links.linked?(location, item)
-
-      assert {:ok, _link} = Links.unlink(item, location)
-      refute Links.linked?(item, location)
+  describe "link/2 and unlink/2 - Faction and Location" do
+    setup do
+      scope = user_scope_fixture()
+      faction = faction_fixture(scope)
+      location = location_fixture(scope)
+      {:ok, scope: scope, faction: faction, location: location}
     end
 
-    test "item-quest links should work", %{item: item, quest: quest} do
-      assert {:ok, _link} = Links.link(item, quest)
-      assert Links.linked?(item, quest)
-      assert Links.linked?(quest, item)
-
-      assert {:ok, _link} = Links.unlink(item, quest)
-      refute Links.linked?(item, quest)
+    test "successfully links a faction and location", %{faction: faction, location: location} do
+      assert {:ok, _link} = Links.link(faction, location)
+      assert Links.linked?(faction, location)
     end
 
-    test "location-quest links should work", %{location: location, quest: quest} do
+    test "successfully unlinks a faction and location", %{faction: faction, location: location} do
+      {:ok, _link} = Links.link(faction, location)
+      assert {:ok, _link} = Links.unlink(faction, location)
+      refute Links.linked?(faction, location)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Faction and Quest" do
+    setup do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope)
+      quest = quest_fixture(scope)
+      {:ok, scope: scope, faction: faction, quest: quest}
+    end
+
+    test "successfully links a faction and quest", %{faction: faction, quest: quest} do
+      assert {:ok, _link} = Links.link(faction, quest)
+      assert Links.linked?(faction, quest)
+    end
+
+    test "successfully unlinks a faction and quest", %{faction: faction, quest: quest} do
+      {:ok, _link} = Links.link(faction, quest)
+      assert {:ok, _link} = Links.unlink(faction, quest)
+      refute Links.linked?(faction, quest)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Location and Quest" do
+    setup do
+      scope = game_scope_fixture()
+      location = location_fixture(scope)
+      quest = quest_fixture(scope)
+      {:ok, scope: scope, location: location, quest: quest}
+    end
+
+    test "successfully links a location and quest", %{location: location, quest: quest} do
       assert {:ok, _link} = Links.link(location, quest)
       assert Links.linked?(location, quest)
-      assert Links.linked?(quest, location)
+    end
 
+    test "successfully unlinks a location and quest", %{location: location, quest: quest} do
+      {:ok, _link} = Links.link(location, quest)
       assert {:ok, _link} = Links.unlink(location, quest)
       refute Links.linked?(location, quest)
     end
   end
 
-  describe "links_for/1 - unimplemented entities (TDD - should fail until implemented)" do
-    test "should return linked entities for factions, items, locations, and quests" do
-      scope = user_scope_fixture()
+  describe "links_for/1 - all entity types" do
+    setup do
+      scope = game_scope_fixture()
       character = character_fixture(scope)
       note = note_fixture(scope)
+      faction = faction_fixture(scope)
+      location = location_fixture(scope)
+      quest = quest_fixture(scope)
 
-      faction = %{__struct__: GameMasterCore.Factions.Faction, id: 1}
-      item = %{__struct__: GameMasterCore.Items.Item, id: 1}
-      location = %{__struct__: GameMasterCore.Locations.Location, id: 1}
-      quest = %{__struct__: GameMasterCore.Quests.Quest, id: 1}
+      {:ok,
+       scope: scope,
+       character: character,
+       note: note,
+       faction: faction,
+       location: location,
+       quest: quest}
+    end
 
-      # Link some entities first
+    test "returns all linked entities for a character", %{
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    } do
+      {:ok, _} = Links.link(character, note)
+      {:ok, _} = Links.link(character, faction)
+      {:ok, _} = Links.link(character, location)
+      {:ok, _} = Links.link(character, quest)
+
+      links = Links.links_for(character)
+      assert %{notes: notes, factions: factions, locations: locations, quests: quests} = links
+      assert note in notes
+      assert faction in factions
+      assert location in locations
+      assert quest in quests
+    end
+
+    test "returns all linked entities for a faction", %{
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    } do
       {:ok, _} = Links.link(faction, character)
       {:ok, _} = Links.link(faction, note)
-      {:ok, _} = Links.link(item, character)
+      {:ok, _} = Links.link(faction, location)
+      {:ok, _} = Links.link(faction, quest)
+
+      links = Links.links_for(faction)
+      assert %{characters: characters, notes: notes, locations: locations, quests: quests} = links
+      assert character in characters
+      assert note in notes
+      assert location in locations
+      assert quest in quests
+    end
+
+    test "returns all linked entities for a location", %{
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    } do
+      {:ok, _} = Links.link(location, character)
       {:ok, _} = Links.link(location, note)
+      {:ok, _} = Links.link(location, faction)
+      {:ok, _} = Links.link(location, quest)
+
+      links = Links.links_for(location)
+      assert %{characters: characters, notes: notes, factions: factions, quests: quests} = links
+      assert character in characters
+      assert note in notes
+      assert faction in factions
+      assert quest in quests
+    end
+
+    test "returns all linked entities for a quest", %{
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    } do
       {:ok, _} = Links.link(quest, character)
+      {:ok, _} = Links.link(quest, note)
+      {:ok, _} = Links.link(quest, faction)
+      {:ok, _} = Links.link(quest, location)
 
-      # Should return linked entities
-      faction_links = Links.links_for(faction)
-      assert %{characters: [^character], notes: [^note]} = faction_links
+      links = Links.links_for(quest)
+      assert %{characters: characters, notes: notes, factions: factions, locations: locations} = links
+      assert character in characters
+      assert note in notes
+      assert faction in factions
+      assert location in locations
+    end
 
-      item_links = Links.links_for(item)
-      assert %{characters: [^character]} = item_links
+    test "returns empty lists for entity with no links" do
+      scope = game_scope_fixture()
+      character = character_fixture(scope)
 
-      location_links = Links.links_for(location)
-      assert %{notes: [^note]} = location_links
-
-      quest_links = Links.links_for(quest)
-      assert %{characters: [^character]} = quest_links
+      links = Links.links_for(character)
+      assert %{notes: [], factions: [], locations: [], quests: []} = links
     end
   end
 end

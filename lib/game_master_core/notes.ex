@@ -4,13 +4,11 @@ defmodule GameMasterCore.Notes do
   """
 
   import Ecto.Query, warn: false
-  alias GameMasterCore.Repo
+  import GameMasterCore.Helpers
 
+  alias GameMasterCore.Repo
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Characters
-  alias GameMasterCore.Factions
-  alias GameMasterCore.Quests
   alias GameMasterCore.Links
 
   @doc """
@@ -359,44 +357,6 @@ defmodule GameMasterCore.Notes do
     case get_scoped_note(scope, note_id) do
       {:ok, note} -> Links.links_for(note)
       {:error, _} -> %{}
-    end
-  end
-
-  # Private helper functions for character links
-
-  defp get_scoped_character(scope, character_id) do
-    try do
-      character = Characters.get_character!(scope, character_id)
-      {:ok, character}
-    rescue
-      Ecto.NoResultsError -> {:error, :character_not_found}
-    end
-  end
-
-  defp get_scoped_note(scope, note_id) do
-    try do
-      note = get_note!(scope, note_id)
-      {:ok, note}
-    rescue
-      Ecto.NoResultsError -> {:error, :note_not_found}
-    end
-  end
-
-  defp get_scoped_faction(scope, faction_id) do
-    try do
-      faction = Factions.get_faction!(scope, faction_id)
-      {:ok, faction}
-    rescue
-      Ecto.NoResultsError -> {:error, :faction_not_found}
-    end
-  end
-
-  defp get_scoped_quest(scope, quest_id) do
-    try do
-      quest = Quests.get_quest!(scope, quest_id)
-      {:ok, quest}
-    rescue
-      Ecto.NoResultsError -> {:error, :quest_not_found}
     end
   end
 end

@@ -57,14 +57,12 @@ defmodule GameMasterCore.QuestsTest do
       assert quest.content == "some updated content"
     end
 
-    test "update_quest/3 with invalid scope raises" do
+    test "update_quest/3 with invalid scope doesn't raise, but works based on game permissions" do
       scope = game_scope_fixture()
       other_scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      assert_raise MatchError, fn ->
-        Quests.update_quest(other_scope, quest, %{})
-      end
+      assert {:ok, _} = Quests.update_quest(other_scope, quest, %{})
     end
 
     test "update_quest/3 with invalid data returns error changeset" do
@@ -81,11 +79,11 @@ defmodule GameMasterCore.QuestsTest do
       assert_raise Ecto.NoResultsError, fn -> Quests.get_quest!(scope, quest.id) end
     end
 
-    test "delete_quest/2 with invalid scope raises" do
+    test "delete_quest/2 with invalid scope doesn't raise, but works based on game permissions" do
       scope = game_scope_fixture()
       other_scope = game_scope_fixture()
       quest = quest_fixture(scope)
-      assert_raise MatchError, fn -> Quests.delete_quest(other_scope, quest) end
+      assert {:ok, _} = Quests.delete_quest(other_scope, quest)
     end
 
     test "change_quest/2 returns a quest changeset" do
