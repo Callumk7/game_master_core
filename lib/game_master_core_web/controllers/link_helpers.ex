@@ -10,6 +10,7 @@ defmodule GameMasterCoreWeb.Controllers.LinkHelpers do
   def validate_entity_type("note"), do: {:ok, :note}
   def validate_entity_type("character"), do: {:ok, :character}
   def validate_entity_type("faction"), do: {:ok, :faction}
+  def validate_entity_type("item"), do: {:ok, :item}
   def validate_entity_type("location"), do: {:ok, :location}
   def validate_entity_type("quest"), do: {:ok, :quest}
   def validate_entity_type(_), do: {:error, :invalid_entity_type}

@@ -5,7 +5,6 @@ defmodule GameMasterCore.LocationsTest do
 
   describe "locations" do
     alias GameMasterCore.Locations.Location
-    alias GameMasterCore.Accounts.Scope
 
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
@@ -120,8 +119,6 @@ defmodule GameMasterCore.LocationsTest do
   end
 
   describe "location - character links" do
-    alias GameMasterCore.Accounts.Scope
-
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.CharactersFixtures
@@ -282,8 +279,6 @@ defmodule GameMasterCore.LocationsTest do
   end
 
   describe "location - note links" do
-    alias GameMasterCore.Accounts.Scope
-
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.NotesFixtures
@@ -440,8 +435,6 @@ defmodule GameMasterCore.LocationsTest do
   end
 
   describe "location - faction links" do
-    alias GameMasterCore.Accounts.Scope
-
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.FactionsFixtures

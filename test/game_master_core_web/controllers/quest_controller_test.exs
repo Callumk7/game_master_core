@@ -35,7 +35,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
   end
 
   describe "index" do
-    test "lists all quests", %{conn: conn, scope: scope, game: game} do
+    test "lists all quests", %{conn: conn, scope: _scope, game: game} do
       conn = get(conn, ~p"/api/games/#{game}/quests")
       assert json_response(conn, 200)["data"] == []
     end
@@ -51,7 +51,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
   end
 
   describe "create quest" do
-    test "renders quest when data is valid", %{conn: conn, scope: scope, game: game} do
+    test "renders quest when data is valid", %{conn: conn, scope: _scope, game: game} do
       conn = post(conn, ~p"/api/games/#{game}/quests", quest: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
@@ -73,7 +73,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       end
     end
 
-    test "renders errors when data is invalid", %{conn: conn, scope: scope, game: game} do
+    test "renders errors when data is invalid", %{conn: conn, scope: _scope, game: game} do
       conn = post(conn, ~p"/api/games/#{game}/quests", quest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -85,7 +85,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     test "renders quest when data is valid", %{
       conn: conn,
       quest: %Quest{id: id} = _quest,
-      scope: scope,
+      scope: _scope,
       game: game
     } do
       conn = put(conn, ~p"/api/games/#{game}/quests/#{id}", quest: @update_attrs)
@@ -103,7 +103,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     test "renders errors when data is invalid", %{
       conn: conn,
       quest: quest,
-      scope: scope,
+      scope: _scope,
       game: game
     } do
       conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: @invalid_attrs)
@@ -114,7 +114,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
   describe "delete quest" do
     setup [:create_quest]
 
-    test "deletes chosen quest", %{conn: conn, quest: quest, scope: scope, game: game} do
+    test "deletes chosen quest", %{conn: conn, quest: quest, scope: _scope, game: game} do
       conn = delete(conn, ~p"/api/games/#{game}/quests/#{quest}")
       assert response(conn, 204)
 
@@ -306,7 +306,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       response = json_response(conn, 400)
 
       assert response["error"] ==
-               "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
     end
 
     test "create_link with missing entity_id returns error", %{
@@ -455,7 +455,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       response = json_response(conn, 400)
 
       assert response["error"] ==
-               "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
     end
 
     test "delete_link with invalid entity_id returns error", %{

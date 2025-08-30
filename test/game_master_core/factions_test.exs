@@ -76,7 +76,7 @@ defmodule GameMasterCore.FactionsTest do
 
     test "update_faction/3 with invalid scope doesn't raise but doesn't permit update" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
       # The function no longer raises but the update should not be allowed
@@ -101,7 +101,7 @@ defmodule GameMasterCore.FactionsTest do
 
     test "delete_faction/2 with invalid scope doesn't raise but works based on game permissions" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       faction = faction_fixture(scope)
       # The function no longer raises but works based on game permissions
       assert {:ok, _} = Factions.delete_faction(scope, faction)
