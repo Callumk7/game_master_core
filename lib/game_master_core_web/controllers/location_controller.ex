@@ -78,7 +78,8 @@ defmodule GameMasterCoreWeb.LocationController do
       location: location,
       notes: links.notes,
       factions: links.factions,
-      characters: links.characters
+      characters: links.characters,
+      quests: links.quests
     )
   end
 
