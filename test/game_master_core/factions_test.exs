@@ -11,6 +11,7 @@ defmodule GameMasterCore.FactionsTest do
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.GamesFixtures
     import GameMasterCore.NotesFixtures
+    import GameMasterCore.QuestsFixtures
 
     @invalid_attrs %{name: nil, description: nil}
 
@@ -75,7 +76,7 @@ defmodule GameMasterCore.FactionsTest do
 
     test "update_faction/3 with invalid scope doesn't raise but doesn't permit update" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
       # The function no longer raises but the update should not be allowed
@@ -100,7 +101,7 @@ defmodule GameMasterCore.FactionsTest do
 
     test "delete_faction/2 with invalid scope doesn't raise but works based on game permissions" do
       scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
+      _other_scope = user_scope_fixture()
       faction = faction_fixture(scope)
       # The function no longer raises but works based on game permissions
       assert {:ok, _} = Factions.delete_faction(scope, faction)
@@ -182,6 +183,7 @@ defmodule GameMasterCore.FactionsTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.NotesFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_note/3 successfully links a faction and note" do
       scope = user_scope_fixture()
@@ -339,6 +341,7 @@ defmodule GameMasterCore.FactionsTest do
     import GameMasterCore.NotesFixtures
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.FactionsFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_character/3 successfully links a faction and character" do
       scope = user_scope_fixture()
@@ -492,6 +495,162 @@ defmodule GameMasterCore.FactionsTest do
 
       # Same faction ID in different scope should return empty
       assert Factions.linked_characters(scope2, faction.id) == []
+    end
+  end
+
+  describe "faction - quest links" do
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.QuestsFixtures
+
+    test "link_quest/3 successfully links a faction and quest" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Factions.link_quest(scope, faction.id, quest.id)
+      assert Factions.quest_linked?(scope, faction.id, quest.id)
+    end
+
+    test "link_quest/3 with invalid faction_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :faction_not_found} = Factions.link_quest(scope, 999, quest.id)
+    end
+
+    test "link_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Factions.link_quest(scope, faction.id, 999)
+    end
+
+    test "link_quest/3 with cross-scope faction returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope2)
+
+      # Faction exists in scope1, quest is in scope2, so quest_not_found is returned first
+      assert {:error, :quest_not_found} = Factions.link_quest(scope1, faction.id, quest.id)
+    end
+
+    test "link_quest/3 with cross-scope quest returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      # Faction is in scope1, quest is in scope1, but called with scope2, so faction_not_found is returned first
+      assert {:error, :faction_not_found} = Factions.link_quest(scope2, faction.id, quest.id)
+    end
+
+    test "link_quest/3 prevents duplicate links" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Factions.link_quest(scope, faction.id, quest.id)
+      assert {:error, %Ecto.Changeset{}} = Factions.link_quest(scope, faction.id, quest.id)
+    end
+
+    test "unlink_quest/3 successfully removes a faction-quest link" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      {:ok, _link} = Factions.link_quest(scope, faction.id, quest.id)
+      assert Factions.quest_linked?(scope, faction.id, quest.id)
+
+      assert {:ok, _link} = Factions.unlink_quest(scope, faction.id, quest.id)
+      refute Factions.quest_linked?(scope, faction.id, quest.id)
+    end
+
+    test "unlink_quest/3 with non-existent link returns error" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:error, :not_found} = Factions.unlink_quest(scope, faction.id, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid faction_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :faction_not_found} = Factions.unlink_quest(scope, 999, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Factions.unlink_quest(scope, faction.id, 999)
+    end
+
+    test "quest_linked?/3 returns false for unlinked entities" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      refute Factions.quest_linked?(scope, faction.id, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid faction_id returns false" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      refute Factions.quest_linked?(scope, 999, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid quest_id returns false" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+
+      refute Factions.quest_linked?(scope, faction.id, 999)
+    end
+
+    test "linked_quests/2 returns all quests linked to a faction" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest1 = quest_fixture(scope)
+      quest2 = quest_fixture(scope)
+      unlinked_quest = quest_fixture(scope)
+
+      {:ok, _} = Factions.link_quest(scope, faction.id, quest1.id)
+      {:ok, _} = Factions.link_quest(scope, faction.id, quest2.id)
+
+      linked_quests = Factions.linked_quests(scope, faction.id)
+      assert length(linked_quests) == 2
+      assert quest1 in linked_quests
+      assert quest2 in linked_quests
+      refute unlinked_quest in linked_quests
+    end
+
+    test "linked_quests/2 returns empty list for faction with no linked quests" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+
+      assert Factions.linked_quests(scope, faction.id) == []
+    end
+
+    test "linked_quests/2 with invalid faction_id returns empty list" do
+      scope = game_scope_fixture()
+
+      assert Factions.linked_quests(scope, 999) == []
+    end
+
+    test "linked_quests/2 respects scope boundaries" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      {:ok, _} = Factions.link_quest(scope1, faction.id, quest.id)
+
+      # Same faction ID in different scope should return empty
+      assert Factions.linked_quests(scope2, faction.id) == []
     end
   end
 end

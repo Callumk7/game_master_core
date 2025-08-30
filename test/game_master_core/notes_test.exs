@@ -11,6 +11,7 @@ defmodule GameMasterCore.NotesTest do
     import GameMasterCore.GamesFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
 
     @invalid_attrs %{name: nil, content: nil}
 
@@ -109,6 +110,7 @@ defmodule GameMasterCore.NotesTest do
     import GameMasterCore.GamesFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "list_notes_for_game/1 returns notes for a specific game" do
       scope = user_scope_fixture()
@@ -166,6 +168,7 @@ defmodule GameMasterCore.NotesTest do
     import GameMasterCore.GamesFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_character/3 successfully links a note and character" do
       scope = user_scope_fixture()
@@ -327,6 +330,7 @@ defmodule GameMasterCore.NotesTest do
     import GameMasterCore.GamesFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
 
     test "link_faction/3 successfully links a note and faction" do
       scope = user_scope_fixture()
@@ -476,6 +480,168 @@ defmodule GameMasterCore.NotesTest do
 
       # Same note ID in different scope should return empty
       assert Notes.linked_factions(scope2, note.id) == []
+    end
+  end
+
+  describe "note - quest links" do
+    alias GameMasterCore.Notes.Note
+    alias GameMasterCore.Accounts.Scope
+
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.NotesFixtures
+    import GameMasterCore.GamesFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
+
+    test "link_quest/3 successfully links a note and quest" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Notes.link_quest(scope, note.id, quest.id)
+      assert Notes.quest_linked?(scope, note.id, quest.id)
+    end
+
+    test "link_quest/3 with invalid note_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :note_not_found} = Notes.link_quest(scope, 999, quest.id)
+    end
+
+    test "link_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Notes.link_quest(scope, note.id, 999)
+    end
+
+    test "link_quest/3 with cross-scope note returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope2)
+
+      # Note exists in scope1, quest is in scope2, so quest_not_found is returned first
+      assert {:error, :quest_not_found} = Notes.link_quest(scope1, note.id, quest.id)
+    end
+
+    test "link_quest/3 with cross-scope quest returns error" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      # Note is in scope1, quest is in scope1, but called with scope2, so note_not_found is returned first
+      assert {:error, :note_not_found} = Notes.link_quest(scope2, note.id, quest.id)
+    end
+
+    test "link_quest/3 prevents duplicate links" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:ok, _link} = Notes.link_quest(scope, note.id, quest.id)
+      assert {:error, %Ecto.Changeset{}} = Notes.link_quest(scope, note.id, quest.id)
+    end
+
+    test "unlink_quest/3 successfully removes a note-quest link" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      {:ok, _link} = Notes.link_quest(scope, note.id, quest.id)
+      assert Notes.quest_linked?(scope, note.id, quest.id)
+
+      assert {:ok, _link} = Notes.unlink_quest(scope, note.id, quest.id)
+      refute Notes.quest_linked?(scope, note.id, quest.id)
+    end
+
+    test "unlink_quest/3 with non-existent link returns error" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      assert {:error, :not_found} = Notes.unlink_quest(scope, note.id, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid note_id returns error" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      assert {:error, :note_not_found} = Notes.unlink_quest(scope, 999, quest.id)
+    end
+
+    test "unlink_quest/3 with invalid quest_id returns error" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+
+      assert {:error, :quest_not_found} = Notes.unlink_quest(scope, note.id, 999)
+    end
+
+    test "quest_linked?/3 returns false for unlinked entities" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope)
+
+      refute Notes.quest_linked?(scope, note.id, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid note_id returns false" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+
+      refute Notes.quest_linked?(scope, 999, quest.id)
+    end
+
+    test "quest_linked?/3 with invalid quest_id returns false" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+
+      refute Notes.quest_linked?(scope, note.id, 999)
+    end
+
+    test "linked_quests/2 returns all quests linked to a note" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest1 = quest_fixture(scope)
+      quest2 = quest_fixture(scope)
+      unlinked_quest = quest_fixture(scope)
+
+      {:ok, _} = Notes.link_quest(scope, note.id, quest1.id)
+      {:ok, _} = Notes.link_quest(scope, note.id, quest2.id)
+
+      linked_quests = Notes.linked_quests(scope, note.id)
+      assert length(linked_quests) == 2
+      assert quest1 in linked_quests
+      assert quest2 in linked_quests
+      refute unlinked_quest in linked_quests
+    end
+
+    test "linked_quests/2 returns empty list for note with no linked quests" do
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+
+      assert Notes.linked_quests(scope, note.id) == []
+    end
+
+    test "linked_quests/2 with invalid note_id returns empty list" do
+      scope = game_scope_fixture()
+
+      assert Notes.linked_quests(scope, 999) == []
+    end
+
+    test "linked_quests/2 respects scope boundaries" do
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
+      quest = quest_fixture(scope1)
+
+      {:ok, _} = Notes.link_quest(scope1, note.id, quest.id)
+
+      # Same note ID in different scope should return empty
+      assert Notes.linked_quests(scope2, note.id) == []
     end
   end
 end

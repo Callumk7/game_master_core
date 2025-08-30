@@ -4,13 +4,12 @@ defmodule GameMasterCore.Locations do
   """
 
   import Ecto.Query, warn: false
+  import GameMasterCore.Helpers
+
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Locations.Location
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Characters
-  alias GameMasterCore.Factions
-  alias GameMasterCore.Notes
   alias GameMasterCore.Links
 
   @doc """
@@ -277,6 +276,16 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Links a quest to a location.
+  """
+  def link_quest(%Scope{} = scope, location_id, quest_id) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, quest} <- get_scoped_quest(scope, quest_id) do
+      Links.link(location, quest)
+    end
+  end
+
+  @doc """
   Unlinks a character from a location.
   """
   def unlink_character(%Scope{} = scope, location_id, character_id) do
@@ -303,6 +312,16 @@ defmodule GameMasterCore.Locations do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.unlink(location, faction)
+    end
+  end
+
+  @doc """
+  Unlinks a quest from a location.
+  """
+  def unlink_quest(%Scope{} = scope, location_id, quest_id) do
+    with {:ok, quest} <- get_scoped_quest(scope, quest_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.unlink(location, quest)
     end
   end
 
@@ -337,6 +356,18 @@ defmodule GameMasterCore.Locations do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.linked?(location, faction)
+    else
+      _ -> false
+    end
+  end
+
+  @doc """
+  Checks if a quest is linked to a location.
+  """
+  def quest_linked?(%Scope{} = scope, location_id, quest_id) do
+    with {:ok, quest} <- get_scoped_quest(scope, quest_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.linked?(location, quest)
     else
       _ -> false
     end
@@ -385,50 +416,26 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Returns all quests linked to a location.
+  """
+  def linked_quests(%Scope{} = scope, location_id) do
+    case get_scoped_location(scope, location_id) do
+      {:ok, location} ->
+        links = Links.links_for(location)
+        Map.get(links, :quests, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
   Returns all links for a location.
   """
   def links(%Scope{} = scope, location_id) do
     case get_scoped_location(scope, location_id) do
       {:ok, location} -> Links.links_for(location)
       {:error, _} -> %{}
-    end
-  end
-
-  # Private helper functions for location links
-
-  defp get_scoped_location(scope, location_id) do
-    try do
-      location = get_location!(scope, location_id)
-      {:ok, location}
-    rescue
-      Ecto.NoResultsError -> {:error, :location_not_found}
-    end
-  end
-
-  defp get_scoped_character(scope, character_id) do
-    try do
-      character = Characters.get_character!(scope, character_id)
-      {:ok, character}
-    rescue
-      Ecto.NoResultsError -> {:error, :character_not_found}
-    end
-  end
-
-  defp get_scoped_note(scope, note_id) do
-    try do
-      note = Notes.get_note!(scope, note_id)
-      {:ok, note}
-    rescue
-      Ecto.NoResultsError -> {:error, :note_not_found}
-    end
-  end
-
-  defp get_scoped_faction(scope, faction_id) do
-    try do
-      faction = Factions.get_faction!(scope, faction_id)
-      {:ok, faction}
-    rescue
-      Ecto.NoResultsError -> {:error, :faction_not_found}
     end
   end
 end

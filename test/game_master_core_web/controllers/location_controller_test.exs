@@ -278,7 +278,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       response = json_response(conn, 400)
 
       assert response["error"] ==
-               "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
     end
 
     test "create_link with missing entity_id returns error", %{
@@ -427,7 +427,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       response = json_response(conn, 400)
 
       assert response["error"] ==
-               "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
     end
 
     test "delete_link with invalid entity_id returns error", %{

@@ -76,8 +76,16 @@ defmodule GameMasterCoreWeb.FactionController do
 
     notes = Factions.linked_notes(conn.assigns.current_scope, faction_id)
     characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
+    quests = Factions.linked_quests(conn.assigns.current_scope, faction_id)
+    locations = Factions.linked_locations(conn.assigns.current_scope, faction_id)
 
-    render(conn, :links, faction: faction, notes: notes, characters: characters)
+    render(conn, :links,
+      faction: faction,
+      notes: notes,
+      characters: characters,
+      locations: locations,
+      quests: quests
+    )
   end
 
   def delete_link(conn, %{

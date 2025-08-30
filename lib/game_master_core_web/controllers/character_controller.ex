@@ -62,7 +62,7 @@ defmodule GameMasterCoreWeb.CharacterController do
     with {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
-           create_character_link(conn.assigns.current_scope, character.id, entity_type, entity_id) do
+           create_character_link(conn.assigns.current_scope, character_id, entity_type, entity_id) do
       conn
       |> put_status(:created)
       |> json(%{
@@ -77,9 +77,15 @@ defmodule GameMasterCoreWeb.CharacterController do
   def list_links(conn, %{"character_id" => character_id}) do
     character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
 
-    links = Characters.links(conn.assigns.current_scope, character.id)
+    links = Characters.links(conn.assigns.current_scope, character_id)
 
-    render(conn, :links, character: character, notes: links.notes, factions: links.factions)
+    render(conn, :links,
+      character: character,
+      notes: links.notes,
+      factions: links.factions,
+      locations: links.locations,
+      quests: links.quests
+    )
   end
 
   def delete_link(conn, %{

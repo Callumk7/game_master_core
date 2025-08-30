@@ -18,14 +18,22 @@ defmodule GameMasterCoreWeb.FactionJSON do
   @doc """
   Renders faction links
   """
-  def links(%{faction: faction, notes: notes, characters: characters}) do
+  def links(%{
+        faction: faction,
+        notes: notes,
+        characters: characters,
+        locations: locations,
+        quests: quests
+      }) do
     %{
       data: %{
         faction_id: faction.id,
         faction_name: faction.name,
         links: %{
           notes: for(note <- notes, do: note_data(note)),
-          characters: for(character <- characters, do: character_data(character))
+          characters: for(character <- characters, do: character_data(character)),
+          locations: for(location <- locations, do: location_data(location)),
+          quests: for(quest <- quests, do: quest_data(quest))
         }
       }
     }

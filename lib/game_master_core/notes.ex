@@ -4,12 +4,11 @@ defmodule GameMasterCore.Notes do
   """
 
   import Ecto.Query, warn: false
-  alias GameMasterCore.Repo
+  import GameMasterCore.Helpers
 
+  alias GameMasterCore.Repo
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Characters
-  alias GameMasterCore.Factions
   alias GameMasterCore.Links
 
   @doc """
@@ -224,6 +223,26 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Links a location to a note.
+  """
+  def link_location(%Scope{} = scope, note_id, location_id) do
+    with {:ok, note} <- get_scoped_note(scope, note_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.link(note, location)
+    end
+  end
+
+  @doc """
+  Links a quest to a note.
+  """
+  def link_quest(%Scope{} = scope, note_id, quest_id) do
+    with {:ok, note} <- get_scoped_note(scope, note_id),
+         {:ok, quest} <- get_scoped_quest(scope, quest_id) do
+      Links.link(note, quest)
+    end
+  end
+
+  @doc """
   Unlinks a character from a note.
   """
   def unlink_character(%Scope{} = scope, note_id, character_id) do
@@ -240,6 +259,16 @@ defmodule GameMasterCore.Notes do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.unlink(note, faction)
+    end
+  end
+
+  @doc """
+  Unlinks a quest from a note.
+  """
+  def unlink_quest(%Scope{} = scope, note_id, quest_id) do
+    with {:ok, quest} <- get_scoped_quest(scope, quest_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(note, quest)
     end
   end
 
@@ -262,6 +291,18 @@ defmodule GameMasterCore.Notes do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.linked?(note, faction)
+    else
+      _ -> false
+    end
+  end
+
+  @doc """
+  Checks if a quest is linked to a note.
+  """
+  def quest_linked?(%Scope{} = scope, note_id, quest_id) do
+    with {:ok, quest} <- get_scoped_quest(scope, quest_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.linked?(note, quest)
     else
       _ -> false
     end
@@ -296,41 +337,26 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Returns all quests linked to a note.
+  """
+  def linked_quests(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} ->
+        links = Links.links_for(note)
+        Map.get(links, :quests, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
   Returns all links for a note.
   """
   def links(%Scope{} = scope, note_id) do
     case get_scoped_note(scope, note_id) do
       {:ok, note} -> Links.links_for(note)
       {:error, _} -> %{}
-    end
-  end
-
-  # Private helper functions for character links
-
-  defp get_scoped_character(scope, character_id) do
-    try do
-      character = Characters.get_character!(scope, character_id)
-      {:ok, character}
-    rescue
-      Ecto.NoResultsError -> {:error, :character_not_found}
-    end
-  end
-
-  defp get_scoped_note(scope, note_id) do
-    try do
-      note = get_note!(scope, note_id)
-      {:ok, note}
-    rescue
-      Ecto.NoResultsError -> {:error, :note_not_found}
-    end
-  end
-
-  defp get_scoped_faction(scope, faction_id) do
-    try do
-      faction = Factions.get_faction!(scope, faction_id)
-      {:ok, faction}
-    rescue
-      Ecto.NoResultsError -> {:error, :faction_not_found}
     end
   end
 end

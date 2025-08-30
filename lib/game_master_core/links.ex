@@ -6,6 +6,7 @@ defmodule GameMasterCore.Links do
   alias GameMasterCore.Factions.{Faction, FactionNote, FactionLocation}
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Locations.{Location, LocationNote}
+  alias GameMasterCore.Quests.{Quest, QuestCharacter, QuestFaction, QuestLocation, QuestNote}
 
   @doc """
   Creates a link between two entities.
@@ -48,6 +49,30 @@ defmodule GameMasterCore.Links do
 
       {%Faction{} = faction, %Location{} = location} ->
         create_faction_location_link(faction, location)
+
+      {%Quest{} = quest, %Character{} = character} ->
+        create_quest_character_link(quest, character)
+
+      {%Character{} = character, %Quest{} = quest} ->
+        create_quest_character_link(quest, character)
+
+      {%Quest{} = quest, %Faction{} = faction} ->
+        create_quest_faction_link(quest, faction)
+
+      {%Faction{} = faction, %Quest{} = quest} ->
+        create_quest_faction_link(quest, faction)
+
+      {%Quest{} = quest, %Location{} = location} ->
+        create_quest_location_link(quest, location)
+
+      {%Location{} = location, %Quest{} = quest} ->
+        create_quest_location_link(quest, location)
+
+      {%Quest{} = quest, %Note{} = note} ->
+        create_quest_note_link(quest, note)
+
+      {%Note{} = note, %Quest{} = quest} ->
+        create_quest_note_link(quest, note)
 
       # Add more entity combinations as needed
       _ ->
@@ -97,6 +122,30 @@ defmodule GameMasterCore.Links do
       {%Faction{} = faction, %Location{} = location} ->
         remove_faction_location_link(faction, location)
 
+      {%Quest{} = quest, %Character{} = character} ->
+        remove_quest_character_link(quest, character)
+
+      {%Character{} = character, %Quest{} = quest} ->
+        remove_quest_character_link(quest, character)
+
+      {%Quest{} = quest, %Faction{} = faction} ->
+        remove_quest_faction_link(quest, faction)
+
+      {%Faction{} = faction, %Quest{} = quest} ->
+        remove_quest_faction_link(quest, faction)
+
+      {%Quest{} = quest, %Location{} = location} ->
+        remove_quest_location_link(quest, location)
+
+      {%Location{} = location, %Quest{} = quest} ->
+        remove_quest_location_link(quest, location)
+
+      {%Quest{} = quest, %Note{} = note} ->
+        remove_quest_note_link(quest, note)
+
+      {%Note{} = note, %Quest{} = quest} ->
+        remove_quest_note_link(quest, note)
+
       _ ->
         {:error, :unsupported_link_type}
     end
@@ -144,6 +193,30 @@ defmodule GameMasterCore.Links do
       {%Faction{} = faction, %Location{} = location} ->
         faction_location_exists?(faction, location)
 
+      {%Quest{} = quest, %Character{} = character} ->
+        quest_character_exists?(quest, character)
+
+      {%Character{} = character, %Quest{} = quest} ->
+        quest_character_exists?(quest, character)
+
+      {%Quest{} = quest, %Faction{} = faction} ->
+        quest_faction_exists?(quest, faction)
+
+      {%Faction{} = faction, %Quest{} = quest} ->
+        quest_faction_exists?(quest, faction)
+
+      {%Quest{} = quest, %Location{} = location} ->
+        quest_location_exists?(quest, location)
+
+      {%Location{} = location, %Quest{} = quest} ->
+        quest_location_exists?(quest, location)
+
+      {%Quest{} = quest, %Note{} = note} ->
+        quest_note_exists?(quest, note)
+
+      {%Note{} = note, %Quest{} = quest} ->
+        quest_note_exists?(quest, note)
+
       _ ->
         false
     end
@@ -159,28 +232,40 @@ defmodule GameMasterCore.Links do
         %{
           notes: get_notes_for_character(character),
           factions: get_factions_for_character(character),
-          locations: get_locations_for_character(character)
+          locations: get_locations_for_character(character),
+          quests: get_quests_for_character(character)
         }
 
       %Note{} = note ->
         %{
           characters: get_characters_for_note(note),
           factions: get_factions_for_note(note),
-          locations: get_locations_for_note(note)
+          locations: get_locations_for_note(note),
+          quests: get_quests_for_note(note)
         }
 
       %Faction{} = faction ->
         %{
           notes: get_notes_for_faction(faction),
           characters: get_characters_for_faction(faction),
-          locations: get_locations_for_faction(faction)
+          locations: get_locations_for_faction(faction),
+          quests: get_quests_for_faction(faction)
         }
 
       %Location{} = location ->
         %{
           notes: get_notes_for_location(location),
           characters: get_characters_for_location(location),
-          factions: get_factions_for_location(location)
+          factions: get_factions_for_location(location),
+          quests: get_quests_for_location(location)
+        }
+
+      %Quest{} = quest ->
+        %{
+          notes: get_notes_for_quest(quest),
+          characters: get_characters_for_quest(quest),
+          factions: get_factions_for_quest(quest),
+          locations: get_locations_for_quest(quest)
         }
 
       _ ->
@@ -441,6 +526,174 @@ defmodule GameMasterCore.Links do
       join: fl in FactionLocation,
       on: fl.location_id == l.id,
       where: fl.faction_id == ^faction.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Quest <-> Character links
+  defp create_quest_character_link(quest, character) do
+    %QuestCharacter{}
+    |> QuestCharacter.changeset(%{
+      quest_id: quest.id,
+      character_id: character.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_quest_character_link(quest, character) do
+    case Repo.get_by(QuestCharacter, quest_id: quest.id, character_id: character.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp quest_character_exists?(quest, character) do
+    Repo.exists?(
+      from qc in QuestCharacter,
+        where: qc.quest_id == ^quest.id and qc.character_id == ^character.id
+    )
+  end
+
+  defp get_quests_for_character(character) do
+    from(q in Quest,
+      join: qc in QuestCharacter,
+      on: qc.quest_id == q.id,
+      where: qc.character_id == ^character.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_characters_for_quest(quest) do
+    from(c in Character,
+      join: qc in QuestCharacter,
+      on: qc.character_id == c.id,
+      where: qc.quest_id == ^quest.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Quest <-> Faction links
+  defp create_quest_faction_link(quest, faction) do
+    %QuestFaction{}
+    |> QuestFaction.changeset(%{
+      quest_id: quest.id,
+      faction_id: faction.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_quest_faction_link(quest, faction) do
+    case Repo.get_by(QuestFaction, quest_id: quest.id, faction_id: faction.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp quest_faction_exists?(quest, faction) do
+    Repo.exists?(
+      from qf in QuestFaction,
+        where: qf.quest_id == ^quest.id and qf.faction_id == ^faction.id
+    )
+  end
+
+  defp get_factions_for_quest(quest) do
+    from(f in Faction,
+      join: qf in QuestFaction,
+      on: qf.faction_id == f.id,
+      where: qf.quest_id == ^quest.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_quests_for_faction(faction) do
+    from(q in Quest,
+      join: qf in QuestFaction,
+      on: qf.quest_id == q.id,
+      where: qf.faction_id == ^faction.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Quest <-> Location links
+  defp create_quest_location_link(quest, location) do
+    %QuestLocation{}
+    |> QuestLocation.changeset(%{
+      quest_id: quest.id,
+      location_id: location.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_quest_location_link(quest, location) do
+    case Repo.get_by(QuestLocation, quest_id: quest.id, location_id: location.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp quest_location_exists?(quest, location) do
+    Repo.exists?(
+      from ql in QuestLocation,
+        where: ql.quest_id == ^quest.id and ql.location_id == ^location.id
+    )
+  end
+
+  defp get_locations_for_quest(quest) do
+    from(l in Location,
+      join: ql in QuestLocation,
+      on: ql.location_id == l.id,
+      where: ql.quest_id == ^quest.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_quests_for_location(location) do
+    from(q in Quest,
+      join: ql in QuestLocation,
+      on: ql.quest_id == q.id,
+      where: ql.location_id == ^location.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Quest <-> Note links
+  defp create_quest_note_link(quest, note) do
+    %QuestNote{}
+    |> QuestNote.changeset(%{
+      quest_id: quest.id,
+      note_id: note.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_quest_note_link(quest, note) do
+    case Repo.get_by(QuestNote, quest_id: quest.id, note_id: note.id) do
+      nil -> {:error, :not_found}
+      link -> Repo.delete(link)
+    end
+  end
+
+  defp quest_note_exists?(quest, note) do
+    Repo.exists?(
+      from qn in QuestNote,
+        where: qn.quest_id == ^quest.id and qn.note_id == ^note.id
+    )
+  end
+
+  defp get_notes_for_quest(quest) do
+    from(n in Note,
+      join: qn in QuestNote,
+      on: qn.note_id == n.id,
+      where: qn.quest_id == ^quest.id
+    )
+    |> Repo.all()
+  end
+
+  defp get_quests_for_note(note) do
+    from(q in Quest,
+      join: qn in QuestNote,
+      on: qn.quest_id == q.id,
+      where: qn.note_id == ^note.id
     )
     |> Repo.all()
   end

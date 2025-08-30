@@ -70,8 +70,13 @@ defmodule GameMasterCoreWeb.NoteController do
 
     links = Notes.links(conn.assigns.current_scope, note.id)
 
-    # TODO: Change the links function to take the links object and render the map
-    render(conn, :links, note: note, characters: links.characters, factions: links.factions)
+    render(conn, :links,
+      note: note,
+      characters: links.characters,
+      factions: links.factions,
+      locations: links.locations,
+      quests: links.quests
+    )
   end
 
   def delete_link(conn, %{
@@ -97,6 +102,14 @@ defmodule GameMasterCoreWeb.NoteController do
 
   defp create_note_link(scope, note_id, :faction, faction_id) do
     Notes.link_faction(scope, note_id, faction_id)
+  end
+
+  defp create_note_link(scope, note_id, :location, location_id) do
+    Notes.link_location(scope, note_id, location_id)
+  end
+
+  defp create_note_link(scope, note_id, :quest, quest_id) do
+    Notes.link_quest(scope, note_id, quest_id)
   end
 
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do

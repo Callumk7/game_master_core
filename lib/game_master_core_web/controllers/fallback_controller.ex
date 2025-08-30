@@ -52,8 +52,7 @@ defmodule GameMasterCoreWeb.FallbackController do
     conn
     |> put_status(:bad_request)
     |> json(%{
-      error:
-        "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+      error: "Invalid entity type. Supported types: note, character, faction, location, quest"
     })
   end
 
@@ -73,8 +72,7 @@ defmodule GameMasterCoreWeb.FallbackController do
     conn
     |> put_status(:unprocessable_entity)
     |> json(%{
-      error:
-        "Invalid entity type. Supported types: note, character, faction, item, location, quest"
+      error: "Invalid entity type. Supported types: note, character, faction, location, quest"
     })
   end
 
