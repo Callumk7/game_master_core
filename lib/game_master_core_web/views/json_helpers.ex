@@ -10,6 +10,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Factions.Faction
   alias GameMasterCore.Locations.Location
+  alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Games.Game
 
   @doc """
@@ -84,5 +85,15 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       has_parent: location.parent_id != nil
     }
   end
-end
 
+  @doc """
+  Formats a quest for JSON response.
+  """
+  def quest_data(%Quest{} = quest) do
+    %{
+      id: quest.id,
+      name: quest.name,
+      content: quest.content
+    }
+  end
+end
