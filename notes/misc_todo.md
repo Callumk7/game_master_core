@@ -21,3 +21,18 @@
     - Location
     - Quest
 
+- [x] Permission issues for finding stuff about characters etc that current user doesn't 'own'. Should remove all concept of user_id when it comes to auth for games. That can come much later if needed.
+
+
+## Features
+- Self connections
+    - at this point, might be worth doing the whole refactor in order to simplify the Links module
+
+- Deeply nested connections
+    - Describe an interface that allows us to easily accomodate each entity type. We should largely have all the functionality written.
+    - thinking about it, we can have an `includes` interface, followed by a `depth` interface. 
+    - This can translate well across the application
+
+- Client side authentication
+- More experimentation with LiveView
+- Then see how LiveVue looks
