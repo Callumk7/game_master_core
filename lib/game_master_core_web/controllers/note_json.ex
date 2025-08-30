@@ -18,14 +18,22 @@ defmodule GameMasterCoreWeb.NoteJSON do
   @doc """
   Renders a list of links for a note.
   """
-  def links(%{note: note, characters: characters, factions: factions}) do
+  def links(%{
+        note: note,
+        characters: characters,
+        factions: factions,
+        locations: locations,
+        quests: quests
+      }) do
     %{
       data: %{
         note_id: note.id,
         note_name: note.name,
         links: %{
           characters: for(character <- characters, do: character_summary_data(character)),
-          factions: for(faction <- factions, do: faction_data(faction))
+          factions: for(faction <- factions, do: faction_data(faction)),
+          locations: for(location <- locations, do: location_data(location)),
+          quests: for(quest <- quests, do: quest_data(quest))
         }
       }
     }

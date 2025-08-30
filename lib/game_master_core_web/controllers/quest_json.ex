@@ -1,25 +1,30 @@
 defmodule GameMasterCoreWeb.QuestJSON do
   import GameMasterCoreWeb.JSONHelpers
-  alias GameMasterCore.Quests.Quest
 
   @doc """
   Renders a list of quests.
   """
   def index(%{quests: quests}) do
-    %{data: for(quest <- quests, do: data(quest))}
+    %{data: for(quest <- quests, do: quest_data(quest))}
   end
 
   @doc """
   Renders a single quest.
   """
   def show(%{quest: quest}) do
-    %{data: data(quest)}
+    %{data: quest_data(quest)}
   end
 
   @doc """
   Renders quest links.
   """
-  def links(%{quest: quest, characters: characters, factions: factions, notes: notes, locations: locations}) do
+  def links(%{
+        quest: quest,
+        characters: characters,
+        factions: factions,
+        notes: notes,
+        locations: locations
+      }) do
     %{
       data: %{
         quest_id: quest.id,
@@ -31,14 +36,6 @@ defmodule GameMasterCoreWeb.QuestJSON do
           locations: for(location <- locations, do: location_data(location))
         }
       }
-    }
-  end
-
-  defp data(%Quest{} = quest) do
-    %{
-      id: quest.id,
-      name: quest.name,
-      content: quest.content
     }
   end
 end

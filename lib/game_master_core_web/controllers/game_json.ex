@@ -30,7 +30,9 @@ defmodule GameMasterCoreWeb.GameJSON do
         entities: %{
           notes: for(note <- entities.notes, do: note_data(note)),
           characters: for(character <- entities.characters, do: character_data(character)),
-          factions: for(faction <- entities.factions, do: faction_data(faction))
+          factions: for(faction <- entities.factions, do: faction_data(faction)),
+          locations: for(location <- entities.locations, do: location_data(location)),
+          quests: for(quest <- entities.quests, do: quest_data(quest))
         }
       }
     }
