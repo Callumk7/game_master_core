@@ -229,6 +229,13 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  def link_location(%Scope{} = scope, faction_id, location_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.link(faction, location)
+    end
+  end
+
   @doc """
   Links a faction to a quest.
   """
@@ -257,6 +264,15 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  def location_linked?(%Scope{} = scope, faction_id, location_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.linked?(faction, location)
+    else
+      _ -> false
+    end
+  end
+
   def unlink_character(%Scope{} = scope, faction_id, character_id) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
@@ -268,6 +284,13 @@ defmodule GameMasterCore.Factions do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
       Links.unlink(faction, quest)
+    end
+  end
+
+  def unlink_location(%Scope{} = scope, faction_id, location_id) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.unlink(faction, location)
     end
   end
 
@@ -310,6 +333,17 @@ defmodule GameMasterCore.Factions do
       {:ok, faction} ->
         links = Links.links_for(faction)
         Map.get(links, :quests, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  def linked_locations(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :locations, [])
 
       {:error, _} ->
         []

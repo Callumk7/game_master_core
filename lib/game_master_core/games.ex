@@ -7,6 +7,8 @@ defmodule GameMasterCore.Games do
   alias GameMasterCore.Notes
   alias GameMasterCore.Factions
   alias GameMasterCore.Characters
+  alias GameMasterCore.Locations
+  alias GameMasterCore.Quests
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Games.Game
@@ -226,8 +228,16 @@ defmodule GameMasterCore.Games do
     characters = Characters.list_characters_for_game(scope)
     factions = Factions.list_factions_for_game(scope)
     notes = Notes.list_notes_for_game(scope)
+    quests = Quests.list_quests_for_game(scope)
+    locations = Locations.list_locations_for_game(scope)
 
-    %{notes: notes, characters: characters, factions: factions}
+    %{
+      notes: notes,
+      characters: characters,
+      factions: factions,
+      locations: locations,
+      quests: quests
+    }
   end
 
   defp can_modify_game?(%Scope{} = scope, %Game{} = game) do
