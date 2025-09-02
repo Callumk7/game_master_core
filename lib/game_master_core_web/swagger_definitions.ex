@@ -251,6 +251,104 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def character_schema do
+    swagger_schema do
+      title("Character")
+      description("A game character")
+
+      properties do
+        id(:integer, "Character ID", required: true)
+        name(:string, "Character name", required: true)
+        description(:string, "Character description")
+        class(:string, "Character class", required: true)
+        level(:integer, "Character level", required: true)
+        image_url(:string, "Character image URL")
+        game_id(:integer, "Associated game ID", required: true)
+        user_id(:integer, "Creator user ID", required: true)
+        inserted_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "Gandalf the Grey",
+        description: "A wise and powerful wizard who guides the Fellowship.",
+        class: "Wizard",
+        level: 20,
+        image_url: "https://example.com/gandalf.jpg",
+        game_id: 1,
+        user_id: 1,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def character_params_schema do
+    swagger_schema do
+      title("Character Parameters")
+      description("Parameters for creating or updating a character")
+
+      properties do
+        name(:string, "Character name", required: true)
+        description(:string, "Character description")
+        class(:string, "Character class", required: true)
+        level(:integer, "Character level", required: true)
+        image_url(:string, "Character image URL")
+      end
+
+      required([:name, :class, :level])
+
+      example(%{
+        name: "Gandalf the Grey",
+        description: "A wise and powerful wizard who guides the Fellowship.",
+        class: "Wizard",
+        level: 20,
+        image_url: "https://example.com/gandalf.jpg"
+      })
+    end
+  end
+
+  def character_request_schema do
+    swagger_schema do
+      title("Character Request")
+      description("Character creation/update parameters")
+
+      properties do
+        character(Schema.ref(:CharacterParams), "Character parameters")
+      end
+
+      required([:character])
+    end
+  end
+
+  def character_links_data_schema do
+    swagger_schema do
+      title("Character Links Data")
+      description("Links associated with a character")
+
+      properties do
+        character_id(:integer, "Character ID", required: true)
+        character_name(:string, "Character name", required: true)
+        links(Schema.ref(:CharacterLinks), "Associated entity links")
+      end
+    end
+  end
+
+  def character_links_schema do
+    swagger_schema do
+      title("Character Links")
+      description("Collections of entities linked to a character")
+
+      properties do
+        notes(Schema.array(:object), "Linked notes")
+        factions(Schema.array(:object), "Linked factions")
+        locations(Schema.array(:object), "Linked locations")
+        quests(Schema.array(:object), "Linked quests")
+      end
+    end
+  end
+
   def link_request_schema do
     swagger_schema do
       title("Link Request")
@@ -305,6 +403,21 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:NoteLinksData),
           "Note Links Response",
           "Response containing note links"
+        ),
+      Character: character_schema(),
+      CharacterParams: character_params_schema(),
+      CharacterRequest: character_request_schema(),
+      CharacterResponse:
+        response_schema(Schema.ref(:Character), "Character Response", "Response containing a single character"),
+      CharactersResponse:
+        array_response_schema(:Character, "Characters Response", "Response containing a list of characters"),
+      CharacterLinksData: character_links_data_schema(),
+      CharacterLinks: character_links_schema(),
+      CharacterLinksResponse:
+        response_schema(
+          Schema.ref(:CharacterLinksData),
+          "Character Links Response",
+          "Response containing character links"
         ),
       LinkRequest: link_request_schema(),
       Entities: entities_schema(),
