@@ -18,13 +18,14 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions")
     summary("List factions")
     description("Get all factions in a game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:FactionsResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -40,14 +41,15 @@ defmodule GameMasterCoreWeb.FactionController do
     post("/api/games/{game_id}/factions")
     summary("Create faction")
     description("Create a new faction in the game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(201, "Created", Schema.ref(:FactionResponse))
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -73,14 +75,15 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions/{id}")
     summary("Get faction")
     description("Get a specific faction by ID")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:FactionResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -96,15 +99,16 @@ defmodule GameMasterCoreWeb.FactionController do
     put("/api/games/{game_id}/factions/{id}")
     summary("Update faction")
     description("Update an existing faction")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
       faction(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:FactionResponse))
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -126,14 +130,15 @@ defmodule GameMasterCoreWeb.FactionController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/factions/{id}")
     summary("Delete faction")
     description("Delete a faction from the game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(204, "No Content")
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -154,15 +159,16 @@ defmodule GameMasterCoreWeb.FactionController do
     post("/api/games/{game_id}/factions/{faction_id}/links")
     summary("Create faction link")
     description("Link a faction to another entity (note, character, etc.)")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(201, "Created")
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -196,14 +202,15 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions/{faction_id}/links")
     summary("Get faction links")
     description("Get all entities linked to a faction")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:FactionLinksResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -228,19 +235,23 @@ defmodule GameMasterCoreWeb.FactionController do
   end
 
   swagger_path :delete_link do
-    PhoenixSwagger.Path.delete("/api/games/{game_id}/factions/{faction_id}/links/{entity_type}/{entity_id}")
+    PhoenixSwagger.Path.delete(
+      "/api/games/{game_id}/factions/{faction_id}/links/{entity_type}/{entity_id}"
+    )
+
     summary("Delete faction link")
     description("Remove a link between a faction and another entity")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)
       entity_id(:path, :integer, "Entity ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(204, "No Content")
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
