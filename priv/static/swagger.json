@@ -1,0 +1,738 @@
+{
+  "info": {
+    "version": "1.0",
+    "title": "Game Master API"
+  },
+  "host": "localhost:4000",
+  "definitions": {
+    "Game": {
+      "description": "A game instance",
+      "example": {
+        "description": "An epic adventure",
+        "id": 1,
+        "inserted_at": "2023-08-20T12:00:00Z",
+        "name": "My Campaign",
+        "owner_id": 1,
+        "setting": "Fantasy",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "id": {
+          "description": "Game ID",
+          "type": "integer"
+        },
+        "inserted_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "owner_id": {
+          "description": "Owner user ID",
+          "type": "integer"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_id",
+        "name",
+        "id"
+      ],
+      "title": "Game",
+      "type": "object"
+    },
+    "GamesResponse": {
+      "description": "Response containing a list of games",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Game"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Games Response",
+      "type": "object"
+    },
+    "Error": {
+      "description": "Error response",
+      "properties": {
+        "errors": {
+          "$ref": "#/definitions/ErrorDetails",
+          "description": "Error details"
+        }
+      },
+      "title": "Error",
+      "type": "object"
+    },
+    "GameRequest": {
+      "description": "Game creation/update parameters",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/GameParams",
+          "description": "Game parameters"
+        }
+      },
+      "required": [
+        "game"
+      ],
+      "title": "Game Request",
+      "type": "object"
+    },
+    "GameResponse": {
+      "description": "Response containing a single game",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Game",
+          "description": "Response data"
+        }
+      },
+      "title": "Game Response",
+      "type": "object"
+    },
+    "GameParams": {
+      "description": "Parameters for creating or updating a game",
+      "example": {
+        "description": "An epic adventure",
+        "name": "My Campaign",
+        "setting": "Fantasy"
+      },
+      "properties": {
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "name"
+      ],
+      "title": "Game Parameters",
+      "type": "object"
+    },
+    "Entities": {
+      "description": "Collection of game entities",
+      "properties": {
+        "characters": {
+          "description": "Characters list",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Factions list",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Locations list",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Notes list",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Quests list",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Entities",
+      "type": "object"
+    },
+    "ErrorDetails": {
+      "description": "Detailed error information",
+      "title": "Error Details",
+      "type": "object"
+    },
+    "Member": {
+      "description": "A game member",
+      "example": {
+        "email": "user@example.com",
+        "joined_at": "2023-08-20T12:00:00Z",
+        "role": "member",
+        "user_id": 1
+      },
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "joined_at": {
+          "description": "Join timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "role": {
+          "description": "Member role",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "User ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "email",
+        "user_id"
+      ],
+      "title": "Member",
+      "type": "object"
+    },
+    "MembersResponse": {
+      "description": "Response containing a list of game members",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Member"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Members Response",
+      "type": "object"
+    },
+    "EntitiesData": {
+      "description": "Game entities data structure",
+      "properties": {
+        "entities": {
+          "$ref": "#/definitions/Entities",
+          "description": "Game entities"
+        },
+        "game_id": {
+          "description": "Game ID",
+          "type": "integer"
+        },
+        "game_name": {
+          "description": "Game name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "game_name",
+        "game_id"
+      ],
+      "title": "Entities Data",
+      "type": "object"
+    },
+    "EntitiesResponse": {
+      "description": "Response containing all game entities",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/EntitiesData",
+          "description": "Response data"
+        }
+      },
+      "title": "Entities Response",
+      "type": "object"
+    }
+  },
+  "paths": {
+    "/api/games": {
+      "get": {
+        "description": "Retrieve a list of all games accessible to the current user",
+        "operationId": "GameMasterCoreWeb.GameController.index",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GamesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List all games",
+        "tags": [
+          "Games"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a new game with the provided parameters",
+        "operationId": "GameMasterCoreWeb.GameController.create",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a new game",
+        "tags": [
+          "Games"
+        ]
+      }
+    },
+    "/api/games/{game_id}/links": {
+      "get": {
+        "description": "Retrieve all entities (notes, characters, factions, locations, quests) for the specified game",
+        "operationId": "GameMasterCoreWeb.GameController.list_entities",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/EntitiesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List game entities",
+        "tags": [
+          "Game Entities"
+        ]
+      }
+    },
+    "/api/games/{game_id}/members": {
+      "get": {
+        "description": "Retrieve a list of all members in the specified game",
+        "operationId": "GameMasterCoreWeb.GameController.list_members",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/MembersResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List game members",
+        "tags": [
+          "Game Members"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Add a user as a member to the specified game",
+        "operationId": "GameMasterCoreWeb.GameController.add_member",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "User ID to add",
+            "in": "formData",
+            "name": "user_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Member role (default: 'member')",
+            "in": "formData",
+            "name": "role",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Add a member to a game",
+        "tags": [
+          "Game Members"
+        ]
+      }
+    },
+    "/api/games/{game_id}/members/{user_id}": {
+      "delete": {
+        "description": "Remove a user from the specified game",
+        "operationId": "GameMasterCoreWeb.GameController.remove_member",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "User ID to remove",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Remove a member from a game",
+        "tags": [
+          "Game Members"
+        ]
+      }
+    },
+    "/api/games/{id}": {
+      "delete": {
+        "description": "Delete a specific game by its ID",
+        "operationId": "GameMasterCoreWeb.GameController.delete",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a game",
+        "tags": [
+          "Games"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a specific game by its ID",
+        "operationId": "GameMasterCoreWeb.GameController.show",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Get a game",
+        "tags": [
+          "Games"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Update a specific game with the provided parameters",
+        "operationId": "GameMasterCoreWeb.GameController.update",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Game parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Update a game",
+        "tags": [
+          "Games"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}

@@ -133,4 +133,19 @@ defmodule GameMasterCoreWeb.Router do
       resources "/factions", FactionController
     end
   end
+
+  scope "/api/swagger" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI,
+      otp_app: :game_master_core,
+      swagger_file: "swagger.json"
+  end
+
+  def swagger_info do
+    %{
+      info: %{
+        version: "1.0",
+        title: "Game Master API"
+      }
+    }
+  end
 end
