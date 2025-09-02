@@ -18,13 +18,14 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters")
     summary("List characters")
     description("Get all characters in a game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:CharactersResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -40,14 +41,15 @@ defmodule GameMasterCoreWeb.CharacterController do
     post("/api/games/{game_id}/characters")
     summary("Create character")
     description("Create a new character in the game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(201, "Created", Schema.ref(:CharacterResponse))
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -76,14 +78,15 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters/{id}")
     summary("Get character")
     description("Get a specific character by ID")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:CharacterResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -99,15 +102,16 @@ defmodule GameMasterCoreWeb.CharacterController do
     put("/api/games/{game_id}/characters/{id}")
     summary("Update character")
     description("Update an existing character")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
       character(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:CharacterResponse))
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -129,14 +133,15 @@ defmodule GameMasterCoreWeb.CharacterController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/characters/{id}")
     summary("Delete character")
     description("Delete a character from the game")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(204, "No Content")
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -157,15 +162,16 @@ defmodule GameMasterCoreWeb.CharacterController do
     post("/api/games/{game_id}/characters/{character_id}/links")
     summary("Create character link")
     description("Link a character to another entity (note, faction, etc.)")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(201, "Created")
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))
@@ -199,14 +205,15 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters/{character_id}/links")
     summary("Get character links")
     description("Get all entities linked to a character")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(200, "Success", Schema.ref(:CharacterLinksResponse))
     response(401, "Unauthorized", Schema.ref(:Error))
     response(403, "Forbidden", Schema.ref(:Error))
@@ -228,19 +235,23 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   swagger_path :delete_link do
-    PhoenixSwagger.Path.delete("/api/games/{game_id}/characters/{character_id}/links/{entity_type}/{entity_id}")
+    PhoenixSwagger.Path.delete(
+      "/api/games/{game_id}/characters/{character_id}/links/{entity_type}/{entity_id}"
+    )
+
     summary("Delete character link")
     description("Remove a link between a character and another entity")
-    
+
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)
       entity_id(:path, :integer, "Entity ID", required: true)
     end
-    
+
     security([%{Bearer: []}])
-    
+
     response(204, "No Content")
     response(400, "Bad Request", Schema.ref(:Error))
     response(401, "Unauthorized", Schema.ref(:Error))

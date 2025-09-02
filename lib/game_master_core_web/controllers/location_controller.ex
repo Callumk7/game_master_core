@@ -21,6 +21,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Get all locations in a game")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -43,6 +44,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Create a new location in the game")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
     end
@@ -76,6 +78,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Get a specific location by ID")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
     end
@@ -99,6 +102,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Update an existing location")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
       location(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
@@ -129,6 +133,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Delete a location from the game")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
     end
@@ -155,6 +160,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Link a location to another entity (note, faction, etc.)")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
@@ -197,6 +203,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Get all entities linked to a location")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
     end
@@ -232,6 +239,7 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Remove a link between a location and another entity")
 
     parameters do
+      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)
