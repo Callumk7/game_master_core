@@ -35,6 +35,16 @@ config :game_master_core,
   ecto_repos: [GameMasterCore.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+config :game_master_core, :phoenix_swagger,
+  swagger_files: %{
+    "priv/static/swagger.json" => [
+      router: GameMasterCoreWeb.Router,
+      endpoint: GameMasterCoreWeb.Endpoint
+    ]
+  }
+
+config :phoenix_swagger, json_library: Jason
+
 # Configures the endpoint
 config :game_master_core, GameMasterCoreWeb.Endpoint,
   url: [host: "localhost"],
