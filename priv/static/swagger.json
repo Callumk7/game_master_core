@@ -5,6 +5,131 @@
   },
   "host": "localhost:4000",
   "definitions": {
+    "Error": {
+      "description": "Error response",
+      "properties": {
+        "errors": {
+          "$ref": "#/definitions/ErrorDetails",
+          "description": "Error details"
+        }
+      },
+      "title": "Error",
+      "type": "object"
+    },
+    "GameRequest": {
+      "description": "Game creation/update parameters",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/GameParams",
+          "description": "Game parameters"
+        }
+      },
+      "required": [
+        "game"
+      ],
+      "title": "Game Request",
+      "type": "object"
+    },
+    "GameResponse": {
+      "description": "Response containing a single game",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Game",
+          "description": "Response data"
+        }
+      },
+      "title": "Game Response",
+      "type": "object"
+    },
+    "GamesResponse": {
+      "description": "Response containing a list of games",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Game"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Games Response",
+      "type": "object"
+    },
+    "EntitiesResponse": {
+      "description": "Response containing all game entities",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/EntitiesData",
+          "description": "Response data"
+        }
+      },
+      "title": "Entities Response",
+      "type": "object"
+    },
+    "MembersResponse": {
+      "description": "Response containing a list of game members",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Member"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Members Response",
+      "type": "object"
+    },
+    "NoteRequest": {
+      "description": "Note creation/update parameters",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/NoteParams",
+          "description": "Note parameters"
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "title": "Note Request",
+      "type": "object"
+    },
+    "NoteResponse": {
+      "description": "Response containing a single note",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Note",
+          "description": "Response data"
+        }
+      },
+      "title": "Note Response",
+      "type": "object"
+    },
+    "NotesResponse": {
+      "description": "Response containing a list of notes",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Note"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Notes Response",
+      "type": "object"
+    },
+    "NoteLinksResponse": {
+      "description": "Response containing note links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/NoteLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Note Links Response",
+      "type": "object"
+    },
     "Game": {
       "description": "A game instance",
       "example": {
@@ -56,82 +181,138 @@
       "title": "Game",
       "type": "object"
     },
-    "GamesResponse": {
-      "description": "Response containing a list of games",
-      "properties": {
-        "data": {
-          "description": "Response data",
-          "items": {
-            "$ref": "#/definitions/Game"
-          },
-          "type": "array"
-        }
+    "Member": {
+      "description": "A game member",
+      "example": {
+        "email": "user@example.com",
+        "joined_at": "2023-08-20T12:00:00Z",
+        "role": "member",
+        "user_id": 1
       },
-      "title": "Games Response",
-      "type": "object"
-    },
-    "Error": {
-      "description": "Error response",
       "properties": {
-        "errors": {
-          "$ref": "#/definitions/ErrorDetails",
-          "description": "Error details"
-        }
-      },
-      "title": "Error",
-      "type": "object"
-    },
-    "GameRequest": {
-      "description": "Game creation/update parameters",
-      "properties": {
-        "game": {
-          "$ref": "#/definitions/GameParams",
-          "description": "Game parameters"
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "joined_at": {
+          "description": "Join timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "role": {
+          "description": "Member role",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "User ID",
+          "type": "integer"
         }
       },
       "required": [
-        "game"
+        "role",
+        "email",
+        "user_id"
       ],
-      "title": "Game Request",
+      "title": "Member",
       "type": "object"
     },
-    "GameResponse": {
-      "description": "Response containing a single game",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/Game",
-          "description": "Response data"
-        }
-      },
-      "title": "Game Response",
-      "type": "object"
-    },
-    "GameParams": {
-      "description": "Parameters for creating or updating a game",
+    "Note": {
+      "description": "A game note",
       "example": {
-        "description": "An epic adventure",
-        "name": "My Campaign",
-        "setting": "Fantasy"
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "game_id": 1,
+        "id": 1,
+        "inserted_at": "2023-08-20T12:00:00Z",
+        "name": "Important Quest Notes",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
       },
       "properties": {
-        "description": {
-          "description": "Game description",
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Note ID",
+          "type": "integer"
+        },
+        "inserted_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
           "type": "string"
         },
         "name": {
-          "description": "Game name",
+          "description": "Note name",
           "type": "string"
         },
-        "setting": {
-          "description": "Game setting",
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Author user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Note",
+      "type": "object"
+    },
+    "NoteLinksData": {
+      "description": "Links associated with a note",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/NoteLinks",
+          "description": "Associated entity links"
+        },
+        "note_id": {
+          "description": "Note ID",
+          "type": "integer"
+        },
+        "note_name": {
+          "description": "Note name",
           "type": "string"
         }
       },
       "required": [
-        "name",
-        "name"
+        "note_name",
+        "note_id"
       ],
-      "title": "Game Parameters",
+      "title": "Note Links Data",
+      "type": "object"
+    },
+    "EntitiesData": {
+      "description": "Game entities data structure",
+      "properties": {
+        "entities": {
+          "$ref": "#/definitions/Entities",
+          "description": "Game entities"
+        },
+        "game_id": {
+          "description": "Game ID",
+          "type": "integer"
+        },
+        "game_name": {
+          "description": "Game name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "game_name",
+        "game_id"
+      ],
+      "title": "Entities Data",
       "type": "object"
     },
     "Entities": {
@@ -181,87 +362,123 @@
       "title": "Error Details",
       "type": "object"
     },
-    "Member": {
-      "description": "A game member",
+    "GameParams": {
+      "description": "Parameters for creating or updating a game",
       "example": {
-        "email": "user@example.com",
-        "joined_at": "2023-08-20T12:00:00Z",
-        "role": "member",
-        "user_id": 1
+        "description": "An epic adventure",
+        "name": "My Campaign",
+        "setting": "Fantasy"
       },
       "properties": {
-        "email": {
-          "description": "User email",
+        "description": {
+          "description": "Game description",
           "type": "string"
         },
-        "joined_at": {
-          "description": "Join timestamp",
-          "format": "datetime",
+        "name": {
+          "description": "Game name",
           "type": "string"
         },
-        "role": {
-          "description": "Member role",
+        "setting": {
+          "description": "Game setting",
           "type": "string"
-        },
-        "user_id": {
-          "description": "User ID",
-          "type": "integer"
         }
       },
       "required": [
-        "role",
-        "email",
-        "user_id"
+        "name",
+        "name"
       ],
-      "title": "Member",
+      "title": "Game Parameters",
       "type": "object"
     },
-    "MembersResponse": {
-      "description": "Response containing a list of game members",
+    "LinkRequest": {
+      "description": "Request to create a link between entities",
+      "example": {
+        "entity_id": 1,
+        "entity_type": "character"
+      },
       "properties": {
-        "data": {
-          "description": "Response data",
+        "entity_id": {
+          "description": "Entity ID to link",
+          "type": "integer"
+        },
+        "entity_type": {
+          "description": "Entity type to link",
+          "enum": [
+            "character",
+            "faction",
+            "location",
+            "quest"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_type",
+        "entity_id",
+        "entity_id",
+        "entity_type"
+      ],
+      "title": "Link Request",
+      "type": "object"
+    },
+    "NoteLinks": {
+      "description": "Collections of entities linked to a note",
+      "properties": {
+        "characters": {
+          "description": "Linked characters",
           "items": {
-            "$ref": "#/definitions/Member"
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests",
+          "items": {
+            "type": "object"
           },
           "type": "array"
         }
       },
-      "title": "Members Response",
+      "title": "Note Links",
       "type": "object"
     },
-    "EntitiesData": {
-      "description": "Game entities data structure",
+    "NoteParams": {
+      "description": "Parameters for creating or updating a note",
+      "example": {
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "name": "Important Quest Notes"
+      },
       "properties": {
-        "entities": {
-          "$ref": "#/definitions/Entities",
-          "description": "Game entities"
+        "content": {
+          "description": "Note content",
+          "type": "string"
         },
-        "game_id": {
-          "description": "Game ID",
-          "type": "integer"
-        },
-        "game_name": {
-          "description": "Game name",
+        "name": {
+          "description": "Note name",
           "type": "string"
         }
       },
       "required": [
-        "game_name",
-        "game_id"
+        "name",
+        "content",
+        "content",
+        "name"
       ],
-      "title": "Entities Data",
-      "type": "object"
-    },
-    "EntitiesResponse": {
-      "description": "Response containing all game entities",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/EntitiesData",
-          "description": "Response data"
-        }
-      },
-      "title": "Entities Response",
+      "title": "Note Parameters",
       "type": "object"
     }
   },
@@ -569,6 +786,540 @@
         "summary": "Remove a member from a game",
         "tags": [
           "Game Members"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes": {
+      "get": {
+        "description": "Retrieve all notes for a specific game",
+        "operationId": "GameMasterCoreWeb.NoteController.index",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NotesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List notes",
+        "tags": [
+          "Notes"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a new note for the specified game",
+        "operationId": "GameMasterCoreWeb.NoteController.create",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NoteRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a note",
+        "tags": [
+          "Notes"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{id}": {
+      "delete": {
+        "description": "Delete a specific note by its ID",
+        "operationId": "GameMasterCoreWeb.NoteController.delete",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a note",
+        "tags": [
+          "Notes"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a specific note by its ID",
+        "operationId": "GameMasterCoreWeb.NoteController.show",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Get a note",
+        "tags": [
+          "Notes"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Update a specific note with the provided parameters",
+        "operationId": "GameMasterCoreWeb.NoteController.update",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NoteRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Update a note",
+        "tags": [
+          "Notes"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{note_id}/links": {
+      "get": {
+        "description": "Retrieve all entities linked to a specific note",
+        "operationId": "GameMasterCoreWeb.NoteController.list_links",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List note links",
+        "tags": [
+          "Note Links"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a link between a note and another entity (character, faction, location, quest)",
+        "operationId": "GameMasterCoreWeb.NoteController.create_link",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "quest"
+            ],
+            "in": "formData",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "formData",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "properties": {
+                "entity_id": {
+                  "type": "integer"
+                },
+                "entity_type": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "note_id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a link",
+        "tags": [
+          "Note Links"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{note_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a note and another entity",
+        "operationId": "GameMasterCoreWeb.NoteController.delete_link",
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "quest"
+            ],
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a link",
+        "tags": [
+          "Note Links"
         ]
       }
     },

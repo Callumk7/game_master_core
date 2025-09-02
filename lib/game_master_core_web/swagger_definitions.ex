@@ -165,6 +165,115 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def note_schema do
+    swagger_schema do
+      title("Note")
+      description("A game note")
+
+      properties do
+        id(:integer, "Note ID", required: true)
+        name(:string, "Note name", required: true)
+        content(:string, "Note content", required: true)
+        game_id(:integer, "Associated game ID", required: true)
+        user_id(:integer, "Author user ID", required: true)
+        inserted_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "Important Quest Notes",
+        content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        game_id: 1,
+        user_id: 1,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def note_params_schema do
+    swagger_schema do
+      title("Note Parameters")
+      description("Parameters for creating or updating a note")
+
+      properties do
+        name(:string, "Note name", required: true)
+        content(:string, "Note content", required: true)
+      end
+
+      required([:name, :content])
+
+      example(%{
+        name: "Important Quest Notes",
+        content: "The dragon is hiding in the crystal cave beyond the misty mountains."
+      })
+    end
+  end
+
+  def note_request_schema do
+    swagger_schema do
+      title("Note Request")
+      description("Note creation/update parameters")
+
+      properties do
+        note(Schema.ref(:NoteParams), "Note parameters")
+      end
+
+      required([:note])
+    end
+  end
+
+  def note_links_data_schema do
+    swagger_schema do
+      title("Note Links Data")
+      description("Links associated with a note")
+
+      properties do
+        note_id(:integer, "Note ID", required: true)
+        note_name(:string, "Note name", required: true)
+        links(Schema.ref(:NoteLinks), "Associated entity links")
+      end
+    end
+  end
+
+  def note_links_schema do
+    swagger_schema do
+      title("Note Links")
+      description("Collections of entities linked to a note")
+
+      properties do
+        characters(Schema.array(:object), "Linked characters")
+        factions(Schema.array(:object), "Linked factions")
+        locations(Schema.array(:object), "Linked locations")
+        quests(Schema.array(:object), "Linked quests")
+      end
+    end
+  end
+
+  def link_request_schema do
+    swagger_schema do
+      title("Link Request")
+      description("Request to create a link between entities")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: [:character, :faction, :location, :quest]
+        )
+
+        entity_id(:integer, "Entity ID to link", required: true)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "character",
+        entity_id: 1
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -182,6 +291,22 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Members Response",
           "Response containing a list of game members"
         ),
+      Note: note_schema(),
+      NoteParams: note_params_schema(),
+      NoteRequest: note_request_schema(),
+      NoteResponse:
+        response_schema(Schema.ref(:Note), "Note Response", "Response containing a single note"),
+      NotesResponse:
+        array_response_schema(:Note, "Notes Response", "Response containing a list of notes"),
+      NoteLinksData: note_links_data_schema(),
+      NoteLinks: note_links_schema(),
+      NoteLinksResponse:
+        response_schema(
+          Schema.ref(:NoteLinksData),
+          "Note Links Response",
+          "Response containing note links"
+        ),
+      LinkRequest: link_request_schema(),
       Entities: entities_schema(),
       EntitiesData: entities_data_schema(),
       EntitiesResponse:
