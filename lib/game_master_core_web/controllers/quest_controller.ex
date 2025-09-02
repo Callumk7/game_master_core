@@ -75,7 +75,13 @@ defmodule GameMasterCoreWeb.QuestController do
 
     links = Quests.links(conn.assigns.current_scope, quest.id)
 
-    render(conn, :links, quest: quest, characters: links.characters, factions: links.factions, notes: links.notes, locations: links.locations)
+    render(conn, :links,
+      quest: quest,
+      characters: links.characters,
+      factions: links.factions,
+      notes: links.notes,
+      locations: links.locations
+    )
   end
 
   def delete_link(conn, %{
