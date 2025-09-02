@@ -367,7 +367,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: 1,
         name: "The Shadow Council",
-        description: "A secretive organization that seeks to control the realm from behind the scenes.",
+        description:
+          "A secretive organization that seeks to control the realm from behind the scenes.",
         game_id: 1,
         user_id: 1,
         inserted_at: "2023-08-20T12:00:00Z",
@@ -390,7 +391,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         name: "The Shadow Council",
-        description: "A secretive organization that seeks to control the realm from behind the scenes."
+        description:
+          "A secretive organization that seeks to control the realm from behind the scenes."
       })
     end
   end
@@ -458,6 +460,110 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def location_schema do
+    swagger_schema do
+      title("Location")
+      description("A game location")
+
+      properties do
+        id(:integer, "Location ID", required: true)
+        name(:string, "Location name", required: true)
+        description(:string, "Location description")
+
+        type(:string, "Location type",
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+
+        parent_id(:integer, "Parent location ID")
+        game_id(:integer, "Associated game ID", required: true)
+        user_id(:integer, "Creator user ID", required: true)
+        inserted_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Crystal Cave",
+        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        type: "building",
+        parent_id: 2,
+        game_id: 1,
+        user_id: 1,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def location_params_schema do
+    swagger_schema do
+      title("Location Parameters")
+      description("Parameters for creating or updating a location")
+
+      properties do
+        name(:string, "Location name", required: true)
+        description(:string, "Location description")
+
+        type(:string, "Location type",
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+
+        parent_id(:integer, "Parent location ID")
+      end
+
+      required([:name, :type])
+
+      example(%{
+        name: "The Crystal Cave",
+        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        type: "building",
+        parent_id: 2
+      })
+    end
+  end
+
+  def location_request_schema do
+    swagger_schema do
+      title("Location Request")
+      description("Location creation/update parameters")
+
+      properties do
+        location(Schema.ref(:LocationParams), "Location parameters")
+      end
+
+      required([:location])
+    end
+  end
+
+  def location_links_data_schema do
+    swagger_schema do
+      title("Location Links Data")
+      description("Links associated with a location")
+
+      properties do
+        location_id(:integer, "Location ID", required: true)
+        location_name(:string, "Location name", required: true)
+        links(Schema.ref(:LocationLinks), "Associated entity links")
+      end
+    end
+  end
+
+  def location_links_schema do
+    swagger_schema do
+      title("Location Links")
+      description("Collections of entities linked to a location")
+
+      properties do
+        notes(Schema.array(:object), "Linked notes")
+        characters(Schema.array(:object), "Linked characters")
+        factions(Schema.array(:object), "Linked factions")
+        quests(Schema.array(:object), "Linked quests")
+      end
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -494,9 +600,17 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       CharacterParams: character_params_schema(),
       CharacterRequest: character_request_schema(),
       CharacterResponse:
-        response_schema(Schema.ref(:Character), "Character Response", "Response containing a single character"),
+        response_schema(
+          Schema.ref(:Character),
+          "Character Response",
+          "Response containing a single character"
+        ),
       CharactersResponse:
-        array_response_schema(:Character, "Characters Response", "Response containing a list of characters"),
+        array_response_schema(
+          :Character,
+          "Characters Response",
+          "Response containing a list of characters"
+        ),
       CharacterLinksData: character_links_data_schema(),
       CharacterLinks: character_links_schema(),
       CharacterLinksResponse:
@@ -509,9 +623,17 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       FactionParams: faction_params_schema(),
       FactionRequest: faction_request_schema(),
       FactionResponse:
-        response_schema(Schema.ref(:Faction), "Faction Response", "Response containing a single faction"),
+        response_schema(
+          Schema.ref(:Faction),
+          "Faction Response",
+          "Response containing a single faction"
+        ),
       FactionsResponse:
-        array_response_schema(:Faction, "Factions Response", "Response containing a list of factions"),
+        array_response_schema(
+          :Faction,
+          "Factions Response",
+          "Response containing a list of factions"
+        ),
       FactionLinksData: faction_links_data_schema(),
       FactionLinks: faction_links_schema(),
       FactionLinksResponse:
@@ -521,6 +643,29 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing faction links"
         ),
       LinkRequest: link_request_schema(),
+      Location: location_schema(),
+      LocationParams: location_params_schema(),
+      LocationRequest: location_request_schema(),
+      LocationResponse:
+        response_schema(
+          Schema.ref(:Location),
+          "Location Response",
+          "Response containing a single location"
+        ),
+      LocationsResponse:
+        array_response_schema(
+          :Location,
+          "Locations Response",
+          "Response containing a list of locations"
+        ),
+      LocationLinksData: location_links_data_schema(),
+      LocationLinks: location_links_schema(),
+      LocationLinksResponse:
+        response_schema(
+          Schema.ref(:LocationLinksData),
+          "Location Links Response",
+          "Response containing location links"
+        ),
       Entities: entities_schema(),
       EntitiesData: entities_data_schema(),
       EntitiesResponse:
