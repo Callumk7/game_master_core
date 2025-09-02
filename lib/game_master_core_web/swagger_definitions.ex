@@ -349,6 +349,92 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def faction_schema do
+    swagger_schema do
+      title("Faction")
+      description("A game faction")
+
+      properties do
+        id(:integer, "Faction ID", required: true)
+        name(:string, "Faction name", required: true)
+        description(:string, "Faction description", required: true)
+        game_id(:integer, "Associated game ID", required: true)
+        user_id(:integer, "Creator user ID", required: true)
+        inserted_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Shadow Council",
+        description: "A secretive organization that seeks to control the realm from behind the scenes.",
+        game_id: 1,
+        user_id: 1,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def faction_params_schema do
+    swagger_schema do
+      title("Faction Parameters")
+      description("Parameters for creating or updating a faction")
+
+      properties do
+        name(:string, "Faction name", required: true)
+        description(:string, "Faction description", required: true)
+      end
+
+      required([:name, :description])
+
+      example(%{
+        name: "The Shadow Council",
+        description: "A secretive organization that seeks to control the realm from behind the scenes."
+      })
+    end
+  end
+
+  def faction_request_schema do
+    swagger_schema do
+      title("Faction Request")
+      description("Faction creation/update parameters")
+
+      properties do
+        faction(Schema.ref(:FactionParams), "Faction parameters")
+      end
+
+      required([:faction])
+    end
+  end
+
+  def faction_links_data_schema do
+    swagger_schema do
+      title("Faction Links Data")
+      description("Links associated with a faction")
+
+      properties do
+        faction_id(:integer, "Faction ID", required: true)
+        faction_name(:string, "Faction name", required: true)
+        links(Schema.ref(:FactionLinks), "Associated entity links")
+      end
+    end
+  end
+
+  def faction_links_schema do
+    swagger_schema do
+      title("Faction Links")
+      description("Collections of entities linked to a faction")
+
+      properties do
+        notes(Schema.array(:object), "Linked notes")
+        characters(Schema.array(:object), "Linked characters")
+        locations(Schema.array(:object), "Linked locations")
+        quests(Schema.array(:object), "Linked quests")
+      end
+    end
+  end
+
   def link_request_schema do
     swagger_schema do
       title("Link Request")
@@ -418,6 +504,21 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:CharacterLinksData),
           "Character Links Response",
           "Response containing character links"
+        ),
+      Faction: faction_schema(),
+      FactionParams: faction_params_schema(),
+      FactionRequest: faction_request_schema(),
+      FactionResponse:
+        response_schema(Schema.ref(:Faction), "Faction Response", "Response containing a single faction"),
+      FactionsResponse:
+        array_response_schema(:Faction, "Factions Response", "Response containing a list of factions"),
+      FactionLinksData: faction_links_data_schema(),
+      FactionLinks: faction_links_schema(),
+      FactionLinksResponse:
+        response_schema(
+          Schema.ref(:FactionLinksData),
+          "Faction Links Response",
+          "Response containing faction links"
         ),
       LinkRequest: link_request_schema(),
       Entities: entities_schema(),
