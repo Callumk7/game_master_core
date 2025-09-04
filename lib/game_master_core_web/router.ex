@@ -17,8 +17,13 @@ defmodule GameMasterCoreWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :require_auth_token do
-    plug :fetch_current_scope_for_api_user
+  pipeline :session_api do
+    plug :accepts, ["json"]
+    plug :fetch_current_scope_for_session_api
+  end
+
+  pipeline :require_session_auth do
+    plug :require_authenticated_session_api_user
   end
 
   scope "/", GameMasterCoreWeb do
@@ -33,8 +38,21 @@ defmodule GameMasterCoreWeb.Router do
     post "/", TokenController, :create
   end
 
+  scope "/api/auth", GameMasterCoreWeb do
+    pipe_through :api
+
+    post "/login", ApiAuthController, :login
+  end
+
+  scope "/api/auth", GameMasterCoreWeb do
+    pipe_through [:session_api, :require_session_auth]
+
+    delete "/logout", ApiAuthController, :logout
+    get "/status", ApiAuthController, :status
+  end
+
   scope "/api", GameMasterCoreWeb do
-    pipe_through [:api, :require_auth_token, :assign_current_game]
+    pipe_through [:session_api, :require_session_auth, :assign_current_game]
 
     resources "/games", GameController, except: [:new, :edit] do
       get "/members", GameController, :list_members

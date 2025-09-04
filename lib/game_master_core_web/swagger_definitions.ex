@@ -667,6 +667,87 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     )
   end
 
+  # Authentication schemas
+
+  def user_schema do
+    swagger_schema do
+      title("User")
+      description("User information")
+
+      properties do
+        id(:integer, "User ID", required: true)
+        email(:string, "User email", required: true)
+        confirmed_at(:string, "Email confirmation timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        email: "user@example.com",
+        confirmed_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def login_request_schema do
+    swagger_schema do
+      title("Login Request")
+      description("Login credentials - either email/password or magic link token")
+
+      properties do
+        email(:string, "User email")
+        password(:string, "User password")
+        token(:string, "Magic link token")
+      end
+
+      example(%{
+        email: "user@example.com",
+        password: "password123"
+      })
+    end
+  end
+
+  def login_response_schema do
+    swagger_schema do
+      title("Login Response")
+      description("Successful login response")
+
+      properties do
+        token(:string, "Session token (Base64 encoded)", required: true)
+        user(Schema.ref(:User), "User information", required: true)
+      end
+
+      example(%{
+        token: "dGVzdF90b2tlbg==",
+        user: %{
+          id: 1,
+          email: "user@example.com",
+          confirmed_at: "2023-08-20T12:00:00Z"
+        }
+      })
+    end
+  end
+
+  def auth_status_response_schema do
+    swagger_schema do
+      title("Auth Status Response")
+      description("Authentication status response")
+
+      properties do
+        authenticated(:boolean, "Whether user is authenticated", required: true)
+        user(Schema.ref(:User), "User information if authenticated")
+      end
+
+      example(%{
+        authenticated: true,
+        user: %{
+          id: 1,
+          email: "user@example.com",
+          confirmed_at: "2023-08-20T12:00:00Z"
+        }
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -797,7 +878,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing all game entities"
         ),
       Error: error_schema(),
-      ErrorDetails: error_details_schema()
+      ErrorDetails: error_details_schema(),
+      User: user_schema(),
+      LoginRequest: login_request_schema(),
+      LoginResponse: login_response_schema(),
+      AuthStatusResponse: auth_status_response_schema()
     }
   end
 end
