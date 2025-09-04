@@ -68,6 +68,7 @@ defmodule GameMasterCore.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:phoenix_swagger, "~> 0.8"},
+      {:cors_plug, "~> 3.0"},
       {:ex_json_schema, "~> 0.5"}
     ]
   end

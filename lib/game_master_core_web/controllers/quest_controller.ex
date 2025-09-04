@@ -19,9 +19,10 @@ defmodule GameMasterCoreWeb.QuestController do
     get("/api/games/{game_id}/quests")
     summary("List quests")
     description("Get all quests in a game")
+    operation_id("listQuests")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -42,9 +43,10 @@ defmodule GameMasterCoreWeb.QuestController do
     post("/api/games/{game_id}/quests")
     summary("Create quest")
     description("Create a new quest in the game")
+    operation_id("createQuest")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       quest(:body, Schema.ref(:QuestRequest), "Quest to create", required: true)
     end
@@ -76,9 +78,10 @@ defmodule GameMasterCoreWeb.QuestController do
     get("/api/games/{game_id}/quests/{id}")
     summary("Get quest")
     description("Get a specific quest by ID")
+    operation_id("getQuest")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Quest ID", required: true)
     end
@@ -100,9 +103,10 @@ defmodule GameMasterCoreWeb.QuestController do
     put("/api/games/{game_id}/quests/{id}")
     summary("Update quest")
     description("Update an existing quest")
+    operation_id("updateQuest")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Quest ID", required: true)
       quest(:body, Schema.ref(:QuestRequest), "Quest updates", required: true)
@@ -131,9 +135,10 @@ defmodule GameMasterCoreWeb.QuestController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/quests/{id}")
     summary("Delete quest")
     description("Delete a quest from the game")
+    operation_id("deleteQuest")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Quest ID", required: true)
     end
@@ -158,9 +163,10 @@ defmodule GameMasterCoreWeb.QuestController do
     post("/api/games/{game_id}/quests/{quest_id}/links")
     summary("Create quest link")
     description("Link a quest to another entity (note, character, faction, location)")
+    operation_id("createQuestLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       quest_id(:path, :integer, "Quest ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
@@ -201,9 +207,10 @@ defmodule GameMasterCoreWeb.QuestController do
     get("/api/games/{game_id}/quests/{quest_id}/links")
     summary("Get quest links")
     description("Get all entities linked to a quest")
+    operation_id("getQuestLinks")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       quest_id(:path, :integer, "Quest ID", required: true)
     end
@@ -236,10 +243,11 @@ defmodule GameMasterCoreWeb.QuestController do
     )
 
     summary("Delete quest link")
+    operation_id("deleteQuestLink")
+    tag("GameMaster")
     description("Remove a link between a quest and another entity")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       quest_id(:path, :integer, "Quest ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)

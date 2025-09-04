@@ -11,7 +11,6 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
   """
   def common_parameters do
     %{
-      authorization: {:header, :string, "Bearer token", required: true},
       id: {:path, :integer, "ID", required: true},
       game_id: {:path, :integer, "Game ID", required: true},
       user_id: {:path, :integer, "User ID", required: true}
@@ -98,7 +97,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
 
         tag(unquote(tag_name))
         produces("application/json")
-        add_parameters([:authorization])
+        add_parameters([])
 
         response(
           200,
@@ -120,7 +119,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
         tag(unquote(tag_name))
         consumes("application/json")
         produces("application/json")
-        add_parameters([:authorization])
+        add_parameters([])
 
         parameters do
           body(
@@ -150,7 +149,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
 
         tag(unquote(tag_name))
         produces("application/json")
-        add_parameters([:authorization, :id])
+        add_parameters([:id])
 
         response(
           200,
@@ -172,7 +171,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
         tag(unquote(tag_name))
         consumes("application/json")
         produces("application/json")
-        add_parameters([:authorization, :id])
+        add_parameters([:id])
 
         parameters do
           body(
@@ -201,7 +200,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
         )
 
         tag(unquote(tag_name))
-        add_parameters([:authorization, :id])
+        add_parameters([:id])
         add_responses([204, 401, 404])
       end
     end

@@ -18,9 +18,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters")
     summary("List characters")
     description("Get all characters in a game")
+    operation_id("listCharacters")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -41,9 +42,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     post("/api/games/{game_id}/characters")
     summary("Create character")
     description("Create a new character in the game")
+    operation_id("createCharacter")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
     end
@@ -78,9 +80,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters/{id}")
     summary("Get character")
     description("Get a specific character by ID")
+    operation_id("getCharacter")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
     end
@@ -102,9 +105,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     put("/api/games/{game_id}/characters/{id}")
     summary("Update character")
     description("Update an existing character")
+    operation_id("updateCharacter")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
       character(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
@@ -133,9 +137,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/characters/{id}")
     summary("Delete character")
     description("Delete a character from the game")
+    operation_id("deleteCharacter")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
     end
@@ -162,9 +167,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     post("/api/games/{game_id}/characters/{character_id}/links")
     summary("Create character link")
     description("Link a character to another entity (note, faction, etc.)")
+    operation_id("createCharacterLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
@@ -205,9 +211,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     get("/api/games/{game_id}/characters/{character_id}/links")
     summary("Get character links")
     description("Get all entities linked to a character")
+    operation_id("getCharacterLinks")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
     end
@@ -241,9 +248,10 @@ defmodule GameMasterCoreWeb.CharacterController do
 
     summary("Delete character link")
     description("Remove a link between a character and another entity")
+    operation_id("deleteCharacterLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)

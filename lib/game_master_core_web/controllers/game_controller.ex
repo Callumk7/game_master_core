@@ -18,11 +18,11 @@ defmodule GameMasterCoreWeb.GameController do
     get("/api/games")
     summary("List all games")
     description("Retrieve a list of all games accessible to the current user")
-    tag("Games")
+    operation_id("listGames")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
     end
 
     response(200, "Success", Schema.ref(:GamesResponse))
@@ -38,12 +38,12 @@ defmodule GameMasterCoreWeb.GameController do
     post("/api/games")
     summary("Create a new game")
     description("Create a new game with the provided parameters")
-    tag("Games")
+    operation_id("createGame")
+    tag("GameMaster")
     consumes("application/json")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       body(:body, Schema.ref(:GameRequest), "Game parameters", required: true)
     end
 
@@ -66,11 +66,11 @@ defmodule GameMasterCoreWeb.GameController do
     get("/api/games/{id}")
     summary("Get a game")
     description("Retrieve a specific game by its ID")
-    tag("Games")
+    operation_id("getGame")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       id(:path, :integer, "Game ID", required: true)
     end
 
@@ -88,12 +88,12 @@ defmodule GameMasterCoreWeb.GameController do
     put("/api/games/{id}")
     summary("Update a game")
     description("Update a specific game with the provided parameters")
-    tag("Games")
+    operation_id("updateGame")
+    tag("GameMaster")
     consumes("application/json")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       id(:path, :integer, "Game ID", required: true)
       body(:body, Schema.ref(:GameRequest), "Game parameters", required: true)
     end
@@ -117,10 +117,10 @@ defmodule GameMasterCoreWeb.GameController do
     PhoenixSwagger.Path.delete("/api/games/{id}")
     summary("Delete a game")
     description("Delete a specific game by its ID")
-    tag("Games")
+    operation_id("deleteGame")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       id(:path, :integer, "Game ID", required: true)
     end
 
@@ -142,11 +142,11 @@ defmodule GameMasterCoreWeb.GameController do
     post("/api/games/{game_id}/members")
     summary("Add a member to a game")
     description("Add a user as a member to the specified game")
-    tag("Game Members")
+    operation_id("addGameMember")
+    tag("GameMaster")
     consumes("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       user_id(:formData, :integer, "User ID to add", required: true)
       role(:formData, :string, "Member role (default: 'member')")
@@ -175,10 +175,10 @@ defmodule GameMasterCoreWeb.GameController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/members/{user_id}")
     summary("Remove a member from a game")
     description("Remove a user from the specified game")
-    tag("Game Members")
+    operation_id("removeGameMember")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       user_id(:path, :integer, "User ID to remove", required: true)
     end
@@ -200,11 +200,11 @@ defmodule GameMasterCoreWeb.GameController do
     get("/api/games/{game_id}/members")
     summary("List game members")
     description("Retrieve a list of all members in the specified game")
-    tag("Game Members")
+    operation_id("listGameMembers")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -227,11 +227,12 @@ defmodule GameMasterCoreWeb.GameController do
       "Retrieve all entities (notes, characters, factions, locations, quests) for the specified game"
     )
 
-    tag("Game Entities")
+    operation_id("listGameEntities")
+
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
