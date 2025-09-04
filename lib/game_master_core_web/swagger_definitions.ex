@@ -564,6 +564,109 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def quest_schema do
+    swagger_schema do
+      title("Quest")
+      description("A game quest")
+
+      properties do
+        id(:integer, "Quest ID", required: true)
+        name(:string, "Quest name", required: true)
+        content(:string, "Quest content", required: true)
+        game_id(:integer, "Associated game ID", required: true)
+        user_id(:integer, "Creator user ID", required: true)
+        inserted_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Lost Treasure",
+        content: "Find the lost treasure hidden in the ancient ruins.",
+        game_id: 1,
+        user_id: 1,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def quest_params_schema do
+    swagger_schema do
+      title("Quest Parameters")
+      description("Parameters for creating or updating a quest")
+
+      properties do
+        name(:string, "Quest name", required: true)
+        content(:string, "Quest content", required: true)
+      end
+
+      required([:name, :content])
+
+      example(%{
+        name: "The Lost Treasure",
+        content: "Find the lost treasure hidden in the ancient ruins."
+      })
+    end
+  end
+
+  def quest_request_schema do
+    swagger_schema do
+      title("Quest Request")
+      description("Quest creation/update parameters")
+
+      properties do
+        quest(Schema.ref(:QuestParams), "Quest parameters")
+      end
+
+      required([:quest])
+    end
+  end
+
+  def quest_links_data_schema do
+    swagger_schema do
+      title("Quest Links Data")
+      description("Links associated with a quest")
+
+      properties do
+        quest_id(:integer, "Quest ID", required: true)
+        quest_name(:string, "Quest name", required: true)
+        links(Schema.ref(:QuestLinks), "Associated entity links")
+      end
+    end
+  end
+
+  def quest_links_schema do
+    swagger_schema do
+      title("Quest Links")
+      description("Collections of entities linked to a quest")
+
+      properties do
+        notes(Schema.array(:object), "Linked notes")
+        characters(Schema.array(:object), "Linked characters")
+        factions(Schema.array(:object), "Linked factions")
+        locations(Schema.array(:object), "Linked locations")
+      end
+    end
+  end
+
+  # Helper functions for response schemas
+  def quest_response_schema do
+    response_schema(Schema.ref(:Quest), "Quest Response", "Response containing a single quest")
+  end
+
+  def quests_response_schema do
+    array_response_schema(:Quest, "Quests Response", "Response containing a list of quests")
+  end
+
+  def quest_links_response_schema do
+    response_schema(
+      Schema.ref(:QuestLinksData),
+      "Quest Links Response",
+      "Response containing quest links"
+    )
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -665,6 +768,25 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:LocationLinksData),
           "Location Links Response",
           "Response containing location links"
+        ),
+      Quest: quest_schema(),
+      QuestParams: quest_params_schema(),
+      QuestRequest: quest_request_schema(),
+      QuestResponse:
+        response_schema(
+          Schema.ref(:Quest),
+          "Quest Response",
+          "Response containing a single quest"
+        ),
+      QuestsResponse:
+        array_response_schema(:Quest, "Quests Response", "Response containing a list of quests"),
+      QuestLinksData: quest_links_data_schema(),
+      QuestLinks: quest_links_schema(),
+      QuestLinksResponse:
+        response_schema(
+          Schema.ref(:QuestLinksData),
+          "Quest Links Response",
+          "Response containing quest links"
         ),
       Entities: entities_schema(),
       EntitiesData: entities_data_schema(),

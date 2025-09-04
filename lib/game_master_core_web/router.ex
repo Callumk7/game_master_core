@@ -145,7 +145,18 @@ defmodule GameMasterCoreWeb.Router do
       info: %{
         version: "1.0",
         title: "Game Master API"
-      }
+      },
+      securityDefinitions: %{
+        Bearer: %{
+          type: "apiKey",
+          name: "Authorization",
+          in: "header",
+          description: "Bearer token authentication"
+        }
+      },
+      security: [
+        %{Bearer: []}
+      ]
     }
   end
 end

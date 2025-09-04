@@ -18,9 +18,10 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions")
     summary("List factions")
     description("Get all factions in a game")
+    operation_id("listFactions")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -41,9 +42,10 @@ defmodule GameMasterCoreWeb.FactionController do
     post("/api/games/{game_id}/factions")
     summary("Create faction")
     description("Create a new faction in the game")
+    operation_id("createFaction")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
     end
@@ -75,9 +77,10 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions/{id}")
     summary("Get faction")
     description("Get a specific faction by ID")
+    operation_id("getFaction")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
     end
@@ -99,9 +102,10 @@ defmodule GameMasterCoreWeb.FactionController do
     put("/api/games/{game_id}/factions/{id}")
     summary("Update faction")
     description("Update an existing faction")
+    operation_id("updateFaction")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
       faction(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
@@ -130,9 +134,10 @@ defmodule GameMasterCoreWeb.FactionController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/factions/{id}")
     summary("Delete faction")
     description("Delete a faction from the game")
+    operation_id("deleteFaction")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
     end
@@ -159,9 +164,10 @@ defmodule GameMasterCoreWeb.FactionController do
     post("/api/games/{game_id}/factions/{faction_id}/links")
     summary("Create faction link")
     description("Link a faction to another entity (note, character, etc.)")
+    operation_id("createFactionLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
@@ -202,9 +208,10 @@ defmodule GameMasterCoreWeb.FactionController do
     get("/api/games/{game_id}/factions/{faction_id}/links")
     summary("Get faction links")
     description("Get all entities linked to a faction")
+    operation_id("getFactionLinks")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
     end
@@ -241,9 +248,10 @@ defmodule GameMasterCoreWeb.FactionController do
 
     summary("Delete faction link")
     description("Remove a link between a faction and another entity")
+    operation_id("deleteFactionLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)

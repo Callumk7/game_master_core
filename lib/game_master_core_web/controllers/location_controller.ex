@@ -19,9 +19,10 @@ defmodule GameMasterCoreWeb.LocationController do
     get("/api/games/{game_id}/locations")
     summary("List locations")
     description("Get all locations in a game")
+    operation_id("listLocations")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -42,9 +43,10 @@ defmodule GameMasterCoreWeb.LocationController do
     post("/api/games/{game_id}/locations")
     summary("Create location")
     description("Create a new location in the game")
+    operation_id("createLocation")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
     end
@@ -76,9 +78,10 @@ defmodule GameMasterCoreWeb.LocationController do
     get("/api/games/{game_id}/locations/{id}")
     summary("Get location")
     description("Get a specific location by ID")
+    operation_id("getLocation")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
     end
@@ -100,9 +103,10 @@ defmodule GameMasterCoreWeb.LocationController do
     put("/api/games/{game_id}/locations/{id}")
     summary("Update location")
     description("Update an existing location")
+    operation_id("updateLocation")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
       location(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
@@ -131,9 +135,10 @@ defmodule GameMasterCoreWeb.LocationController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/locations/{id}")
     summary("Delete location")
     description("Delete a location from the game")
+    operation_id("deleteLocation")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
     end
@@ -158,9 +163,10 @@ defmodule GameMasterCoreWeb.LocationController do
     post("/api/games/{game_id}/locations/{location_id}/links")
     summary("Create location link")
     description("Link a location to another entity (note, faction, etc.)")
+    operation_id("createLocationLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
       link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
@@ -201,9 +207,10 @@ defmodule GameMasterCoreWeb.LocationController do
     get("/api/games/{game_id}/locations/{location_id}/links")
     summary("Get location links")
     description("Get all entities linked to a location")
+    operation_id("getLocationLinks")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
     end
@@ -236,10 +243,11 @@ defmodule GameMasterCoreWeb.LocationController do
     )
 
     summary("Delete location link")
+    operation_id("deleteLocationLink")
+    tag("GameMaster")
     description("Remove a link between a location and another entity")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
       entity_type(:path, :string, "Entity type", required: true)

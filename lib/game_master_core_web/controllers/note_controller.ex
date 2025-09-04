@@ -19,11 +19,11 @@ defmodule GameMasterCoreWeb.NoteController do
     get("/api/games/{game_id}/notes")
     summary("List notes")
     description("Retrieve all notes for a specific game")
-    tag("Notes")
+    operation_id("listNotes")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
     end
 
@@ -41,12 +41,12 @@ defmodule GameMasterCoreWeb.NoteController do
     post("/api/games/{game_id}/notes")
     summary("Create a note")
     description("Create a new note for the specified game")
-    tag("Notes")
+    operation_id("createNote")
+    tag("GameMaster")
     consumes("application/json")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
     end
@@ -72,11 +72,11 @@ defmodule GameMasterCoreWeb.NoteController do
     get("/api/games/{game_id}/notes/{id}")
     summary("Get a note")
     description("Retrieve a specific note by its ID")
-    tag("Notes")
+    operation_id("getNote")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Note ID", required: true)
     end
@@ -95,12 +95,12 @@ defmodule GameMasterCoreWeb.NoteController do
     put("/api/games/{game_id}/notes/{id}")
     summary("Update a note")
     description("Update a specific note with the provided parameters")
-    tag("Notes")
+    operation_id("updateNote")
+    tag("GameMaster")
     consumes("application/json")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Note ID", required: true)
       body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
@@ -125,10 +125,10 @@ defmodule GameMasterCoreWeb.NoteController do
     PhoenixSwagger.Path.delete("/api/games/{game_id}/notes/{id}")
     summary("Delete a note")
     description("Delete a specific note by its ID")
-    tag("Notes")
+    operation_id("deleteNote")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Note ID", required: true)
     end
@@ -154,11 +154,11 @@ defmodule GameMasterCoreWeb.NoteController do
       "Create a link between a note and another entity (character, faction, location, quest)"
     )
 
-    tag("Note Links")
+    operation_id("createNoteLink")
+    tag("GameMaster")
     consumes("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       note_id(:path, :integer, "Note ID", required: true)
 
@@ -211,11 +211,11 @@ defmodule GameMasterCoreWeb.NoteController do
     get("/api/games/{game_id}/notes/{note_id}/links")
     summary("List note links")
     description("Retrieve all entities linked to a specific note")
-    tag("Note Links")
+    operation_id("getNoteLinks")
+    tag("GameMaster")
     produces("application/json")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       note_id(:path, :integer, "Note ID", required: true)
     end
@@ -246,10 +246,10 @@ defmodule GameMasterCoreWeb.NoteController do
 
     summary("Delete a link")
     description("Remove a link between a note and another entity")
-    tag("Note Links")
+    operation_id("deleteNoteLink")
+    tag("GameMaster")
 
     parameters do
-      authorization(:header, :string, "Bearer token", required: true)
       game_id(:path, :integer, "Game ID", required: true)
       note_id(:path, :integer, "Note ID", required: true)
 
