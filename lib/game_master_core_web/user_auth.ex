@@ -78,7 +78,7 @@ defmodule GameMasterCoreWeb.UserAuth do
 
   @doc """
   Authenticates the user by looking for session token in Authorization header.
-  
+
   For API usage with external SPAs. Uses Bearer scheme for compatibility.
   Returns token reissue info in response headers when needed.
   """

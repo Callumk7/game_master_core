@@ -11,6 +11,23 @@ defmodule GameMasterCoreWeb.ApiAuthController do
     SwaggerDefinitions.common_definitions()
   end
 
+  swagger_path :signup do
+    post("/api/auth/signup")
+    summary("Sign up new user")
+    description("Register a new user with email and password")
+    operation_id("signupUser")
+    tag("Authentication")
+    consumes("application/json")
+    produces("application/json")
+
+    parameters do
+      body(:body, Schema.ref(:SignupRequest), "Signup credentials", required: true)
+    end
+
+    response(201, "Created", Schema.ref(:LoginResponse))
+    response(422, "Unprocessable Entity", Schema.ref(:Error))
+  end
+
   swagger_path :login do
     post("/api/auth/login")
     summary("Login user")
@@ -28,10 +45,39 @@ defmodule GameMasterCoreWeb.ApiAuthController do
     response(401, "Unauthorized", Schema.ref(:Error))
   end
 
+  def signup(conn, %{"email" => email, "password" => password}) do
+    case Accounts.register_user(%{"email" => email, "password" => password}) do
+      {:ok, user} ->
+        token = Accounts.generate_user_session_token(user)
+
+        conn
+        |> put_status(:created)
+        |> json(%{
+          token: Base.url_encode64(token),
+          user: %{
+            id: user.id,
+            email: user.email,
+            confirmed_at: user.confirmed_at
+          }
+        })
+
+      {:error, changeset} ->
+        errors =
+          changeset.errors
+          |> Enum.reduce(%{}, fn {field, {message, _}}, acc ->
+            Map.put(acc, field, message)
+          end)
+
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{errors: errors})
+    end
+  end
+
   def login(conn, %{"email" => email, "password" => password}) do
     if user = Accounts.get_user_by_email_and_password(email, password) do
       token = Accounts.generate_user_session_token(user)
-      
+
       conn
       |> put_status(:ok)
       |> json(%{
@@ -132,15 +178,19 @@ defmodule GameMasterCoreWeb.ApiAuthController do
   end
 
   defp extract_session_token([]), do: nil
+
   defp extract_session_token([auth_header]) do
     case String.split(auth_header, " ", parts: 2) do
-      ["Bearer", encoded_token] -> 
+      ["Bearer", encoded_token] ->
         case Base.url_decode64(encoded_token) do
           {:ok, token} -> token
           _ -> nil
         end
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
+
   defp extract_session_token(_), do: nil
 end

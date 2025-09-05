@@ -23,13 +23,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
-    user_token = GameMasterCore.Accounts.create_user_api_token(user)
     game = game_fixture(scope)
-
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("authorization", "Bearer #{user_token}")
+    conn = authenticate_api_user(conn, user)
 
     {:ok, conn: conn, game: game}
   end

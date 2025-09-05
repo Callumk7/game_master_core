@@ -748,6 +748,44 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def signup_request_schema do
+    swagger_schema do
+      title("Signup Request")
+      description("User registration credentials")
+
+      properties do
+        email(:string, "User email", required: true)
+        password(:string, "User password", required: true)
+      end
+
+      required([:email, :password])
+
+      example(%{
+        email: "user@example.com",
+        password: "password123"
+      })
+    end
+  end
+
+  def signup_request_schema do
+    swagger_schema do
+      title("Signup Request")
+      description("User registration credentials")
+
+      properties do
+        email(:string, "User email", required: true)
+        password(:string, "User password", required: true)
+      end
+
+      required([:email, :password])
+
+      example(%{
+        email: "user@example.com",
+        password: "password123"
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -882,7 +920,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       User: user_schema(),
       LoginRequest: login_request_schema(),
       LoginResponse: login_response_schema(),
-      AuthStatusResponse: auth_status_response_schema()
+      AuthStatusResponse: auth_status_response_schema(),
+      SignupRequest: signup_request_schema()
     }
   end
 end
