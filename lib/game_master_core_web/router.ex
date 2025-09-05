@@ -41,6 +41,7 @@ defmodule GameMasterCoreWeb.Router do
   scope "/api/auth", GameMasterCoreWeb do
     pipe_through :api
 
+    post "/signup", ApiAuthController, :signup
     post "/login", ApiAuthController, :login
   end
 
