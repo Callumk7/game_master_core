@@ -298,6 +298,14 @@ defmodule GameMasterCoreWeb.FactionController do
     Factions.link_character(scope, faction_id, character_id)
   end
 
+  defp create_faction_link(scope, faction_id, :location, location_id) do
+    Factions.link_location(scope, faction_id, location_id)
+  end
+
+  defp create_faction_link(scope, faction_id, :quest, quest_id) do
+    Factions.link_quest(scope, faction_id, quest_id)
+  end
+
   defp create_faction_link(_scope, _faction_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :faction, entity_type}}
   end
@@ -308,6 +316,14 @@ defmodule GameMasterCoreWeb.FactionController do
 
   defp delete_faction_link(scope, faction_id, :character, character_id) do
     Factions.unlink_character(scope, faction_id, character_id)
+  end
+
+  defp delete_faction_link(scope, faction_id, :location, location_id) do
+    Factions.unlink_location(scope, faction_id, location_id)
+  end
+
+  defp delete_faction_link(scope, faction_id, :quest, quest_id) do
+    Factions.unlink_quest(scope, faction_id, quest_id)
   end
 
   defp delete_faction_link(_scope, _faction_id, entity_type, _entity_id) do
