@@ -181,8 +181,6 @@ defmodule GameMasterCore.Characters do
 
   """
   def change_character(%Scope{} = scope, %Character{} = character, attrs \\ %{}) do
-    true = character.user_id == scope.user.id
-
     Character.changeset(character, attrs, scope, character.game_id)
   end
 

@@ -125,8 +125,7 @@ defmodule GameMasterCore.Locations do
 
   """
   def update_location(%Scope{} = scope, %Location{} = location, attrs) do
-    true = location.user_id == scope.user.id
-
+    # Note: game access already validated in controller before fetching the location
     with {:ok, location = %Location{}} <-
            location
            |> Location.changeset(attrs, scope, location.game_id)
@@ -149,8 +148,7 @@ defmodule GameMasterCore.Locations do
 
   """
   def delete_location(%Scope{} = scope, %Location{} = location) do
-    true = location.user_id == scope.user.id
-
+    # Note: game access already validated in controller before fetching the location
     with {:ok, location = %Location{}} <-
            Repo.delete(location) do
       broadcast(scope, {:deleted, location})
@@ -168,8 +166,6 @@ defmodule GameMasterCore.Locations do
 
   """
   def change_location(%Scope{} = scope, %Location{} = location, attrs \\ %{}) do
-    true = location.user_id == scope.user.id
-
     Location.changeset(location, attrs, scope, location.game_id)
   end
 

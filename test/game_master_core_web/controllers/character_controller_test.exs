@@ -160,13 +160,12 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert response["data"]["character_id"] == character.id
       assert response["data"]["character_name"] == character.name
 
-      assert response["data"]["links"]["notes"] == [
-               %{
-                 "id" => note.id,
-                 "name" => note.name,
-                 "content" => note.content
-               }
-             ]
+      assert [note_response] = response["data"]["links"]["notes"]
+      assert note_response["id"] == note.id
+      assert note_response["name"] == note.name
+      assert note_response["content"] == note.content
+      assert note_response["created_at"]
+      assert note_response["updated_at"]
     end
 
     test "list_links returns empty links for character with no links", %{

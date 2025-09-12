@@ -47,7 +47,7 @@ defmodule GameMasterCoreWeb.FactionController do
 
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
-      faction(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
+      body(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -108,7 +108,7 @@ defmodule GameMasterCoreWeb.FactionController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Faction ID", required: true)
-      faction(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
+      body(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
     end
 
     security([%{Bearer: []}])
@@ -170,7 +170,13 @@ defmodule GameMasterCoreWeb.FactionController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
-      link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
+
+      entity_type(:query, :string, "Entity type to link",
+        required: true,
+        enum: ["character", "location", "quest", "note"]
+      )
+
+      entity_id(:query, :integer, "Entity ID to link", required: true)
     end
 
     security([%{Bearer: []}])

@@ -48,7 +48,7 @@ defmodule GameMasterCoreWeb.LocationController do
 
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
-      location(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
+      body(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -109,7 +109,7 @@ defmodule GameMasterCoreWeb.LocationController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Location ID", required: true)
-      location(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
+      body(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
     end
 
     security([%{Bearer: []}])
@@ -169,7 +169,13 @@ defmodule GameMasterCoreWeb.LocationController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
-      link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
+
+      entity_type(:query, :string, "Entity type to link",
+        required: true,
+        enum: ["character", "faction", "location", "quest", "note"]
+      )
+
+      entity_id(:query, :integer, "Entity ID to link", required: true)
     end
 
     security([%{Bearer: []}])

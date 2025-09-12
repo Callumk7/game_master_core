@@ -46,7 +46,7 @@ defmodule GameMasterCoreWeb.ApiAuthController do
   end
 
   def signup(conn, %{"email" => email, "password" => password}) do
-    case Accounts.register_user(%{"email" => email, "password" => password}) do
+    case Accounts.register_user_api(%{"email" => email, "password" => password}) do
       {:ok, user} ->
         token = Accounts.generate_user_session_token(user)
 

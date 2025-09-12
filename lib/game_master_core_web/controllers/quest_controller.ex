@@ -48,7 +48,7 @@ defmodule GameMasterCoreWeb.QuestController do
 
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
-      quest(:body, Schema.ref(:QuestRequest), "Quest to create", required: true)
+      body(:body, Schema.ref(:QuestRequest), "Quest to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -109,7 +109,7 @@ defmodule GameMasterCoreWeb.QuestController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Quest ID", required: true)
-      quest(:body, Schema.ref(:QuestRequest), "Quest updates", required: true)
+      body(:body, Schema.ref(:QuestRequest), "Quest updates", required: true)
     end
 
     security([%{Bearer: []}])
@@ -169,7 +169,13 @@ defmodule GameMasterCoreWeb.QuestController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       quest_id(:path, :integer, "Quest ID", required: true)
-      link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
+
+      entity_type(:query, :string, "Entity type to link",
+        required: true,
+        enum: ["character", "faction", "location", "note"]
+      )
+
+      entity_id(:query, :integer, "Entity ID to link", required: true)
     end
 
     security([%{Bearer: []}])
