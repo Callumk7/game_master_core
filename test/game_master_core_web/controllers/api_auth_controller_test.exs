@@ -5,7 +5,7 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
 
   @valid_signup_attrs %{
     "email" => "test@example.com",
-    "password" => "password123"
+    "password" => "password123456"
   }
 
   @invalid_signup_attrs %{
@@ -33,7 +33,7 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
 
     test "returns errors when email already exists", %{conn: conn} do
       # Create a user first
-      {:ok, _user} = Accounts.register_user(@valid_signup_attrs)
+      {:ok, _user} = Accounts.register_user_api(@valid_signup_attrs)
 
       # Try to create another user with same email
       conn = post(conn, ~p"/api/auth/signup", @valid_signup_attrs)

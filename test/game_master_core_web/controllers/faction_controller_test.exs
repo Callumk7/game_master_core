@@ -150,13 +150,12 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert response["data"]["faction_id"] == faction.id
       assert response["data"]["faction_name"] == faction.name
 
-      assert response["data"]["links"]["notes"] == [
-               %{
-                 "id" => note.id,
-                 "name" => note.name,
-                 "content" => note.content
-               }
-             ]
+      assert [note_response] = response["data"]["links"]["notes"]
+      assert note_response["id"] == note.id
+      assert note_response["name"] == note.name
+      assert note_response["content"] == note.content
+      assert note_response["created_at"]
+      assert note_response["updated_at"]
     end
 
     test "list_links returns empty links for faction with no links", %{

@@ -162,12 +162,12 @@ defmodule GameMasterCoreWeb.NoteController do
       game_id(:path, :integer, "Game ID", required: true)
       note_id(:path, :integer, "Note ID", required: true)
 
-      entity_type(:formData, :string, "Entity type to link",
+      entity_type(:query, :string, "Entity type to link",
         required: true,
         enum: ["character", "faction", "location", "quest"]
       )
 
-      entity_id(:formData, :integer, "Entity ID to link", required: true)
+      entity_id(:query, :integer, "Entity ID to link", required: true)
     end
 
     response(201, "Created", %{

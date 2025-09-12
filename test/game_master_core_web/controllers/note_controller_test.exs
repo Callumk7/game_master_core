@@ -168,14 +168,13 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       assert response["data"]["note_id"] == note.id
       assert response["data"]["note_name"] == note.name
 
-      assert response["data"]["links"]["characters"] == [
-               %{
-                 "id" => character.id,
-                 "name" => character.name,
-                 "level" => character.level,
-                 "class" => character.class
-               }
-             ]
+      assert [character_response] = response["data"]["links"]["characters"]
+      assert character_response["id"] == character.id
+      assert character_response["name"] == character.name
+      assert character_response["level"] == character.level
+      assert character_response["class"] == character.class
+      assert character_response["created_at"]
+      assert character_response["updated_at"]
     end
 
     test "list_links returns empty links for note with no links", %{

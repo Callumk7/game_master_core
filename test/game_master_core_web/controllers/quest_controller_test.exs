@@ -156,16 +156,15 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert response["data"]["quest_id"] == quest.id
       assert response["data"]["quest_name"] == quest.name
 
-      assert response["data"]["links"]["characters"] == [
-               %{
-                 "id" => character.id,
-                 "name" => character.name,
-                 "class" => character.class,
-                 "level" => character.level,
-                 "description" => character.description,
-                 "image_url" => character.image_url
-               }
-             ]
+      assert [character_response] = response["data"]["links"]["characters"]
+      assert character_response["id"] == character.id
+      assert character_response["name"] == character.name
+      assert character_response["class"] == character.class
+      assert character_response["level"] == character.level
+      assert character_response["description"] == character.description
+      assert character_response["image_url"] == character.image_url
+      assert character_response["created_at"]
+      assert character_response["updated_at"]
     end
 
     test "list_links returns empty links for quest with no links", %{

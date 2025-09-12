@@ -17,7 +17,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         description(:string, "Game description")
         setting(:string, "Game setting")
         owner_id(:integer, "Owner user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -27,7 +27,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         description: "An epic adventure",
         setting: "Fantasy",
         owner_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -88,17 +88,148 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def entity_note_schema do
+    swagger_schema do
+      title("Entity Note")
+      description("Note entity in game entities list")
+
+      properties do
+        id(:integer, "Note ID", required: true)
+        name(:string, "Note name", required: true)
+        content(:string, "Note content", required: true)
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "Important Quest Notes",
+        content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        created_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def entity_character_schema do
+    swagger_schema do
+      title("Entity Character")
+      description("Character entity in game entities list")
+
+      properties do
+        id(:integer, "Character ID", required: true)
+        name(:string, "Character name", required: true)
+        description(:string, "Character description")
+        class(:string, "Character class", required: true)
+        level(:integer, "Character level", required: true)
+        image_url(:string, "Character image URL")
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "Gandalf the Grey",
+        description: "A wise and powerful wizard who guides the Fellowship.",
+        class: "Wizard",
+        level: 20,
+        image_url: "https://example.com/gandalf.jpg",
+        created_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def entity_faction_schema do
+    swagger_schema do
+      title("Entity Faction")
+      description("Faction entity in game entities list")
+
+      properties do
+        id(:integer, "Faction ID", required: true)
+        name(:string, "Faction name", required: true)
+        description(:string, "Faction description", required: true)
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Shadow Council",
+        description:
+          "A secretive organization that seeks to control the realm from behind the scenes.",
+        created_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def entity_location_schema do
+    swagger_schema do
+      title("Entity Location")
+      description("Location entity in game entities list")
+
+      properties do
+        id(:integer, "Location ID", required: true)
+        name(:string, "Location name", required: true)
+        description(:string, "Location description")
+
+        type(:string, "Location type",
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+
+        has_parent(:boolean, "Whether this location has a parent location", required: true)
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Crystal Cave",
+        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        type: "building",
+        has_parent: true,
+        created_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def entity_quest_schema do
+    swagger_schema do
+      title("Entity Quest")
+      description("Quest entity in game entities list")
+
+      properties do
+        id(:integer, "Quest ID", required: true)
+        name(:string, "Quest name", required: true)
+        content(:string, "Quest content", required: true)
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: 1,
+        name: "The Lost Treasure",
+        content: "Find the lost treasure hidden in the ancient ruins.",
+        created_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
   def entities_schema do
     swagger_schema do
       title("Entities")
       description("Collection of game entities")
 
       properties do
-        notes(Schema.array(:object), "Notes list")
-        characters(Schema.array(:object), "Characters list")
-        factions(Schema.array(:object), "Factions list")
-        locations(Schema.array(:object), "Locations list")
-        quests(Schema.array(:object), "Quests list")
+        notes(Schema.array(:EntityNote), "Notes list")
+        characters(Schema.array(:EntityCharacter), "Characters list")
+        factions(Schema.array(:EntityFaction), "Factions list")
+        locations(Schema.array(:EntityLocation), "Locations list")
+        quests(Schema.array(:EntityQuest), "Quests list")
       end
     end
   end
@@ -176,7 +307,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content", required: true)
         game_id(:integer, "Associated game ID", required: true)
         user_id(:integer, "Author user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -186,7 +317,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
         game_id: 1,
         user_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -265,7 +396,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         image_url(:string, "Character image URL")
         game_id(:integer, "Associated game ID", required: true)
         user_id(:integer, "Creator user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -278,7 +409,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         image_url: "https://example.com/gandalf.jpg",
         game_id: 1,
         user_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -360,7 +491,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         description(:string, "Faction description", required: true)
         game_id(:integer, "Associated game ID", required: true)
         user_id(:integer, "Creator user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -371,7 +502,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A secretive organization that seeks to control the realm from behind the scenes.",
         game_id: 1,
         user_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -478,7 +609,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         parent_id(:integer, "Parent location ID")
         game_id(:integer, "Associated game ID", required: true)
         user_id(:integer, "Creator user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -490,7 +621,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         parent_id: 2,
         game_id: 1,
         user_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -575,7 +706,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content", required: true)
         game_id(:integer, "Associated game ID", required: true)
         user_id(:integer, "Creator user ID", required: true)
-        inserted_at(:string, "Creation timestamp", format: :datetime)
+        created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
@@ -585,7 +716,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "Find the lost treasure hidden in the ancient ruins.",
         game_id: 1,
         user_id: 1,
-        inserted_at: "2023-08-20T12:00:00Z",
+        created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -767,25 +898,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def signup_request_schema do
-    swagger_schema do
-      title("Signup Request")
-      description("User registration credentials")
-
-      properties do
-        email(:string, "User email", required: true)
-        password(:string, "User password", required: true)
-      end
-
-      required([:email, :password])
-
-      example(%{
-        email: "user@example.com",
-        password: "password123"
-      })
-    end
-  end
-
   # Common definitions map
   def common_definitions do
     %{
@@ -803,6 +915,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Members Response",
           "Response containing a list of game members"
         ),
+      EntityNote: entity_note_schema(),
+      EntityCharacter: entity_character_schema(),
+      EntityFaction: entity_faction_schema(),
+      EntityLocation: entity_location_schema(),
+      EntityQuest: entity_quest_schema(),
       Note: note_schema(),
       NoteParams: note_params_schema(),
       NoteRequest: note_request_schema(),

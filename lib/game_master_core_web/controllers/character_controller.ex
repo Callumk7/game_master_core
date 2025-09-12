@@ -47,7 +47,7 @@ defmodule GameMasterCoreWeb.CharacterController do
 
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
-      character(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
+      body(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -111,7 +111,7 @@ defmodule GameMasterCoreWeb.CharacterController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       id(:path, :integer, "Character ID", required: true)
-      character(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
+      body(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
     end
 
     security([%{Bearer: []}])
@@ -173,7 +173,13 @@ defmodule GameMasterCoreWeb.CharacterController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       character_id(:path, :integer, "Character ID", required: true)
-      link(:body, Schema.ref(:LinkRequest), "Link details", required: true)
+
+      entity_type(:query, :string, "Entity type to link",
+        required: true,
+        enum: ["faction", "location", "quest", "note"]
+      )
+
+      entity_id(:query, :integer, "Entity ID to link", required: true)
     end
 
     security([%{Bearer: []}])
