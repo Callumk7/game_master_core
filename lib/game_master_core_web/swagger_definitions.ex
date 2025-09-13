@@ -374,10 +374,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a note")
 
       properties do
-        characters(Schema.array(:object), "Linked characters")
-        factions(Schema.array(:object), "Linked factions")
-        locations(Schema.array(:object), "Linked locations")
-        quests(Schema.array(:object), "Linked quests")
+        characters(Schema.array(:EntityCharacter), "Linked characters")
+        factions(Schema.array(:EntityFaction), "Linked factions")
+        locations(Schema.array(:EntityLocation), "Linked locations")
+        quests(Schema.array(:EntityQuest), "Linked quests")
       end
     end
   end
@@ -472,10 +472,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a character")
 
       properties do
-        notes(Schema.array(:object), "Linked notes")
-        factions(Schema.array(:object), "Linked factions")
-        locations(Schema.array(:object), "Linked locations")
-        quests(Schema.array(:object), "Linked quests")
+        notes(Schema.array(:EntityNote), "Linked notes")
+        factions(Schema.array(:EntityFaction), "Linked factions")
+        locations(Schema.array(:EntityLocation), "Linked locations")
+        quests(Schema.array(:EntityQuest), "Linked quests")
       end
     end
   end
@@ -560,10 +560,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a faction")
 
       properties do
-        notes(Schema.array(:object), "Linked notes")
-        characters(Schema.array(:object), "Linked characters")
-        locations(Schema.array(:object), "Linked locations")
-        quests(Schema.array(:object), "Linked quests")
+        notes(Schema.array(:EntityNote), "Linked notes")
+        characters(Schema.array(:EntityCharacter), "Linked characters")
+        locations(Schema.array(:EntityLocation), "Linked locations")
+        quests(Schema.array(:EntityQuest), "Linked quests")
       end
     end
   end
@@ -687,10 +687,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a location")
 
       properties do
-        notes(Schema.array(:object), "Linked notes")
-        characters(Schema.array(:object), "Linked characters")
-        factions(Schema.array(:object), "Linked factions")
-        quests(Schema.array(:object), "Linked quests")
+        notes(Schema.array(:EntityNote), "Linked notes")
+        characters(Schema.array(:EntityCharacter), "Linked characters")
+        factions(Schema.array(:EntityFaction), "Linked factions")
+        quests(Schema.array(:EntityQuest), "Linked quests")
       end
     end
   end
@@ -773,10 +773,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a quest")
 
       properties do
-        notes(Schema.array(:object), "Linked notes")
-        characters(Schema.array(:object), "Linked characters")
-        factions(Schema.array(:object), "Linked factions")
-        locations(Schema.array(:object), "Linked locations")
+        notes(Schema.array(:EntityNote), "Linked notes")
+        characters(Schema.array(:EntityCharacter), "Linked characters")
+        factions(Schema.array(:EntityFaction), "Linked factions")
+        locations(Schema.array(:EntityLocation), "Linked locations")
       end
     end
   end
