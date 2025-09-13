@@ -88,4 +88,19 @@ defmodule GameMasterCoreWeb.ConnCase do
   defp maybe_set_token_authenticated_at(token, authenticated_at) do
     GameMasterCore.AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
   end
+
+  @doc """
+  Helper to authenticate API requests using session tokens.
+
+  This replaces the old API token method and uses Base64-encoded session tokens
+  in the Authorization header as Bearer tokens.
+  """
+  def authenticate_api_user(conn, user) do
+    token = GameMasterCore.Accounts.generate_user_session_token(user)
+    encoded_token = Base.url_encode64(token)
+
+    conn
+    |> Plug.Conn.put_req_header("accept", "application/json")
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{encoded_token}")
+  end
 end

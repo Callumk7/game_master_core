@@ -63,7 +63,7 @@ defmodule GameMasterCore.Accounts do
   ## User registration
 
   @doc """
-  Registers a user.
+  Registers a user (UI flow - password optional).
 
   ## Examples
 
@@ -77,6 +77,26 @@ defmodule GameMasterCore.Accounts do
   def register_user(attrs) do
     %User{}
     |> User.email_changeset(attrs)
+    |> User.password_changeset(attrs, require_password: false)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Registers a user via API (password required).
+
+  ## Examples
+
+      iex> register_user_api(%{email: "test@example.com", password: "password123456"})
+      {:ok, %User{}}
+
+      iex> register_user_api(%{email: "test@example.com"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def register_user_api(attrs) do
+    %User{}
+    |> User.email_changeset(attrs)
+    |> User.password_changeset(attrs, require_password: true)
     |> Repo.insert()
   end
 
@@ -144,6 +164,7 @@ defmodule GameMasterCore.Accounts do
 
   """
   def change_user_password(user, attrs \\ %{}, opts \\ []) do
+    opts = Keyword.put_new(opts, :require_password, true)
     User.password_changeset(user, attrs, opts)
   end
 

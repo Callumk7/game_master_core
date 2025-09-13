@@ -150,12 +150,18 @@ defmodule GameMasterCore.LinksTest do
       {:ok, scope: scope, character: character, location: location}
     end
 
-    test "successfully links a character and location", %{character: character, location: location} do
+    test "successfully links a character and location", %{
+      character: character,
+      location: location
+    } do
       assert {:ok, _link} = Links.link(character, location)
       assert Links.linked?(character, location)
     end
 
-    test "successfully unlinks a character and location", %{character: character, location: location} do
+    test "successfully unlinks a character and location", %{
+      character: character,
+      location: location
+    } do
       {:ok, _link} = Links.link(character, location)
       assert {:ok, _link} = Links.unlink(character, location)
       refute Links.linked?(character, location)
@@ -393,7 +399,10 @@ defmodule GameMasterCore.LinksTest do
       {:ok, _} = Links.link(quest, location)
 
       links = Links.links_for(quest)
-      assert %{characters: characters, notes: notes, factions: factions, locations: locations} = links
+
+      assert %{characters: characters, notes: notes, factions: factions, locations: locations} =
+               links
+
       assert character in characters
       assert note in notes
       assert faction in factions

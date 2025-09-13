@@ -4,8 +4,20 @@ defmodule GameMasterCoreWeb.Admin.CharacterControllerTest do
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.GamesFixtures
 
-  @create_attrs %{name: "some name", description: "some description", class: "some class", level: 42, image_url: "some image_url"}
-  @update_attrs %{name: "some updated name", description: "some updated description", class: "some updated class", level: 43, image_url: "some updated image_url"}
+  @create_attrs %{
+    name: "some name",
+    description: "some description",
+    class: "some class",
+    level: 42,
+    image_url: "some image_url"
+  }
+  @update_attrs %{
+    name: "some updated name",
+    description: "some updated description",
+    class: "some updated class",
+    level: 43,
+    image_url: "some updated image_url"
+  }
   @invalid_attrs %{name: nil, description: nil, class: nil, level: nil, image_url: nil}
 
   setup :register_and_log_in_user
@@ -49,7 +61,11 @@ defmodule GameMasterCoreWeb.Admin.CharacterControllerTest do
   describe "edit character" do
     setup [:create_character]
 
-    test "renders form for editing chosen character", %{conn: conn, character: character, game: game} do
+    test "renders form for editing chosen character", %{
+      conn: conn,
+      character: character,
+      game: game
+    } do
       conn = get(conn, ~p"/admin/games/#{game}/characters/#{character}/edit")
       assert html_response(conn, 200) =~ "Edit Character"
     end
@@ -67,7 +83,9 @@ defmodule GameMasterCoreWeb.Admin.CharacterControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, character: character, game: game} do
-      conn = put(conn, ~p"/admin/games/#{game}/characters/#{character}", character: @invalid_attrs)
+      conn =
+        put(conn, ~p"/admin/games/#{game}/characters/#{character}", character: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "Edit Character"
     end
   end

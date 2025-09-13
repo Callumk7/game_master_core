@@ -76,6 +76,36 @@ defmodule GameMasterCoreWeb.UserAuth do
     end
   end
 
+  @doc """
+  Authenticates the user by looking for session token in Authorization header.
+
+  For API usage with external SPAs. Uses Bearer scheme for compatibility.
+  Returns token reissue info in response headers when needed.
+  """
+  def fetch_current_scope_for_session_api(conn, _opts) do
+    with [auth_header] <- get_req_header(conn, "authorization"),
+         ["Bearer", encoded_token] <- String.split(auth_header, " ", parts: 2),
+         {:ok, token} <- Base.url_decode64(encoded_token),
+         {user, token_inserted_at} <- Accounts.get_user_by_session_token(token) do
+      conn = assign(conn, :current_scope, Scope.for_user(user))
+      maybe_signal_token_reissue(conn, user, token_inserted_at)
+    else
+      _ -> assign(conn, :current_scope, Scope.for_user(nil))
+    end
+  end
+
+  # Signal to SPA that token should be refreshed via response header
+  defp maybe_signal_token_reissue(conn, user, token_inserted_at) do
+    token_age = DateTime.diff(DateTime.utc_now(:second), token_inserted_at, :day)
+
+    if token_age >= @session_reissue_age_in_days do
+      new_token = Accounts.generate_user_session_token(user)
+      put_resp_header(conn, "x-new-session-token", Base.url_encode64(new_token))
+    else
+      conn
+    end
+  end
+
   defp ensure_user_token(conn) do
     if token = get_session(conn, :user_token) do
       {token, conn}
@@ -293,6 +323,20 @@ defmodule GameMasterCoreWeb.UserAuth do
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
+      |> halt()
+    end
+  end
+
+  @doc """
+  Plug for API routes that require the user to be authenticated via session token.
+  """
+  def require_authenticated_session_api_user(conn, _opts) do
+    if conn.assigns.current_scope && conn.assigns.current_scope.user do
+      conn
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{error: "Authentication required"})
       |> halt()
     end
   end

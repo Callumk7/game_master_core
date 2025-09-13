@@ -20,7 +20,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: note.id,
       name: note.name,
-      content: note.content
+      content: note.content,
+      created_at: note.inserted_at,
+      updated_at: note.updated_at
     }
   end
 
@@ -34,7 +36,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       description: character.description,
       class: character.class,
       level: character.level,
-      image_url: character.image_url
+      image_url: character.image_url,
+      created_at: character.inserted_at,
+      updated_at: character.updated_at
     }
   end
 
@@ -46,7 +50,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: character.id,
       name: character.name,
       level: character.level,
-      class: character.class
+      class: character.class,
+      created_at: character.inserted_at,
+      updated_at: character.updated_at
     }
   end
 
@@ -57,7 +63,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: faction.id,
       name: faction.name,
-      description: faction.description
+      description: faction.description,
+      created_at: faction.inserted_at,
+      updated_at: faction.updated_at
     }
   end
 
@@ -69,7 +77,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: game.id,
       name: game.name,
       description: game.description,
-      setting: game.setting
+      setting: game.setting,
+      created_at: game.inserted_at,
+      updated_at: game.updated_at
     }
   end
 
@@ -82,7 +92,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       name: location.name,
       description: location.description,
       type: location.type,
-      has_parent: location.parent_id != nil
+      has_parent: location.parent_id != nil,
+      created_at: location.inserted_at,
+      updated_at: location.updated_at
     }
   end
 
@@ -93,7 +105,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: quest.id,
       name: quest.name,
-      content: quest.content
+      content: quest.content,
+      created_at: quest.inserted_at,
+      updated_at: quest.updated_at
     }
   end
 end

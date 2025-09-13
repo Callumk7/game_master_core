@@ -6,7 +6,10 @@
       <.button navigate={~p"/admin/games/#{@game.id}/characters"}>
         <.icon name="hero-arrow-left" />
       </.button>
-      <.button variant="primary" navigate={~p"/admin/games/#{@game.id}/characters/#{@character}/edit?return_to=show"}>
+      <.button
+        variant="primary"
+        navigate={~p"/admin/games/#{@game.id}/characters/#{@character}/edit?return_to=show"}
+      >
         <.icon name="hero-pencil-square" /> Edit character
       </.button>
     </:actions>

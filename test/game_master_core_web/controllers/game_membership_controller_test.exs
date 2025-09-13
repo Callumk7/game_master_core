@@ -7,12 +7,7 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user} do
-    user_token = GameMasterCore.Accounts.create_user_api_token(user)
-
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("authorization", "Bearer #{user_token}")
+    conn = authenticate_api_user(conn, user)
 
     {:ok, conn: conn}
   end
@@ -55,12 +50,7 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
 
       {:ok, _membership} = GameMasterCore.Games.add_member(owner_scope, game, member_user.id)
 
-      user_token = GameMasterCore.Accounts.create_user_api_token(member_user)
-
-      conn =
-        build_conn()
-        |> put_req_header("accept", "application/json")
-        |> put_req_header("authorization", "Bearer #{user_token}")
+      conn = authenticate_api_user(build_conn(), member_user)
 
       conn = post(conn, ~p"/api/games/#{game.id}/members", user_id: other_user.id)
       assert response(conn, 403)
