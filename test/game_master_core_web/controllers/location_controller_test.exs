@@ -23,13 +23,8 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
-    user_token = GameMasterCore.Accounts.create_user_api_token(user)
     game = game_fixture(scope)
-
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("authorization", "Bearer #{user_token}")
+    conn = authenticate_api_user(conn, user)
 
     {:ok, conn: conn, game: game}
   end
@@ -151,12 +146,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
-      member_token = GameMasterCore.Accounts.create_user_api_token(member_scope.user)
-
-      member_conn =
-        build_conn()
-        |> put_req_header("accept", "application/json")
-        |> put_req_header("authorization", "Bearer #{member_token}")
+      member_conn = authenticate_api_user(build_conn(), member_scope.user)
 
       conn = get(member_conn, ~p"/api/games/#{game.id}/locations")
       assert json_response(conn, 200)["data"] == []
@@ -167,12 +157,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
-      member_token = GameMasterCore.Accounts.create_user_api_token(member_scope.user)
-
-      member_conn =
-        build_conn()
-        |> put_req_header("accept", "application/json")
-        |> put_req_header("authorization", "Bearer #{member_token}")
+      member_conn = authenticate_api_user(build_conn(), member_scope.user)
 
       conn = post(member_conn, ~p"/api/games/#{game.id}/locations", location: @create_attrs)
       assert %{"id" => _id} = json_response(conn, 201)["data"]
@@ -202,13 +187,12 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       assert response["data"]["location_id"] == location.id
       assert response["data"]["location_name"] == location.name
 
-      assert response["data"]["links"]["notes"] == [
-               %{
-                 "id" => note.id,
-                 "name" => note.name,
-                 "content" => note.content
-               }
-             ]
+      assert [note_response] = response["data"]["links"]["notes"]
+      assert note_response["id"] == note.id
+      assert note_response["name"] == note.name
+      assert note_response["content"] == note.content
+      assert note_response["created_at"]
+      assert note_response["updated_at"]
     end
 
     test "list_links returns empty links for location with no links", %{

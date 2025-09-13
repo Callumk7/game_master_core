@@ -1,0 +1,4787 @@
+{
+  "info": {
+    "version": "1.0",
+    "title": "Game Master API"
+  },
+  "host": "localhost:4000",
+  "definitions": {
+    "LoginRequest": {
+      "description": "Login credentials - either email/password or magic link token",
+      "example": {
+        "email": "user@example.com",
+        "password": "password123"
+      },
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        },
+        "token": {
+          "description": "Magic link token",
+          "type": "string"
+        }
+      },
+      "title": "Login Request",
+      "type": "object"
+    },
+    "Entities": {
+      "description": "Collection of game entities",
+      "properties": {
+        "characters": {
+          "description": "Characters list",
+          "items": {
+            "$ref": "#/definitions/EntityCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Factions list",
+          "items": {
+            "$ref": "#/definitions/EntityFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Locations list",
+          "items": {
+            "$ref": "#/definitions/EntityLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Notes list",
+          "items": {
+            "$ref": "#/definitions/EntityNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Quests list",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Entities",
+      "type": "object"
+    },
+    "CharacterLinksResponse": {
+      "description": "Response containing character links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/CharacterLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Character Links Response",
+      "type": "object"
+    },
+    "MembersResponse": {
+      "description": "Response containing a list of game members",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Member"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Members Response",
+      "type": "object"
+    },
+    "GameParams": {
+      "description": "Parameters for creating or updating a game",
+      "example": {
+        "description": "An epic adventure",
+        "name": "My Campaign",
+        "setting": "Fantasy"
+      },
+      "properties": {
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "name"
+      ],
+      "title": "Game Parameters",
+      "type": "object"
+    },
+    "LocationRequest": {
+      "description": "Location creation/update parameters",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/LocationParams",
+          "description": "Location parameters"
+        }
+      },
+      "required": [
+        "location"
+      ],
+      "title": "Location Request",
+      "type": "object"
+    },
+    "NoteResponse": {
+      "description": "Response containing a single note",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Note",
+          "description": "Response data"
+        }
+      },
+      "title": "Note Response",
+      "type": "object"
+    },
+    "EntityCharacter": {
+      "description": "Character entity in game entities list",
+      "example": {
+        "class": "Wizard",
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "id": 1,
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "id": {
+          "description": "Character ID",
+          "type": "integer"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "level",
+        "class",
+        "name",
+        "id"
+      ],
+      "title": "Entity Character",
+      "type": "object"
+    },
+    "CharacterParams": {
+      "description": "Parameters for creating or updating a character",
+      "example": {
+        "class": "Wizard",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey"
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "class",
+        "level",
+        "level",
+        "class",
+        "name"
+      ],
+      "title": "Character Parameters",
+      "type": "object"
+    },
+    "EntitiesData": {
+      "description": "Game entities data structure",
+      "properties": {
+        "entities": {
+          "$ref": "#/definitions/Entities",
+          "description": "Game entities"
+        },
+        "game_id": {
+          "description": "Game ID",
+          "type": "integer"
+        },
+        "game_name": {
+          "description": "Game name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "game_name",
+        "game_id"
+      ],
+      "title": "Entities Data",
+      "type": "object"
+    },
+    "CharacterLinksData": {
+      "description": "Links associated with a character",
+      "properties": {
+        "character_id": {
+          "description": "Character ID",
+          "type": "integer"
+        },
+        "character_name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "links": {
+          "$ref": "#/definitions/CharacterLinks",
+          "description": "Associated entity links"
+        }
+      },
+      "required": [
+        "character_name",
+        "character_id"
+      ],
+      "title": "Character Links Data",
+      "type": "object"
+    },
+    "FactionResponse": {
+      "description": "Response containing a single faction",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Faction",
+          "description": "Response data"
+        }
+      },
+      "title": "Faction Response",
+      "type": "object"
+    },
+    "LinkRequest": {
+      "description": "Request to create a link between entities",
+      "example": {
+        "entity_id": 1,
+        "entity_type": "character"
+      },
+      "properties": {
+        "entity_id": {
+          "description": "Entity ID to link",
+          "type": "integer"
+        },
+        "entity_type": {
+          "description": "Entity type to link",
+          "enum": [
+            "character",
+            "faction",
+            "location",
+            "quest"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_type",
+        "entity_id",
+        "entity_id",
+        "entity_type"
+      ],
+      "title": "Link Request",
+      "type": "object"
+    },
+    "Faction": {
+      "description": "A game faction",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "game_id": 1,
+        "id": 1,
+        "name": "The Shadow Council",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Faction ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Faction",
+      "type": "object"
+    },
+    "QuestParams": {
+      "description": "Parameters for creating or updating a quest",
+      "example": {
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "name": "The Lost Treasure"
+      },
+      "properties": {
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "content",
+        "content",
+        "name"
+      ],
+      "title": "Quest Parameters",
+      "type": "object"
+    },
+    "NotesResponse": {
+      "description": "Response containing a list of notes",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Note"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Notes Response",
+      "type": "object"
+    },
+    "GamesResponse": {
+      "description": "Response containing a list of games",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Game"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Games Response",
+      "type": "object"
+    },
+    "LocationsResponse": {
+      "description": "Response containing a list of locations",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Location"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Locations Response",
+      "type": "object"
+    },
+    "LocationParams": {
+      "description": "Parameters for creating or updating a location",
+      "example": {
+        "description": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        "name": "The Crystal Cave",
+        "parent_id": 2,
+        "type": "building"
+      },
+      "properties": {
+        "description": {
+          "description": "Location description",
+          "type": "string"
+        },
+        "name": {
+          "description": "Location name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent location ID",
+          "type": "integer"
+        },
+        "type": {
+          "description": "Location type",
+          "enum": [
+            "continent",
+            "nation",
+            "region",
+            "city",
+            "settlement",
+            "building",
+            "complex"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "type",
+        "name"
+      ],
+      "title": "Location Parameters",
+      "type": "object"
+    },
+    "NoteLinks": {
+      "description": "Collections of entities linked to a note",
+      "properties": {
+        "characters": {
+          "description": "Linked characters",
+          "items": {
+            "$ref": "#/definitions/EntityCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions",
+          "items": {
+            "$ref": "#/definitions/EntityFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations",
+          "items": {
+            "$ref": "#/definitions/EntityLocation"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Note Links",
+      "type": "object"
+    },
+    "NoteRequest": {
+      "description": "Note creation/update parameters",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/NoteParams",
+          "description": "Note parameters"
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "title": "Note Request",
+      "type": "object"
+    },
+    "NoteLinksData": {
+      "description": "Links associated with a note",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/NoteLinks",
+          "description": "Associated entity links"
+        },
+        "note_id": {
+          "description": "Note ID",
+          "type": "integer"
+        },
+        "note_name": {
+          "description": "Note name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "note_name",
+        "note_id"
+      ],
+      "title": "Note Links Data",
+      "type": "object"
+    },
+    "CharacterResponse": {
+      "description": "Response containing a single character",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Character",
+          "description": "Response data"
+        }
+      },
+      "title": "Character Response",
+      "type": "object"
+    },
+    "AuthStatusResponse": {
+      "description": "Authentication status response",
+      "example": {
+        "authenticated": true,
+        "user": {
+          "confirmed_at": "2023-08-20T12:00:00Z",
+          "email": "user@example.com",
+          "id": 1
+        }
+      },
+      "properties": {
+        "authenticated": {
+          "description": "Whether user is authenticated",
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "User information if authenticated"
+        }
+      },
+      "required": [
+        "authenticated"
+      ],
+      "title": "Auth Status Response",
+      "type": "object"
+    },
+    "FactionLinksData": {
+      "description": "Links associated with a faction",
+      "properties": {
+        "faction_id": {
+          "description": "Faction ID",
+          "type": "integer"
+        },
+        "faction_name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "links": {
+          "$ref": "#/definitions/FactionLinks",
+          "description": "Associated entity links"
+        }
+      },
+      "required": [
+        "faction_name",
+        "faction_id"
+      ],
+      "title": "Faction Links Data",
+      "type": "object"
+    },
+    "GameRequest": {
+      "description": "Game creation/update parameters",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/GameParams",
+          "description": "Game parameters"
+        }
+      },
+      "required": [
+        "game"
+      ],
+      "title": "Game Request",
+      "type": "object"
+    },
+    "NoteParams": {
+      "description": "Parameters for creating or updating a note",
+      "example": {
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "name": "Important Quest Notes"
+      },
+      "properties": {
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "content",
+        "content",
+        "name"
+      ],
+      "title": "Note Parameters",
+      "type": "object"
+    },
+    "EntityQuest": {
+      "description": "Quest entity in game entities list",
+      "example": {
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "id": 1,
+        "name": "The Lost Treasure",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "id": {
+          "description": "Quest ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Entity Quest",
+      "type": "object"
+    },
+    "QuestResponse": {
+      "description": "Response containing a single quest",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Quest",
+          "description": "Response data"
+        }
+      },
+      "title": "Quest Response",
+      "type": "object"
+    },
+    "EntitiesResponse": {
+      "description": "Response containing all game entities",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/EntitiesData",
+          "description": "Response data"
+        }
+      },
+      "title": "Entities Response",
+      "type": "object"
+    },
+    "FactionsResponse": {
+      "description": "Response containing a list of factions",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Faction"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Factions Response",
+      "type": "object"
+    },
+    "ErrorDetails": {
+      "description": "Detailed error information",
+      "title": "Error Details",
+      "type": "object"
+    },
+    "FactionLinksResponse": {
+      "description": "Response containing faction links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/FactionLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Faction Links Response",
+      "type": "object"
+    },
+    "EntityFaction": {
+      "description": "Faction entity in game entities list",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "id": 1,
+        "name": "The Shadow Council",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "id": {
+          "description": "Faction ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Entity Faction",
+      "type": "object"
+    },
+    "EntityNote": {
+      "description": "Note entity in game entities list",
+      "example": {
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "id": 1,
+        "name": "Important Quest Notes",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "id": {
+          "description": "Note ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Entity Note",
+      "type": "object"
+    },
+    "CharacterLinks": {
+      "description": "Collections of entities linked to a character",
+      "properties": {
+        "factions": {
+          "description": "Linked factions",
+          "items": {
+            "$ref": "#/definitions/EntityFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations",
+          "items": {
+            "$ref": "#/definitions/EntityLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes",
+          "items": {
+            "$ref": "#/definitions/EntityNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Character Links",
+      "type": "object"
+    },
+    "User": {
+      "description": "User information",
+      "example": {
+        "confirmed_at": "2023-08-20T12:00:00Z",
+        "email": "user@example.com",
+        "id": 1
+      },
+      "properties": {
+        "confirmed_at": {
+          "description": "Email confirmation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "id": {
+          "description": "User ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "email",
+        "id"
+      ],
+      "title": "User",
+      "type": "object"
+    },
+    "QuestRequest": {
+      "description": "Quest creation/update parameters",
+      "properties": {
+        "quest": {
+          "$ref": "#/definitions/QuestParams",
+          "description": "Quest parameters"
+        }
+      },
+      "required": [
+        "quest"
+      ],
+      "title": "Quest Request",
+      "type": "object"
+    },
+    "Character": {
+      "description": "A game character",
+      "example": {
+        "class": "Wizard",
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "game_id": 1,
+        "id": 1,
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Character ID",
+          "type": "integer"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "level",
+        "class",
+        "name",
+        "id"
+      ],
+      "title": "Character",
+      "type": "object"
+    },
+    "Game": {
+      "description": "A game instance",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "An epic adventure",
+        "id": 1,
+        "name": "My Campaign",
+        "owner_id": 1,
+        "setting": "Fantasy",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "id": {
+          "description": "Game ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "owner_id": {
+          "description": "Owner user ID",
+          "type": "integer"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_id",
+        "name",
+        "id"
+      ],
+      "title": "Game",
+      "type": "object"
+    },
+    "GameResponse": {
+      "description": "Response containing a single game",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Game",
+          "description": "Response data"
+        }
+      },
+      "title": "Game Response",
+      "type": "object"
+    },
+    "Location": {
+      "description": "A game location",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        "game_id": 1,
+        "id": 1,
+        "name": "The Crystal Cave",
+        "parent_id": 2,
+        "type": "building",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Location description",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Location ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Location name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent location ID",
+          "type": "integer"
+        },
+        "type": {
+          "description": "Location type",
+          "enum": [
+            "continent",
+            "nation",
+            "region",
+            "city",
+            "settlement",
+            "building",
+            "complex"
+          ],
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "type",
+        "name",
+        "id"
+      ],
+      "title": "Location",
+      "type": "object"
+    },
+    "FactionParams": {
+      "description": "Parameters for creating or updating a faction",
+      "example": {
+        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "name": "The Shadow Council"
+      },
+      "properties": {
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "description",
+        "name"
+      ],
+      "title": "Faction Parameters",
+      "type": "object"
+    },
+    "NoteLinksResponse": {
+      "description": "Response containing note links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/NoteLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Note Links Response",
+      "type": "object"
+    },
+    "SignupRequest": {
+      "description": "User registration credentials",
+      "example": {
+        "email": "user@example.com",
+        "password": "password123"
+      },
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "password",
+        "password",
+        "email"
+      ],
+      "title": "Signup Request",
+      "type": "object"
+    },
+    "LocationResponse": {
+      "description": "Response containing a single location",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Location",
+          "description": "Response data"
+        }
+      },
+      "title": "Location Response",
+      "type": "object"
+    },
+    "QuestsResponse": {
+      "description": "Response containing a list of quests",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Quest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Quests Response",
+      "type": "object"
+    },
+    "QuestLinksResponse": {
+      "description": "Response containing quest links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/QuestLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Quest Links Response",
+      "type": "object"
+    },
+    "CharacterRequest": {
+      "description": "Character creation/update parameters",
+      "properties": {
+        "character": {
+          "$ref": "#/definitions/CharacterParams",
+          "description": "Character parameters"
+        }
+      },
+      "required": [
+        "character"
+      ],
+      "title": "Character Request",
+      "type": "object"
+    },
+    "Quest": {
+      "description": "A game quest",
+      "example": {
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "game_id": 1,
+        "id": 1,
+        "name": "The Lost Treasure",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Quest ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Quest",
+      "type": "object"
+    },
+    "QuestLinksData": {
+      "description": "Links associated with a quest",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/QuestLinks",
+          "description": "Associated entity links"
+        },
+        "quest_id": {
+          "description": "Quest ID",
+          "type": "integer"
+        },
+        "quest_name": {
+          "description": "Quest name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quest_name",
+        "quest_id"
+      ],
+      "title": "Quest Links Data",
+      "type": "object"
+    },
+    "EntityLocation": {
+      "description": "Location entity in game entities list",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        "has_parent": true,
+        "id": 1,
+        "name": "The Crystal Cave",
+        "type": "building",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Location description",
+          "type": "string"
+        },
+        "has_parent": {
+          "description": "Whether this location has a parent location",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "Location ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Location name",
+          "type": "string"
+        },
+        "type": {
+          "description": "Location type",
+          "enum": [
+            "continent",
+            "nation",
+            "region",
+            "city",
+            "settlement",
+            "building",
+            "complex"
+          ],
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "has_parent",
+        "type",
+        "name",
+        "id"
+      ],
+      "title": "Entity Location",
+      "type": "object"
+    },
+    "Error": {
+      "description": "Error response",
+      "properties": {
+        "errors": {
+          "$ref": "#/definitions/ErrorDetails",
+          "description": "Error details"
+        }
+      },
+      "title": "Error",
+      "type": "object"
+    },
+    "LoginResponse": {
+      "description": "Successful login response",
+      "example": {
+        "token": "dGVzdF90b2tlbg==",
+        "user": {
+          "confirmed_at": "2023-08-20T12:00:00Z",
+          "email": "user@example.com",
+          "id": 1
+        }
+      },
+      "properties": {
+        "token": {
+          "description": "Session token (Base64 encoded)",
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "User information"
+        }
+      },
+      "required": [
+        "user",
+        "token"
+      ],
+      "title": "Login Response",
+      "type": "object"
+    },
+    "LocationLinks": {
+      "description": "Collections of entities linked to a location",
+      "properties": {
+        "characters": {
+          "description": "Linked characters",
+          "items": {
+            "$ref": "#/definitions/EntityCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions",
+          "items": {
+            "$ref": "#/definitions/EntityFaction"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes",
+          "items": {
+            "$ref": "#/definitions/EntityNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Location Links",
+      "type": "object"
+    },
+    "LocationLinksResponse": {
+      "description": "Response containing location links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/LocationLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Location Links Response",
+      "type": "object"
+    },
+    "LocationLinksData": {
+      "description": "Links associated with a location",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/LocationLinks",
+          "description": "Associated entity links"
+        },
+        "location_id": {
+          "description": "Location ID",
+          "type": "integer"
+        },
+        "location_name": {
+          "description": "Location name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "location_name",
+        "location_id"
+      ],
+      "title": "Location Links Data",
+      "type": "object"
+    },
+    "FactionRequest": {
+      "description": "Faction creation/update parameters",
+      "properties": {
+        "faction": {
+          "$ref": "#/definitions/FactionParams",
+          "description": "Faction parameters"
+        }
+      },
+      "required": [
+        "faction"
+      ],
+      "title": "Faction Request",
+      "type": "object"
+    },
+    "Member": {
+      "description": "A game member",
+      "example": {
+        "email": "user@example.com",
+        "joined_at": "2023-08-20T12:00:00Z",
+        "role": "member",
+        "user_id": 1
+      },
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "joined_at": {
+          "description": "Join timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "role": {
+          "description": "Member role",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "User ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "email",
+        "user_id"
+      ],
+      "title": "Member",
+      "type": "object"
+    },
+    "QuestLinks": {
+      "description": "Collections of entities linked to a quest",
+      "properties": {
+        "characters": {
+          "description": "Linked characters",
+          "items": {
+            "$ref": "#/definitions/EntityCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions",
+          "items": {
+            "$ref": "#/definitions/EntityFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations",
+          "items": {
+            "$ref": "#/definitions/EntityLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes",
+          "items": {
+            "$ref": "#/definitions/EntityNote"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Quest Links",
+      "type": "object"
+    },
+    "Note": {
+      "description": "A game note",
+      "example": {
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "game_id": 1,
+        "id": 1,
+        "name": "Important Quest Notes",
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Note ID",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Author user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Note",
+      "type": "object"
+    },
+    "CharactersResponse": {
+      "description": "Response containing a list of characters",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Character"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Characters Response",
+      "type": "object"
+    },
+    "FactionLinks": {
+      "description": "Collections of entities linked to a faction",
+      "properties": {
+        "characters": {
+          "description": "Linked characters",
+          "items": {
+            "$ref": "#/definitions/EntityCharacter"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations",
+          "items": {
+            "$ref": "#/definitions/EntityLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes",
+          "items": {
+            "$ref": "#/definitions/EntityNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Faction Links",
+      "type": "object"
+    }
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Authenticate user with email/password or magic link token",
+        "operationId": "loginUser",
+        "parameters": [
+          {
+            "description": "Login credentials",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LoginResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Login user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "delete": {
+        "description": "Invalidate current session token",
+        "operationId": "logoutUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Logout user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Register a new user with email and password",
+        "operationId": "signupUser",
+        "parameters": [
+          {
+            "description": "Signup credentials",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignupRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/LoginResponse"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Sign up new user",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/auth/status": {
+      "get": {
+        "description": "Check if user is authenticated and get user info",
+        "operationId": "getAuthStatus",
+        "parameters": [],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AuthStatusResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get auth status",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/games": {
+      "get": {
+        "description": "Retrieve a list of all games accessible to the current user",
+        "operationId": "listGames",
+        "parameters": [],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GamesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List all games",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a new game with the provided parameters",
+        "operationId": "createGame",
+        "parameters": [
+          {
+            "description": "Game parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a new game",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/characters": {
+      "get": {
+        "description": "Get all characters in a game",
+        "operationId": "listCharacters",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CharactersResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "List characters",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Create a new character in the game",
+        "operationId": "createCharacter",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character to create",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CharacterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/CharacterResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create character",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/characters/{character_id}/links": {
+      "get": {
+        "description": "Get all entities linked to a character",
+        "operationId": "getCharacterLinks",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "character_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CharacterLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get character links",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Link a character to another entity (note, faction, etc.)",
+        "operationId": "createCharacterLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "character_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "faction",
+              "location",
+              "quest",
+              "note"
+            ],
+            "in": "query",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "query",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create character link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/characters/{character_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a character and another entity",
+        "operationId": "deleteCharacterLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "character_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete character link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/characters/{id}": {
+      "delete": {
+        "description": "Delete a character from the game",
+        "operationId": "deleteCharacter",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete character",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Get a specific character by ID",
+        "operationId": "getCharacter",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CharacterResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get character",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "description": "Update an existing character",
+        "operationId": "updateCharacter",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Character updates",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CharacterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CharacterResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Update character",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/factions": {
+      "get": {
+        "description": "Get all factions in a game",
+        "operationId": "listFactions",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/FactionsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "List factions",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Create a new faction in the game",
+        "operationId": "createFaction",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction to create",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FactionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/FactionResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create faction",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/factions/{faction_id}/links": {
+      "get": {
+        "description": "Get all entities linked to a faction",
+        "operationId": "getFactionLinks",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "faction_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/FactionLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get faction links",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Link a faction to another entity (note, character, etc.)",
+        "operationId": "createFactionLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "faction_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "character",
+              "location",
+              "quest",
+              "note"
+            ],
+            "in": "query",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "query",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create faction link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/factions/{faction_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a faction and another entity",
+        "operationId": "deleteFactionLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "faction_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete faction link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/factions/{id}": {
+      "delete": {
+        "description": "Delete a faction from the game",
+        "operationId": "deleteFaction",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete faction",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Get a specific faction by ID",
+        "operationId": "getFaction",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/FactionResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get faction",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "description": "Update an existing faction",
+        "operationId": "updateFaction",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Faction updates",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FactionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/FactionResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Update faction",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/links": {
+      "get": {
+        "description": "Retrieve all entities (notes, characters, factions, locations, quests) for the specified game",
+        "operationId": "listGameEntities",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/EntitiesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List game entities",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/locations": {
+      "get": {
+        "description": "Get all locations in a game",
+        "operationId": "listLocations",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LocationsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "List locations",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Create a new location in the game",
+        "operationId": "createLocation",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location to create",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LocationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/LocationResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create location",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/locations/{id}": {
+      "delete": {
+        "description": "Delete a location from the game",
+        "operationId": "deleteLocation",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete location",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Get a specific location by ID",
+        "operationId": "getLocation",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LocationResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get location",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "description": "Update an existing location",
+        "operationId": "updateLocation",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location updates",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LocationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LocationResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Update location",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/locations/{location_id}/links": {
+      "get": {
+        "description": "Get all entities linked to a location",
+        "operationId": "getLocationLinks",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "location_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LocationLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get location links",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Link a location to another entity (note, faction, etc.)",
+        "operationId": "createLocationLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "location_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "quest",
+              "note"
+            ],
+            "in": "query",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "query",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create location link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/locations/{location_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a location and another entity",
+        "operationId": "deleteLocationLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Location ID",
+            "in": "path",
+            "name": "location_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete location link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/members": {
+      "get": {
+        "description": "Retrieve a list of all members in the specified game",
+        "operationId": "listGameMembers",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/MembersResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List game members",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Add a user as a member to the specified game",
+        "operationId": "addGameMember",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "User ID to add",
+            "in": "formData",
+            "name": "user_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Member role (default: 'member')",
+            "in": "formData",
+            "name": "role",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Add a member to a game",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/members/{user_id}": {
+      "delete": {
+        "description": "Remove a user from the specified game",
+        "operationId": "removeGameMember",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "User ID to remove",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Remove a member from a game",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes": {
+      "get": {
+        "description": "Retrieve all notes for a specific game",
+        "operationId": "listNotes",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NotesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List notes",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a new note for the specified game",
+        "operationId": "createNote",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NoteRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a note",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{id}": {
+      "delete": {
+        "description": "Delete a specific note by its ID",
+        "operationId": "deleteNote",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a note",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a specific note by its ID",
+        "operationId": "getNote",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Get a note",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Update a specific note with the provided parameters",
+        "operationId": "updateNote",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NoteRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Update a note",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{note_id}/links": {
+      "get": {
+        "description": "Retrieve all entities linked to a specific note",
+        "operationId": "getNoteLinks",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoteLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "List note links",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Create a link between a note and another entity (character, faction, location, quest)",
+        "operationId": "createNoteLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "quest"
+            ],
+            "in": "query",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "query",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "properties": {
+                "entity_id": {
+                  "type": "integer"
+                },
+                "entity_type": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "note_id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Create a link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/notes/{note_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a note and another entity",
+        "operationId": "deleteNoteLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Note ID",
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "quest"
+            ],
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/quests": {
+      "get": {
+        "description": "Get all quests in a game",
+        "operationId": "listQuests",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QuestsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "List quests",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Create a new quest in the game",
+        "operationId": "createQuest",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest to create",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuestRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/QuestResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create quest",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/quests/{id}": {
+      "delete": {
+        "description": "Delete a quest from the game",
+        "operationId": "deleteQuest",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete quest",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Get a specific quest by ID",
+        "operationId": "getQuest",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QuestResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get quest",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "description": "Update an existing quest",
+        "operationId": "updateQuest",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest updates",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuestRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QuestResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Update quest",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/quests/{quest_id}/links": {
+      "get": {
+        "description": "Get all entities linked to a quest",
+        "operationId": "getQuestLinks",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "quest_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QuestLinksResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Get quest links",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "post": {
+        "description": "Link a quest to another entity (note, character, faction, location)",
+        "operationId": "createQuestLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "quest_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type to link",
+            "enum": [
+              "character",
+              "faction",
+              "location",
+              "note"
+            ],
+            "in": "query",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID to link",
+            "in": "query",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Create quest link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{game_id}/quests/{quest_id}/links/{entity_type}/{entity_id}": {
+      "delete": {
+        "description": "Remove a link between a quest and another entity",
+        "operationId": "deleteQuestLink",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "game_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Quest ID",
+            "in": "path",
+            "name": "quest_id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Entity type",
+            "in": "path",
+            "name": "entity_type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Entity ID",
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "Delete quest link",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    },
+    "/api/games/{id}": {
+      "delete": {
+        "description": "Delete a specific game by its ID",
+        "operationId": "deleteGame",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Delete a game",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a specific game by its ID",
+        "operationId": "getGame",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Get a game",
+        "tags": [
+          "GameMaster"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Update a specific game with the provided parameters",
+        "operationId": "updateGame",
+        "parameters": [
+          {
+            "description": "Game ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "Game parameters",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GameRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/GameResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "summary": "Update a game",
+        "tags": [
+          "GameMaster"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0",
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey",
+      "description": "Bearer token authentication"
+    }
+  }
+}

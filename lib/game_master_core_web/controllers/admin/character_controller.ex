@@ -27,7 +27,9 @@ defmodule GameMasterCoreWeb.Admin.CharacterController do
       {:ok, character} ->
         conn
         |> put_flash(:info, "Character created successfully.")
-        |> redirect(to: ~p"/admin/games/#{conn.assigns.current_scope.game}/characters/#{character}")
+        |> redirect(
+          to: ~p"/admin/games/#{conn.assigns.current_scope.game}/characters/#{character}"
+        )
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset)
@@ -52,7 +54,9 @@ defmodule GameMasterCoreWeb.Admin.CharacterController do
       {:ok, character} ->
         conn
         |> put_flash(:info, "Character updated successfully.")
-        |> redirect(to: ~p"/admin/games/#{conn.assigns.current_scope.game}/characters/#{character}")
+        |> redirect(
+          to: ~p"/admin/games/#{conn.assigns.current_scope.game}/characters/#{character}"
+        )
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit, character: character, changeset: changeset)

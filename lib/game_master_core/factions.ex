@@ -188,8 +188,6 @@ defmodule GameMasterCore.Factions do
 
   """
   def change_faction(%Scope{} = scope, %Faction{} = faction, attrs \\ %{}) do
-    true = faction.user_id == scope.user.id
-
     Faction.changeset(faction, attrs, scope, faction.game_id)
   end
 

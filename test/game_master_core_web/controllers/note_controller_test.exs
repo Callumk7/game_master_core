@@ -20,13 +20,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
-    user_token = GameMasterCore.Accounts.create_user_api_token(user)
     game = game_fixture(scope)
-
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("authorization", "Bearer #{user_token}")
+    conn = authenticate_api_user(conn, user)
 
     {:ok, conn: conn, game: game}
   end
@@ -137,12 +132,7 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
-      member_token = GameMasterCore.Accounts.create_user_api_token(member_scope.user)
-
-      member_conn =
-        build_conn()
-        |> put_req_header("accept", "application/json")
-        |> put_req_header("authorization", "Bearer #{member_token}")
+      member_conn = authenticate_api_user(build_conn(), member_scope.user)
 
       conn = get(member_conn, ~p"/api/games/#{game.id}/notes")
       assert json_response(conn, 200)["data"] == []
@@ -153,12 +143,7 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
-      member_token = GameMasterCore.Accounts.create_user_api_token(member_scope.user)
-
-      member_conn =
-        build_conn()
-        |> put_req_header("accept", "application/json")
-        |> put_req_header("authorization", "Bearer #{member_token}")
+      member_conn = authenticate_api_user(build_conn(), member_scope.user)
 
       conn = post(member_conn, ~p"/api/games/#{game.id}/notes", note: @create_attrs)
       assert %{"id" => _id} = json_response(conn, 201)["data"]
@@ -183,14 +168,13 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       assert response["data"]["note_id"] == note.id
       assert response["data"]["note_name"] == note.name
 
-      assert response["data"]["links"]["characters"] == [
-               %{
-                 "id" => character.id,
-                 "name" => character.name,
-                 "level" => character.level,
-                 "class" => character.class
-               }
-             ]
+      assert [character_response] = response["data"]["links"]["characters"]
+      assert character_response["id"] == character.id
+      assert character_response["name"] == character.name
+      assert character_response["level"] == character.level
+      assert character_response["class"] == character.class
+      assert character_response["created_at"]
+      assert character_response["updated_at"]
     end
 
     test "list_links returns empty links for note with no links", %{

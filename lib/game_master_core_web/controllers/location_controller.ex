@@ -1,16 +1,64 @@
 defmodule GameMasterCoreWeb.LocationController do
   use GameMasterCoreWeb, :controller
+  use PhoenixSwagger
 
   alias GameMasterCore.Locations
   alias GameMasterCore.Locations.Location
+  alias GameMasterCoreWeb.SwaggerDefinitions
+  alias PhoenixSwagger.Schema
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
 
   action_fallback GameMasterCoreWeb.FallbackController
 
+  def swagger_definitions do
+    SwaggerDefinitions.common_definitions()
+  end
+
+  swagger_path :index do
+    get("/api/games/{game_id}/locations")
+    summary("List locations")
+    description("Get all locations in a game")
+    operation_id("listLocations")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(200, "Success", Schema.ref(:LocationsResponse))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+  end
+
   def index(conn, _params) do
     locations = Locations.list_locations_for_game(conn.assigns.current_scope)
     render(conn, :index, locations: locations)
+  end
+
+  swagger_path :create do
+    post("/api/games/{game_id}/locations")
+    summary("Create location")
+    description("Create a new location in the game")
+    operation_id("createLocation")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      body(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(201, "Created", Schema.ref(:LocationResponse))
+    response(400, "Bad Request", Schema.ref(:Error))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create(conn, %{"location" => location_params}) do
@@ -26,9 +74,52 @@ defmodule GameMasterCoreWeb.LocationController do
     end
   end
 
+  swagger_path :show do
+    get("/api/games/{game_id}/locations/{id}")
+    summary("Get location")
+    description("Get a specific location by ID")
+    operation_id("getLocation")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      id(:path, :integer, "Location ID", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(200, "Success", Schema.ref(:LocationResponse))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+  end
+
   def show(conn, %{"id" => id}) do
     location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
     render(conn, :show, location: location)
+  end
+
+  swagger_path :update do
+    put("/api/games/{game_id}/locations/{id}")
+    summary("Update location")
+    description("Update an existing location")
+    operation_id("updateLocation")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      id(:path, :integer, "Location ID", required: true)
+      body(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(200, "Success", Schema.ref(:LocationResponse))
+    response(400, "Bad Request", Schema.ref(:Error))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def update(conn, %{"id" => id, "location" => location_params}) do
@@ -40,12 +131,61 @@ defmodule GameMasterCoreWeb.LocationController do
     end
   end
 
+  swagger_path :delete do
+    PhoenixSwagger.Path.delete("/api/games/{game_id}/locations/{id}")
+    summary("Delete location")
+    description("Delete a location from the game")
+    operation_id("deleteLocation")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      id(:path, :integer, "Location ID", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(204, "No Content")
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+  end
+
   def delete(conn, %{"id" => id}) do
     location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
 
     with {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  swagger_path :create_link do
+    post("/api/games/{game_id}/locations/{location_id}/links")
+    summary("Create location link")
+    description("Link a location to another entity (note, faction, etc.)")
+    operation_id("createLocationLink")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      location_id(:path, :integer, "Location ID", required: true)
+
+      entity_type(:query, :string, "Entity type to link",
+        required: true,
+        enum: ["character", "faction", "location", "quest", "note"]
+      )
+
+      entity_id(:query, :integer, "Entity ID to link", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(201, "Created")
+    response(400, "Bad Request", Schema.ref(:Error))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create_link(conn, %{"location_id" => location_id} = params) do
@@ -69,6 +209,26 @@ defmodule GameMasterCoreWeb.LocationController do
     end
   end
 
+  swagger_path :list_links do
+    get("/api/games/{game_id}/locations/{location_id}/links")
+    summary("Get location links")
+    description("Get all entities linked to a location")
+    operation_id("getLocationLinks")
+    tag("GameMaster")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      location_id(:path, :integer, "Location ID", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(200, "Success", Schema.ref(:LocationLinksResponse))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
+  end
+
   def list_links(conn, %{"location_id" => location_id}) do
     location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
 
@@ -81,6 +241,32 @@ defmodule GameMasterCoreWeb.LocationController do
       characters: links.characters,
       quests: links.quests
     )
+  end
+
+  swagger_path :delete_link do
+    PhoenixSwagger.Path.delete(
+      "/api/games/{game_id}/locations/{location_id}/links/{entity_type}/{entity_id}"
+    )
+
+    summary("Delete location link")
+    operation_id("deleteLocationLink")
+    tag("GameMaster")
+    description("Remove a link between a location and another entity")
+
+    parameters do
+      game_id(:path, :integer, "Game ID", required: true)
+      location_id(:path, :integer, "Location ID", required: true)
+      entity_type(:path, :string, "Entity type", required: true)
+      entity_id(:path, :integer, "Entity ID", required: true)
+    end
+
+    security([%{Bearer: []}])
+
+    response(204, "No Content")
+    response(400, "Bad Request", Schema.ref(:Error))
+    response(401, "Unauthorized", Schema.ref(:Error))
+    response(403, "Forbidden", Schema.ref(:Error))
+    response(404, "Not Found", Schema.ref(:Error))
   end
 
   def delete_link(conn, %{

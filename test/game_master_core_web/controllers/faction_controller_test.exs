@@ -20,13 +20,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
-    user_token = GameMasterCore.Accounts.create_user_api_token(user)
     game = game_fixture(scope)
-
-    conn =
-      conn
-      |> put_req_header("accept", "application/json")
-      |> put_req_header("authorization", "Bearer #{user_token}")
+    conn = authenticate_api_user(conn, user)
 
     {:ok, conn: conn, game: game}
   end
@@ -155,13 +150,12 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert response["data"]["faction_id"] == faction.id
       assert response["data"]["faction_name"] == faction.name
 
-      assert response["data"]["links"]["notes"] == [
-               %{
-                 "id" => note.id,
-                 "name" => note.name,
-                 "content" => note.content
-               }
-             ]
+      assert [note_response] = response["data"]["links"]["notes"]
+      assert note_response["id"] == note.id
+      assert note_response["name"] == note.name
+      assert note_response["content"] == note.content
+      assert note_response["created_at"]
+      assert note_response["updated_at"]
     end
 
     test "list_links returns empty links for faction with no links", %{

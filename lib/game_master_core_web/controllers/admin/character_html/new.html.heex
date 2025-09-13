@@ -4,5 +4,9 @@
     <:subtitle>Use this form to manage character records in your database.</:subtitle>
   </.header>
 
-  <.character_form changeset={@changeset} action={~p"/admin/games/#{@game.id}/characters"} return_to={~p"/admin/games/#{@game.id}/characters"} />
+  <.character_form
+    changeset={@changeset}
+    action={~p"/admin/games/#{@game.id}/characters"}
+    return_to={~p"/admin/games/#{@game.id}/characters"}
+  />
 </Layouts.app>
