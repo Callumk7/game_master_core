@@ -12,7 +12,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game instance")
 
       properties do
-        id(:integer, "Game ID", required: true)
+        id(:string, "Game ID", required: true, format: :uuid)
         name(:string, "Game name", required: true)
         description(:string, "Game description")
         setting(:string, "Game setting")
@@ -22,7 +22,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "123e4567-e89b-12d3-a456-426614174000",
         name: "My Campaign",
         description: "An epic adventure",
         setting: "Fantasy",
@@ -94,7 +94,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Note entity in game entities list")
 
       properties do
-        id(:integer, "Note ID", required: true)
+        id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
         content(:string, "Note content", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -102,7 +102,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
         created_at: "2023-08-20T12:00:00Z",
@@ -117,7 +117,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Character entity in game entities list")
 
       properties do
-        id(:integer, "Character ID", required: true)
+        id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
         description(:string, "Character description")
         class(:string, "Character class", required: true)
@@ -128,7 +128,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
         description: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
@@ -146,7 +146,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Faction entity in game entities list")
 
       properties do
-        id(:integer, "Faction ID", required: true)
+        id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
         description(:string, "Faction description", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -154,7 +154,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
         description:
           "A secretive organization that seeks to control the realm from behind the scenes.",
@@ -170,7 +170,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Location entity in game entities list")
 
       properties do
-        id(:integer, "Location ID", required: true)
+        id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
         description(:string, "Location description")
 
@@ -185,7 +185,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
@@ -202,7 +202,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Quest entity in game entities list")
 
       properties do
-        id(:integer, "Quest ID", required: true)
+        id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
         content(:string, "Quest content", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -210,7 +210,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        id: 1,
+        id: "623e4567-e89b-12d3-a456-426614174005",
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
         created_at: "2023-08-20T12:00:00Z",
@@ -240,7 +240,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Game entities data structure")
 
       properties do
-        game_id(:integer, "Game ID", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
         game_name(:string, "Game name", required: true)
         entities(Schema.ref(:Entities), "Game entities")
       end
@@ -302,20 +302,20 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game note")
 
       properties do
-        id(:integer, "Note ID", required: true)
+        id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
         content(:string, "Note content", required: true)
-        game_id(:integer, "Associated game ID", required: true)
+        game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        game_id: 1,
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -361,7 +361,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Links associated with a note")
 
       properties do
-        note_id(:integer, "Note ID", required: true)
+        note_id(:string, "Note ID", required: true, format: :uuid)
         note_name(:string, "Note name", required: true)
         links(Schema.ref(:NoteLinks), "Associated entity links")
       end
@@ -389,26 +389,26 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game character")
 
       properties do
-        id(:integer, "Character ID", required: true)
+        id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
         description(:string, "Character description")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
-        game_id(:integer, "Associated game ID", required: true)
+        game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
         description: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
-        game_id: 1,
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -460,7 +460,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Links associated with a character")
 
       properties do
-        character_id(:integer, "Character ID", required: true)
+        character_id(:string, "Character ID", required: true, format: :uuid)
         character_name(:string, "Character name", required: true)
         links(Schema.ref(:CharacterLinks), "Associated entity links")
       end
@@ -488,21 +488,21 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game faction")
 
       properties do
-        id(:integer, "Faction ID", required: true)
+        id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
         description(:string, "Faction description", required: true)
-        game_id(:integer, "Associated game ID", required: true)
+        game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
         description:
           "A secretive organization that seeks to control the realm from behind the scenes.",
-        game_id: 1,
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -549,7 +549,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Links associated with a faction")
 
       properties do
-        faction_id(:integer, "Faction ID", required: true)
+        faction_id(:string, "Faction ID", required: true, format: :uuid)
         faction_name(:string, "Faction name", required: true)
         links(Schema.ref(:FactionLinks), "Associated entity links")
       end
@@ -582,14 +582,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           enum: [:character, :faction, :location, :quest]
         )
 
-        entity_id(:integer, "Entity ID to link", required: true)
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
       end
 
       required([:entity_type, :entity_id])
 
       example(%{
         entity_type: "character",
-        entity_id: 1
+        entity_id: "323e4567-e89b-12d3-a456-426614174002"
       })
     end
   end
@@ -600,7 +600,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game location")
 
       properties do
-        id(:integer, "Location ID", required: true)
+        id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
         description(:string, "Location description")
 
@@ -609,20 +609,20 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
         )
 
-        parent_id(:integer, "Parent location ID")
-        game_id(:integer, "Associated game ID", required: true)
+        parent_id(:string, "Parent location ID", format: :uuid)
+        game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
-        parent_id: 2,
-        game_id: 1,
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -644,7 +644,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
         )
 
-        parent_id(:integer, "Parent location ID")
+        parent_id(:string, "Parent location ID", format: :uuid)
       end
 
       required([:name, :type])
@@ -653,7 +653,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
-        parent_id: 2
+        parent_id: "723e4567-e89b-12d3-a456-426614174006"
       })
     end
   end
@@ -677,7 +677,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Links associated with a location")
 
       properties do
-        location_id(:integer, "Location ID", required: true)
+        location_id(:string, "Location ID", required: true, format: :uuid)
         location_name(:string, "Location name", required: true)
         links(Schema.ref(:LocationLinks), "Associated entity links")
       end
@@ -705,20 +705,20 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game quest")
 
       properties do
-        id(:integer, "Quest ID", required: true)
+        id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
         content(:string, "Quest content", required: true)
-        game_id(:integer, "Associated game ID", required: true)
+        game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "623e4567-e89b-12d3-a456-426614174005",
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
-        game_id: 1,
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -764,7 +764,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Links associated with a quest")
 
       properties do
-        quest_id(:integer, "Quest ID", required: true)
+        quest_id(:string, "Quest ID", required: true, format: :uuid)
         quest_name(:string, "Quest name", required: true)
         links(Schema.ref(:QuestLinks), "Associated entity links")
       end
