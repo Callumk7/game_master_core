@@ -2,9 +2,10 @@ defmodule GameMasterCore.Repo.Migrations.AddCharacterNoteJoinTable do
   use Ecto.Migration
 
   def change do
-    create table(:character_notes) do
-      add :character_id, references(:characters, on_delete: :nothing)
-      add :note_id, references(:notes, on_delete: :nothing)
+    create table(:character_notes, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :character_id, references(:characters, type: :binary_id, on_delete: :nothing)
+      add :note_id, references(:notes, type: :binary_id, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end

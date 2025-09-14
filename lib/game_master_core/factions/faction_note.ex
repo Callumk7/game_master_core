@@ -5,6 +5,9 @@ defmodule GameMasterCore.Factions.FactionNote do
   alias GameMasterCore.Factions.Faction
   alias GameMasterCore.Notes.Note
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "faction_notes" do
     belongs_to :faction, Faction
     belongs_to :note, Note

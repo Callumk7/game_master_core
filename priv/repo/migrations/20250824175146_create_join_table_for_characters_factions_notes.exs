@@ -2,9 +2,10 @@ defmodule GameMasterCore.Repo.Migrations.CreateJoinTableForCharactersFactionsNot
   use Ecto.Migration
 
   def change do
-    create table(:faction_notes) do
-      add :faction_id, references(:factions, on_delete: :nothing)
-      add :note_id, references(:notes, on_delete: :nothing)
+    create table(:faction_notes, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :faction_id, references(:factions, type: :binary_id, on_delete: :nothing)
+      add :note_id, references(:notes, type: :binary_id, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
@@ -14,9 +15,10 @@ defmodule GameMasterCore.Repo.Migrations.CreateJoinTableForCharactersFactionsNot
 
     create unique_index(:faction_notes, [:faction_id, :note_id])
 
-    create table(:character_factions) do
-      add :character_id, references(:characters, on_delete: :nothing)
-      add :faction_id, references(:factions, on_delete: :nothing)
+    create table(:character_factions, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :character_id, references(:characters, type: :binary_id, on_delete: :nothing)
+      add :faction_id, references(:factions, type: :binary_id, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end

@@ -5,6 +5,9 @@ defmodule GameMasterCore.Quests.QuestNote do
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Notes.Note
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "quests_notes" do
     belongs_to :quest, Quest
     belongs_to :note, Note

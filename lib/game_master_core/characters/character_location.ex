@@ -5,6 +5,9 @@ defmodule GameMasterCore.Characters.CharacterLocation do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Locations.Location
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "character_locations" do
     belongs_to :character, Character
     belongs_to :location, Location

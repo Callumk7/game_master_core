@@ -337,10 +337,12 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game: game,
       quest: quest
     } do
+      non_existent_uuid = Ecto.UUID.generate()
+
       conn =
         post(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links", %{
           "entity_type" => "character",
-          "entity_id" => 999_999
+          "entity_id" => non_existent_uuid
         })
 
       response = json_response(conn, 404)
@@ -371,10 +373,12 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game: game,
       quest: quest
     } do
+      dummy_uuid = Ecto.UUID.generate()
+
       conn =
         post(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links", %{
           "entity_type" => "item",
-          "entity_id" => 1
+          "entity_id" => dummy_uuid
         })
 
       response = json_response(conn, 422)
@@ -445,7 +449,11 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game: game,
       quest: quest
     } do
-      conn = delete(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/invalid/1")
+      dummy_uuid = Ecto.UUID.generate()
+
+      conn =
+        delete(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/invalid/#{dummy_uuid}")
+
       response = json_response(conn, 400)
 
       assert response["error"] ==
@@ -467,7 +475,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game: game,
       quest: quest
     } do
-      conn = delete(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/item/1")
+      dummy_uuid = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/item/#{dummy_uuid}")
       response = json_response(conn, 422)
       assert response["error"] == "Linking quests to item is not yet supported"
     end
@@ -486,16 +495,20 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       end
 
       assert_error_sent 404, fn ->
+        dummy_uuid = Ecto.UUID.generate()
+
         post(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links", %{
           "entity_type" => "character",
-          "entity_id" => 1
+          "entity_id" => dummy_uuid
         })
       end
 
       assert_error_sent 404, fn ->
+        dummy_uuid = Ecto.UUID.generate()
+
         delete(
           conn,
-          ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/character/1"
+          ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/character/#{dummy_uuid}"
         )
       end
     end

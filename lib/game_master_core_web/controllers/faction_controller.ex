@@ -22,7 +22,7 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -46,7 +46,7 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       body(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
     end
 
@@ -81,8 +81,8 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Faction ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Faction ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -106,8 +106,8 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Faction ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Faction ID", required: true, format: :uuid)
       body(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
     end
 
@@ -138,8 +138,8 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Faction ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Faction ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -168,15 +168,15 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      faction_id(:path, :integer, "Faction ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
         enum: ["character", "location", "quest", "note", "faction"]
       )
 
-      entity_id(:query, :integer, "Entity ID to link", required: true)
+      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -218,8 +218,8 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      faction_id(:path, :integer, "Faction ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -260,10 +260,15 @@ defmodule GameMasterCoreWeb.FactionController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      faction_id(:path, :integer, "Faction ID", required: true)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "location", "quest", "note", "faction"])
-      entity_id(:path, :integer, "Entity ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+
+      entity_type(:path, :string, "Entity type",
+        required: true,
+        enum: ["character", "location", "quest", "note", "faction"]
+      )
+
+      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])

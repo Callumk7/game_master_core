@@ -5,6 +5,9 @@ defmodule GameMasterCore.Characters.CharacterFaction do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Factions.Faction
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "character_factions" do
     belongs_to :character, Character
     belongs_to :faction, Faction

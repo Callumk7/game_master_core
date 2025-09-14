@@ -5,6 +5,9 @@ defmodule GameMasterCore.Games.GameMembership do
   alias GameMasterCore.Games.Game
   alias GameMasterCore.Accounts.User
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "game_members" do
     belongs_to :user, User
     belongs_to :game, Game

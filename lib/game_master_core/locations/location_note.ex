@@ -5,6 +5,9 @@ defmodule GameMasterCore.Locations.LocationNote do
   alias GameMasterCore.Locations.Location
   alias GameMasterCore.Notes.Note
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "location_notes" do
     belongs_to :location, Location
     belongs_to :note, Note

@@ -4,6 +4,9 @@ defmodule GameMasterCore.Quests.QuestQuest do
 
   alias GameMasterCore.Quests.Quest
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "quest_quests" do
     belongs_to :quest_1, Quest
     belongs_to :quest_2, Quest

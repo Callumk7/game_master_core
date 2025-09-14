@@ -37,8 +37,10 @@ defmodule GameMasterCore.AccountsTest do
 
   describe "get_user!/1" do
     test "raises if id is invalid" do
+      invalid_user_id = Ecto.UUID.generate()
+
       assert_raise Ecto.NoResultsError, fn ->
-        Accounts.get_user!(-1)
+        Accounts.get_user!(invalid_user_id)
       end
     end
 

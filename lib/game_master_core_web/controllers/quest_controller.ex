@@ -23,7 +23,7 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -47,7 +47,7 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       body(:body, Schema.ref(:QuestRequest), "Quest to create", required: true)
     end
 
@@ -82,8 +82,8 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Quest ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Quest ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -107,8 +107,8 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Quest ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Quest ID", required: true, format: :uuid)
       body(:body, Schema.ref(:QuestRequest), "Quest updates", required: true)
     end
 
@@ -139,8 +139,8 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Quest ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Quest ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -167,15 +167,15 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      quest_id(:path, :integer, "Quest ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
         enum: ["character", "faction", "location", "note", "quest"]
       )
 
-      entity_id(:query, :integer, "Entity ID to link", required: true)
+      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -217,8 +217,8 @@ defmodule GameMasterCoreWeb.QuestController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      quest_id(:path, :integer, "Quest ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -255,10 +255,15 @@ defmodule GameMasterCoreWeb.QuestController do
     description("Remove a link between a quest and another entity")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      quest_id(:path, :integer, "Quest ID", required: true)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "note", "quest"])
-      entity_id(:path, :integer, "Entity ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
+
+      entity_type(:path, :string, "Entity type",
+        required: true,
+        enum: ["character", "faction", "location", "note", "quest"]
+      )
+
+      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])

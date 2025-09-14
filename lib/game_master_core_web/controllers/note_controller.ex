@@ -24,7 +24,7 @@ defmodule GameMasterCoreWeb.NoteController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:NotesResponse))
@@ -47,7 +47,7 @@ defmodule GameMasterCoreWeb.NoteController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
     end
 
@@ -77,8 +77,8 @@ defmodule GameMasterCoreWeb.NoteController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Note ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:NoteResponse))
@@ -101,8 +101,8 @@ defmodule GameMasterCoreWeb.NoteController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Note ID", required: true, format: :uuid)
       body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
     end
 
@@ -129,8 +129,8 @@ defmodule GameMasterCoreWeb.NoteController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Note ID", required: true, format: :uuid)
     end
 
     response(204, "No Content")
@@ -159,24 +159,24 @@ defmodule GameMasterCoreWeb.NoteController do
     consumes("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      note_id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      note_id(:path, :string, "Note ID", required: true, format: :uuid)
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
         enum: ["character", "faction", "location", "quest", "note"]
       )
 
-      entity_id(:query, :integer, "Entity ID to link", required: true)
+      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
     end
 
     response(201, "Created", %{
       "type" => "object",
       "properties" => %{
         "message" => %{"type" => "string"},
-        "note_id" => %{"type" => "integer"},
+        "note_id" => %{"type" => "string", "format" => "uuid"},
         "entity_type" => %{"type" => "string"},
-        "entity_id" => %{"type" => "integer"}
+        "entity_id" => %{"type" => "string", "format" => "uuid"}
       }
     })
 
@@ -216,8 +216,8 @@ defmodule GameMasterCoreWeb.NoteController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      note_id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      note_id(:path, :string, "Note ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:NoteLinksResponse))
@@ -251,15 +251,15 @@ defmodule GameMasterCoreWeb.NoteController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      note_id(:path, :integer, "Note ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      note_id(:path, :string, "Note ID", required: true, format: :uuid)
 
       entity_type(:path, :string, "Entity type",
         required: true,
         enum: ["character", "faction", "location", "quest", "note"]
       )
 
-      entity_id(:path, :integer, "Entity ID", required: true)
+      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
     end
 
     response(204, "No Content")
