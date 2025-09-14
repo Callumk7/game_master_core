@@ -113,15 +113,17 @@ defmodule GameMasterCore.QuestsTest do
     test "link_note/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
       note = note_fixture(scope)
+      invalid_quest_id = Ecto.UUID.generate()
 
-      assert {:error, :quest_not_found} = Quests.link_note(scope, 999, note.id)
+      assert {:error, :quest_not_found} = Quests.link_note(scope, invalid_quest_id, note.id)
     end
 
     test "link_note/3 with invalid note_id returns error" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
+      invalid_note_id = Ecto.UUID.generate()
 
-      assert {:error, :note_not_found} = Quests.link_note(scope, quest.id, 999)
+      assert {:error, :note_not_found} = Quests.link_note(scope, quest.id, invalid_note_id)
     end
 
     test "link_note/3 with cross-scope quest returns error" do
@@ -177,14 +179,16 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
       note = note_fixture(scope)
 
-      assert {:error, :quest_not_found} = Quests.unlink_note(scope, 999, note.id)
+      invalid_quest_id = Ecto.UUID.generate()
+      assert {:error, :quest_not_found} = Quests.unlink_note(scope, invalid_quest_id, note.id)
     end
 
     test "unlink_note/3 with invalid note_id returns error" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      assert {:error, :note_not_found} = Quests.unlink_note(scope, quest.id, 999)
+      invalid_note_id = Ecto.UUID.generate()
+      assert {:error, :note_not_found} = Quests.unlink_note(scope, quest.id, invalid_note_id)
     end
 
     test "note_linked?/3 returns false for unlinked entities" do
@@ -199,14 +203,16 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
       note = note_fixture(scope)
 
-      refute Quests.note_linked?(scope, 999, note.id)
+      invalid_quest_id = Ecto.UUID.generate()
+      refute Quests.note_linked?(scope, invalid_quest_id, note.id)
     end
 
     test "note_linked?/3 with invalid note_id returns false" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      refute Quests.note_linked?(scope, quest.id, 999)
+      invalid_note_id = Ecto.UUID.generate()
+      refute Quests.note_linked?(scope, quest.id, invalid_note_id)
     end
 
     test "linked_notes/2 returns all notes linked to a quest" do
@@ -236,7 +242,8 @@ defmodule GameMasterCore.QuestsTest do
     test "linked_notes/2 with invalid quest_id returns empty list" do
       scope = game_scope_fixture()
 
-      assert Quests.linked_notes(scope, 999) == []
+      invalid_quest_id = Ecto.UUID.generate()
+      assert Quests.linked_notes(scope, invalid_quest_id) == []
     end
 
     test "linked_notes/2 respects scope boundaries" do
@@ -273,14 +280,20 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
       character = character_fixture(scope)
 
-      assert {:error, :quest_not_found} = Quests.link_character(scope, 999, character.id)
+      invalid_quest_id = Ecto.UUID.generate()
+
+      assert {:error, :quest_not_found} =
+               Quests.link_character(scope, invalid_quest_id, character.id)
     end
 
     test "link_character/3 with invalid character_id returns error" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      assert {:error, :character_not_found} = Quests.link_character(scope, quest.id, 999)
+      invalid_character_id = Ecto.UUID.generate()
+
+      assert {:error, :character_not_found} =
+               Quests.link_character(scope, quest.id, invalid_character_id)
     end
 
     test "link_character/3 prevents duplicate links" do
@@ -366,14 +379,18 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
       faction = faction_fixture(scope)
 
-      assert {:error, :quest_not_found} = Quests.link_faction(scope, 999, faction.id)
+      invalid_quest_id = Ecto.UUID.generate()
+      assert {:error, :quest_not_found} = Quests.link_faction(scope, invalid_quest_id, faction.id)
     end
 
     test "link_faction/3 with invalid faction_id returns error" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      assert {:error, :faction_not_found} = Quests.link_faction(scope, quest.id, 999)
+      invalid_faction_id = Ecto.UUID.generate()
+
+      assert {:error, :faction_not_found} =
+               Quests.link_faction(scope, quest.id, invalid_faction_id)
     end
 
     test "link_faction/3 prevents duplicate links" do
@@ -459,14 +476,20 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :quest_not_found} = Quests.link_location(scope, 999, location.id)
+      invalid_quest_id = Ecto.UUID.generate()
+
+      assert {:error, :quest_not_found} =
+               Quests.link_location(scope, invalid_quest_id, location.id)
     end
 
     test "link_location/3 with invalid location_id returns error" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
 
-      assert {:error, :location_not_found} = Quests.link_location(scope, quest.id, 999)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Quests.link_location(scope, quest.id, invalid_location_id)
     end
 
     test "link_location/3 prevents duplicate links" do

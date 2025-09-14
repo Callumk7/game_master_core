@@ -4,6 +4,9 @@ defmodule GameMasterCore.Characters.CharacterCharacter do
 
   alias GameMasterCore.Characters.Character
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "character_characters" do
     belongs_to :character_1, Character
     belongs_to :character_2, Character

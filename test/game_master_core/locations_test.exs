@@ -137,14 +137,20 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.link_character(scope, 999, character.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.link_character(scope, invalid_location_id, character.id)
     end
 
     test "link_character/3 with invalid character_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :character_not_found} = Locations.link_character(scope, location.id, 999)
+      invalid_character_id = Ecto.UUID.generate()
+
+      assert {:error, :character_not_found} =
+               Locations.link_character(scope, location.id, invalid_character_id)
     end
 
     test "link_character/3 with cross-scope location returns error" do
@@ -204,14 +210,20 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_character(scope, 999, character.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.unlink_character(scope, invalid_location_id, character.id)
     end
 
     test "unlink_character/3 with invalid character_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :character_not_found} = Locations.unlink_character(scope, location.id, 999)
+      invalid_character_id = Ecto.UUID.generate()
+
+      assert {:error, :character_not_found} =
+               Locations.unlink_character(scope, location.id, invalid_character_id)
     end
 
     test "character_linked?/3 returns false for unlinked entities" do
@@ -226,14 +238,16 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       character = character_fixture(scope)
 
-      refute Locations.character_linked?(scope, 999, character.id)
+      invalid_location_id = Ecto.UUID.generate()
+      refute Locations.character_linked?(scope, invalid_location_id, character.id)
     end
 
     test "character_linked?/3 with invalid character_id returns false" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      refute Locations.character_linked?(scope, location.id, 999)
+      invalid_character_id = Ecto.UUID.generate()
+      refute Locations.character_linked?(scope, location.id, invalid_character_id)
     end
 
     test "linked_characters/2 returns all characters linked to a location" do
@@ -263,7 +277,8 @@ defmodule GameMasterCore.LocationsTest do
     test "linked_characters/2 with invalid location_id returns empty list" do
       scope = user_scope_fixture()
 
-      assert Locations.linked_characters(scope, 999) == []
+      invalid_location_id = Ecto.UUID.generate()
+      assert Locations.linked_characters(scope, invalid_location_id) == []
     end
 
     test "linked_characters/2 respects scope boundaries" do
@@ -297,14 +312,18 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       note = note_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.link_note(scope, 999, note.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.link_note(scope, invalid_location_id, note.id)
     end
 
     test "link_note/3 with invalid note_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :note_not_found} = Locations.link_note(scope, location.id, 999)
+      invalid_note_id = Ecto.UUID.generate()
+      assert {:error, :note_not_found} = Locations.link_note(scope, location.id, invalid_note_id)
     end
 
     test "link_note/3 with cross-scope location returns error" do
@@ -360,14 +379,20 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       note = note_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_note(scope, 999, note.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.unlink_note(scope, invalid_location_id, note.id)
     end
 
     test "unlink_note/3 with invalid note_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :note_not_found} = Locations.unlink_note(scope, location.id, 999)
+      invalid_note_id = Ecto.UUID.generate()
+
+      assert {:error, :note_not_found} =
+               Locations.unlink_note(scope, location.id, invalid_note_id)
     end
 
     test "note_linked?/3 returns false for unlinked entities" do
@@ -382,14 +407,16 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       note = note_fixture(scope)
 
-      refute Locations.note_linked?(scope, 999, note.id)
+      invalid_location_id = Ecto.UUID.generate()
+      refute Locations.note_linked?(scope, invalid_location_id, note.id)
     end
 
     test "note_linked?/3 with invalid note_id returns false" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      refute Locations.note_linked?(scope, location.id, 999)
+      invalid_note_id = Ecto.UUID.generate()
+      refute Locations.note_linked?(scope, location.id, invalid_note_id)
     end
 
     test "linked_notes/2 returns all notes linked to a location" do
@@ -419,7 +446,8 @@ defmodule GameMasterCore.LocationsTest do
     test "linked_notes/2 with invalid location_id returns empty list" do
       scope = user_scope_fixture()
 
-      assert Locations.linked_notes(scope, 999) == []
+      invalid_location_id = Ecto.UUID.generate()
+      assert Locations.linked_notes(scope, invalid_location_id) == []
     end
 
     test "linked_notes/2 respects scope boundaries" do
@@ -453,14 +481,20 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.link_faction(scope, 999, faction.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.link_faction(scope, invalid_location_id, faction.id)
     end
 
     test "link_faction/3 with invalid faction_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :faction_not_found} = Locations.link_faction(scope, location.id, 999)
+      invalid_faction_id = Ecto.UUID.generate()
+
+      assert {:error, :faction_not_found} =
+               Locations.link_faction(scope, location.id, invalid_faction_id)
     end
 
     test "link_faction/3 with cross-scope location returns error" do
@@ -518,14 +552,20 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
-      assert {:error, :location_not_found} = Locations.unlink_faction(scope, 999, faction.id)
+      invalid_location_id = Ecto.UUID.generate()
+
+      assert {:error, :location_not_found} =
+               Locations.unlink_faction(scope, invalid_location_id, faction.id)
     end
 
     test "unlink_faction/3 with invalid faction_id returns error" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      assert {:error, :faction_not_found} = Locations.unlink_faction(scope, location.id, 999)
+      invalid_faction_id = Ecto.UUID.generate()
+
+      assert {:error, :faction_not_found} =
+               Locations.unlink_faction(scope, location.id, invalid_faction_id)
     end
 
     test "faction_linked?/3 returns false for unlinked entities" do
@@ -540,14 +580,16 @@ defmodule GameMasterCore.LocationsTest do
       scope = user_scope_fixture()
       faction = faction_fixture(scope)
 
-      refute Locations.faction_linked?(scope, 999, faction.id)
+      invalid_location_id = Ecto.UUID.generate()
+      refute Locations.faction_linked?(scope, invalid_location_id, faction.id)
     end
 
     test "faction_linked?/3 with invalid faction_id returns false" do
       scope = user_scope_fixture()
       location = location_fixture(scope)
 
-      refute Locations.faction_linked?(scope, location.id, 999)
+      invalid_faction_id = Ecto.UUID.generate()
+      refute Locations.faction_linked?(scope, location.id, invalid_faction_id)
     end
 
     test "linked_factions/2 returns all factions linked to a location" do
@@ -577,7 +619,8 @@ defmodule GameMasterCore.LocationsTest do
     test "linked_factions/2 with invalid location_id returns empty list" do
       scope = user_scope_fixture()
 
-      assert Locations.linked_factions(scope, 999) == []
+      invalid_location_id = Ecto.UUID.generate()
+      assert Locations.linked_factions(scope, invalid_location_id) == []
     end
 
     test "linked_factions/2 respects scope boundaries" do

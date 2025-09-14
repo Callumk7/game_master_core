@@ -71,7 +71,7 @@ defmodule GameMasterCoreWeb.GameController do
     produces("application/json")
 
     parameters do
-      id(:path, :integer, "Game ID", required: true)
+      id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:GameResponse))
@@ -94,7 +94,7 @@ defmodule GameMasterCoreWeb.GameController do
     produces("application/json")
 
     parameters do
-      id(:path, :integer, "Game ID", required: true)
+      id(:path, :string, "Game ID", required: true, format: :uuid)
       body(:body, Schema.ref(:GameRequest), "Game parameters", required: true)
     end
 
@@ -121,7 +121,7 @@ defmodule GameMasterCoreWeb.GameController do
     tag("GameMaster")
 
     parameters do
-      id(:path, :integer, "Game ID", required: true)
+      id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     response(204, "No Content")
@@ -147,7 +147,7 @@ defmodule GameMasterCoreWeb.GameController do
     consumes("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       user_id(:formData, :integer, "User ID to add", required: true)
       role(:formData, :string, "Member role (default: 'member')")
     end
@@ -179,7 +179,7 @@ defmodule GameMasterCoreWeb.GameController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       user_id(:path, :integer, "User ID to remove", required: true)
     end
 
@@ -205,7 +205,7 @@ defmodule GameMasterCoreWeb.GameController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:MembersResponse))
@@ -233,7 +233,7 @@ defmodule GameMasterCoreWeb.GameController do
     produces("application/json")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     response(200, "Success", Schema.ref(:EntitiesResponse))

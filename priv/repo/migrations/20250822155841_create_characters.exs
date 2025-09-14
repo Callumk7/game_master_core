@@ -2,13 +2,14 @@ defmodule GameMasterCore.Repo.Migrations.CreateCharacters do
   use Ecto.Migration
 
   def change do
-    create table(:characters) do
+    create table(:characters, primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :name, :string
       add :description, :string
       add :class, :string
       add :level, :integer
       add :image_url, :string
-      add :user_id, references(:users, type: :id, on_delete: :delete_all)
+      add :user_id, references(:users, type: :binary_id, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end

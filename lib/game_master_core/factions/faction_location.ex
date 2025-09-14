@@ -5,6 +5,9 @@ defmodule GameMasterCore.Factions.FactionLocation do
   alias GameMasterCore.Factions.Faction
   alias GameMasterCore.Locations.Location
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "faction_locations" do
     belongs_to :faction, Faction
     belongs_to :location, Location

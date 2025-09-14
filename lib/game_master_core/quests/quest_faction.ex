@@ -5,6 +5,9 @@ defmodule GameMasterCore.Quests.QuestFaction do
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Factions.Faction
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "quests_factions" do
     belongs_to :quest, Quest
     belongs_to :faction, Faction

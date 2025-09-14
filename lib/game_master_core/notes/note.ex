@@ -5,6 +5,9 @@ defmodule GameMasterCore.Notes.Note do
   alias GameMasterCore.Games.Game
   alias GameMasterCore.Accounts.User
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "notes" do
     field :name, :string
     field :content, :string

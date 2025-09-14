@@ -5,6 +5,9 @@ defmodule GameMasterCore.Characters.Character do
   alias GameMasterCore.Games.Game
   alias GameMasterCore.Accounts.User
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "characters" do
     field :name, :string
     field :description, :string

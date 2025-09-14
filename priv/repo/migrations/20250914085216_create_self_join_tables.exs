@@ -2,9 +2,15 @@ defmodule GameMasterCore.Repo.Migrations.CreateSelfJoinTables do
   use Ecto.Migration
 
   def change do
-    create table(:character_characters) do
-      add :character_1_id, references(:characters, on_delete: :delete_all), null: false
-      add :character_2_id, references(:characters, on_delete: :delete_all), null: false
+    create table(:character_characters, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+
+      add :character_1_id, references(:characters, type: :binary_id, on_delete: :delete_all),
+        null: false
+
+      add :character_2_id, references(:characters, type: :binary_id, on_delete: :delete_all),
+        null: false
+
       add :relationship_type, :string
 
       timestamps(type: :utc_datetime)
@@ -18,9 +24,15 @@ defmodule GameMasterCore.Repo.Migrations.CreateSelfJoinTables do
              check: "character_1_id != character_2_id"
            )
 
-    create table(:faction_factions) do
-      add :faction_1_id, references(:factions, on_delete: :delete_all), null: false
-      add :faction_2_id, references(:factions, on_delete: :delete_all), null: false
+    create table(:faction_factions, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+
+      add :faction_1_id, references(:factions, type: :binary_id, on_delete: :delete_all),
+        null: false
+
+      add :faction_2_id, references(:factions, type: :binary_id, on_delete: :delete_all),
+        null: false
+
       add :relationship_type, :string
 
       timestamps(type: :utc_datetime)
@@ -32,9 +44,15 @@ defmodule GameMasterCore.Repo.Migrations.CreateSelfJoinTables do
 
     create constraint(:faction_factions, :no_self_link, check: "faction_1_id != faction_2_id")
 
-    create table(:location_locations) do
-      add :location_1_id, references(:locations, on_delete: :delete_all), null: false
-      add :location_2_id, references(:locations, on_delete: :delete_all), null: false
+    create table(:location_locations, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+
+      add :location_1_id, references(:locations, type: :binary_id, on_delete: :delete_all),
+        null: false
+
+      add :location_2_id, references(:locations, type: :binary_id, on_delete: :delete_all),
+        null: false
+
       add :relationship_type, :string
 
       timestamps(type: :utc_datetime)
@@ -46,9 +64,10 @@ defmodule GameMasterCore.Repo.Migrations.CreateSelfJoinTables do
 
     create constraint(:location_locations, :no_self_link, check: "location_1_id != location_2_id")
 
-    create table(:quest_quests) do
-      add :quest_1_id, references(:quests, on_delete: :delete_all), null: false
-      add :quest_2_id, references(:quests, on_delete: :delete_all), null: false
+    create table(:quest_quests, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :quest_1_id, references(:quests, type: :binary_id, on_delete: :delete_all), null: false
+      add :quest_2_id, references(:quests, type: :binary_id, on_delete: :delete_all), null: false
       add :relationship_type, :string
 
       timestamps(type: :utc_datetime)
@@ -60,9 +79,10 @@ defmodule GameMasterCore.Repo.Migrations.CreateSelfJoinTables do
 
     create constraint(:quest_quests, :no_self_link, check: "quest_1_id != quest_2_id")
 
-    create table(:note_notes) do
-      add :note_1_id, references(:notes, on_delete: :delete_all), null: false
-      add :note_2_id, references(:notes, on_delete: :delete_all), null: false
+    create table(:note_notes, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :note_1_id, references(:notes, type: :binary_id, on_delete: :delete_all), null: false
+      add :note_2_id, references(:notes, type: :binary_id, on_delete: :delete_all), null: false
       add :relationship_type, :string
 
       timestamps(type: :utc_datetime)

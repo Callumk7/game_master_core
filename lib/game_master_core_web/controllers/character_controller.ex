@@ -22,7 +22,7 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -46,7 +46,7 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
       body(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
     end
 
@@ -84,8 +84,8 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Character ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -109,8 +109,8 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Character ID", required: true, format: :uuid)
       body(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
     end
 
@@ -141,8 +141,8 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      id(:path, :string, "Character ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -171,15 +171,15 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      character_id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      character_id(:path, :string, "Character ID", required: true, format: :uuid)
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
         enum: ["faction", "location", "quest", "note", "character"]
       )
 
-      entity_id(:query, :integer, "Entity ID to link", required: true)
+      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -221,8 +221,8 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      character_id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      character_id(:path, :string, "Character ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
@@ -259,10 +259,10 @@ defmodule GameMasterCoreWeb.CharacterController do
     tag("GameMaster")
 
     parameters do
-      game_id(:path, :integer, "Game ID", required: true)
-      character_id(:path, :integer, "Character ID", required: true)
+      game_id(:path, :string, "Game ID", required: true, format: :uuid)
+      character_id(:path, :string, "Character ID", required: true, format: :uuid)
       entity_type(:path, :string, "Entity type", required: true)
-      entity_id(:path, :integer, "Entity ID", required: true)
+      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
     end
 
     security([%{Bearer: []}])
