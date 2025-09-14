@@ -12,6 +12,14 @@ defmodule GameMasterCore.Factions.Faction do
     belongs_to :game, Game
     belongs_to :user, User
 
+    many_to_many :related_factions, __MODULE__,
+      join_through: "faction_factions",
+      join_keys: [faction_1_id: :id, faction_2_id: :id]
+
+    many_to_many :inverse_related_factions, __MODULE__,
+      join_through: "faction_factions",
+      join_keys: [faction_2_id: :id, faction_1_id: :id]
+
     timestamps(type: :utc_datetime)
   end
 

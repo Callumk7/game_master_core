@@ -17,6 +17,14 @@ defmodule GameMasterCore.Locations.Location do
     belongs_to :user, User
     belongs_to :game, Game
 
+    many_to_many :related_locations, __MODULE__,
+      join_through: "location_locations",
+      join_keys: [location_1_id: :id, location_2_id: :id]
+
+    many_to_many :inverse_related_locations, __MODULE__,
+      join_through: "location_locations",
+      join_keys: [location_2_id: :id, location_1_id: :id]
+
     timestamps(type: :utc_datetime)
   end
 

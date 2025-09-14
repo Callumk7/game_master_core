@@ -164,7 +164,7 @@ defmodule GameMasterCoreWeb.NoteController do
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
-        enum: ["character", "faction", "location", "quest"]
+        enum: ["character", "faction", "location", "quest", "note"]
       )
 
       entity_id(:query, :integer, "Entity ID to link", required: true)
@@ -235,7 +235,8 @@ defmodule GameMasterCoreWeb.NoteController do
       characters: links.characters,
       factions: links.factions,
       locations: links.locations,
-      quests: links.quests
+      quests: links.quests,
+      notes: links.notes
     )
   end
 
@@ -255,7 +256,7 @@ defmodule GameMasterCoreWeb.NoteController do
 
       entity_type(:path, :string, "Entity type",
         required: true,
-        enum: ["character", "faction", "location", "quest"]
+        enum: ["character", "faction", "location", "quest", "note"]
       )
 
       entity_id(:path, :integer, "Entity ID", required: true)
@@ -300,6 +301,10 @@ defmodule GameMasterCoreWeb.NoteController do
     Notes.link_quest(scope, note_id, quest_id)
   end
 
+  defp create_note_link(scope, note_id, :note, other_note_id) do
+    Notes.link_note(scope, note_id, other_note_id)
+  end
+
   defp create_note_link(_scope, _note_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :note, entity_type}}
   end
@@ -310,6 +315,18 @@ defmodule GameMasterCoreWeb.NoteController do
 
   defp delete_note_link(scope, note_id, :faction, faction_id) do
     Notes.unlink_faction(scope, note_id, faction_id)
+  end
+
+  defp delete_note_link(scope, note_id, :location, location_id) do
+    Notes.unlink_location(scope, note_id, location_id)
+  end
+
+  defp delete_note_link(scope, note_id, :quest, quest_id) do
+    Notes.unlink_quest(scope, note_id, quest_id)
+  end
+
+  defp delete_note_link(scope, note_id, :note, other_note_id) do
+    Notes.unlink_note(scope, note_id, other_note_id)
   end
 
   defp delete_note_link(_scope, _note_id, entity_type, _entity_id) do

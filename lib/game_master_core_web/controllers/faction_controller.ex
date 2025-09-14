@@ -173,7 +173,7 @@ defmodule GameMasterCoreWeb.FactionController do
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
-        enum: ["character", "location", "quest", "note"]
+        enum: ["character", "location", "quest", "note", "faction"]
       )
 
       entity_id(:query, :integer, "Entity ID to link", required: true)
@@ -237,13 +237,15 @@ defmodule GameMasterCoreWeb.FactionController do
     characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
     quests = Factions.linked_quests(conn.assigns.current_scope, faction_id)
     locations = Factions.linked_locations(conn.assigns.current_scope, faction_id)
+    factions = Factions.linked_factions(conn.assigns.current_scope, faction_id)
 
     render(conn, :links,
       faction: faction,
       notes: notes,
       characters: characters,
       locations: locations,
-      quests: quests
+      quests: quests,
+      factions: factions
     )
   end
 
@@ -260,7 +262,7 @@ defmodule GameMasterCoreWeb.FactionController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       faction_id(:path, :integer, "Faction ID", required: true)
-      entity_type(:path, :string, "Entity type", required: true)
+      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "location", "quest", "note", "faction"])
       entity_id(:path, :integer, "Entity ID", required: true)
     end
 
@@ -306,6 +308,10 @@ defmodule GameMasterCoreWeb.FactionController do
     Factions.link_quest(scope, faction_id, quest_id)
   end
 
+  defp create_faction_link(scope, faction_id, :faction, other_faction_id) do
+    Factions.link_faction(scope, faction_id, other_faction_id)
+  end
+
   defp create_faction_link(_scope, _faction_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :faction, entity_type}}
   end
@@ -324,6 +330,10 @@ defmodule GameMasterCoreWeb.FactionController do
 
   defp delete_faction_link(scope, faction_id, :quest, quest_id) do
     Factions.unlink_quest(scope, faction_id, quest_id)
+  end
+
+  defp delete_faction_link(scope, faction_id, :faction, other_faction_id) do
+    Factions.unlink_faction(scope, faction_id, other_faction_id)
   end
 
   defp delete_faction_link(_scope, _faction_id, entity_type, _entity_id) do

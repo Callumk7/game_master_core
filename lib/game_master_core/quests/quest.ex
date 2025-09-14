@@ -12,6 +12,14 @@ defmodule GameMasterCore.Quests.Quest do
     belongs_to :game, Game
     belongs_to :user, User
 
+    many_to_many :related_quests, __MODULE__,
+      join_through: "quest_quests",
+      join_keys: [quest_1_id: :id, quest_2_id: :id]
+
+    many_to_many :inverse_related_quests, __MODULE__,
+      join_through: "quest_quests",
+      join_keys: [quest_2_id: :id, quest_1_id: :id]
+
     timestamps(type: :utc_datetime)
   end
 

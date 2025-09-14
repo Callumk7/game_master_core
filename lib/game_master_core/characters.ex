@@ -11,6 +11,7 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Notes
   alias GameMasterCore.Links
   alias GameMasterCore.Factions
+  alias GameMasterCore.Locations
   alias GameMasterCore.Quests
 
   @doc """
@@ -226,6 +227,26 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Links a location to a character.
+  """
+  def link_location(%Scope{} = scope, character_id, location_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.link(character, location)
+    end
+  end
+
+  @doc """
+  Links a character to another character.
+  """
+  def link_character(%Scope{} = scope, character_id_1, character_id_2) do
+    with {:ok, character_1} <- get_scoped_character(scope, character_id_1),
+         {:ok, character_2} <- get_scoped_character(scope, character_id_2) do
+      Links.link(character_1, character_2)
+    end
+  end
+
+  @doc """
   Unlinks a character from a note.
 
   ## Examples
@@ -265,6 +286,26 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Unlinks a character from a location.
+  """
+  def unlink_location(%Scope{} = scope, character_id, location_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.unlink(character, location)
+    end
+  end
+
+  @doc """
+  Unlinks a character from another character.
+  """
+  def unlink_character(%Scope{} = scope, character_id_1, character_id_2) do
+    with {:ok, character_1} <- get_scoped_character(scope, character_id_1),
+         {:ok, character_2} <- get_scoped_character(scope, character_id_2) do
+      Links.unlink(character_1, character_2)
+    end
+  end
+
+  @doc """
   Checks if a character is linked to a note.
 
   ## Examples
@@ -298,6 +339,24 @@ defmodule GameMasterCore.Characters do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
       Links.linked?(character, quest)
+    else
+      _ -> false
+    end
+  end
+
+  def location_linked?(%Scope{} = scope, character_id, location_id) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.linked?(character, location)
+    else
+      _ -> false
+    end
+  end
+
+  def character_linked?(%Scope{} = scope, character_id_1, character_id_2) do
+    with {:ok, character_1} <- get_scoped_character(scope, character_id_1),
+         {:ok, character_2} <- get_scoped_character(scope, character_id_2) do
+      Links.linked?(character_1, character_2)
     else
       _ -> false
     end
@@ -354,6 +413,34 @@ defmodule GameMasterCore.Characters do
     end
   end
 
+  @doc """
+  Returns all locations linked to a character.
+  """
+  def linked_locations(%Scope{} = scope, character_id) do
+    case get_scoped_character(scope, character_id) do
+      {:ok, character} ->
+        links = Links.links_for(character)
+        Map.get(links, :locations, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all characters linked to a character.
+  """
+  def linked_characters(%Scope{} = scope, character_id) do
+    case get_scoped_character(scope, character_id) do
+      {:ok, character} ->
+        links = Links.links_for(character)
+        Map.get(links, :characters, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
   def links(%Scope{} = scope, character_id) do
     case get_scoped_character(scope, character_id) do
       {:ok, character} -> Links.links_for(character)
@@ -396,6 +483,15 @@ defmodule GameMasterCore.Characters do
       {:ok, quest}
     rescue
       Ecto.NoResultsError -> {:error, :quest_not_found}
+    end
+  end
+
+  defp get_scoped_location(scope, location_id) do
+    try do
+      location = Locations.get_location_for_game!(scope, location_id)
+      {:ok, location}
+    rescue
+      Ecto.NoResultsError -> {:error, :location_not_found}
     end
   end
 end

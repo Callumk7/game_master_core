@@ -243,6 +243,16 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Links a note to another note.
+  """
+  def link_note(%Scope{} = scope, note_id_1, note_id_2) do
+    with {:ok, note_1} <- get_scoped_note(scope, note_id_1),
+         {:ok, note_2} <- get_scoped_note(scope, note_id_2) do
+      Links.link(note_1, note_2)
+    end
+  end
+
+  @doc """
   Unlinks a character from a note.
   """
   def unlink_character(%Scope{} = scope, note_id, character_id) do
@@ -269,6 +279,26 @@ defmodule GameMasterCore.Notes do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.unlink(note, quest)
+    end
+  end
+
+  @doc """
+  Unlinks a location from a note.
+  """
+  def unlink_location(%Scope{} = scope, note_id, location_id) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.unlink(note, location)
+    end
+  end
+
+  @doc """
+  Unlinks a note from another note.
+  """
+  def unlink_note(%Scope{} = scope, note_id_1, note_id_2) do
+    with {:ok, note_1} <- get_scoped_note(scope, note_id_1),
+         {:ok, note_2} <- get_scoped_note(scope, note_id_2) do
+      Links.unlink(note_1, note_2)
     end
   end
 
@@ -303,6 +333,15 @@ defmodule GameMasterCore.Notes do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
       Links.linked?(note, quest)
+    else
+      _ -> false
+    end
+  end
+
+  def note_linked?(%Scope{} = scope, note_id_1, note_id_2) do
+    with {:ok, note_1} <- get_scoped_note(scope, note_id_1),
+         {:ok, note_2} <- get_scoped_note(scope, note_id_2) do
+      Links.linked?(note_1, note_2)
     else
       _ -> false
     end
@@ -344,6 +383,34 @@ defmodule GameMasterCore.Notes do
       {:ok, note} ->
         links = Links.links_for(note)
         Map.get(links, :quests, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all locations linked to a note.
+  """
+  def linked_locations(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} ->
+        links = Links.links_for(note)
+        Map.get(links, :locations, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all notes linked to a note.
+  """
+  def linked_notes(%Scope{} = scope, note_id) do
+    case get_scoped_note(scope, note_id) do
+      {:ok, note} ->
+        links = Links.links_for(note)
+        Map.get(links, :notes, [])
 
       {:error, _} ->
         []

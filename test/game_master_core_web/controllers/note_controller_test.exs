@@ -427,6 +427,80 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
         delete(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links/character/1")
       end
     end
+
+    test "create_link successfully creates note-note link", %{
+      conn: conn,
+      game: game,
+      note: note,
+      scope: scope
+    } do
+      other_note = note_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links", %{
+          "entity_type" => "note",
+          "entity_id" => other_note.id
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["note_id"] == note.id
+      assert response["entity_type"] == "note"
+      assert response["entity_id"] == other_note.id
+    end
+
+    test "list_links includes note-note links", %{
+      conn: conn,
+      game: game,
+      note: note,
+      scope: scope
+    } do
+      other_note = note_fixture(scope, %{game_id: game.id})
+
+      # Create a note-note link first
+      post(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => other_note.id
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["note_id"] == note.id
+      assert response["data"]["note_name"] == note.name
+      assert [note_response] = response["data"]["links"]["notes"]
+      assert note_response["id"] == other_note.id
+      assert note_response["name"] == other_note.name
+    end
+
+    test "delete_link successfully removes note-note link", %{
+      conn: conn,
+      game: game,
+      note: note,
+      scope: scope
+    } do
+      other_note = note_fixture(scope, %{game_id: game.id})
+
+      # Create a note-note link first
+      post(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => other_note.id
+      })
+
+      # Delete the link
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/notes/#{note.id}/links/note/#{other_note.id}"
+        )
+
+      assert response(conn, 204)
+
+      # Verify link is removed
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links")
+      response = json_response(conn, 200)
+      assert response["data"]["links"]["notes"] == []
+    end
   end
 
   defp create_note(%{scope: scope, game: game}) do

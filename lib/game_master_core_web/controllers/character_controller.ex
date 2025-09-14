@@ -176,7 +176,7 @@ defmodule GameMasterCoreWeb.CharacterController do
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
-        enum: ["faction", "location", "quest", "note"]
+        enum: ["faction", "location", "quest", "note", "character"]
       )
 
       entity_id(:query, :integer, "Entity ID to link", required: true)
@@ -243,7 +243,8 @@ defmodule GameMasterCoreWeb.CharacterController do
       notes: links.notes,
       factions: links.factions,
       locations: links.locations,
-      quests: links.quests
+      quests: links.quests,
+      characters: links.characters
     )
   end
 
@@ -298,12 +299,40 @@ defmodule GameMasterCoreWeb.CharacterController do
     Characters.link_faction(scope, character_id, faction_id)
   end
 
+  defp create_character_link(scope, character_id, :location, location_id) do
+    Characters.link_location(scope, character_id, location_id)
+  end
+
+  defp create_character_link(scope, character_id, :quest, quest_id) do
+    Characters.link_quest(scope, character_id, quest_id)
+  end
+
+  defp create_character_link(scope, character_id, :character, other_character_id) do
+    Characters.link_character(scope, character_id, other_character_id)
+  end
+
   defp create_character_link(_scope, _character_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :character, entity_type}}
   end
 
   defp delete_character_link(scope, character_id, :note, note_id) do
     Characters.unlink_note(scope, character_id, note_id)
+  end
+
+  defp delete_character_link(scope, character_id, :faction, faction_id) do
+    Characters.unlink_faction(scope, character_id, faction_id)
+  end
+
+  defp delete_character_link(scope, character_id, :location, location_id) do
+    Characters.unlink_location(scope, character_id, location_id)
+  end
+
+  defp delete_character_link(scope, character_id, :quest, quest_id) do
+    Characters.unlink_quest(scope, character_id, quest_id)
+  end
+
+  defp delete_character_link(scope, character_id, :character, other_character_id) do
+    Characters.unlink_character(scope, character_id, other_character_id)
   end
 
   defp delete_character_link(_scope, _character_id, entity_type, _entity_id) do

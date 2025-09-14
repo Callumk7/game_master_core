@@ -1,0 +1,35 @@
+defmodule GameMasterCore.Locations.LocationLocation do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  alias GameMasterCore.Locations.Location
+
+  schema "location_locations" do
+    belongs_to :location_1, Location
+    belongs_to :location_2, Location
+    field :relationship_type, :string
+
+    timestamps(type: :utc_datetime)
+  end
+
+  def changeset(location_location, attrs) do
+    location_location
+    |> cast(attrs, [:location_1_id, :location_2_id, :relationship_type])
+    |> validate_required([:location_1_id, :location_2_id])
+    |> validate_not_self_link()
+    |> unique_constraint([:location_1_id, :location_2_id],
+      name: :location_locations_location_1_id_location_2_id_index
+    )
+  end
+
+  defp validate_not_self_link(changeset) do
+    location_1_id = get_field(changeset, :location_1_id)
+    location_2_id = get_field(changeset, :location_2_id)
+
+    if location_1_id && location_2_id && location_1_id == location_2_id do
+      add_error(changeset, :location_2_id, "cannot link location to itself")
+    else
+      changeset
+    end
+  end
+end

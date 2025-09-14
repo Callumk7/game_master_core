@@ -12,6 +12,14 @@ defmodule GameMasterCore.Notes.Note do
     belongs_to :game, Game
     belongs_to :user, User
 
+    many_to_many :related_notes, __MODULE__,
+      join_through: "note_notes",
+      join_keys: [note_1_id: :id, note_2_id: :id]
+
+    many_to_many :inverse_related_notes, __MODULE__,
+      join_through: "note_notes",
+      join_keys: [note_2_id: :id, note_1_id: :id]
+
     timestamps(type: :utc_datetime)
   end
 

@@ -308,6 +308,148 @@ defmodule GameMasterCore.LinksTest do
     end
   end
 
+  describe "link/2 and unlink/2 - Character self-join" do
+    setup do
+      scope = user_scope_fixture()
+      character1 = character_fixture(scope)
+      character2 = character_fixture(scope)
+      {:ok, scope: scope, character1: character1, character2: character2}
+    end
+
+    test "successfully links two characters", %{character1: character1, character2: character2} do
+      assert {:ok, _link} = Links.link(character1, character2)
+      assert Links.linked?(character1, character2)
+    end
+
+    test "successfully links two characters (order doesn't matter)", %{
+      character1: character1,
+      character2: character2
+    } do
+      assert {:ok, _link} = Links.link(character2, character1)
+      assert Links.linked?(character1, character2)
+    end
+
+    test "prevents duplicate character links", %{character1: character1, character2: character2} do
+      assert {:ok, _link} = Links.link(character1, character2)
+      assert {:error, %Ecto.Changeset{}} = Links.link(character1, character2)
+    end
+
+    test "successfully unlinks two characters", %{character1: character1, character2: character2} do
+      {:ok, _link} = Links.link(character1, character2)
+      assert Links.linked?(character1, character2)
+
+      assert {:ok, _link} = Links.unlink(character1, character2)
+      refute Links.linked?(character1, character2)
+    end
+
+    test "returns error when unlinking non-existent character link", %{
+      character1: character1,
+      character2: character2
+    } do
+      assert {:error, :not_found} = Links.unlink(character1, character2)
+    end
+
+    test "character cannot link to itself", %{character1: character1} do
+      assert {:error, %Ecto.Changeset{}} = Links.link(character1, character1)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Note self-join" do
+    setup do
+      scope = user_scope_fixture()
+      note1 = note_fixture(scope)
+      note2 = note_fixture(scope)
+      {:ok, scope: scope, note1: note1, note2: note2}
+    end
+
+    test "successfully links two notes", %{note1: note1, note2: note2} do
+      assert {:ok, _link} = Links.link(note1, note2)
+      assert Links.linked?(note1, note2)
+    end
+
+    test "successfully unlinks two notes", %{note1: note1, note2: note2} do
+      {:ok, _link} = Links.link(note1, note2)
+      assert {:ok, _link} = Links.unlink(note1, note2)
+      refute Links.linked?(note1, note2)
+    end
+
+    test "note cannot link to itself", %{note1: note1} do
+      assert {:error, %Ecto.Changeset{}} = Links.link(note1, note1)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Faction self-join" do
+    setup do
+      scope = user_scope_fixture()
+      faction1 = faction_fixture(scope)
+      faction2 = faction_fixture(scope)
+      {:ok, scope: scope, faction1: faction1, faction2: faction2}
+    end
+
+    test "successfully links two factions", %{faction1: faction1, faction2: faction2} do
+      assert {:ok, _link} = Links.link(faction1, faction2)
+      assert Links.linked?(faction1, faction2)
+    end
+
+    test "successfully unlinks two factions", %{faction1: faction1, faction2: faction2} do
+      {:ok, _link} = Links.link(faction1, faction2)
+      assert {:ok, _link} = Links.unlink(faction1, faction2)
+      refute Links.linked?(faction1, faction2)
+    end
+
+    test "faction cannot link to itself", %{faction1: faction1} do
+      assert {:error, %Ecto.Changeset{}} = Links.link(faction1, faction1)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Location self-join" do
+    setup do
+      scope = user_scope_fixture()
+      location1 = location_fixture(scope)
+      location2 = location_fixture(scope)
+      {:ok, scope: scope, location1: location1, location2: location2}
+    end
+
+    test "successfully links two locations", %{location1: location1, location2: location2} do
+      assert {:ok, _link} = Links.link(location1, location2)
+      assert Links.linked?(location1, location2)
+    end
+
+    test "successfully unlinks two locations", %{location1: location1, location2: location2} do
+      {:ok, _link} = Links.link(location1, location2)
+      assert {:ok, _link} = Links.unlink(location1, location2)
+      refute Links.linked?(location1, location2)
+    end
+
+    test "location cannot link to itself", %{location1: location1} do
+      assert {:error, %Ecto.Changeset{}} = Links.link(location1, location1)
+    end
+  end
+
+  describe "link/2 and unlink/2 - Quest self-join" do
+    setup do
+      scope = game_scope_fixture()
+      quest1 = quest_fixture(scope)
+      quest2 = quest_fixture(scope)
+      {:ok, scope: scope, quest1: quest1, quest2: quest2}
+    end
+
+    test "successfully links two quests", %{quest1: quest1, quest2: quest2} do
+      assert {:ok, _link} = Links.link(quest1, quest2)
+      assert Links.linked?(quest1, quest2)
+    end
+
+    test "successfully unlinks two quests", %{quest1: quest1, quest2: quest2} do
+      {:ok, _link} = Links.link(quest1, quest2)
+      assert {:ok, _link} = Links.unlink(quest1, quest2)
+      refute Links.linked?(quest1, quest2)
+    end
+
+    test "quest cannot link to itself", %{quest1: quest1} do
+      assert {:error, %Ecto.Changeset{}} = Links.link(quest1, quest1)
+    end
+  end
+
   describe "links_for/1 - all entity types" do
     setup do
       scope = game_scope_fixture()
@@ -415,6 +557,76 @@ defmodule GameMasterCore.LinksTest do
 
       links = Links.links_for(character)
       assert %{notes: [], factions: [], locations: [], quests: []} = links
+    end
+  end
+
+  describe "links_for/1 - self-join properties" do
+    test "returns self-linked characters for a character" do
+      scope = user_scope_fixture()
+      character1 = character_fixture(scope)
+      character2 = character_fixture(scope)
+      character3 = character_fixture(scope)
+
+      {:ok, _} = Links.link(character1, character2)
+      {:ok, _} = Links.link(character1, character3)
+
+      links = Links.links_for(character1)
+      assert %{characters: characters} = links
+      assert length(characters) == 2
+      assert character2 in characters
+      assert character3 in characters
+    end
+
+    test "returns self-linked notes for a note" do
+      scope = user_scope_fixture()
+      note1 = note_fixture(scope)
+      note2 = note_fixture(scope)
+
+      {:ok, _} = Links.link(note1, note2)
+
+      links = Links.links_for(note1)
+      assert %{notes: notes} = links
+      assert length(notes) == 1
+      assert note2 in notes
+    end
+
+    test "returns self-linked factions for a faction" do
+      scope = user_scope_fixture()
+      faction1 = faction_fixture(scope)
+      faction2 = faction_fixture(scope)
+
+      {:ok, _} = Links.link(faction1, faction2)
+
+      links = Links.links_for(faction1)
+      assert %{factions: factions} = links
+      assert length(factions) == 1
+      assert faction2 in factions
+    end
+
+    test "returns self-linked locations for a location" do
+      scope = user_scope_fixture()
+      location1 = location_fixture(scope)
+      location2 = location_fixture(scope)
+
+      {:ok, _} = Links.link(location1, location2)
+
+      links = Links.links_for(location1)
+      assert %{locations: locations} = links
+      assert length(locations) == 1
+      assert location2 in locations
+    end
+
+    test "returns self-linked quests for a quest" do
+      scope = game_scope_fixture()
+      quest1 = quest_fixture(scope)
+      quest2 = quest_fixture(scope)
+
+      {:ok, _} = Links.link(quest1, quest2)
+
+      links = Links.links_for(quest1)
+      assert %{quests: quests} = links
+      assert length(quests) == 1
+      assert quest2 in quests
     end
   end
 end

@@ -433,6 +433,80 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         )
       end
     end
+
+    test "create_link successfully creates character-character link", %{
+      conn: conn,
+      game: game,
+      character: character,
+      scope: scope
+    } do
+      other_character = character_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+          "entity_type" => "character",
+          "entity_id" => other_character.id
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["character_id"] == character.id
+      assert response["entity_type"] == "character"
+      assert response["entity_id"] == other_character.id
+    end
+
+    test "list_links includes character-character links", %{
+      conn: conn,
+      game: game,
+      character: character,
+      scope: scope
+    } do
+      other_character = character_fixture(scope, %{game_id: game.id})
+
+      # Create a character-character link first
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => other_character.id
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["character_id"] == character.id
+      assert response["data"]["character_name"] == character.name
+      assert [character_response] = response["data"]["links"]["characters"]
+      assert character_response["id"] == other_character.id
+      assert character_response["name"] == other_character.name
+    end
+
+    test "delete_link successfully removes character-character link", %{
+      conn: conn,
+      game: game,
+      character: character,
+      scope: scope
+    } do
+      other_character = character_fixture(scope, %{game_id: game.id})
+
+      # Create a character-character link first
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => other_character.id
+      })
+
+      # Delete the link
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/characters/#{character.id}/links/character/#{other_character.id}"
+        )
+
+      assert response(conn, 204)
+
+      # Verify link is removed
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links")
+      response = json_response(conn, 200)
+      assert response["data"]["links"]["characters"] == []
+    end
   end
 
   defp create_character(%{scope: scope, game: game}) do

@@ -282,6 +282,16 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Links a location to another location.
+  """
+  def link_location(%Scope{} = scope, location_id_1, location_id_2) do
+    with {:ok, location_1} <- get_scoped_location(scope, location_id_1),
+         {:ok, location_2} <- get_scoped_location(scope, location_id_2) do
+      Links.link(location_1, location_2)
+    end
+  end
+
+  @doc """
   Unlinks a character from a location.
   """
   def unlink_character(%Scope{} = scope, location_id, character_id) do
@@ -318,6 +328,16 @@ defmodule GameMasterCore.Locations do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.unlink(location, quest)
+    end
+  end
+
+  @doc """
+  Unlinks a location from another location.
+  """
+  def unlink_location(%Scope{} = scope, location_id_1, location_id_2) do
+    with {:ok, location_1} <- get_scoped_location(scope, location_id_1),
+         {:ok, location_2} <- get_scoped_location(scope, location_id_2) do
+      Links.unlink(location_1, location_2)
     end
   end
 
@@ -364,6 +384,15 @@ defmodule GameMasterCore.Locations do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.linked?(location, quest)
+    else
+      _ -> false
+    end
+  end
+
+  def location_linked?(%Scope{} = scope, location_id_1, location_id_2) do
+    with {:ok, location_1} <- get_scoped_location(scope, location_id_1),
+         {:ok, location_2} <- get_scoped_location(scope, location_id_2) do
+      Links.linked?(location_1, location_2)
     else
       _ -> false
     end
@@ -419,6 +448,20 @@ defmodule GameMasterCore.Locations do
       {:ok, location} ->
         links = Links.links_for(location)
         Map.get(links, :quests, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all locations linked to a location.
+  """
+  def linked_locations(%Scope{} = scope, location_id) do
+    case get_scoped_location(scope, location_id) do
+      {:ok, location} ->
+        links = Links.links_for(location)
+        Map.get(links, :locations, [])
 
       {:error, _} ->
         []
