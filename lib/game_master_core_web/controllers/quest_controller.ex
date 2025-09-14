@@ -172,7 +172,7 @@ defmodule GameMasterCoreWeb.QuestController do
 
       entity_type(:query, :string, "Entity type to link",
         required: true,
-        enum: ["character", "faction", "location", "note"]
+        enum: ["character", "faction", "location", "note", "quest"]
       )
 
       entity_id(:query, :integer, "Entity ID to link", required: true)
@@ -239,7 +239,8 @@ defmodule GameMasterCoreWeb.QuestController do
       characters: links.characters,
       factions: links.factions,
       notes: links.notes,
-      locations: links.locations
+      locations: links.locations,
+      quests: links.quests
     )
   end
 
@@ -256,7 +257,7 @@ defmodule GameMasterCoreWeb.QuestController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       quest_id(:path, :integer, "Quest ID", required: true)
-      entity_type(:path, :string, "Entity type", required: true)
+      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "note", "quest"])
       entity_id(:path, :integer, "Entity ID", required: true)
     end
 
@@ -300,6 +301,10 @@ defmodule GameMasterCoreWeb.QuestController do
     Quests.link_location(scope, quest_id, location_id)
   end
 
+  defp create_quest_link(scope, quest_id, :quest, other_quest_id) do
+    Quests.link_quest(scope, quest_id, other_quest_id)
+  end
+
   defp create_quest_link(_scope, _quest_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :quest, entity_type}}
   end
@@ -318,6 +323,10 @@ defmodule GameMasterCoreWeb.QuestController do
 
   defp delete_quest_link(scope, quest_id, :location, location_id) do
     Quests.unlink_location(scope, quest_id, location_id)
+  end
+
+  defp delete_quest_link(scope, quest_id, :quest, other_quest_id) do
+    Quests.unlink_quest(scope, quest_id, other_quest_id)
   end
 
   defp delete_quest_link(_scope, _quest_id, entity_type, _entity_id) do

@@ -423,6 +423,51 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
         )
       end
     end
+
+    test "create_link successfully creates faction-faction link", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      other_faction = faction_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+          "entity_type" => "faction",
+          "entity_id" => other_faction.id
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["faction_id"] == faction.id
+      assert response["entity_type"] == "faction"
+      assert response["entity_id"] == other_faction.id
+    end
+
+    test "list_links includes faction-faction links", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      other_faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create a faction-faction link first
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "faction",
+        "entity_id" => other_faction.id
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["faction_id"] == faction.id
+      assert response["data"]["faction_name"] == faction.name
+      assert [faction_response] = response["data"]["links"]["factions"]
+      assert faction_response["id"] == other_faction.id
+      assert faction_response["name"] == other_faction.name
+    end
   end
 
   defp create_faction(%{scope: scope, game: game}) do

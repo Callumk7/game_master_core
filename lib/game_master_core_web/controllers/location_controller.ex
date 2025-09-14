@@ -239,7 +239,8 @@ defmodule GameMasterCoreWeb.LocationController do
       notes: links.notes,
       factions: links.factions,
       characters: links.characters,
-      quests: links.quests
+      quests: links.quests,
+      locations: links.locations
     )
   end
 
@@ -256,7 +257,7 @@ defmodule GameMasterCoreWeb.LocationController do
     parameters do
       game_id(:path, :integer, "Game ID", required: true)
       location_id(:path, :integer, "Location ID", required: true)
-      entity_type(:path, :string, "Entity type", required: true)
+      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest", "note"])
       entity_id(:path, :integer, "Entity ID", required: true)
     end
 
@@ -294,6 +295,18 @@ defmodule GameMasterCoreWeb.LocationController do
     Locations.link_faction(scope, location_id, faction_id)
   end
 
+  defp create_location_link(scope, location_id, :character, character_id) do
+    Locations.link_character(scope, location_id, character_id)
+  end
+
+  defp create_location_link(scope, location_id, :quest, quest_id) do
+    Locations.link_quest(scope, location_id, quest_id)
+  end
+
+  defp create_location_link(scope, location_id, :location, other_location_id) do
+    Locations.link_location(scope, location_id, other_location_id)
+  end
+
   defp create_location_link(_scope, _location_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :location, entity_type}}
   end
@@ -304,6 +317,18 @@ defmodule GameMasterCoreWeb.LocationController do
 
   defp delete_location_link(scope, location_id, :faction, faction_id) do
     Locations.unlink_faction(scope, location_id, faction_id)
+  end
+
+  defp delete_location_link(scope, location_id, :character, character_id) do
+    Locations.unlink_character(scope, location_id, character_id)
+  end
+
+  defp delete_location_link(scope, location_id, :quest, quest_id) do
+    Locations.unlink_quest(scope, location_id, quest_id)
+  end
+
+  defp delete_location_link(scope, location_id, :location, other_location_id) do
+    Locations.unlink_location(scope, location_id, other_location_id)
   end
 
   defp delete_location_link(_scope, _location_id, entity_type, _entity_id) do

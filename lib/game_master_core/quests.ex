@@ -263,6 +263,16 @@ defmodule GameMasterCore.Quests do
     end
   end
 
+  @doc """
+  Links a quest to another quest.
+  """
+  def link_quest(%Scope{} = scope, quest_id_1, quest_id_2) do
+    with {:ok, quest_1} <- get_scoped_quest(scope, quest_id_1),
+         {:ok, quest_2} <- get_scoped_quest(scope, quest_id_2) do
+      Links.link(quest_1, quest_2)
+    end
+  end
+
   def location_linked?(%Scope{} = scope, quest_id, location_id) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
@@ -272,10 +282,29 @@ defmodule GameMasterCore.Quests do
     end
   end
 
+  def quest_linked?(%Scope{} = scope, quest_id_1, quest_id_2) do
+    with {:ok, quest_1} <- get_scoped_quest(scope, quest_id_1),
+         {:ok, quest_2} <- get_scoped_quest(scope, quest_id_2) do
+      Links.linked?(quest_1, quest_2)
+    else
+      _ -> false
+    end
+  end
+
   def unlink_location(%Scope{} = scope, quest_id, location_id) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.unlink(quest, location)
+    end
+  end
+
+  @doc """
+  Unlinks a quest from another quest.
+  """
+  def unlink_quest(%Scope{} = scope, quest_id_1, quest_id_2) do
+    with {:ok, quest_1} <- get_scoped_quest(scope, quest_id_1),
+         {:ok, quest_2} <- get_scoped_quest(scope, quest_id_2) do
+      Links.unlink(quest_1, quest_2)
     end
   end
 
@@ -329,6 +358,20 @@ defmodule GameMasterCore.Quests do
       {:ok, quest} ->
         links = Links.links_for(quest)
         Map.get(links, :locations, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all quests linked to a quest.
+  """
+  def linked_quests(%Scope{} = scope, quest_id) do
+    case get_scoped_quest(scope, quest_id) do
+      {:ok, quest} ->
+        links = Links.links_for(quest)
+        Map.get(links, :quests, [])
 
       {:error, _} ->
         []

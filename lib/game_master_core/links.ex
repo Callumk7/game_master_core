@@ -2,11 +2,26 @@ defmodule GameMasterCore.Links do
   import Ecto.Query, warn: false
   alias GameMasterCore.Repo
 
-  alias GameMasterCore.Characters.{Character, CharacterNote, CharacterFaction, CharacterLocation}
-  alias GameMasterCore.Factions.{Faction, FactionNote, FactionLocation}
-  alias GameMasterCore.Notes.Note
-  alias GameMasterCore.Locations.{Location, LocationNote}
-  alias GameMasterCore.Quests.{Quest, QuestCharacter, QuestFaction, QuestLocation, QuestNote}
+  alias GameMasterCore.Characters.{
+    Character,
+    CharacterNote,
+    CharacterFaction,
+    CharacterLocation,
+    CharacterCharacter
+  }
+
+  alias GameMasterCore.Factions.{Faction, FactionNote, FactionLocation, FactionFaction}
+  alias GameMasterCore.Notes.{Note, NoteNote}
+  alias GameMasterCore.Locations.{Location, LocationNote, LocationLocation}
+
+  alias GameMasterCore.Quests.{
+    Quest,
+    QuestCharacter,
+    QuestFaction,
+    QuestLocation,
+    QuestNote,
+    QuestQuest
+  }
 
   @doc """
   Creates a link between two entities.
@@ -73,6 +88,22 @@ defmodule GameMasterCore.Links do
 
       {%Note{} = note, %Quest{} = quest} ->
         create_quest_note_link(quest, note)
+
+      # Self-join relationships
+      {%Character{} = character1, %Character{} = character2} ->
+        create_character_character_link(character1, character2)
+
+      {%Faction{} = faction1, %Faction{} = faction2} ->
+        create_faction_faction_link(faction1, faction2)
+
+      {%Location{} = location1, %Location{} = location2} ->
+        create_location_location_link(location1, location2)
+
+      {%Quest{} = quest1, %Quest{} = quest2} ->
+        create_quest_quest_link(quest1, quest2)
+
+      {%Note{} = note1, %Note{} = note2} ->
+        create_note_note_link(note1, note2)
 
       # Add more entity combinations as needed
       _ ->
@@ -146,6 +177,22 @@ defmodule GameMasterCore.Links do
       {%Note{} = note, %Quest{} = quest} ->
         remove_quest_note_link(quest, note)
 
+      # Self-join relationships
+      {%Character{} = character1, %Character{} = character2} ->
+        remove_character_character_link(character1, character2)
+
+      {%Faction{} = faction1, %Faction{} = faction2} ->
+        remove_faction_faction_link(faction1, faction2)
+
+      {%Location{} = location1, %Location{} = location2} ->
+        remove_location_location_link(location1, location2)
+
+      {%Quest{} = quest1, %Quest{} = quest2} ->
+        remove_quest_quest_link(quest1, quest2)
+
+      {%Note{} = note1, %Note{} = note2} ->
+        remove_note_note_link(note1, note2)
+
       _ ->
         {:error, :unsupported_link_type}
     end
@@ -217,6 +264,22 @@ defmodule GameMasterCore.Links do
       {%Note{} = note, %Quest{} = quest} ->
         quest_note_exists?(quest, note)
 
+      # Self-join relationships
+      {%Character{} = character1, %Character{} = character2} ->
+        character_character_exists?(character1, character2)
+
+      {%Faction{} = faction1, %Faction{} = faction2} ->
+        faction_faction_exists?(faction1, faction2)
+
+      {%Location{} = location1, %Location{} = location2} ->
+        location_location_exists?(location1, location2)
+
+      {%Quest{} = quest1, %Quest{} = quest2} ->
+        quest_quest_exists?(quest1, quest2)
+
+      {%Note{} = note1, %Note{} = note2} ->
+        note_note_exists?(note1, note2)
+
       _ ->
         false
     end
@@ -233,7 +296,8 @@ defmodule GameMasterCore.Links do
           notes: get_notes_for_character(character),
           factions: get_factions_for_character(character),
           locations: get_locations_for_character(character),
-          quests: get_quests_for_character(character)
+          quests: get_quests_for_character(character),
+          characters: get_characters_for_character(character)
         }
 
       %Note{} = note ->
@@ -241,7 +305,8 @@ defmodule GameMasterCore.Links do
           characters: get_characters_for_note(note),
           factions: get_factions_for_note(note),
           locations: get_locations_for_note(note),
-          quests: get_quests_for_note(note)
+          quests: get_quests_for_note(note),
+          notes: get_notes_for_note(note)
         }
 
       %Faction{} = faction ->
@@ -249,7 +314,8 @@ defmodule GameMasterCore.Links do
           notes: get_notes_for_faction(faction),
           characters: get_characters_for_faction(faction),
           locations: get_locations_for_faction(faction),
-          quests: get_quests_for_faction(faction)
+          quests: get_quests_for_faction(faction),
+          factions: get_factions_for_faction(faction)
         }
 
       %Location{} = location ->
@@ -257,7 +323,8 @@ defmodule GameMasterCore.Links do
           notes: get_notes_for_location(location),
           characters: get_characters_for_location(location),
           factions: get_factions_for_location(location),
-          quests: get_quests_for_location(location)
+          quests: get_quests_for_location(location),
+          locations: get_locations_for_location(location)
         }
 
       %Quest{} = quest ->
@@ -265,7 +332,8 @@ defmodule GameMasterCore.Links do
           notes: get_notes_for_quest(quest),
           characters: get_characters_for_quest(quest),
           factions: get_factions_for_quest(quest),
-          locations: get_locations_for_quest(quest)
+          locations: get_locations_for_quest(quest),
+          quests: get_quests_for_quest(quest)
         }
 
       _ ->
@@ -694,6 +762,231 @@ defmodule GameMasterCore.Links do
       join: qn in QuestNote,
       on: qn.quest_id == q.id,
       where: qn.note_id == ^note.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Character <-> Character links
+  defp create_character_character_link(character1, character2) do
+    %CharacterCharacter{}
+    |> CharacterCharacter.changeset(%{
+      character_1_id: character1.id,
+      character_2_id: character2.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_character_character_link(character1, character2) do
+    # Check both directions since this is bidirectional
+    case Repo.get_by(CharacterCharacter,
+           character_1_id: character1.id,
+           character_2_id: character2.id
+         ) do
+      nil ->
+        case Repo.get_by(CharacterCharacter,
+               character_1_id: character2.id,
+               character_2_id: character1.id
+             ) do
+          nil -> {:error, :not_found}
+          link -> Repo.delete(link)
+        end
+
+      link ->
+        Repo.delete(link)
+    end
+  end
+
+  defp character_character_exists?(character1, character2) do
+    Repo.exists?(
+      from cc in CharacterCharacter,
+        where:
+          (cc.character_1_id == ^character1.id and cc.character_2_id == ^character2.id) or
+            (cc.character_1_id == ^character2.id and cc.character_2_id == ^character1.id)
+    )
+  end
+
+  defp get_characters_for_character(character) do
+    from(c in Character,
+      join: cc in CharacterCharacter,
+      on:
+        (cc.character_1_id == c.id and cc.character_2_id == ^character.id) or
+          (cc.character_2_id == c.id and cc.character_1_id == ^character.id),
+      where: c.id != ^character.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Faction <-> Faction links
+  defp create_faction_faction_link(faction1, faction2) do
+    %FactionFaction{}
+    |> FactionFaction.changeset(%{
+      faction_1_id: faction1.id,
+      faction_2_id: faction2.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_faction_faction_link(faction1, faction2) do
+    case Repo.get_by(FactionFaction, faction_1_id: faction1.id, faction_2_id: faction2.id) do
+      nil ->
+        case Repo.get_by(FactionFaction, faction_1_id: faction2.id, faction_2_id: faction1.id) do
+          nil -> {:error, :not_found}
+          link -> Repo.delete(link)
+        end
+
+      link ->
+        Repo.delete(link)
+    end
+  end
+
+  defp faction_faction_exists?(faction1, faction2) do
+    Repo.exists?(
+      from ff in FactionFaction,
+        where:
+          (ff.faction_1_id == ^faction1.id and ff.faction_2_id == ^faction2.id) or
+            (ff.faction_1_id == ^faction2.id and ff.faction_2_id == ^faction1.id)
+    )
+  end
+
+  defp get_factions_for_faction(faction) do
+    from(f in Faction,
+      join: ff in FactionFaction,
+      on:
+        (ff.faction_1_id == f.id and ff.faction_2_id == ^faction.id) or
+          (ff.faction_2_id == f.id and ff.faction_1_id == ^faction.id),
+      where: f.id != ^faction.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Location <-> Location links
+  defp create_location_location_link(location1, location2) do
+    %LocationLocation{}
+    |> LocationLocation.changeset(%{
+      location_1_id: location1.id,
+      location_2_id: location2.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_location_location_link(location1, location2) do
+    case Repo.get_by(LocationLocation, location_1_id: location1.id, location_2_id: location2.id) do
+      nil ->
+        case Repo.get_by(LocationLocation,
+               location_1_id: location2.id,
+               location_2_id: location1.id
+             ) do
+          nil -> {:error, :not_found}
+          link -> Repo.delete(link)
+        end
+
+      link ->
+        Repo.delete(link)
+    end
+  end
+
+  defp location_location_exists?(location1, location2) do
+    Repo.exists?(
+      from ll in LocationLocation,
+        where:
+          (ll.location_1_id == ^location1.id and ll.location_2_id == ^location2.id) or
+            (ll.location_1_id == ^location2.id and ll.location_2_id == ^location1.id)
+    )
+  end
+
+  defp get_locations_for_location(location) do
+    from(l in Location,
+      join: ll in LocationLocation,
+      on:
+        (ll.location_1_id == l.id and ll.location_2_id == ^location.id) or
+          (ll.location_2_id == l.id and ll.location_1_id == ^location.id),
+      where: l.id != ^location.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Quest <-> Quest links
+  defp create_quest_quest_link(quest1, quest2) do
+    %QuestQuest{}
+    |> QuestQuest.changeset(%{
+      quest_1_id: quest1.id,
+      quest_2_id: quest2.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_quest_quest_link(quest1, quest2) do
+    case Repo.get_by(QuestQuest, quest_1_id: quest1.id, quest_2_id: quest2.id) do
+      nil ->
+        case Repo.get_by(QuestQuest, quest_1_id: quest2.id, quest_2_id: quest1.id) do
+          nil -> {:error, :not_found}
+          link -> Repo.delete(link)
+        end
+
+      link ->
+        Repo.delete(link)
+    end
+  end
+
+  defp quest_quest_exists?(quest1, quest2) do
+    Repo.exists?(
+      from qq in QuestQuest,
+        where:
+          (qq.quest_1_id == ^quest1.id and qq.quest_2_id == ^quest2.id) or
+            (qq.quest_1_id == ^quest2.id and qq.quest_2_id == ^quest1.id)
+    )
+  end
+
+  defp get_quests_for_quest(quest) do
+    from(q in Quest,
+      join: qq in QuestQuest,
+      on:
+        (qq.quest_1_id == q.id and qq.quest_2_id == ^quest.id) or
+          (qq.quest_2_id == q.id and qq.quest_1_id == ^quest.id),
+      where: q.id != ^quest.id
+    )
+    |> Repo.all()
+  end
+
+  # Private functions for Note <-> Note links
+  defp create_note_note_link(note1, note2) do
+    %NoteNote{}
+    |> NoteNote.changeset(%{
+      note_1_id: note1.id,
+      note_2_id: note2.id
+    })
+    |> Repo.insert()
+  end
+
+  defp remove_note_note_link(note1, note2) do
+    case Repo.get_by(NoteNote, note_1_id: note1.id, note_2_id: note2.id) do
+      nil ->
+        case Repo.get_by(NoteNote, note_1_id: note2.id, note_2_id: note1.id) do
+          nil -> {:error, :not_found}
+          link -> Repo.delete(link)
+        end
+
+      link ->
+        Repo.delete(link)
+    end
+  end
+
+  defp note_note_exists?(note1, note2) do
+    Repo.exists?(
+      from nn in NoteNote,
+        where:
+          (nn.note_1_id == ^note1.id and nn.note_2_id == ^note2.id) or
+            (nn.note_1_id == ^note2.id and nn.note_2_id == ^note1.id)
+    )
+  end
+
+  defp get_notes_for_note(note) do
+    from(n in Note,
+      join: nn in NoteNote,
+      on:
+        (nn.note_1_id == n.id and nn.note_2_id == ^note.id) or
+          (nn.note_2_id == n.id and nn.note_1_id == ^note.id),
+      where: n.id != ^note.id
     )
     |> Repo.all()
   end

@@ -378,6 +378,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         factions(Schema.array(:EntityFaction), "Linked factions")
         locations(Schema.array(:EntityLocation), "Linked locations")
         quests(Schema.array(:EntityQuest), "Linked quests")
+        notes(Schema.array(:EntityNote), "Linked notes")
       end
     end
   end
@@ -476,6 +477,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         factions(Schema.array(:EntityFaction), "Linked factions")
         locations(Schema.array(:EntityLocation), "Linked locations")
         quests(Schema.array(:EntityQuest), "Linked quests")
+        characters(Schema.array(:EntityCharacter), "Linked characters")
       end
     end
   end
@@ -564,6 +566,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         characters(Schema.array(:EntityCharacter), "Linked characters")
         locations(Schema.array(:EntityLocation), "Linked locations")
         quests(Schema.array(:EntityQuest), "Linked quests")
+        factions(Schema.array(:EntityFaction), "Linked factions")
       end
     end
   end
@@ -691,6 +694,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         characters(Schema.array(:EntityCharacter), "Linked characters")
         factions(Schema.array(:EntityFaction), "Linked factions")
         quests(Schema.array(:EntityQuest), "Linked quests")
+        locations(Schema.array(:EntityLocation), "Linked locations")
       end
     end
   end
@@ -777,6 +781,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         characters(Schema.array(:EntityCharacter), "Linked characters")
         factions(Schema.array(:EntityFaction), "Linked factions")
         locations(Schema.array(:EntityLocation), "Linked locations")
+        quests(Schema.array(:EntityQuest), "Linked quests")
       end
     end
   end

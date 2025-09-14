@@ -15,6 +15,14 @@ defmodule GameMasterCore.Characters.Character do
     belongs_to :game, Game
     belongs_to :user, User
 
+    many_to_many :related_characters, __MODULE__,
+      join_through: "character_characters",
+      join_keys: [character_1_id: :id, character_2_id: :id]
+
+    many_to_many :inverse_related_characters, __MODULE__,
+      join_through: "character_characters",
+      join_keys: [character_2_id: :id, character_1_id: :id]
+
     timestamps(type: :utc_datetime)
   end
 

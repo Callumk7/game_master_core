@@ -244,6 +244,16 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  @doc """
+  Links a faction to another faction.
+  """
+  def link_faction(%Scope{} = scope, faction_id_1, faction_id_2) do
+    with {:ok, faction_1} <- get_scoped_faction(scope, faction_id_1),
+         {:ok, faction_2} <- get_scoped_faction(scope, faction_id_2) do
+      Links.link(faction_1, faction_2)
+    end
+  end
+
   def character_linked?(%Scope{} = scope, faction_id, character_id) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
@@ -271,6 +281,15 @@ defmodule GameMasterCore.Factions do
     end
   end
 
+  def faction_linked?(%Scope{} = scope, faction_id_1, faction_id_2) do
+    with {:ok, faction_1} <- get_scoped_faction(scope, faction_id_1),
+         {:ok, faction_2} <- get_scoped_faction(scope, faction_id_2) do
+      Links.linked?(faction_1, faction_2)
+    else
+      _ -> false
+    end
+  end
+
   def unlink_character(%Scope{} = scope, faction_id, character_id) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
@@ -289,6 +308,16 @@ defmodule GameMasterCore.Factions do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
       Links.unlink(faction, location)
+    end
+  end
+
+  @doc """
+  Unlinks a faction from another faction.
+  """
+  def unlink_faction(%Scope{} = scope, faction_id_1, faction_id_2) do
+    with {:ok, faction_1} <- get_scoped_faction(scope, faction_id_1),
+         {:ok, faction_2} <- get_scoped_faction(scope, faction_id_2) do
+      Links.unlink(faction_1, faction_2)
     end
   end
 
@@ -342,6 +371,20 @@ defmodule GameMasterCore.Factions do
       {:ok, faction} ->
         links = Links.links_for(faction)
         Map.get(links, :locations, [])
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns all factions linked to a faction.
+  """
+  def linked_factions(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} ->
+        links = Links.links_for(faction)
+        Map.get(links, :factions, [])
 
       {:error, _} ->
         []

@@ -23,7 +23,8 @@ defmodule GameMasterCoreWeb.QuestJSON do
         characters: characters,
         factions: factions,
         notes: notes,
-        locations: locations
+        locations: locations,
+        quests: quests
       }) do
     %{
       data: %{
@@ -33,7 +34,8 @@ defmodule GameMasterCoreWeb.QuestJSON do
           characters: for(character <- characters, do: character_data(character)),
           factions: for(faction <- factions, do: faction_data(faction)),
           notes: for(note <- notes, do: note_data(note)),
-          locations: for(location <- locations, do: location_data(location))
+          locations: for(location <- locations, do: location_data(location)),
+          quests: for(q <- quests, do: quest_data(q))
         }
       }
     }
