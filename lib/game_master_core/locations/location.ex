@@ -12,6 +12,7 @@ defmodule GameMasterCore.Locations.Location do
     field :name, :string
     field :description, :string
     field :type, :string
+    field :tags, {:array, :string}, default: []
 
     # Self-referencing relationships
     belongs_to :parent, __MODULE__, foreign_key: :parent_id
@@ -34,7 +35,7 @@ defmodule GameMasterCore.Locations.Location do
   @doc false
   def changeset(location, attrs, user_scope, game_id) do
     location
-    |> cast(attrs, [:name, :description, :type, :parent_id])
+    |> cast(attrs, [:name, :description, :type, :parent_id, :tags])
     |> validate_required([:name, :type])
     |> validate_inclusion(:type, [
       "continent",
@@ -47,6 +48,7 @@ defmodule GameMasterCore.Locations.Location do
     ])
     |> foreign_key_constraint(:parent_id)
     |> validate_not_self_parent()
+    |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
   end
@@ -64,5 +66,23 @@ defmodule GameMasterCore.Locations.Location do
 
   def put_parent(changeset, %__MODULE__{} = parent) do
     put_change(changeset, :parent_id, parent.id)
+  end
+
+  defp validate_tags(changeset) do
+    tags = get_field(changeset, :tags) || []
+    
+    cond do
+      length(tags) > 20 ->
+        add_error(changeset, :tags, "cannot have more than 20 tags")
+      
+      Enum.any?(tags, &(String.length(&1) > 50)) ->
+        add_error(changeset, :tags, "individual tags cannot be longer than 50 characters")
+      
+      tags != Enum.uniq(tags) ->
+        add_error(changeset, :tags, "cannot have duplicate tags")
+      
+      true ->
+        changeset
+    end
   end
 end

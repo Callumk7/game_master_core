@@ -165,6 +165,8 @@ defmodule GameMasterCoreWeb.Router do
         version: "1.0",
         title: "Game Master API"
       },
+      host: "localhost:4000",
+      schemes: ["http"],
       securityDefinitions: %{
         Bearer: %{
           type: "apiKey",
