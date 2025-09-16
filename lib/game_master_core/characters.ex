@@ -448,6 +448,76 @@ defmodule GameMasterCore.Characters do
     end
   end
 
+  ## Tag-related functions
+
+  @doc """
+  Returns characters filtered by tags.
+
+  ## Examples
+
+      iex> list_characters_by_tags(scope, ["npc", "villain"])
+      [%Character{}, ...]
+
+  """
+  def list_characters_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(c in Character, 
+      where: c.user_id == ^scope.user.id and fragment("? @> ?", c.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns characters for a game filtered by tags.
+
+  ## Examples
+
+      iex> list_characters_for_game_by_tags(scope, ["npc", "villain"])
+      [%Character{}, ...]
+
+  """
+  def list_characters_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(c in Character, 
+      where: c.game_id == ^scope.game.id and fragment("? @> ?", c.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns all unique tags used across all characters for a user.
+
+  ## Examples
+
+      iex> list_all_character_tags(scope)
+      ["npc", "villain", "ally", "merchant"]
+
+  """
+  def list_all_character_tags(%Scope{} = scope) do
+    from(c in Character, 
+      where: c.user_id == ^scope.user.id,
+      select: c.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  @doc """
+  Returns all unique tags used across characters for a specific game.
+
+  ## Examples
+
+      iex> list_all_character_tags_for_game(scope)
+      ["npc", "villain", "ally"]
+
+  """
+  def list_all_character_tags_for_game(%Scope{} = scope) do
+    from(c in Character, 
+      where: c.game_id == ^scope.game.id,
+      select: c.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
   # Private helper functions for character links
 
   defp get_scoped_character(scope, character_id) do

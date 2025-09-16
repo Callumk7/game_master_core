@@ -390,4 +390,74 @@ defmodule GameMasterCore.Factions do
         []
     end
   end
+
+  ## Tag-related functions
+
+  @doc """
+  Returns factions filtered by tags.
+
+  ## Examples
+
+      iex> list_factions_by_tags(scope, ["political", "merchant"])
+      [%Faction{}, ...]
+
+  """
+  def list_factions_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(f in Faction, 
+      where: f.user_id == ^scope.user.id and fragment("? @> ?", f.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns factions for a game filtered by tags.
+
+  ## Examples
+
+      iex> list_factions_for_game_by_tags(scope, ["political", "merchant"])
+      [%Faction{}, ...]
+
+  """
+  def list_factions_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(f in Faction, 
+      where: f.game_id == ^scope.game.id and fragment("? @> ?", f.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns all unique tags used across all factions for a user.
+
+  ## Examples
+
+      iex> list_all_faction_tags(scope)
+      ["political", "merchant", "criminal", "religious"]
+
+  """
+  def list_all_faction_tags(%Scope{} = scope) do
+    from(f in Faction, 
+      where: f.user_id == ^scope.user.id,
+      select: f.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  @doc """
+  Returns all unique tags used across factions for a specific game.
+
+  ## Examples
+
+      iex> list_all_faction_tags_for_game(scope)
+      ["political", "merchant", "criminal"]
+
+  """
+  def list_all_faction_tags_for_game(%Scope{} = scope) do
+    from(f in Faction, 
+      where: f.game_id == ^scope.game.id,
+      select: f.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
 end

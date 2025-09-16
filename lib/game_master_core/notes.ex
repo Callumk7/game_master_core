@@ -426,4 +426,74 @@ defmodule GameMasterCore.Notes do
       {:error, _} -> %{}
     end
   end
+
+  ## Tag-related functions
+
+  @doc """
+  Returns notes filtered by tags.
+
+  ## Examples
+
+      iex> list_notes_by_tags(scope, ["important", "secret"])
+      [%Note{}, ...]
+
+  """
+  def list_notes_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(n in Note, 
+      where: n.user_id == ^scope.user.id and fragment("? @> ?", n.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns notes for a game filtered by tags.
+
+  ## Examples
+
+      iex> list_notes_for_game_by_tags(scope, ["important", "secret"])
+      [%Note{}, ...]
+
+  """
+  def list_notes_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(n in Note, 
+      where: n.game_id == ^scope.game.id and fragment("? @> ?", n.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns all unique tags used across all notes for a user.
+
+  ## Examples
+
+      iex> list_all_note_tags(scope)
+      ["important", "secret", "lore", "reminder"]
+
+  """
+  def list_all_note_tags(%Scope{} = scope) do
+    from(n in Note, 
+      where: n.user_id == ^scope.user.id,
+      select: n.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  @doc """
+  Returns all unique tags used across notes for a specific game.
+
+  ## Examples
+
+      iex> list_all_note_tags_for_game(scope)
+      ["important", "secret", "lore"]
+
+  """
+  def list_all_note_tags_for_game(%Scope{} = scope) do
+    from(n in Note, 
+      where: n.game_id == ^scope.game.id,
+      select: n.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
 end

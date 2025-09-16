@@ -11,6 +11,7 @@ defmodule GameMasterCore.Factions.Faction do
   schema "factions" do
     field :name, :string
     field :description, :string
+    field :tags, {:array, :string}, default: []
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -29,9 +30,28 @@ defmodule GameMasterCore.Factions.Faction do
   @doc false
   def changeset(faction, attrs, user_scope, game_id) do
     faction
-    |> cast(attrs, [:name, :description])
+    |> cast(attrs, [:name, :description, :tags])
     |> validate_required([:name, :description])
+    |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
+  end
+
+  defp validate_tags(changeset) do
+    tags = get_field(changeset, :tags) || []
+    
+    cond do
+      length(tags) > 20 ->
+        add_error(changeset, :tags, "cannot have more than 20 tags")
+      
+      Enum.any?(tags, &(String.length(&1) > 50)) ->
+        add_error(changeset, :tags, "individual tags cannot be longer than 50 characters")
+      
+      tags != Enum.uniq(tags) ->
+        add_error(changeset, :tags, "cannot have duplicate tags")
+      
+      true ->
+        changeset
+    end
   end
 end

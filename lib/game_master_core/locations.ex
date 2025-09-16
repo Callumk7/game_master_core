@@ -477,4 +477,74 @@ defmodule GameMasterCore.Locations do
       {:error, _} -> %{}
     end
   end
+
+  ## Tag-related functions
+
+  @doc """
+  Returns locations filtered by tags.
+
+  ## Examples
+
+      iex> list_locations_by_tags(scope, ["urban", "dangerous"])
+      [%Location{}, ...]
+
+  """
+  def list_locations_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(l in Location, 
+      where: l.user_id == ^scope.user.id and fragment("? @> ?", l.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns locations for a game filtered by tags.
+
+  ## Examples
+
+      iex> list_locations_for_game_by_tags(scope, ["urban", "dangerous"])
+      [%Location{}, ...]
+
+  """
+  def list_locations_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
+    from(l in Location, 
+      where: l.game_id == ^scope.game.id and fragment("? @> ?", l.tags, ^tags))
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns all unique tags used across all locations for a user.
+
+  ## Examples
+
+      iex> list_all_location_tags(scope)
+      ["urban", "dangerous", "peaceful", "magical"]
+
+  """
+  def list_all_location_tags(%Scope{} = scope) do
+    from(l in Location, 
+      where: l.user_id == ^scope.user.id,
+      select: l.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  @doc """
+  Returns all unique tags used across locations for a specific game.
+
+  ## Examples
+
+      iex> list_all_location_tags_for_game(scope)
+      ["urban", "dangerous", "peaceful"]
+
+  """
+  def list_all_location_tags_for_game(%Scope{} = scope) do
+    from(l in Location, 
+      where: l.game_id == ^scope.game.id,
+      select: l.tags)
+    |> Repo.all()
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
 end

@@ -21,6 +21,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: note.id,
       name: note.name,
       content: note.content,
+      tags: note.tags,
       created_at: note.inserted_at,
       updated_at: note.updated_at
     }
@@ -37,6 +38,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       class: character.class,
       level: character.level,
       image_url: character.image_url,
+      tags: character.tags,
       created_at: character.inserted_at,
       updated_at: character.updated_at
     }
@@ -51,6 +53,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       name: character.name,
       level: character.level,
       class: character.class,
+      tags: character.tags,
       created_at: character.inserted_at,
       updated_at: character.updated_at
     }
@@ -64,6 +67,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: faction.id,
       name: faction.name,
       description: faction.description,
+      tags: faction.tags,
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
     }
@@ -93,6 +97,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       description: location.description,
       type: location.type,
       has_parent: location.parent_id != nil,
+      tags: location.tags,
       created_at: location.inserted_at,
       updated_at: location.updated_at
     }
@@ -106,6 +111,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: quest.id,
       name: quest.name,
       content: quest.content,
+      tags: quest.tags,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
     }
