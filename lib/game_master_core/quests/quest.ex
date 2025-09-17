@@ -39,17 +39,17 @@ defmodule GameMasterCore.Quests.Quest do
 
   defp validate_tags(changeset) do
     tags = get_field(changeset, :tags) || []
-    
+
     cond do
       length(tags) > 20 ->
         add_error(changeset, :tags, "cannot have more than 20 tags")
-      
+
       Enum.any?(tags, &(String.length(&1) > 50)) ->
         add_error(changeset, :tags, "individual tags cannot be longer than 50 characters")
-      
+
       tags != Enum.uniq(tags) ->
         add_error(changeset, :tags, "cannot have duplicate tags")
-      
+
       true ->
         changeset
     end

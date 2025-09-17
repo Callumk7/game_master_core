@@ -439,8 +439,9 @@ defmodule GameMasterCore.Notes do
 
   """
   def list_notes_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(n in Note, 
-      where: n.user_id == ^scope.user.id and fragment("? @> ?", n.tags, ^tags))
+    from(n in Note,
+      where: n.user_id == ^scope.user.id and fragment("? @> ?", n.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -454,8 +455,9 @@ defmodule GameMasterCore.Notes do
 
   """
   def list_notes_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(n in Note, 
-      where: n.game_id == ^scope.game.id and fragment("? @> ?", n.tags, ^tags))
+    from(n in Note,
+      where: n.game_id == ^scope.game.id and fragment("? @> ?", n.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -469,9 +471,10 @@ defmodule GameMasterCore.Notes do
 
   """
   def list_all_note_tags(%Scope{} = scope) do
-    from(n in Note, 
+    from(n in Note,
       where: n.user_id == ^scope.user.id,
-      select: n.tags)
+      select: n.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
@@ -488,9 +491,10 @@ defmodule GameMasterCore.Notes do
 
   """
   def list_all_note_tags_for_game(%Scope{} = scope) do
-    from(n in Note, 
+    from(n in Note,
       where: n.game_id == ^scope.game.id,
-      select: n.tags)
+      select: n.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
