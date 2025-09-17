@@ -490,8 +490,9 @@ defmodule GameMasterCore.Locations do
 
   """
   def list_locations_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(l in Location, 
-      where: l.user_id == ^scope.user.id and fragment("? @> ?", l.tags, ^tags))
+    from(l in Location,
+      where: l.user_id == ^scope.user.id and fragment("? @> ?", l.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -505,8 +506,9 @@ defmodule GameMasterCore.Locations do
 
   """
   def list_locations_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(l in Location, 
-      where: l.game_id == ^scope.game.id and fragment("? @> ?", l.tags, ^tags))
+    from(l in Location,
+      where: l.game_id == ^scope.game.id and fragment("? @> ?", l.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -520,9 +522,10 @@ defmodule GameMasterCore.Locations do
 
   """
   def list_all_location_tags(%Scope{} = scope) do
-    from(l in Location, 
+    from(l in Location,
       where: l.user_id == ^scope.user.id,
-      select: l.tags)
+      select: l.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
@@ -539,9 +542,10 @@ defmodule GameMasterCore.Locations do
 
   """
   def list_all_location_tags_for_game(%Scope{} = scope) do
-    from(l in Location, 
+    from(l in Location,
       where: l.game_id == ^scope.game.id,
-      select: l.tags)
+      select: l.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()

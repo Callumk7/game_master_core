@@ -400,8 +400,9 @@ defmodule GameMasterCore.Quests do
 
   """
   def list_quests_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(q in Quest, 
-      where: q.user_id == ^scope.user.id and fragment("? @> ?", q.tags, ^tags))
+    from(q in Quest,
+      where: q.user_id == ^scope.user.id and fragment("? @> ?", q.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -415,8 +416,9 @@ defmodule GameMasterCore.Quests do
 
   """
   def list_quests_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(q in Quest, 
-      where: q.game_id == ^scope.game.id and fragment("? @> ?", q.tags, ^tags))
+    from(q in Quest,
+      where: q.game_id == ^scope.game.id and fragment("? @> ?", q.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -430,9 +432,10 @@ defmodule GameMasterCore.Quests do
 
   """
   def list_all_quest_tags(%Scope{} = scope) do
-    from(q in Quest, 
+    from(q in Quest,
       where: q.user_id == ^scope.user.id,
-      select: q.tags)
+      select: q.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
@@ -449,9 +452,10 @@ defmodule GameMasterCore.Quests do
 
   """
   def list_all_quest_tags_for_game(%Scope{} = scope) do
-    from(q in Quest, 
+    from(q in Quest,
       where: q.game_id == ^scope.game.id,
-      select: q.tags)
+      select: q.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()

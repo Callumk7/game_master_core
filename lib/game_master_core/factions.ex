@@ -403,8 +403,9 @@ defmodule GameMasterCore.Factions do
 
   """
   def list_factions_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(f in Faction, 
-      where: f.user_id == ^scope.user.id and fragment("? @> ?", f.tags, ^tags))
+    from(f in Faction,
+      where: f.user_id == ^scope.user.id and fragment("? @> ?", f.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -418,8 +419,9 @@ defmodule GameMasterCore.Factions do
 
   """
   def list_factions_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(f in Faction, 
-      where: f.game_id == ^scope.game.id and fragment("? @> ?", f.tags, ^tags))
+    from(f in Faction,
+      where: f.game_id == ^scope.game.id and fragment("? @> ?", f.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -433,9 +435,10 @@ defmodule GameMasterCore.Factions do
 
   """
   def list_all_faction_tags(%Scope{} = scope) do
-    from(f in Faction, 
+    from(f in Faction,
       where: f.user_id == ^scope.user.id,
-      select: f.tags)
+      select: f.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
@@ -452,9 +455,10 @@ defmodule GameMasterCore.Factions do
 
   """
   def list_all_faction_tags_for_game(%Scope{} = scope) do
-    from(f in Faction, 
+    from(f in Faction,
       where: f.game_id == ^scope.game.id,
-      select: f.tags)
+      select: f.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()

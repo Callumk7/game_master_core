@@ -460,8 +460,9 @@ defmodule GameMasterCore.Characters do
 
   """
   def list_characters_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(c in Character, 
-      where: c.user_id == ^scope.user.id and fragment("? @> ?", c.tags, ^tags))
+    from(c in Character,
+      where: c.user_id == ^scope.user.id and fragment("? @> ?", c.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -475,8 +476,9 @@ defmodule GameMasterCore.Characters do
 
   """
   def list_characters_for_game_by_tags(%Scope{} = scope, tags) when is_list(tags) do
-    from(c in Character, 
-      where: c.game_id == ^scope.game.id and fragment("? @> ?", c.tags, ^tags))
+    from(c in Character,
+      where: c.game_id == ^scope.game.id and fragment("? @> ?", c.tags, ^tags)
+    )
     |> Repo.all()
   end
 
@@ -490,9 +492,10 @@ defmodule GameMasterCore.Characters do
 
   """
   def list_all_character_tags(%Scope{} = scope) do
-    from(c in Character, 
+    from(c in Character,
       where: c.user_id == ^scope.user.id,
-      select: c.tags)
+      select: c.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
@@ -509,9 +512,10 @@ defmodule GameMasterCore.Characters do
 
   """
   def list_all_character_tags_for_game(%Scope{} = scope) do
-    from(c in Character, 
+    from(c in Character,
       where: c.game_id == ^scope.game.id,
-      select: c.tags)
+      select: c.tags
+    )
     |> Repo.all()
     |> List.flatten()
     |> Enum.uniq()
