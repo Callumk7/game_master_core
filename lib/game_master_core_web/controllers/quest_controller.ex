@@ -45,10 +45,12 @@ defmodule GameMasterCoreWeb.QuestController do
     description("Create a new quest in the game")
     operation_id("createQuest")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:QuestRequest), "Quest to create", required: true)
+      body(:body, Schema.ref(:QuestCreateRequest), "Quest to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -105,11 +107,13 @@ defmodule GameMasterCoreWeb.QuestController do
     description("Update an existing quest")
     operation_id("updateQuest")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
       id(:path, :string, "Quest ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:QuestRequest), "Quest updates", required: true)
+      body(:body, Schema.ref(:QuestUpdateRequest), "Quest updates", required: true)
     end
 
     security([%{Bearer: []}])

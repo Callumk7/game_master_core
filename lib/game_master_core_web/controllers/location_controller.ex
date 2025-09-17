@@ -45,10 +45,12 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Create a new location in the game")
     operation_id("createLocation")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:LocationRequest), "Location to create", required: true)
+      body(:body, Schema.ref(:LocationCreateRequest), "Location to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -105,11 +107,13 @@ defmodule GameMasterCoreWeb.LocationController do
     description("Update an existing location")
     operation_id("updateLocation")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
       id(:path, :string, "Location ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:LocationRequest), "Location updates", required: true)
+      body(:body, Schema.ref(:LocationUpdateRequest), "Location updates", required: true)
     end
 
     security([%{Bearer: []}])

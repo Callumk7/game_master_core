@@ -48,7 +48,7 @@ defmodule GameMasterCoreWeb.NoteController do
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
+      body(:body, Schema.ref(:NoteCreateRequest), "Note parameters", required: true)
     end
 
     response(201, "Created", Schema.ref(:NoteResponse))
@@ -103,7 +103,7 @@ defmodule GameMasterCoreWeb.NoteController do
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
       id(:path, :string, "Note ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:NoteRequest), "Note parameters", required: true)
+      body(:body, Schema.ref(:NoteUpdateRequest), "Note parameters", required: true)
     end
 
     response(200, "Success", Schema.ref(:NoteResponse))
@@ -156,7 +156,6 @@ defmodule GameMasterCoreWeb.NoteController do
 
     operation_id("createNoteLink")
     tag("GameMaster")
-    consumes("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
