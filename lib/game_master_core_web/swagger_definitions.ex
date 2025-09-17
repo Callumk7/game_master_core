@@ -33,10 +33,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def game_params_schema do
+  def game_create_params_schema do
     swagger_schema do
-      title("Game Parameters")
-      description("Parameters for creating or updating a game")
+      title("Game Create Parameters")
+      description("Parameters for creating a new game")
 
       properties do
         name(:string, "Game name", required: true)
@@ -54,13 +54,43 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def game_request_schema do
+  def game_update_params_schema do
     swagger_schema do
-      title("Game Request")
-      description("Game creation/update parameters")
+      title("Game Update Parameters")
+      description("Parameters for updating an existing game (partial updates supported)")
 
       properties do
-        game(Schema.ref(:GameParams), "Game parameters")
+        name(:string, "Game name")
+        description(:string, "Game description")
+        setting(:string, "Game setting")
+      end
+
+      example(%{
+        name: "My Updated Campaign"
+      })
+    end
+  end
+
+  def game_create_request_schema do
+    swagger_schema do
+      title("Game Create Request")
+      description("Game creation parameters")
+
+      properties do
+        game(Schema.ref(:GameCreateParams), "Game parameters")
+      end
+
+      required([:game])
+    end
+  end
+
+  def game_update_request_schema do
+    swagger_schema do
+      title("Game Update Request")
+      description("Game update parameters")
+
+      properties do
+        game(Schema.ref(:GameUpdateParams), "Game parameters")
       end
 
       required([:game])
@@ -335,10 +365,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def note_params_schema do
+  def note_create_params_schema do
     swagger_schema do
-      title("Note Parameters")
-      description("Parameters for creating or updating a note")
+      title("Note Create Parameters")
+      description("Parameters for creating a new note")
 
       properties do
         name(:string, "Note name", required: true)
@@ -356,13 +386,43 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def note_request_schema do
+  def note_update_params_schema do
     swagger_schema do
-      title("Note Request")
-      description("Note creation/update parameters")
+      title("Note Update Parameters")
+      description("Parameters for updating an existing note (partial updates supported)")
 
       properties do
-        note(Schema.ref(:NoteParams), "Note parameters")
+        name(:string, "Note name")
+        content(:string, "Note content")
+        tags(Schema.array(:string), "Tags for this note")
+      end
+
+      example(%{
+        name: "Updated Quest Notes"
+      })
+    end
+  end
+
+  def note_create_request_schema do
+    swagger_schema do
+      title("Note Create Request")
+      description("Note creation parameters")
+
+      properties do
+        note(Schema.ref(:NoteCreateParams), "Note parameters")
+      end
+
+      required([:note])
+    end
+  end
+
+  def note_update_request_schema do
+    swagger_schema do
+      title("Note Update Request")
+      description("Note update parameters")
+
+      properties do
+        note(Schema.ref(:NoteUpdateParams), "Note parameters")
       end
 
       required([:note])
@@ -432,10 +492,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def character_params_schema do
+  def character_create_params_schema do
     swagger_schema do
-      title("Character Parameters")
-      description("Parameters for creating or updating a character")
+      title("Character Create Parameters")
+      description("Parameters for creating a new character")
 
       properties do
         name(:string, "Character name", required: true)
@@ -459,13 +519,47 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def character_request_schema do
+  def character_update_params_schema do
     swagger_schema do
-      title("Character Request")
-      description("Character creation/update parameters")
+      title("Character Update Parameters")
+      description("Parameters for updating an existing character (partial updates supported)")
 
       properties do
-        character(Schema.ref(:CharacterParams), "Character parameters")
+        name(:string, "Character name")
+        description(:string, "Character description")
+        class(:string, "Character class")
+        level(:integer, "Character level")
+        image_url(:string, "Character image URL")
+        tags(Schema.array(:string), "Tags for this character")
+      end
+
+      example(%{
+        level: 21,
+        description: "A wise and powerful wizard who guides the Fellowship through many perils."
+      })
+    end
+  end
+
+  def character_create_request_schema do
+    swagger_schema do
+      title("Character Create Request")
+      description("Character creation parameters")
+
+      properties do
+        character(Schema.ref(:CharacterCreateParams), "Character parameters")
+      end
+
+      required([:character])
+    end
+  end
+
+  def character_update_request_schema do
+    swagger_schema do
+      title("Character Update Request")
+      description("Character update parameters")
+
+      properties do
+        character(Schema.ref(:CharacterUpdateParams), "Character parameters")
       end
 
       required([:character])
@@ -530,10 +624,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def faction_params_schema do
+  def faction_create_params_schema do
     swagger_schema do
-      title("Faction Parameters")
-      description("Parameters for creating or updating a faction")
+      title("Faction Create Parameters")
+      description("Parameters for creating a new faction")
 
       properties do
         name(:string, "Faction name", required: true)
@@ -552,13 +646,43 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def faction_request_schema do
+  def faction_update_params_schema do
     swagger_schema do
-      title("Faction Request")
-      description("Faction creation/update parameters")
+      title("Faction Update Parameters")
+      description("Parameters for updating an existing faction (partial updates supported)")
 
       properties do
-        faction(Schema.ref(:FactionParams), "Faction parameters")
+        name(:string, "Faction name")
+        description(:string, "Faction description")
+        tags(Schema.array(:string), "Tags for this faction")
+      end
+
+      example(%{
+        description: "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
+      })
+    end
+  end
+
+  def faction_create_request_schema do
+    swagger_schema do
+      title("Faction Create Request")
+      description("Faction creation parameters")
+
+      properties do
+        faction(Schema.ref(:FactionCreateParams), "Faction parameters")
+      end
+
+      required([:faction])
+    end
+  end
+
+  def faction_update_request_schema do
+    swagger_schema do
+      title("Faction Update Request")
+      description("Faction update parameters")
+
+      properties do
+        faction(Schema.ref(:FactionUpdateParams), "Faction parameters")
       end
 
       required([:faction])
@@ -654,10 +778,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def location_params_schema do
+  def location_create_params_schema do
     swagger_schema do
-      title("Location Parameters")
-      description("Parameters for creating or updating a location")
+      title("Location Create Parameters")
+      description("Parameters for creating a new location")
 
       properties do
         name(:string, "Location name", required: true)
@@ -684,13 +808,49 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def location_request_schema do
+  def location_update_params_schema do
     swagger_schema do
-      title("Location Request")
-      description("Location creation/update parameters")
+      title("Location Update Parameters")
+      description("Parameters for updating an existing location (partial updates supported)")
 
       properties do
-        location(Schema.ref(:LocationParams), "Location parameters")
+        name(:string, "Location name")
+        description(:string, "Location description")
+
+        type(:string, "Location type",
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+
+        parent_id(:string, "Parent location ID", format: :uuid)
+        tags(Schema.array(:string), "Tags for this location")
+      end
+
+      example(%{
+        description: "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
+      })
+    end
+  end
+
+  def location_create_request_schema do
+    swagger_schema do
+      title("Location Create Request")
+      description("Location creation parameters")
+
+      properties do
+        location(Schema.ref(:LocationCreateParams), "Location parameters")
+      end
+
+      required([:location])
+    end
+  end
+
+  def location_update_request_schema do
+    swagger_schema do
+      title("Location Update Request")
+      description("Location update parameters")
+
+      properties do
+        location(Schema.ref(:LocationUpdateParams), "Location parameters")
       end
 
       required([:location])
@@ -754,10 +914,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def quest_params_schema do
+  def quest_create_params_schema do
     swagger_schema do
-      title("Quest Parameters")
-      description("Parameters for creating or updating a quest")
+      title("Quest Create Parameters")
+      description("Parameters for creating a new quest")
 
       properties do
         name(:string, "Quest name", required: true)
@@ -775,13 +935,43 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
-  def quest_request_schema do
+  def quest_update_params_schema do
     swagger_schema do
-      title("Quest Request")
-      description("Quest creation/update parameters")
+      title("Quest Update Parameters")
+      description("Parameters for updating an existing quest (partial updates supported)")
 
       properties do
-        quest(Schema.ref(:QuestParams), "Quest parameters")
+        name(:string, "Quest name")
+        content(:string, "Quest content")
+        tags(Schema.array(:string), "Tags for this quest")
+      end
+
+      example(%{
+        content: "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits."
+      })
+    end
+  end
+
+  def quest_create_request_schema do
+    swagger_schema do
+      title("Quest Create Request")
+      description("Quest creation parameters")
+
+      properties do
+        quest(Schema.ref(:QuestCreateParams), "Quest parameters")
+      end
+
+      required([:quest])
+    end
+  end
+
+  def quest_update_request_schema do
+    swagger_schema do
+      title("Quest Update Request")
+      description("Quest update parameters")
+
+      properties do
+        quest(Schema.ref(:QuestUpdateParams), "Quest parameters")
       end
 
       required([:quest])
@@ -937,8 +1127,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
   def common_definitions do
     %{
       Game: game_schema(),
-      GameParams: game_params_schema(),
-      GameRequest: game_request_schema(),
+      GameCreateParams: game_create_params_schema(),
+      GameUpdateParams: game_update_params_schema(),
+      GameCreateRequest: game_create_request_schema(),
+      GameUpdateRequest: game_update_request_schema(),
       GameResponse:
         response_schema(Schema.ref(:Game), "Game Response", "Response containing a single game"),
       GamesResponse:
@@ -956,8 +1148,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       EntityLocation: entity_location_schema(),
       EntityQuest: entity_quest_schema(),
       Note: note_schema(),
-      NoteParams: note_params_schema(),
-      NoteRequest: note_request_schema(),
+      NoteCreateParams: note_create_params_schema(),
+      NoteUpdateParams: note_update_params_schema(),
+      NoteCreateRequest: note_create_request_schema(),
+      NoteUpdateRequest: note_update_request_schema(),
       NoteResponse:
         response_schema(Schema.ref(:Note), "Note Response", "Response containing a single note"),
       NotesResponse:
@@ -971,8 +1165,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing note links"
         ),
       Character: character_schema(),
-      CharacterParams: character_params_schema(),
-      CharacterRequest: character_request_schema(),
+      CharacterCreateParams: character_create_params_schema(),
+      CharacterUpdateParams: character_update_params_schema(),
+      CharacterCreateRequest: character_create_request_schema(),
+      CharacterUpdateRequest: character_update_request_schema(),
       CharacterResponse:
         response_schema(
           Schema.ref(:Character),
@@ -994,8 +1190,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing character links"
         ),
       Faction: faction_schema(),
-      FactionParams: faction_params_schema(),
-      FactionRequest: faction_request_schema(),
+      FactionCreateParams: faction_create_params_schema(),
+      FactionUpdateParams: faction_update_params_schema(),
+      FactionCreateRequest: faction_create_request_schema(),
+      FactionUpdateRequest: faction_update_request_schema(),
       FactionResponse:
         response_schema(
           Schema.ref(:Faction),
@@ -1018,8 +1216,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         ),
       LinkRequest: link_request_schema(),
       Location: location_schema(),
-      LocationParams: location_params_schema(),
-      LocationRequest: location_request_schema(),
+      LocationCreateParams: location_create_params_schema(),
+      LocationUpdateParams: location_update_params_schema(),
+      LocationCreateRequest: location_create_request_schema(),
+      LocationUpdateRequest: location_update_request_schema(),
       LocationResponse:
         response_schema(
           Schema.ref(:Location),
@@ -1041,8 +1241,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing location links"
         ),
       Quest: quest_schema(),
-      QuestParams: quest_params_schema(),
-      QuestRequest: quest_request_schema(),
+      QuestCreateParams: quest_create_params_schema(),
+      QuestUpdateParams: quest_update_params_schema(),
+      QuestCreateRequest: quest_create_request_schema(),
+      QuestUpdateRequest: quest_update_request_schema(),
       QuestResponse:
         response_schema(
           Schema.ref(:Quest),

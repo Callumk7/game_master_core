@@ -44,10 +44,12 @@ defmodule GameMasterCoreWeb.CharacterController do
     description("Create a new character in the game")
     operation_id("createCharacter")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:CharacterRequest), "Character to create", required: true)
+      body(:body, Schema.ref(:CharacterCreateRequest), "Character to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -107,11 +109,13 @@ defmodule GameMasterCoreWeb.CharacterController do
     description("Update an existing character")
     operation_id("updateCharacter")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
       id(:path, :string, "Character ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:CharacterRequest), "Character updates", required: true)
+      body(:body, Schema.ref(:CharacterUpdateRequest), "Character updates", required: true)
     end
 
     security([%{Bearer: []}])

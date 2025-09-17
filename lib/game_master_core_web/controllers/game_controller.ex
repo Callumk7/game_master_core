@@ -44,7 +44,7 @@ defmodule GameMasterCoreWeb.GameController do
     produces("application/json")
 
     parameters do
-      body(:body, Schema.ref(:GameRequest), "Game parameters", required: true)
+      body(:body, Schema.ref(:GameCreateRequest), "Game parameters", required: true)
     end
 
     response(201, "Created", Schema.ref(:GameResponse))
@@ -95,7 +95,7 @@ defmodule GameMasterCoreWeb.GameController do
 
     parameters do
       id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:GameRequest), "Game parameters", required: true)
+      body(:body, Schema.ref(:GameUpdateRequest), "Game parameters", required: true)
     end
 
     response(200, "Success", Schema.ref(:GameResponse))

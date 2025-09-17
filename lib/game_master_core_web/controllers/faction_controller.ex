@@ -44,10 +44,12 @@ defmodule GameMasterCoreWeb.FactionController do
     description("Create a new faction in the game")
     operation_id("createFaction")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:FactionRequest), "Faction to create", required: true)
+      body(:body, Schema.ref(:FactionCreateRequest), "Faction to create", required: true)
     end
 
     security([%{Bearer: []}])
@@ -104,11 +106,13 @@ defmodule GameMasterCoreWeb.FactionController do
     description("Update an existing faction")
     operation_id("updateFaction")
     tag("GameMaster")
+    consumes("application/json")
+    produces("application/json")
 
     parameters do
       game_id(:path, :string, "Game ID", required: true, format: :uuid)
       id(:path, :string, "Faction ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:FactionRequest), "Faction updates", required: true)
+      body(:body, Schema.ref(:FactionUpdateRequest), "Faction updates", required: true)
     end
 
     security([%{Bearer: []}])
