@@ -8,58 +8,17 @@ defmodule GameMasterCoreWeb.FactionController do
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
 
-  action_fallback GameMasterCoreWeb.FallbackController
-
   def swagger_definitions do
     SwaggerDefinitions.common_definitions()
   end
 
-  swagger_path :index do
-    get("/api/games/{game_id}/factions")
-    summary("List factions")
-    description("Get all factions in a game")
-    operation_id("listFactions")
-    tag("GameMaster")
+  use GameMasterCoreWeb.Swagger.FactionSwagger
 
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:FactionsResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
+  action_fallback GameMasterCoreWeb.FallbackController
 
   def index(conn, _params) do
     factions = Factions.list_factions_for_game(conn.assigns.current_scope)
     render(conn, :index, factions: factions)
-  end
-
-  swagger_path :create do
-    post("/api/games/{game_id}/factions")
-    summary("Create faction")
-    description("Create a new faction in the game")
-    operation_id("createFaction")
-    tag("GameMaster")
-    consumes("application/json")
-    produces("application/json")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:FactionCreateRequest), "Faction to create", required: true)
-    end
-
-    security([%{Bearer: []}])
-
-    response(201, "Created", Schema.ref(:FactionResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create(conn, %{"faction" => faction_params}) do
@@ -75,54 +34,9 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
-  swagger_path :show do
-    get("/api/games/{game_id}/factions/{id}")
-    summary("Get faction")
-    description("Get a specific faction by ID")
-    operation_id("getFaction")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Faction ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:FactionResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def show(conn, %{"id" => id}) do
     faction = Factions.get_faction_for_game!(conn.assigns.current_scope, id)
     render(conn, :show, faction: faction)
-  end
-
-  swagger_path :update do
-    put("/api/games/{game_id}/factions/{id}")
-    summary("Update faction")
-    description("Update an existing faction")
-    operation_id("updateFaction")
-    tag("GameMaster")
-    consumes("application/json")
-    produces("application/json")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Faction ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:FactionUpdateRequest), "Faction updates", required: true)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:FactionResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def update(conn, %{"id" => id, "faction" => faction_params}) do
@@ -134,63 +48,12 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
-  swagger_path :delete do
-    PhoenixSwagger.Path.delete("/api/games/{game_id}/factions/{id}")
-    summary("Delete faction")
-    description("Delete a faction from the game")
-    operation_id("deleteFaction")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Faction ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(204, "No Content")
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def delete(conn, %{"id" => id}) do
     faction = Factions.get_faction_for_game!(conn.assigns.current_scope, id)
 
     with {:ok, %Faction{}} <- Factions.delete_faction(conn.assigns.current_scope, faction) do
       send_resp(conn, :no_content, "")
     end
-  end
-
-  # Faction Links
-
-  swagger_path :create_link do
-    post("/api/games/{game_id}/factions/{faction_id}/links")
-    summary("Create faction link")
-    description("Link a faction to another entity (note, character, etc.)")
-    operation_id("createFactionLink")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
-
-      entity_type(:query, :string, "Entity type to link",
-        required: true,
-        enum: ["character", "location", "quest", "note", "faction"]
-      )
-
-      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(201, "Created")
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create_link(conn, %{"faction_id" => faction_id} = params) do
@@ -214,26 +77,6 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
-  swagger_path :list_links do
-    get("/api/games/{game_id}/factions/{faction_id}/links")
-    summary("Get faction links")
-    description("Get all entities linked to a faction")
-    operation_id("getFactionLinks")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:FactionLinksResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def list_links(conn, %{"faction_id" => faction_id}) do
     faction = Factions.get_faction_for_game!(conn.assigns.current_scope, faction_id)
 
@@ -251,37 +94,6 @@ defmodule GameMasterCoreWeb.FactionController do
       quests: quests,
       factions: factions
     )
-  end
-
-  swagger_path :delete_link do
-    PhoenixSwagger.Path.delete(
-      "/api/games/{game_id}/factions/{faction_id}/links/{entity_type}/{entity_id}"
-    )
-
-    summary("Delete faction link")
-    description("Remove a link between a faction and another entity")
-    operation_id("deleteFactionLink")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
-
-      entity_type(:path, :string, "Entity type",
-        required: true,
-        enum: ["character", "location", "quest", "note", "faction"]
-      )
-
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(204, "No Content")
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
   end
 
   def delete_link(conn, %{

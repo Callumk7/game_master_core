@@ -658,7 +658,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        description: "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
+        description:
+          "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
       })
     end
   end
@@ -826,7 +827,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        description: "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
+        description:
+          "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
       })
     end
   end
@@ -947,7 +949,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        content: "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits."
+        content:
+          "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits."
       })
     end
   end
