@@ -15,6 +15,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Game ID", required: true, format: :uuid)
         name(:string, "Game name", required: true)
         description(:string, "Game description")
+        description_plain_text(:string, "Game description as plain text")
         setting(:string, "Game setting")
         owner_id(:integer, "Owner user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -25,6 +26,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "123e4567-e89b-12d3-a456-426614174000",
         name: "My Campaign",
         description: "An epic adventure",
+        description_plain_text: "An epic adventure",
         setting: "Fantasy",
         owner_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -41,6 +43,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Game name", required: true)
         description(:string, "Game description")
+        description_plain_text(:string, "Game description as plain text")
         setting(:string, "Game setting")
       end
 
@@ -49,6 +52,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "My Campaign",
         description: "An epic adventure",
+        description_plain_text: "An epic adventure",
         setting: "Fantasy"
       })
     end
@@ -62,6 +66,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Game name")
         description(:string, "Game description")
+        description_plain_text(:string, "Game description as plain text")
         setting(:string, "Game setting")
       end
 
@@ -127,6 +132,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
         content(:string, "Note content", required: true)
+        content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -136,6 +142,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon", "quest"],
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -152,6 +159,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
         description(:string, "Character description")
+        description_plain_text(:string, "Character description as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -164,6 +172,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
         description: "A wise and powerful wizard who guides the Fellowship.",
+        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -183,6 +192,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
         description(:string, "Faction description", required: true)
+        description_plain_text(:string, "Faction description as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -192,6 +202,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
         description:
+          "A secretive organization that seeks to control the realm from behind the scenes.",
+        description_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
         created_at: "2023-08-20T12:00:00Z",
@@ -209,6 +221,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
         description(:string, "Location description")
+        description_plain_text(:string, "Location description as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -225,6 +238,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         has_parent: true,
         tags: ["magical", "hidden", "dangerous"],
@@ -243,6 +257,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
         content(:string, "Quest content", required: true)
+        content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -252,6 +267,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "623e4567-e89b-12d3-a456-426614174005",
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
+        content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -345,6 +361,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
         content(:string, "Note content", required: true)
+        content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
@@ -356,6 +373,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon", "quest"],
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
@@ -373,6 +391,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Note name", required: true)
         content(:string, "Note content", required: true)
+        content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
       end
 
@@ -381,6 +400,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon"]
       })
     end
@@ -394,6 +414,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Note name")
         content(:string, "Note content")
+        content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
       end
 
@@ -466,6 +487,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
         description(:string, "Character description")
+        description_plain_text(:string, "Character description as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -480,6 +502,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
         description: "A wise and powerful wizard who guides the Fellowship.",
+        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -500,6 +523,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Character name", required: true)
         description(:string, "Character description")
+        description_plain_text(:string, "Character description as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -511,6 +535,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "Gandalf the Grey",
         description: "A wise and powerful wizard who guides the Fellowship.",
+        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -527,6 +552,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Character name")
         description(:string, "Character description")
+        description_plain_text(:string, "Character description as plain text")
         class(:string, "Character class")
         level(:integer, "Character level")
         image_url(:string, "Character image URL")
@@ -535,7 +561,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         level: 21,
-        description: "A wise and powerful wizard who guides the Fellowship through many perils."
+        description: "A wise and powerful wizard who guides the Fellowship through many perils.",
+        description_plain_text: "A wise and powerful wizard who guides the Fellowship through many perils."
       })
     end
   end
@@ -603,6 +630,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
         description(:string, "Faction description", required: true)
+        description_plain_text(:string, "Faction description as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
@@ -614,6 +642,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
         description:
+          "A secretive organization that seeks to control the realm from behind the scenes.",
+        description_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -632,6 +662,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Faction name", required: true)
         description(:string, "Faction description", required: true)
+        description_plain_text(:string, "Faction description as plain text")
         tags(Schema.array(:string), "Tags for this faction")
       end
 
@@ -640,6 +671,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "The Shadow Council",
         description:
+          "A secretive organization that seeks to control the realm from behind the scenes.",
+        description_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political"]
       })
@@ -654,11 +687,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Faction name")
         description(:string, "Faction description")
+        description_plain_text(:string, "Faction description as plain text")
         tags(Schema.array(:string), "Tags for this faction")
       end
 
       example(%{
         description:
+          "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
+        description_plain_text:
           "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
       })
     end
@@ -750,6 +786,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
         description(:string, "Location description")
+        description_plain_text(:string, "Location description as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -768,6 +805,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         tags: ["magical", "hidden", "dangerous"],
@@ -787,6 +825,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Location name", required: true)
         description(:string, "Location description")
+        description_plain_text(:string, "Location description as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -802,6 +841,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         tags: ["magical", "hidden"]
@@ -817,6 +857,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Location name")
         description(:string, "Location description")
+        description_plain_text(:string, "Location description as plain text")
 
         type(:string, "Location type",
           enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
@@ -828,6 +869,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         description:
+          "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes.",
+        description_plain_text:
           "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
       })
     end
@@ -896,6 +939,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
         content(:string, "Quest content", required: true)
+        content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
@@ -907,6 +951,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "623e4567-e89b-12d3-a456-426614174005",
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
+        content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
@@ -924,6 +969,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Quest name", required: true)
         content(:string, "Quest content", required: true)
+        content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
       end
 
@@ -932,6 +978,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
+        content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure"]
       })
     end
@@ -945,11 +992,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         name(:string, "Quest name")
         content(:string, "Quest content")
+        content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
       end
 
       example(%{
         content:
+          "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
+        content_plain_text:
           "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits."
       })
     end
