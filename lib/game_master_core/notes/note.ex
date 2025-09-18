@@ -11,6 +11,7 @@ defmodule GameMasterCore.Notes.Note do
   schema "notes" do
     field :name, :string
     field :content, :string
+    field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
 
     belongs_to :game, Game
@@ -30,7 +31,7 @@ defmodule GameMasterCore.Notes.Note do
   @doc false
   def changeset(note, attrs, user_scope, game_id) do
     note
-    |> cast(attrs, [:name, :content, :tags])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags])
     |> validate_required([:name, :content])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)

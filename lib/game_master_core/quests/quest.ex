@@ -11,6 +11,7 @@ defmodule GameMasterCore.Quests.Quest do
   schema "quests" do
     field :name, :string
     field :content, :string
+    field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
 
     belongs_to :game, Game
@@ -30,7 +31,7 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :tags])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags])
     |> validate_required([:name, :content])
     |> validate_tags()
     |> put_change(:user_id, game_scope.user.id)

@@ -11,6 +11,7 @@ defmodule GameMasterCore.Locations.Location do
   schema "locations" do
     field :name, :string
     field :description, :string
+    field :description_plain_text, :string
     field :type, :string
     field :tags, {:array, :string}, default: []
 
@@ -35,7 +36,7 @@ defmodule GameMasterCore.Locations.Location do
   @doc false
   def changeset(location, attrs, user_scope, game_id) do
     location
-    |> cast(attrs, [:name, :description, :type, :parent_id, :tags])
+    |> cast(attrs, [:name, :description, :description_plain_text, :type, :parent_id, :tags])
     |> validate_required([:name, :type])
     |> validate_inclusion(:type, [
       "continent",
