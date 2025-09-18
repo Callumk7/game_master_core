@@ -5,62 +5,20 @@ defmodule GameMasterCoreWeb.QuestController do
   alias GameMasterCore.Quests
   alias GameMasterCore.Quests.Quest
   alias GameMasterCoreWeb.SwaggerDefinitions
-  alias PhoenixSwagger.Schema
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
-
-  action_fallback GameMasterCoreWeb.FallbackController
 
   def swagger_definitions do
     SwaggerDefinitions.common_definitions()
   end
 
-  swagger_path :index do
-    get("/api/games/{game_id}/quests")
-    summary("List quests")
-    description("Get all quests in a game")
-    operation_id("listQuests")
-    tag("GameMaster")
+  use GameMasterCoreWeb.Swagger.QuestSwagger
 
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:QuestsResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
+  action_fallback GameMasterCoreWeb.FallbackController
 
   def index(conn, _params) do
     quests = Quests.list_quests_for_game(conn.assigns.current_scope)
     render(conn, :index, quests: quests)
-  end
-
-  swagger_path :create do
-    post("/api/games/{game_id}/quests")
-    summary("Create quest")
-    description("Create a new quest in the game")
-    operation_id("createQuest")
-    tag("GameMaster")
-    consumes("application/json")
-    produces("application/json")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:QuestCreateRequest), "Quest to create", required: true)
-    end
-
-    security([%{Bearer: []}])
-
-    response(201, "Created", Schema.ref(:QuestResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create(conn, %{"quest" => quest_params}) do
@@ -76,54 +34,9 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  swagger_path :show do
-    get("/api/games/{game_id}/quests/{id}")
-    summary("Get quest")
-    description("Get a specific quest by ID")
-    operation_id("getQuest")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Quest ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:QuestResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def show(conn, %{"id" => id}) do
     quest = Quests.get_quest_for_game!(conn.assigns.current_scope, id)
     render(conn, :show, quest: quest)
-  end
-
-  swagger_path :update do
-    put("/api/games/{game_id}/quests/{id}")
-    summary("Update quest")
-    description("Update an existing quest")
-    operation_id("updateQuest")
-    tag("GameMaster")
-    consumes("application/json")
-    produces("application/json")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Quest ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:QuestUpdateRequest), "Quest updates", required: true)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:QuestResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def update(conn, %{"id" => id, "quest" => quest_params}) do
@@ -135,61 +48,12 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  swagger_path :delete do
-    PhoenixSwagger.Path.delete("/api/games/{game_id}/quests/{id}")
-    summary("Delete quest")
-    description("Delete a quest from the game")
-    operation_id("deleteQuest")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      id(:path, :string, "Quest ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(204, "No Content")
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def delete(conn, %{"id" => id}) do
     quest = Quests.get_quest_for_game!(conn.assigns.current_scope, id)
 
     with {:ok, %Quest{}} <- Quests.delete_quest(conn.assigns.current_scope, quest) do
       send_resp(conn, :no_content, "")
     end
-  end
-
-  swagger_path :create_link do
-    post("/api/games/{game_id}/quests/{quest_id}/links")
-    summary("Create quest link")
-    description("Link a quest to another entity (note, character, faction, location)")
-    operation_id("createQuestLink")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
-
-      entity_type(:query, :string, "Entity type to link",
-        required: true,
-        enum: ["character", "faction", "location", "note", "quest"]
-      )
-
-      entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(201, "Created")
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   def create_link(conn, %{"quest_id" => quest_id} = params) do
@@ -213,26 +77,6 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  swagger_path :list_links do
-    get("/api/games/{game_id}/quests/{quest_id}/links")
-    summary("Get quest links")
-    description("Get all entities linked to a quest")
-    operation_id("getQuestLinks")
-    tag("GameMaster")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(200, "Success", Schema.ref(:QuestLinksResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   def list_links(conn, %{"quest_id" => quest_id}) do
     quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
 
@@ -246,37 +90,6 @@ defmodule GameMasterCoreWeb.QuestController do
       locations: links.locations,
       quests: links.quests
     )
-  end
-
-  swagger_path :delete_link do
-    PhoenixSwagger.Path.delete(
-      "/api/games/{game_id}/quests/{quest_id}/links/{entity_type}/{entity_id}"
-    )
-
-    summary("Delete quest link")
-    operation_id("deleteQuestLink")
-    tag("GameMaster")
-    description("Remove a link between a quest and another entity")
-
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
-
-      entity_type(:path, :string, "Entity type",
-        required: true,
-        enum: ["character", "faction", "location", "note", "quest"]
-      )
-
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-    end
-
-    security([%{Bearer: []}])
-
-    response(204, "No Content")
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(403, "Forbidden", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
   end
 
   def delete_link(conn, %{
