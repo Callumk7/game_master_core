@@ -16,6 +16,9 @@ defmodule GameMasterCore.Notes.Note do
 
     belongs_to :game, Game
     belongs_to :user, User
+    belongs_to :parent, __MODULE__, foreign_key: :parent_id
+
+    has_many :children, __MODULE__, foreign_key: :parent_id
 
     many_to_many :related_notes, __MODULE__,
       join_through: "note_notes",
@@ -31,9 +34,10 @@ defmodule GameMasterCore.Notes.Note do
   @doc false
   def changeset(note, attrs, user_scope, game_id) do
     note
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id])
     |> validate_required([:name, :content])
     |> validate_tags()
+    |> validate_parent_note(game_id)
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
   end
@@ -53,6 +57,65 @@ defmodule GameMasterCore.Notes.Note do
 
       true ->
         changeset
+    end
+  end
+
+  defp validate_parent_note(changeset, game_id) do
+    case get_field(changeset, :parent_id) do
+      nil ->
+        changeset
+
+      parent_id ->
+        note_id = get_field(changeset, :id)
+
+        cond do
+          note_id && note_id == parent_id ->
+            add_error(changeset, :parent_id, "note cannot be its own parent")
+
+          not parent_note_exists_in_game?(parent_id, game_id) ->
+            add_error(
+              changeset,
+              :parent_id,
+              "parent note does not exist or does not belong to the same game"
+            )
+
+          would_create_cycle?(note_id, parent_id) ->
+            add_error(changeset, :parent_id, "would create a circular reference")
+
+          true ->
+            changeset
+        end
+    end
+  end
+
+  defp parent_note_exists_in_game?(parent_id, game_id) do
+    case GameMasterCore.Repo.get(__MODULE__, parent_id) do
+      nil -> false
+      note -> note.game_id == game_id
+    end
+  end
+
+  defp would_create_cycle?(nil, _parent_id), do: false
+
+  defp would_create_cycle?(note_id, parent_id) do
+    check_cycle(parent_id, note_id, MapSet.new())
+  end
+
+  defp check_cycle(nil, _target_id, _visited), do: false
+
+  defp check_cycle(current_id, target_id, visited) do
+    cond do
+      current_id == target_id ->
+        true
+
+      MapSet.member?(visited, current_id) ->
+        false
+
+      true ->
+        case GameMasterCore.Repo.get(__MODULE__, current_id) do
+          nil -> false
+          note -> check_cycle(note.parent_id, target_id, MapSet.put(visited, current_id))
+        end
     end
   end
 end

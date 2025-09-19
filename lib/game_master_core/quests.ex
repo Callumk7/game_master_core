@@ -178,10 +178,10 @@ defmodule GameMasterCore.Quests do
   @doc """
   Links a quest to a note.
   """
-  def link_note(%Scope{} = scope, quest_id, note_id) do
+  def link_note(%Scope{} = scope, quest_id, note_id, metadata_attrs \\ %{}) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
-      Links.link(quest, note)
+      Links.link(quest, note, metadata_attrs)
     end
   end
 
@@ -204,10 +204,10 @@ defmodule GameMasterCore.Quests do
   @doc """
   Links a quest to a character.
   """
-  def link_character(%Scope{} = scope, quest_id, character_id) do
+  def link_character(%Scope{} = scope, quest_id, character_id, metadata_attrs \\ %{}) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
-      Links.link(quest, character)
+      Links.link(quest, character, metadata_attrs)
     end
   end
 
@@ -230,10 +230,10 @@ defmodule GameMasterCore.Quests do
   @doc """
   Links a quest to a faction.
   """
-  def link_faction(%Scope{} = scope, quest_id, faction_id) do
+  def link_faction(%Scope{} = scope, quest_id, faction_id, metadata_attrs \\ %{}) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, faction} <- get_scoped_faction(scope, faction_id) do
-      Links.link(quest, faction)
+      Links.link(quest, faction, metadata_attrs)
     end
   end
 
@@ -256,20 +256,20 @@ defmodule GameMasterCore.Quests do
   @doc """
   Links a quest to a location.
   """
-  def link_location(%Scope{} = scope, quest_id, location_id) do
+  def link_location(%Scope{} = scope, quest_id, location_id, metadata_attrs \\ %{}) do
     with {:ok, quest} <- get_scoped_quest(scope, quest_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
-      Links.link(quest, location)
+      Links.link(quest, location, metadata_attrs)
     end
   end
 
   @doc """
   Links a quest to another quest.
   """
-  def link_quest(%Scope{} = scope, quest_id_1, quest_id_2) do
+  def link_quest(%Scope{} = scope, quest_id_1, quest_id_2, metadata_attrs \\ %{}) do
     with {:ok, quest_1} <- get_scoped_quest(scope, quest_id_1),
          {:ok, quest_2} <- get_scoped_quest(scope, quest_id_2) do
-      Links.link(quest_1, quest_2)
+      Links.link(quest_1, quest_2, metadata_attrs)
     end
   end
 

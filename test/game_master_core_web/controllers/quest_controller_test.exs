@@ -55,8 +55,34 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some content",
-               "name" => "some name"
+               "name" => "some name",
+               "parent_id" => nil
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders quest with parent_id when data is valid", %{
+      conn: conn,
+      scope: scope,
+      game: game
+    } do
+      # Create parent quest first
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      parent_quest = quest_fixture(game_scope, %{game_id: game.id})
+
+      attrs_with_parent = Map.put(@create_attrs, :parent_id, parent_quest.id)
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_parent)
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+
+      assert %{
+               "id" => ^id,
+               "content" => "some content",
+               "name" => "some name",
+               "parent_id" => parent_id
+             } = json_response(conn, 200)["data"]
+
+      assert parent_id == parent_quest.id
     end
 
     test "denies quest creation for games user cannot access", %{conn: conn, scope: _scope} do
@@ -71,6 +97,43 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     test "renders errors when data is invalid", %{conn: conn, scope: _scope, game: game} do
       conn = post(conn, ~p"/api/games/#{game}/quests", quest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "renders error when parent quest does not exist", %{
+      conn: conn,
+      scope: _scope,
+      game: game
+    } do
+      invalid_parent_id = Ecto.UUID.generate()
+      attrs_with_invalid_parent = Map.put(@create_attrs, :parent_id, invalid_parent_id)
+
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_invalid_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent quest does not exist or does not belong to the same game"
+             ]
+    end
+
+    test "renders error when parent quest belongs to different game", %{
+      conn: conn,
+      scope: _scope,
+      game: game
+    } do
+      # Create a quest in a different game
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_user_scope, other_game)
+      other_quest = quest_fixture(other_game_scope, %{game_id: other_game.id})
+
+      attrs_with_cross_game_parent = Map.put(@create_attrs, :parent_id, other_quest.id)
+
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_cross_game_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent quest does not exist or does not belong to the same game"
+             ]
     end
   end
 
@@ -91,8 +154,35 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some updated content",
-               "name" => "some updated name"
+               "name" => "some updated name",
+               "parent_id" => nil
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders quest when updating parent_id", %{
+      conn: conn,
+      quest: %Quest{id: id} = _quest,
+      scope: scope,
+      game: game
+    } do
+      # Create parent quest
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      parent_quest = quest_fixture(game_scope, %{game_id: game.id})
+
+      update_attrs_with_parent = Map.put(@update_attrs, :parent_id, parent_quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{id}", quest: update_attrs_with_parent)
+      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+
+      assert %{
+               "id" => ^id,
+               "content" => "some updated content",
+               "name" => "some updated name",
+               "parent_id" => parent_id
+             } = json_response(conn, 200)["data"]
+
+      assert parent_id == parent_quest.id
     end
 
     test "renders errors when data is invalid", %{
@@ -103,6 +193,37 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     } do
       conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "renders error when trying to set quest as its own parent", %{
+      conn: conn,
+      quest: quest,
+      scope: _scope,
+      game: game
+    } do
+      update_attrs_self_parent = Map.put(@update_attrs, :parent_id, quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: update_attrs_self_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == ["quest cannot be its own parent"]
+    end
+
+    test "renders error when trying to create circular reference", %{
+      conn: conn,
+      quest: quest,
+      scope: scope,
+      game: game
+    } do
+      # Create child quest with quest as parent
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      child_quest = quest_fixture(game_scope, %{game_id: game.id, parent_id: quest.id})
+
+      # Try to make the original quest a child of its child (circular reference)
+      update_attrs_circular = Map.put(@update_attrs, :parent_id, child_quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: update_attrs_circular)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == ["would create a circular reference"]
     end
   end
 

@@ -23,6 +23,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content: note.content,
       content_plain_text: note.content_plain_text,
       tags: note.tags,
+      parent_id: note.parent_id,
       created_at: note.inserted_at,
       updated_at: note.updated_at
     }
@@ -45,7 +46,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       updated_at: character.updated_at
     }
   end
-
 
   @doc """
   Formats a faction for JSON response.
@@ -104,6 +104,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content: quest.content,
       content_plain_text: quest.content_plain_text,
       tags: quest.tags,
+      parent_id: quest.parent_id,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
     }

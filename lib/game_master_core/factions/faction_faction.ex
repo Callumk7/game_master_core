@@ -11,14 +11,27 @@ defmodule GameMasterCore.Factions.FactionFaction do
     belongs_to :faction_1, Faction
     belongs_to :faction_2, Faction
     field :relationship_type, :string
+    field :description, :string
+    field :strength, :integer
+    field :is_active, :boolean, default: true
+    field :metadata, :map
 
     timestamps(type: :utc_datetime)
   end
 
   def changeset(faction_faction, attrs) do
     faction_faction
-    |> cast(attrs, [:faction_1_id, :faction_2_id, :relationship_type])
+    |> cast(attrs, [
+      :faction_1_id,
+      :faction_2_id,
+      :relationship_type,
+      :description,
+      :strength,
+      :is_active,
+      :metadata
+    ])
     |> validate_required([:faction_1_id, :faction_2_id])
+    |> validate_inclusion(:strength, 1..10)
     |> validate_not_self_link()
     |> unique_constraint([:faction_1_id, :faction_2_id],
       name: :faction_factions_faction_1_id_faction_2_id_index

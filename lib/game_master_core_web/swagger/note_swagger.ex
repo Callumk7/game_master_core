@@ -118,12 +118,7 @@ defmodule GameMasterCoreWeb.Swagger.NoteSwagger do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           note_id(:path, :string, "Note ID", required: true, format: :uuid)
 
-          entity_type(:query, :string, "Entity type to link",
-            required: true,
-            enum: ["character", "faction", "location", "quest", "note"]
-          )
-
-          entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
+          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         response(201, "Created", %{

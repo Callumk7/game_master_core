@@ -142,7 +142,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text:
+          "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon", "quest"],
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
@@ -238,7 +239,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text:
+          "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         has_parent: true,
         tags: ["magical", "hidden", "dangerous"],
@@ -259,6 +261,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content", required: true)
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
+        parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -269,6 +272,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "Find the lost treasure hidden in the ancient ruins.",
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -363,6 +367,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content", required: true)
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
+        parent_id(:string, "Parent note ID", format: :uuid)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -373,7 +378,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "223e4567-e89b-12d3-a456-426614174001",
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text:
+          "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon", "quest"],
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
@@ -393,6 +399,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content", required: true)
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
+        parent_id(:string, "Parent note ID", format: :uuid)
       end
 
       required([:name, :content])
@@ -400,7 +407,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "Important Quest Notes",
         content: "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        content_plain_text: "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        content_plain_text:
+          "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon"]
       })
     end
@@ -416,6 +424,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
+        parent_id(:string, "Parent note ID", format: :uuid)
       end
 
       example(%{
@@ -469,11 +478,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a note")
 
       properties do
-        characters(Schema.array(:EntityCharacter), "Linked characters")
-        factions(Schema.array(:EntityFaction), "Linked factions")
-        locations(Schema.array(:EntityLocation), "Linked locations")
-        quests(Schema.array(:EntityQuest), "Linked quests")
-        notes(Schema.array(:EntityNote), "Linked notes")
+        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
+        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
+        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
+        notes(Schema.array(:LinkedNote), "Linked notes with metadata")
       end
     end
   end
@@ -562,7 +571,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         level: 21,
         description: "A wise and powerful wizard who guides the Fellowship through many perils.",
-        description_plain_text: "A wise and powerful wizard who guides the Fellowship through many perils."
+        description_plain_text:
+          "A wise and powerful wizard who guides the Fellowship through many perils."
       })
     end
   end
@@ -612,11 +622,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a character")
 
       properties do
-        notes(Schema.array(:EntityNote), "Linked notes")
-        factions(Schema.array(:EntityFaction), "Linked factions")
-        locations(Schema.array(:EntityLocation), "Linked locations")
-        quests(Schema.array(:EntityQuest), "Linked quests")
-        characters(Schema.array(:EntityCharacter), "Linked characters")
+        notes(Schema.array(:LinkedNote), "Linked notes with metadata")
+        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
+        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
+        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
       end
     end
   end
@@ -745,11 +755,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a faction")
 
       properties do
-        notes(Schema.array(:EntityNote), "Linked notes")
-        characters(Schema.array(:EntityCharacter), "Linked characters")
-        locations(Schema.array(:EntityLocation), "Linked locations")
-        quests(Schema.array(:EntityQuest), "Linked quests")
-        factions(Schema.array(:EntityFaction), "Linked factions")
+        notes(Schema.array(:LinkedNote), "Linked notes with metadata")
+        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
+        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
+        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
       end
     end
   end
@@ -766,13 +776,38 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
       end
 
       required([:entity_type, :entity_id])
 
       example(%{
         entity_type: "character",
-        entity_id: "323e4567-e89b-12d3-a456-426614174002"
+        entity_id: "323e4567-e89b-12d3-a456-426614174002",
+        relationship_type: "ally",
+        description: "Long-time allies from the war",
+        strength: 8,
+        is_active: true,
+        metadata: %{
+          "since" => "2021-01-01",
+          "notes" => "Met during the siege"
+        }
       })
     end
   end
@@ -805,7 +840,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text:
+          "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         tags: ["magical", "hidden", "dangerous"],
@@ -841,7 +877,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         name: "The Crystal Cave",
         description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        description_plain_text:
+          "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         tags: ["magical", "hidden"]
@@ -921,11 +958,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a location")
 
       properties do
-        notes(Schema.array(:EntityNote), "Linked notes")
-        characters(Schema.array(:EntityCharacter), "Linked characters")
-        factions(Schema.array(:EntityFaction), "Linked factions")
-        quests(Schema.array(:EntityQuest), "Linked quests")
-        locations(Schema.array(:EntityLocation), "Linked locations")
+        notes(Schema.array(:LinkedNote), "Linked notes with metadata")
+        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
+        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
+        quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
+        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
       end
     end
   end
@@ -941,6 +978,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content", required: true)
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
+        parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -953,6 +991,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "Find the lost treasure hidden in the ancient ruins.",
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -971,6 +1010,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content", required: true)
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
+        parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
       end
 
       required([:name, :content])
@@ -979,7 +1019,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
-        tags: ["main", "treasure"]
+        tags: ["main", "treasure"],
+        parent_id: "723e4567-e89b-12d3-a456-426614174006"
       })
     end
   end
@@ -994,13 +1035,15 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
+        parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
       end
 
       example(%{
         content:
           "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
         content_plain_text:
-          "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits."
+          "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
+        parent_id: "723e4567-e89b-12d3-a456-426614174006"
       })
     end
   end
@@ -1050,11 +1093,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collections of entities linked to a quest")
 
       properties do
-        notes(Schema.array(:EntityNote), "Linked notes")
-        characters(Schema.array(:EntityCharacter), "Linked characters")
-        factions(Schema.array(:EntityFaction), "Linked factions")
-        locations(Schema.array(:EntityLocation), "Linked locations")
-        quests(Schema.array(:EntityQuest), "Linked quests")
+        notes(Schema.array(:LinkedNote), "Linked notes with metadata")
+        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
+        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
+        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
       end
     end
   end
@@ -1173,6 +1216,119 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         email: "user@example.com",
         password: "password123"
       })
+    end
+  end
+
+  # Linked entity schemas with metadata
+  def linked_entity_base_schema do
+    swagger_schema do
+      properties do
+        relationship_type(:string, "Type of relationship", required: false)
+        description(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_character_schema do
+    swagger_schema do
+      title("Linked Character")
+      description("A character with relationship metadata")
+
+      properties do
+        id(:string, "Character ID", required: true, format: :uuid)
+        name(:string, "Character name", required: true)
+        description(:string, "Character description", required: true)
+        description_plain_text(:string, "Character description as plain text")
+        tags(:array, "Character tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_faction_schema do
+    swagger_schema do
+      title("Linked Faction")
+      description("A faction with relationship metadata")
+
+      properties do
+        id(:string, "Faction ID", required: true, format: :uuid)
+        name(:string, "Faction name", required: true)
+        description(:string, "Faction description", required: true)
+        description_plain_text(:string, "Faction description as plain text")
+        tags(:array, "Faction tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_location_schema do
+    swagger_schema do
+      title("Linked Location")
+      description("A location with relationship metadata")
+
+      properties do
+        id(:string, "Location ID", required: true, format: :uuid)
+        name(:string, "Location name", required: true)
+        description(:string, "Location description", required: true)
+        description_plain_text(:string, "Location description as plain text")
+        tags(:array, "Location tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_quest_schema do
+    swagger_schema do
+      title("Linked Quest")
+      description("A quest with relationship metadata")
+
+      properties do
+        id(:string, "Quest ID", required: true, format: :uuid)
+        name(:string, "Quest name", required: true)
+        description(:string, "Quest description", required: true)
+        description_plain_text(:string, "Quest description as plain text")
+        tags(:array, "Quest tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_note_schema do
+    swagger_schema do
+      title("Linked Note")
+      description("A note with relationship metadata")
+
+      properties do
+        id(:string, "Note ID", required: true, format: :uuid)
+        name(:string, "Note name", required: true)
+        description(:string, "Note description", required: true)
+        description_plain_text(:string, "Note description as plain text")
+        tags(:array, "Note tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
     end
   end
 
@@ -1328,7 +1484,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       LoginRequest: login_request_schema(),
       LoginResponse: login_response_schema(),
       AuthStatusResponse: auth_status_response_schema(),
-      SignupRequest: signup_request_schema()
+      SignupRequest: signup_request_schema(),
+      # Linked entity schemas with relationship metadata
+      LinkedEntityBase: linked_entity_base_schema(),
+      LinkedCharacter: linked_character_schema(),
+      LinkedFaction: linked_faction_schema(),
+      LinkedLocation: linked_location_schema(),
+      LinkedQuest: linked_quest_schema(),
+      LinkedNote: linked_note_schema()
     }
   end
 end
