@@ -5,482 +5,187 @@
   },
   "host": "localhost:4000",
   "definitions": {
-    "NoteCreateParams": {
-      "description": "Parameters for creating a new note",
-      "example": {
-        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        "content_plain_text": "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        "name": "Important Quest Notes",
-        "tags": [
-          "important",
-          "dragon"
-        ]
-      },
+    "QuestsResponse": {
+      "description": "Response containing a list of quests",
       "properties": {
-        "content": {
-          "description": "Note content",
-          "type": "string"
-        },
-        "content_plain_text": {
-          "description": "Note content as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Note name",
-          "type": "string"
-        },
-        "parent_id": {
-          "description": "Parent note ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this note",
+        "data": {
+          "description": "Response data",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/Quest"
           },
           "type": "array"
         }
       },
-      "required": [
-        "name",
-        "content",
-        "content",
-        "name"
-      ],
-      "title": "Note Create Parameters",
+      "title": "Quests Response",
       "type": "object"
     },
-    "Quest": {
-      "description": "A game quest",
-      "example": {
-        "content": "Find the lost treasure hidden in the ancient ruins.",
-        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
-        "created_at": "2023-08-20T12:00:00Z",
-        "game_id": "123e4567-e89b-12d3-a456-426614174000",
-        "id": "623e4567-e89b-12d3-a456-426614174005",
-        "name": "The Lost Treasure",
-        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
-        "tags": [
-          "main",
-          "treasure",
-          "exploration"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z",
-        "user_id": 1
-      },
+    "LocationLinks": {
+      "description": "Collections of entities linked to a location",
       "properties": {
-        "content": {
-          "description": "Quest content",
-          "type": "string"
+        "characters": {
+          "description": "Linked characters with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedCharacter"
+          },
+          "type": "array"
         },
-        "content_plain_text": {
-          "description": "Quest content as plain text",
-          "type": "string"
+        "factions": {
+          "description": "Linked factions with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedFaction"
+          },
+          "type": "array"
         },
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
+        "locations": {
+          "description": "Linked locations with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Location Links",
+      "type": "object"
+    },
+    "EntitiesData": {
+      "description": "Game entities data structure",
+      "properties": {
+        "entities": {
+          "$ref": "#/definitions/Entities",
+          "description": "Game entities"
         },
         "game_id": {
-          "description": "Associated game ID",
+          "description": "Game ID",
           "format": "uuid",
           "type": "string"
         },
-        "id": {
-          "description": "Quest ID",
-          "format": "uuid",
+        "game_name": {
+          "description": "Game name",
           "type": "string"
-        },
-        "name": {
-          "description": "Quest name",
-          "type": "string"
-        },
-        "parent_id": {
-          "description": "Parent quest ID for hierarchical structure",
-          "format": "uuid",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags associated with this quest",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "user_id": {
-          "description": "Creator user ID",
-          "type": "integer"
         }
       },
       "required": [
-        "user_id",
-        "game_id",
-        "content",
-        "name",
-        "id"
+        "game_name",
+        "game_id"
       ],
-      "title": "Quest",
+      "title": "Entities Data",
       "type": "object"
     },
-    "QuestCreateParams": {
-      "description": "Parameters for creating a new quest",
-      "example": {
-        "content": "Find the lost treasure hidden in the ancient ruins.",
-        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
-        "name": "The Lost Treasure",
-        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
-        "tags": [
-          "main",
-          "treasure"
-        ]
-      },
+    "QuestCreateRequest": {
+      "description": "Quest creation parameters",
       "properties": {
-        "content": {
-          "description": "Quest content",
-          "type": "string"
-        },
-        "content_plain_text": {
-          "description": "Quest content as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Quest name",
-          "type": "string"
-        },
-        "parent_id": {
-          "description": "Parent quest ID for hierarchical structure",
-          "format": "uuid",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this quest",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
+        "quest": {
+          "$ref": "#/definitions/QuestCreateParams",
+          "description": "Quest parameters"
         }
       },
       "required": [
-        "name",
-        "content",
-        "content",
-        "name"
+        "quest"
       ],
-      "title": "Quest Create Parameters",
+      "title": "Quest Create Request",
       "type": "object"
     },
-    "FactionCreateRequest": {
-      "description": "Faction creation parameters",
-      "properties": {
-        "faction": {
-          "$ref": "#/definitions/FactionCreateParams",
-          "description": "Faction parameters"
-        }
-      },
-      "required": [
-        "faction"
-      ],
-      "title": "Faction Create Request",
-      "type": "object"
-    },
-    "LinkedNote": {
-      "description": "A note with relationship metadata",
-      "properties": {
-        "description": {
-          "description": "Note description",
-          "type": "string"
-        },
-        "description_meta": {
-          "description": "Description of the relationship",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Note description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Note ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "is_active": {
-          "description": "Whether the relationship is active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional metadata",
-          "type": "object"
-        },
-        "name": {
-          "description": "Note name",
-          "type": "string"
-        },
-        "relationship_type": {
-          "description": "Type of relationship",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength (1-10)",
-          "type": "integer"
-        },
-        "tags": {
-          "description": "Note tags",
-          "type": "array"
-        }
-      },
-      "required": [
-        "description",
-        "name",
-        "id"
-      ],
-      "title": "Linked Note",
-      "type": "object"
-    },
-    "LinkedEntityBase": {
-      "properties": {
-        "description": {
-          "description": "Description of the relationship",
-          "type": "string"
-        },
-        "is_active": {
-          "description": "Whether the relationship is active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional metadata",
-          "type": "object"
-        },
-        "relationship_type": {
-          "description": "Type of relationship",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength (1-10)",
-          "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "QuestResponse": {
-      "description": "Response containing a single quest",
+    "LocationsResponse": {
+      "description": "Response containing a list of locations",
       "properties": {
         "data": {
-          "$ref": "#/definitions/Quest",
-          "description": "Response data"
-        }
-      },
-      "title": "Quest Response",
-      "type": "object"
-    },
-    "LoginResponse": {
-      "description": "Successful login response",
-      "example": {
-        "token": "dGVzdF90b2tlbg==",
-        "user": {
-          "confirmed_at": "2023-08-20T12:00:00Z",
-          "email": "user@example.com",
-          "id": 1
-        }
-      },
-      "properties": {
-        "token": {
-          "description": "Session token (Base64 encoded)",
-          "type": "string"
-        },
-        "user": {
-          "$ref": "#/definitions/User",
-          "description": "User information"
-        }
-      },
-      "required": [
-        "user",
-        "token"
-      ],
-      "title": "Login Response",
-      "type": "object"
-    },
-    "CharacterUpdateParams": {
-      "description": "Parameters for updating an existing character (partial updates supported)",
-      "example": {
-        "description": "A wise and powerful wizard who guides the Fellowship through many perils.",
-        "description_plain_text": "A wise and powerful wizard who guides the Fellowship through many perils.",
-        "level": 21
-      },
-      "properties": {
-        "class": {
-          "description": "Character class",
-          "type": "string"
-        },
-        "description": {
-          "description": "Character description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Character description as plain text",
-          "type": "string"
-        },
-        "image_url": {
-          "description": "Character image URL",
-          "type": "string"
-        },
-        "level": {
-          "description": "Character level",
-          "type": "integer"
-        },
-        "name": {
-          "description": "Character name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this character",
+          "description": "Response data",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/Location"
           },
           "type": "array"
         }
       },
-      "title": "Character Update Parameters",
+      "title": "Locations Response",
       "type": "object"
     },
-    "LocationResponse": {
-      "description": "Response containing a single location",
+    "GameUpdateRequest": {
+      "description": "Game update parameters",
       "properties": {
-        "data": {
-          "$ref": "#/definitions/Location",
-          "description": "Response data"
-        }
-      },
-      "title": "Location Response",
-      "type": "object"
-    },
-    "LinkedQuest": {
-      "description": "A quest with relationship metadata",
-      "properties": {
-        "description": {
-          "description": "Quest description",
-          "type": "string"
-        },
-        "description_meta": {
-          "description": "Description of the relationship",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Quest description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Quest ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "is_active": {
-          "description": "Whether the relationship is active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional metadata",
-          "type": "object"
-        },
-        "name": {
-          "description": "Quest name",
-          "type": "string"
-        },
-        "relationship_type": {
-          "description": "Type of relationship",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength (1-10)",
-          "type": "integer"
-        },
-        "tags": {
-          "description": "Quest tags",
-          "type": "array"
+        "game": {
+          "$ref": "#/definitions/GameUpdateParams",
+          "description": "Game parameters"
         }
       },
       "required": [
-        "description",
-        "name",
-        "id"
+        "game"
       ],
-      "title": "Linked Quest",
+      "title": "Game Update Request",
       "type": "object"
     },
-    "FactionLinksResponse": {
-      "description": "Response containing faction links",
+    "CharacterLinks": {
+      "description": "Collections of entities linked to a character",
       "properties": {
-        "data": {
-          "$ref": "#/definitions/FactionLinksData",
-          "description": "Response data"
-        }
-      },
-      "title": "Faction Links Response",
-      "type": "object"
-    },
-    "CharacterCreateParams": {
-      "description": "Parameters for creating a new character",
-      "example": {
-        "class": "Wizard",
-        "description": "A wise and powerful wizard who guides the Fellowship.",
-        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
-        "image_url": "https://example.com/gandalf.jpg",
-        "level": 20,
-        "name": "Gandalf the Grey",
-        "tags": [
-          "npc",
-          "ally",
-          "wizard"
-        ]
-      },
-      "properties": {
-        "class": {
-          "description": "Character class",
-          "type": "string"
-        },
-        "description": {
-          "description": "Character description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Character description as plain text",
-          "type": "string"
-        },
-        "image_url": {
-          "description": "Character image URL",
-          "type": "string"
-        },
-        "level": {
-          "description": "Character level",
-          "type": "integer"
-        },
-        "name": {
-          "description": "Character name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this character",
+        "characters": {
+          "description": "Linked characters with metadata",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/LinkedCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedQuest"
           },
           "type": "array"
         }
       },
+      "title": "Character Links",
+      "type": "object"
+    },
+    "CharacterUpdateRequest": {
+      "description": "Character update parameters",
+      "properties": {
+        "character": {
+          "$ref": "#/definitions/CharacterUpdateParams",
+          "description": "Character parameters"
+        }
+      },
       "required": [
-        "name",
-        "class",
-        "level",
-        "level",
-        "class",
-        "name"
+        "character"
       ],
-      "title": "Character Create Parameters",
+      "title": "Character Update Request",
+      "type": "object"
+    },
+    "ErrorDetails": {
+      "description": "Detailed error information",
+      "title": "Error Details",
       "type": "object"
     },
     "LocationUpdateParams": {
@@ -531,624 +236,87 @@
       "title": "Location Update Parameters",
       "type": "object"
     },
-    "LocationCreateRequest": {
-      "description": "Location creation parameters",
-      "properties": {
-        "location": {
-          "$ref": "#/definitions/LocationCreateParams",
-          "description": "Location parameters"
-        }
-      },
-      "required": [
-        "location"
-      ],
-      "title": "Location Create Request",
-      "type": "object"
-    },
-    "NoteLinksResponse": {
-      "description": "Response containing note links",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/NoteLinksData",
-          "description": "Response data"
-        }
-      },
-      "title": "Note Links Response",
-      "type": "object"
-    },
-    "CharacterCreateRequest": {
-      "description": "Character creation parameters",
-      "properties": {
-        "character": {
-          "$ref": "#/definitions/CharacterCreateParams",
-          "description": "Character parameters"
-        }
-      },
-      "required": [
-        "character"
-      ],
-      "title": "Character Create Request",
-      "type": "object"
-    },
-    "NoteResponse": {
-      "description": "Response containing a single note",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/Note",
-          "description": "Response data"
-        }
-      },
-      "title": "Note Response",
-      "type": "object"
-    },
-    "Character": {
-      "description": "A game character",
-      "example": {
-        "class": "Wizard",
-        "created_at": "2023-08-20T12:00:00Z",
-        "description": "A wise and powerful wizard who guides the Fellowship.",
-        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
-        "game_id": "123e4567-e89b-12d3-a456-426614174000",
-        "id": "323e4567-e89b-12d3-a456-426614174002",
-        "image_url": "https://example.com/gandalf.jpg",
-        "level": 20,
-        "name": "Gandalf the Grey",
-        "tags": [
-          "npc",
-          "ally",
-          "wizard"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z",
-        "user_id": 1
-      },
-      "properties": {
-        "class": {
-          "description": "Character class",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "description": {
-          "description": "Character description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Character description as plain text",
-          "type": "string"
-        },
-        "game_id": {
-          "description": "Associated game ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "id": {
-          "description": "Character ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "image_url": {
-          "description": "Character image URL",
-          "type": "string"
-        },
-        "level": {
-          "description": "Character level",
-          "type": "integer"
-        },
-        "name": {
-          "description": "Character name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags associated with this character",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "user_id": {
-          "description": "Creator user ID",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "user_id",
-        "game_id",
-        "level",
-        "class",
-        "name",
-        "id"
-      ],
-      "title": "Character",
-      "type": "object"
-    },
-    "CharactersResponse": {
-      "description": "Response containing a list of characters",
+    "GamesResponse": {
+      "description": "Response containing a list of games",
       "properties": {
         "data": {
           "description": "Response data",
           "items": {
-            "$ref": "#/definitions/Character"
+            "$ref": "#/definitions/Game"
           },
           "type": "array"
         }
       },
-      "title": "Characters Response",
+      "title": "Games Response",
       "type": "object"
     },
-    "ErrorDetails": {
-      "description": "Detailed error information",
-      "title": "Error Details",
-      "type": "object"
-    },
-    "EntityNote": {
-      "description": "Note entity in game entities list",
+    "LoginResponse": {
+      "description": "Successful login response",
       "example": {
-        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        "content_plain_text": "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        "created_at": "2023-08-20T12:00:00Z",
-        "id": "223e4567-e89b-12d3-a456-426614174001",
-        "name": "Important Quest Notes",
-        "tags": [
-          "important",
-          "dragon",
-          "quest"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z"
+        "token": "dGVzdF90b2tlbg==",
+        "user": {
+          "confirmed_at": "2023-08-20T12:00:00Z",
+          "email": "user@example.com",
+          "id": 1
+        }
       },
       "properties": {
-        "content": {
-          "description": "Note content",
+        "token": {
+          "description": "Session token (Base64 encoded)",
           "type": "string"
         },
-        "content_plain_text": {
-          "description": "Note content as plain text",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "id": {
-          "description": "Note ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "name": {
-          "description": "Note name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags associated with this note",
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "User information"
+        }
+      },
+      "required": [
+        "user",
+        "token"
+      ],
+      "title": "Login Response",
+      "type": "object"
+    },
+    "Entities": {
+      "description": "Collection of game entities",
+      "properties": {
+        "characters": {
+          "description": "Characters list",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/EntityCharacter"
           },
           "type": "array"
         },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
-        }
-      },
-      "required": [
-        "content",
-        "name",
-        "id"
-      ],
-      "title": "Entity Note",
-      "type": "object"
-    },
-    "LinkedLocation": {
-      "description": "A location with relationship metadata",
-      "properties": {
-        "description": {
-          "description": "Location description",
-          "type": "string"
-        },
-        "description_meta": {
-          "description": "Description of the relationship",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Location description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Location ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "is_active": {
-          "description": "Whether the relationship is active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional metadata",
-          "type": "object"
-        },
-        "name": {
-          "description": "Location name",
-          "type": "string"
-        },
-        "relationship_type": {
-          "description": "Type of relationship",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength (1-10)",
-          "type": "integer"
-        },
-        "tags": {
-          "description": "Location tags",
-          "type": "array"
-        }
-      },
-      "required": [
-        "description",
-        "name",
-        "id"
-      ],
-      "title": "Linked Location",
-      "type": "object"
-    },
-    "LinkedFaction": {
-      "description": "A faction with relationship metadata",
-      "properties": {
-        "description": {
-          "description": "Faction description",
-          "type": "string"
-        },
-        "description_meta": {
-          "description": "Description of the relationship",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Faction description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Faction ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "is_active": {
-          "description": "Whether the relationship is active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional metadata",
-          "type": "object"
-        },
-        "name": {
-          "description": "Faction name",
-          "type": "string"
-        },
-        "relationship_type": {
-          "description": "Type of relationship",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength (1-10)",
-          "type": "integer"
-        },
-        "tags": {
-          "description": "Faction tags",
-          "type": "array"
-        }
-      },
-      "required": [
-        "description",
-        "name",
-        "id"
-      ],
-      "title": "Linked Faction",
-      "type": "object"
-    },
-    "EntitiesData": {
-      "description": "Game entities data structure",
-      "properties": {
-        "entities": {
-          "$ref": "#/definitions/Entities",
-          "description": "Game entities"
-        },
-        "game_id": {
-          "description": "Game ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "game_name": {
-          "description": "Game name",
-          "type": "string"
-        }
-      },
-      "required": [
-        "game_name",
-        "game_id"
-      ],
-      "title": "Entities Data",
-      "type": "object"
-    },
-    "LinkRequest": {
-      "description": "Request to create a link between entities",
-      "example": {
-        "description": "Long-time allies from the war",
-        "entity_id": "323e4567-e89b-12d3-a456-426614174002",
-        "entity_type": "character",
-        "is_active": true,
-        "metadata": {
-          "notes": "Met during the siege",
-          "since": "2021-01-01"
-        },
-        "relationship_type": "ally",
-        "strength": 8
-      },
-      "properties": {
-        "description": {
-          "description": "Free-form description of the relationship",
-          "type": "string"
-        },
-        "entity_id": {
-          "description": "Entity ID to link",
-          "format": "uuid",
-          "type": "string"
-        },
-        "entity_type": {
-          "description": "Entity type to link",
-          "enum": [
-            "character",
-            "faction",
-            "location",
-            "quest"
-          ],
-          "type": "string"
-        },
-        "is_active": {
-          "default": true,
-          "description": "Whether the relationship is currently active",
-          "type": "boolean"
-        },
-        "metadata": {
-          "description": "Additional flexible metadata as JSON",
-          "type": "object"
-        },
-        "relationship_type": {
-          "description": "Type of relationship between entities",
-          "type": "string"
-        },
-        "strength": {
-          "description": "Relationship strength/importance (1-10)",
-          "maximum": 10,
-          "minimum": 1,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "entity_type",
-        "entity_id",
-        "entity_id",
-        "entity_type"
-      ],
-      "title": "Link Request",
-      "type": "object"
-    },
-    "EntityCharacter": {
-      "description": "Character entity in game entities list",
-      "example": {
-        "class": "Wizard",
-        "created_at": "2023-08-20T12:00:00Z",
-        "description": "A wise and powerful wizard who guides the Fellowship.",
-        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
-        "id": "323e4567-e89b-12d3-a456-426614174002",
-        "image_url": "https://example.com/gandalf.jpg",
-        "level": 20,
-        "name": "Gandalf the Grey",
-        "tags": [
-          "npc",
-          "ally",
-          "wizard"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z"
-      },
-      "properties": {
-        "class": {
-          "description": "Character class",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "description": {
-          "description": "Character description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Character description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Character ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "image_url": {
-          "description": "Character image URL",
-          "type": "string"
-        },
-        "level": {
-          "description": "Character level",
-          "type": "integer"
-        },
-        "name": {
-          "description": "Character name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags associated with this character",
+        "factions": {
+          "description": "Factions list",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/EntityFaction"
           },
           "type": "array"
         },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
-        }
-      },
-      "required": [
-        "level",
-        "class",
-        "name",
-        "id"
-      ],
-      "title": "Entity Character",
-      "type": "object"
-    },
-    "GameUpdateRequest": {
-      "description": "Game update parameters",
-      "properties": {
-        "game": {
-          "$ref": "#/definitions/GameUpdateParams",
-          "description": "Game parameters"
-        }
-      },
-      "required": [
-        "game"
-      ],
-      "title": "Game Update Request",
-      "type": "object"
-    },
-    "SignupRequest": {
-      "description": "User registration credentials",
-      "example": {
-        "email": "user@example.com",
-        "password": "password123"
-      },
-      "properties": {
-        "email": {
-          "description": "User email",
-          "type": "string"
-        },
-        "password": {
-          "description": "User password",
-          "type": "string"
-        }
-      },
-      "required": [
-        "email",
-        "password",
-        "password",
-        "email"
-      ],
-      "title": "Signup Request",
-      "type": "object"
-    },
-    "FactionsResponse": {
-      "description": "Response containing a list of factions",
-      "properties": {
-        "data": {
-          "description": "Response data",
+        "locations": {
+          "description": "Locations list",
           "items": {
-            "$ref": "#/definitions/Faction"
+            "$ref": "#/definitions/EntityLocation"
           },
           "type": "array"
-        }
-      },
-      "title": "Factions Response",
-      "type": "object"
-    },
-    "EntityFaction": {
-      "description": "Faction entity in game entities list",
-      "example": {
-        "created_at": "2023-08-20T12:00:00Z",
-        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
-        "description_plain_text": "A secretive organization that seeks to control the realm from behind the scenes.",
-        "id": "423e4567-e89b-12d3-a456-426614174003",
-        "name": "The Shadow Council",
-        "tags": [
-          "secret",
-          "political",
-          "antagonist"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z"
-      },
-      "properties": {
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
         },
-        "description": {
-          "description": "Faction description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Faction description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Faction ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "name": {
-          "description": "Faction name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags associated with this faction",
+        "notes": {
+          "description": "Notes list",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/EntityNote"
           },
           "type": "array"
         },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
+        "quests": {
+          "description": "Quests list",
+          "items": {
+            "$ref": "#/definitions/EntityQuest"
+          },
+          "type": "array"
         }
       },
-      "required": [
-        "description",
-        "name",
-        "id"
-      ],
-      "title": "Entity Faction",
-      "type": "object"
-    },
-    "CharacterLinksData": {
-      "description": "Links associated with a character",
-      "properties": {
-        "character_id": {
-          "description": "Character ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "character_name": {
-          "description": "Character name",
-          "type": "string"
-        },
-        "links": {
-          "$ref": "#/definitions/CharacterLinks",
-          "description": "Associated entity links"
-        }
-      },
-      "required": [
-        "character_name",
-        "character_id"
-      ],
-      "title": "Character Links Data",
+      "title": "Entities",
       "type": "object"
     },
     "QuestLinksData": {
@@ -1173,222 +341,6 @@
         "quest_id"
       ],
       "title": "Quest Links Data",
-      "type": "object"
-    },
-    "Game": {
-      "description": "A game instance",
-      "example": {
-        "created_at": "2023-08-20T12:00:00Z",
-        "description": "An epic adventure",
-        "description_plain_text": "An epic adventure",
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "name": "My Campaign",
-        "owner_id": 1,
-        "setting": "Fantasy",
-        "updated_at": "2023-08-20T12:00:00Z"
-      },
-      "properties": {
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "description": {
-          "description": "Game description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Game description as plain text",
-          "type": "string"
-        },
-        "id": {
-          "description": "Game ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "name": {
-          "description": "Game name",
-          "type": "string"
-        },
-        "owner_id": {
-          "description": "Owner user ID",
-          "type": "integer"
-        },
-        "setting": {
-          "description": "Game setting",
-          "type": "string"
-        },
-        "updated_at": {
-          "description": "Last update timestamp",
-          "format": "datetime",
-          "type": "string"
-        }
-      },
-      "required": [
-        "owner_id",
-        "name",
-        "id"
-      ],
-      "title": "Game",
-      "type": "object"
-    },
-    "QuestUpdateRequest": {
-      "description": "Quest update parameters",
-      "properties": {
-        "quest": {
-          "$ref": "#/definitions/QuestUpdateParams",
-          "description": "Quest parameters"
-        }
-      },
-      "required": [
-        "quest"
-      ],
-      "title": "Quest Update Request",
-      "type": "object"
-    },
-    "LocationsResponse": {
-      "description": "Response containing a list of locations",
-      "properties": {
-        "data": {
-          "description": "Response data",
-          "items": {
-            "$ref": "#/definitions/Location"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Locations Response",
-      "type": "object"
-    },
-    "FactionUpdateParams": {
-      "description": "Parameters for updating an existing faction (partial updates supported)",
-      "example": {
-        "description": "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
-        "description_plain_text": "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
-      },
-      "properties": {
-        "description": {
-          "description": "Faction description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Faction description as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Faction name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this faction",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Faction Update Parameters",
-      "type": "object"
-    },
-    "NoteUpdateParams": {
-      "description": "Parameters for updating an existing note (partial updates supported)",
-      "example": {
-        "name": "Updated Quest Notes"
-      },
-      "properties": {
-        "content": {
-          "description": "Note content",
-          "type": "string"
-        },
-        "content_plain_text": {
-          "description": "Note content as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Note name",
-          "type": "string"
-        },
-        "parent_id": {
-          "description": "Parent note ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this note",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Note Update Parameters",
-      "type": "object"
-    },
-    "FactionCreateParams": {
-      "description": "Parameters for creating a new faction",
-      "example": {
-        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
-        "description_plain_text": "A secretive organization that seeks to control the realm from behind the scenes.",
-        "name": "The Shadow Council",
-        "tags": [
-          "secret",
-          "political"
-        ]
-      },
-      "properties": {
-        "description": {
-          "description": "Faction description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Faction description as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Faction name",
-          "type": "string"
-        },
-        "tags": {
-          "description": "Tags for this faction",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "name",
-        "description",
-        "description",
-        "name"
-      ],
-      "title": "Faction Create Parameters",
-      "type": "object"
-    },
-    "GameUpdateParams": {
-      "description": "Parameters for updating an existing game (partial updates supported)",
-      "example": {
-        "name": "My Updated Campaign"
-      },
-      "properties": {
-        "description": {
-          "description": "Game description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Game description as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Game name",
-          "type": "string"
-        },
-        "setting": {
-          "description": "Game setting",
-          "type": "string"
-        }
-      },
-      "title": "Game Update Parameters",
       "type": "object"
     },
     "EntityLocation": {
@@ -1470,6 +422,723 @@
       "title": "Entity Location",
       "type": "object"
     },
+    "LocationCreateParams": {
+      "description": "Parameters for creating a new location",
+      "example": {
+        "description": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        "description_plain_text": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        "name": "The Crystal Cave",
+        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "tags": [
+          "magical",
+          "hidden"
+        ],
+        "type": "building"
+      },
+      "properties": {
+        "description": {
+          "description": "Location description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Location description as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Location name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent location ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this location",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "description": "Location type",
+          "enum": [
+            "continent",
+            "nation",
+            "region",
+            "city",
+            "settlement",
+            "building",
+            "complex"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "type",
+        "name"
+      ],
+      "title": "Location Create Parameters",
+      "type": "object"
+    },
+    "LocationUpdateRequest": {
+      "description": "Location update parameters",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/LocationUpdateParams",
+          "description": "Location parameters"
+        }
+      },
+      "required": [
+        "location"
+      ],
+      "title": "Location Update Request",
+      "type": "object"
+    },
+    "FactionUpdateRequest": {
+      "description": "Faction update parameters",
+      "properties": {
+        "faction": {
+          "$ref": "#/definitions/FactionUpdateParams",
+          "description": "Faction parameters"
+        }
+      },
+      "required": [
+        "faction"
+      ],
+      "title": "Faction Update Request",
+      "type": "object"
+    },
+    "CharacterUpdateParams": {
+      "description": "Parameters for updating an existing character (partial updates supported)",
+      "example": {
+        "description": "A wise and powerful wizard who guides the Fellowship through many perils.",
+        "description_plain_text": "A wise and powerful wizard who guides the Fellowship through many perils.",
+        "level": 21
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Character description as plain text",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this character",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Character Update Parameters",
+      "type": "object"
+    },
+    "Game": {
+      "description": "A game instance",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "An epic adventure",
+        "description_plain_text": "An epic adventure",
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "name": "My Campaign",
+        "owner_id": 1,
+        "setting": "Fantasy",
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Game description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Game ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "owner_id": {
+          "description": "Owner user ID",
+          "type": "integer"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_id",
+        "name",
+        "id"
+      ],
+      "title": "Game",
+      "type": "object"
+    },
+    "GameUpdateParams": {
+      "description": "Parameters for updating an existing game (partial updates supported)",
+      "example": {
+        "name": "My Updated Campaign"
+      },
+      "properties": {
+        "description": {
+          "description": "Game description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Game description as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Game name",
+          "type": "string"
+        },
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        }
+      },
+      "title": "Game Update Parameters",
+      "type": "object"
+    },
+    "Quest": {
+      "description": "A game quest",
+      "example": {
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "game_id": "123e4567-e89b-12d3-a456-426614174000",
+        "id": "623e4567-e89b-12d3-a456-426614174005",
+        "name": "The Lost Treasure",
+        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "tags": [
+          "main",
+          "treasure",
+          "exploration"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "content_plain_text": {
+          "description": "Quest content as plain text",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "id": {
+          "description": "Quest ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent quest ID for hierarchical structure",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this quest",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Quest",
+      "type": "object"
+    },
+    "SignupRequest": {
+      "description": "User registration credentials",
+      "example": {
+        "email": "user@example.com",
+        "password": "password123"
+      },
+      "properties": {
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "password",
+        "password",
+        "email"
+      ],
+      "title": "Signup Request",
+      "type": "object"
+    },
+    "FactionLinks": {
+      "description": "Collections of entities linked to a faction",
+      "properties": {
+        "characters": {
+          "description": "Linked characters with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Faction Links",
+      "type": "object"
+    },
+    "QuestResponse": {
+      "description": "Response containing a single quest",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Quest",
+          "description": "Response data"
+        }
+      },
+      "title": "Quest Response",
+      "type": "object"
+    },
+    "NoteLinks": {
+      "description": "Collections of entities linked to a note",
+      "properties": {
+        "characters": {
+          "description": "Linked characters with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Note Links",
+      "type": "object"
+    },
+    "EntityQuest": {
+      "description": "Quest entity in game entities list",
+      "example": {
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "id": "623e4567-e89b-12d3-a456-426614174005",
+        "name": "The Lost Treasure",
+        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "tags": [
+          "main",
+          "treasure",
+          "exploration"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "content_plain_text": {
+          "description": "Quest content as plain text",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "id": {
+          "description": "Quest ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent quest ID for hierarchical structure",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this quest",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Entity Quest",
+      "type": "object"
+    },
+    "CharacterCreateParams": {
+      "description": "Parameters for creating a new character",
+      "example": {
+        "class": "Wizard",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey",
+        "tags": [
+          "npc",
+          "ally",
+          "wizard"
+        ]
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Character description as plain text",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this character",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "class",
+        "level",
+        "level",
+        "class",
+        "name"
+      ],
+      "title": "Character Create Parameters",
+      "type": "object"
+    },
+    "Note": {
+      "description": "A game note",
+      "example": {
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "content_plain_text": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "created_at": "2023-08-20T12:00:00Z",
+        "game_id": "123e4567-e89b-12d3-a456-426614174000",
+        "id": "223e4567-e89b-12d3-a456-426614174001",
+        "name": "Important Quest Notes",
+        "tags": [
+          "important",
+          "dragon",
+          "quest"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "content_plain_text": {
+          "description": "Note content as plain text",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "id": {
+          "description": "Note ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent note ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this note",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Author user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "content",
+        "name",
+        "id"
+      ],
+      "title": "Note",
+      "type": "object"
+    },
+    "LinkedFaction": {
+      "description": "A faction with relationship metadata",
+      "properties": {
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "description_meta": {
+          "description": "Description of the relationship",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Faction description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Faction ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "description": "Whether the relationship is active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional metadata",
+          "type": "object"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "relationship_type": {
+          "description": "Type of relationship",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength (1-10)",
+          "type": "integer"
+        },
+        "tags": {
+          "description": "Faction tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Linked Faction",
+      "type": "object"
+    },
+    "FactionLinksData": {
+      "description": "Links associated with a faction",
+      "properties": {
+        "faction_id": {
+          "description": "Faction ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "faction_name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "links": {
+          "$ref": "#/definitions/FactionLinks",
+          "description": "Associated entity links"
+        }
+      },
+      "required": [
+        "faction_name",
+        "faction_id"
+      ],
+      "title": "Faction Links Data",
+      "type": "object"
+    },
+    "AuthStatusResponse": {
+      "description": "Authentication status response",
+      "example": {
+        "authenticated": true,
+        "user": {
+          "confirmed_at": "2023-08-20T12:00:00Z",
+          "email": "user@example.com",
+          "id": 1
+        }
+      },
+      "properties": {
+        "authenticated": {
+          "description": "Whether user is authenticated",
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/definitions/User",
+          "description": "User information if authenticated"
+        }
+      },
+      "required": [
+        "authenticated"
+      ],
+      "title": "Auth Status Response",
+      "type": "object"
+    },
     "LocationLinksResponse": {
       "description": "Response containing location links",
       "properties": {
@@ -1481,15 +1150,102 @@
       "title": "Location Links Response",
       "type": "object"
     },
-    "Error": {
-      "description": "Error response",
+    "Member": {
+      "description": "A game member",
+      "example": {
+        "email": "user@example.com",
+        "joined_at": "2023-08-20T12:00:00Z",
+        "role": "member",
+        "user_id": 1
+      },
       "properties": {
-        "errors": {
-          "$ref": "#/definitions/ErrorDetails",
-          "description": "Error details"
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "joined_at": {
+          "description": "Join timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "role": {
+          "description": "Member role",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "User ID",
+          "type": "integer"
         }
       },
-      "title": "Error",
+      "required": [
+        "role",
+        "email",
+        "user_id"
+      ],
+      "title": "Member",
+      "type": "object"
+    },
+    "LinkedEntityBase": {
+      "properties": {
+        "description": {
+          "description": "Description of the relationship",
+          "type": "string"
+        },
+        "is_active": {
+          "description": "Whether the relationship is active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional metadata",
+          "type": "object"
+        },
+        "relationship_type": {
+          "description": "Type of relationship",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength (1-10)",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "NoteCreateRequest": {
+      "description": "Note creation parameters",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/NoteCreateParams",
+          "description": "Note parameters"
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "title": "Note Create Request",
+      "type": "object"
+    },
+    "CharacterLinksData": {
+      "description": "Links associated with a character",
+      "properties": {
+        "character_id": {
+          "description": "Character ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "character_name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "links": {
+          "$ref": "#/definitions/CharacterLinks",
+          "description": "Associated entity links"
+        }
+      },
+      "required": [
+        "character_name",
+        "character_id"
+      ],
+      "title": "Character Links Data",
       "type": "object"
     },
     "NoteUpdateRequest": {
@@ -1506,46 +1262,112 @@
       "title": "Note Update Request",
       "type": "object"
     },
-    "Entities": {
-      "description": "Collection of game entities",
+    "GameResponse": {
+      "description": "Response containing a single game",
       "properties": {
-        "characters": {
-          "description": "Characters list",
-          "items": {
-            "$ref": "#/definitions/EntityCharacter"
-          },
-          "type": "array"
+        "data": {
+          "$ref": "#/definitions/Game",
+          "description": "Response data"
+        }
+      },
+      "title": "Game Response",
+      "type": "object"
+    },
+    "GameCreateParams": {
+      "description": "Parameters for creating a new game",
+      "example": {
+        "description": "An epic adventure",
+        "description_plain_text": "An epic adventure",
+        "name": "My Campaign",
+        "setting": "Fantasy"
+      },
+      "properties": {
+        "description": {
+          "description": "Game description",
+          "type": "string"
         },
-        "factions": {
-          "description": "Factions list",
-          "items": {
-            "$ref": "#/definitions/EntityFaction"
-          },
-          "type": "array"
+        "description_plain_text": {
+          "description": "Game description as plain text",
+          "type": "string"
         },
-        "locations": {
-          "description": "Locations list",
-          "items": {
-            "$ref": "#/definitions/EntityLocation"
-          },
-          "type": "array"
+        "name": {
+          "description": "Game name",
+          "type": "string"
         },
-        "notes": {
-          "description": "Notes list",
+        "setting": {
+          "description": "Game setting",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "name"
+      ],
+      "title": "Game Create Parameters",
+      "type": "object"
+    },
+    "FactionsResponse": {
+      "description": "Response containing a list of factions",
+      "properties": {
+        "data": {
+          "description": "Response data",
           "items": {
-            "$ref": "#/definitions/EntityNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Quests list",
-          "items": {
-            "$ref": "#/definitions/EntityQuest"
+            "$ref": "#/definitions/Faction"
           },
           "type": "array"
         }
       },
-      "title": "Entities",
+      "title": "Factions Response",
+      "type": "object"
+    },
+    "LocationResponse": {
+      "description": "Response containing a single location",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Location",
+          "description": "Response data"
+        }
+      },
+      "title": "Location Response",
+      "type": "object"
+    },
+    "NotesResponse": {
+      "description": "Response containing a list of notes",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Note"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Notes Response",
+      "type": "object"
+    },
+    "EntitiesResponse": {
+      "description": "Response containing all game entities",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/EntitiesData",
+          "description": "Response data"
+        }
+      },
+      "title": "Entities Response",
+      "type": "object"
+    },
+    "FactionCreateRequest": {
+      "description": "Faction creation parameters",
+      "properties": {
+        "faction": {
+          "$ref": "#/definitions/FactionCreateParams",
+          "description": "Faction parameters"
+        }
+      },
+      "required": [
+        "faction"
+      ],
+      "title": "Faction Create Request",
       "type": "object"
     },
     "CharacterResponse": {
@@ -1559,99 +1381,137 @@
       "title": "Character Response",
       "type": "object"
     },
-    "QuestLinks": {
-      "description": "Collections of entities linked to a quest",
+    "Error": {
+      "description": "Error response",
       "properties": {
-        "characters": {
-          "description": "Linked characters with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedCharacter"
-          },
-          "type": "array"
-        },
-        "factions": {
-          "description": "Linked factions with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedFaction"
-          },
-          "type": "array"
-        },
-        "locations": {
-          "description": "Linked locations with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedLocation"
-          },
-          "type": "array"
-        },
-        "notes": {
-          "description": "Linked notes with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Linked quests with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedQuest"
-          },
-          "type": "array"
+        "errors": {
+          "$ref": "#/definitions/ErrorDetails",
+          "description": "Error details"
         }
       },
-      "title": "Quest Links",
+      "title": "Error",
       "type": "object"
     },
-    "FactionResponse": {
-      "description": "Response containing a single faction",
+    "QuestUpdateParams": {
+      "description": "Parameters for updating an existing quest (partial updates supported)",
+      "example": {
+        "content": "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
+        "content_plain_text": "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
+        "parent_id": "723e4567-e89b-12d3-a456-426614174006"
+      },
       "properties": {
-        "data": {
-          "$ref": "#/definitions/Faction",
-          "description": "Response data"
+        "content": {
+          "description": "Quest content",
+          "type": "string"
+        },
+        "content_plain_text": {
+          "description": "Quest content as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "parent_id": {
+          "description": "Parent quest ID for hierarchical structure",
+          "format": "uuid",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this quest",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
-      "title": "Faction Response",
+      "title": "Quest Update Parameters",
       "type": "object"
     },
-    "LocationLinks": {
-      "description": "Collections of entities linked to a location",
+    "LoginRequest": {
+      "description": "Login credentials - either email/password or magic link token",
+      "example": {
+        "email": "user@example.com",
+        "password": "password123"
+      },
       "properties": {
-        "characters": {
-          "description": "Linked characters with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedCharacter"
-          },
-          "type": "array"
+        "email": {
+          "description": "User email",
+          "type": "string"
         },
-        "factions": {
-          "description": "Linked factions with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedFaction"
-          },
-          "type": "array"
+        "password": {
+          "description": "User password",
+          "type": "string"
         },
-        "locations": {
-          "description": "Linked locations with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedLocation"
-          },
-          "type": "array"
-        },
-        "notes": {
-          "description": "Linked notes with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Linked quests with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedQuest"
-          },
-          "type": "array"
+        "token": {
+          "description": "Magic link token",
+          "type": "string"
         }
       },
-      "title": "Location Links",
+      "title": "Login Request",
+      "type": "object"
+    },
+    "LinkRequest": {
+      "description": "Request to create a link between entities",
+      "example": {
+        "description": "Long-time allies from the war",
+        "entity_id": "323e4567-e89b-12d3-a456-426614174002",
+        "entity_type": "character",
+        "is_active": true,
+        "metadata": {
+          "notes": "Met during the siege",
+          "since": "2021-01-01"
+        },
+        "relationship_type": "ally",
+        "strength": 8
+      },
+      "properties": {
+        "description": {
+          "description": "Free-form description of the relationship",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Entity ID to link",
+          "format": "uuid",
+          "type": "string"
+        },
+        "entity_type": {
+          "description": "Entity type to link",
+          "enum": [
+            "character",
+            "faction",
+            "location",
+            "quest"
+          ],
+          "type": "string"
+        },
+        "is_active": {
+          "default": true,
+          "description": "Whether the relationship is currently active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional flexible metadata as JSON",
+          "type": "object"
+        },
+        "relationship_type": {
+          "description": "Type of relationship between entities",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength/importance (1-10)",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "entity_type",
+        "entity_id",
+        "entity_id",
+        "entity_type"
+      ],
+      "title": "Link Request",
       "type": "object"
     },
     "Location": {
@@ -1746,6 +1606,193 @@
       "title": "Location",
       "type": "object"
     },
+    "NoteLinksData": {
+      "description": "Links associated with a note",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/NoteLinks",
+          "description": "Associated entity links"
+        },
+        "note_id": {
+          "description": "Note ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "note_name": {
+          "description": "Note name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "note_name",
+        "note_id"
+      ],
+      "title": "Note Links Data",
+      "type": "object"
+    },
+    "FactionLinksResponse": {
+      "description": "Response containing faction links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/FactionLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Faction Links Response",
+      "type": "object"
+    },
+    "NoteLinksResponse": {
+      "description": "Response containing note links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/NoteLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Note Links Response",
+      "type": "object"
+    },
+    "LinkedNote": {
+      "description": "A note with relationship metadata",
+      "properties": {
+        "description": {
+          "description": "Note description",
+          "type": "string"
+        },
+        "description_meta": {
+          "description": "Description of the relationship",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Note description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Note ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "description": "Whether the relationship is active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional metadata",
+          "type": "object"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        },
+        "relationship_type": {
+          "description": "Type of relationship",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength (1-10)",
+          "type": "integer"
+        },
+        "tags": {
+          "description": "Note tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Linked Note",
+      "type": "object"
+    },
+    "Character": {
+      "description": "A game character",
+      "example": {
+        "class": "Wizard",
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
+        "game_id": "123e4567-e89b-12d3-a456-426614174000",
+        "id": "323e4567-e89b-12d3-a456-426614174002",
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey",
+        "tags": [
+          "npc",
+          "ally",
+          "wizard"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z",
+        "user_id": 1
+      },
+      "properties": {
+        "class": {
+          "description": "Character class",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Character description as plain text",
+          "type": "string"
+        },
+        "game_id": {
+          "description": "Associated game ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "id": {
+          "description": "Character ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this character",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Creator user ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "user_id",
+        "game_id",
+        "level",
+        "class",
+        "name",
+        "id"
+      ],
+      "title": "Character",
+      "type": "object"
+    },
     "LinkedCharacter": {
       "description": "A character with relationship metadata",
       "properties": {
@@ -1799,6 +1846,151 @@
       "title": "Linked Character",
       "type": "object"
     },
+    "QuestLinks": {
+      "description": "Collections of entities linked to a quest",
+      "properties": {
+        "characters": {
+          "description": "Linked characters with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedCharacter"
+          },
+          "type": "array"
+        },
+        "factions": {
+          "description": "Linked factions with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedFaction"
+          },
+          "type": "array"
+        },
+        "locations": {
+          "description": "Linked locations with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedLocation"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Linked notes with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedNote"
+          },
+          "type": "array"
+        },
+        "quests": {
+          "description": "Linked quests with metadata",
+          "items": {
+            "$ref": "#/definitions/LinkedQuest"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Quest Links",
+      "type": "object"
+    },
+    "FactionResponse": {
+      "description": "Response containing a single faction",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Faction",
+          "description": "Response data"
+        }
+      },
+      "title": "Faction Response",
+      "type": "object"
+    },
+    "CharacterCreateRequest": {
+      "description": "Character creation parameters",
+      "properties": {
+        "character": {
+          "$ref": "#/definitions/CharacterCreateParams",
+          "description": "Character parameters"
+        }
+      },
+      "required": [
+        "character"
+      ],
+      "title": "Character Create Request",
+      "type": "object"
+    },
+    "CharactersResponse": {
+      "description": "Response containing a list of characters",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Character"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Characters Response",
+      "type": "object"
+    },
+    "CharacterLinksResponse": {
+      "description": "Response containing character links",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/CharacterLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Character Links Response",
+      "type": "object"
+    },
+    "LinkedQuest": {
+      "description": "A quest with relationship metadata",
+      "properties": {
+        "description": {
+          "description": "Quest description",
+          "type": "string"
+        },
+        "description_meta": {
+          "description": "Description of the relationship",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Quest description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Quest ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "description": "Whether the relationship is active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional metadata",
+          "type": "object"
+        },
+        "name": {
+          "description": "Quest name",
+          "type": "string"
+        },
+        "relationship_type": {
+          "description": "Type of relationship",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength (1-10)",
+          "type": "integer"
+        },
+        "tags": {
+          "description": "Quest tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Linked Quest",
+      "type": "object"
+    },
     "User": {
       "description": "User information",
       "example": {
@@ -1828,50 +2020,47 @@
       "title": "User",
       "type": "object"
     },
-    "NoteLinksData": {
-      "description": "Links associated with a note",
-      "properties": {
-        "links": {
-          "$ref": "#/definitions/NoteLinks",
-          "description": "Associated entity links"
-        },
-        "note_id": {
-          "description": "Note ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "note_name": {
-          "description": "Note name",
-          "type": "string"
-        }
+    "FactionUpdateParams": {
+      "description": "Parameters for updating an existing faction (partial updates supported)",
+      "example": {
+        "description": "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
+        "description_plain_text": "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
       },
-      "required": [
-        "note_name",
-        "note_id"
-      ],
-      "title": "Note Links Data",
-      "type": "object"
-    },
-    "GamesResponse": {
-      "description": "Response containing a list of games",
       "properties": {
-        "data": {
-          "description": "Response data",
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Faction description as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this faction",
           "items": {
-            "$ref": "#/definitions/Game"
+            "type": "string"
           },
           "type": "array"
         }
       },
-      "title": "Games Response",
+      "title": "Faction Update Parameters",
       "type": "object"
     },
-    "QuestUpdateParams": {
-      "description": "Parameters for updating an existing quest (partial updates supported)",
+    "QuestCreateParams": {
+      "description": "Parameters for creating a new quest",
       "example": {
-        "content": "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
-        "content_plain_text": "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
-        "parent_id": "723e4567-e89b-12d3-a456-426614174006"
+        "content": "Find the lost treasure hidden in the ancient ruins.",
+        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
+        "name": "The Lost Treasure",
+        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "tags": [
+          "main",
+          "treasure"
+        ]
       },
       "properties": {
         "content": {
@@ -1899,32 +2088,51 @@
           "type": "array"
         }
       },
-      "title": "Quest Update Parameters",
+      "required": [
+        "name",
+        "content",
+        "content",
+        "name"
+      ],
+      "title": "Quest Create Parameters",
       "type": "object"
     },
-    "EntityQuest": {
-      "description": "Quest entity in game entities list",
+    "QuestUpdateRequest": {
+      "description": "Quest update parameters",
+      "properties": {
+        "quest": {
+          "$ref": "#/definitions/QuestUpdateParams",
+          "description": "Quest parameters"
+        }
+      },
+      "required": [
+        "quest"
+      ],
+      "title": "Quest Update Request",
+      "type": "object"
+    },
+    "EntityNote": {
+      "description": "Note entity in game entities list",
       "example": {
-        "content": "Find the lost treasure hidden in the ancient ruins.",
-        "content_plain_text": "Find the lost treasure hidden in the ancient ruins.",
+        "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
+        "content_plain_text": "The dragon is hiding in the crystal cave beyond the misty mountains.",
         "created_at": "2023-08-20T12:00:00Z",
-        "id": "623e4567-e89b-12d3-a456-426614174005",
-        "name": "The Lost Treasure",
-        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "id": "223e4567-e89b-12d3-a456-426614174001",
+        "name": "Important Quest Notes",
         "tags": [
-          "main",
-          "treasure",
-          "exploration"
+          "important",
+          "dragon",
+          "quest"
         ],
         "updated_at": "2023-08-20T12:00:00Z"
       },
       "properties": {
         "content": {
-          "description": "Quest content",
+          "description": "Note content",
           "type": "string"
         },
         "content_plain_text": {
-          "description": "Quest content as plain text",
+          "description": "Note content as plain text",
           "type": "string"
         },
         "created_at": {
@@ -1933,21 +2141,16 @@
           "type": "string"
         },
         "id": {
-          "description": "Quest ID",
+          "description": "Note ID",
           "format": "uuid",
           "type": "string"
         },
         "name": {
-          "description": "Quest name",
-          "type": "string"
-        },
-        "parent_id": {
-          "description": "Parent quest ID for hierarchical structure",
-          "format": "uuid",
+          "description": "Note name",
           "type": "string"
         },
         "tags": {
-          "description": "Tags associated with this quest",
+          "description": "Tags associated with this note",
           "items": {
             "type": "string"
           },
@@ -1964,156 +2167,82 @@
         "name",
         "id"
       ],
-      "title": "Entity Quest",
+      "title": "Entity Note",
       "type": "object"
     },
-    "AuthStatusResponse": {
-      "description": "Authentication status response",
+    "EntityCharacter": {
+      "description": "Character entity in game entities list",
       "example": {
-        "authenticated": true,
-        "user": {
-          "confirmed_at": "2023-08-20T12:00:00Z",
-          "email": "user@example.com",
-          "id": 1
-        }
+        "class": "Wizard",
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A wise and powerful wizard who guides the Fellowship.",
+        "description_plain_text": "A wise and powerful wizard who guides the Fellowship.",
+        "id": "323e4567-e89b-12d3-a456-426614174002",
+        "image_url": "https://example.com/gandalf.jpg",
+        "level": 20,
+        "name": "Gandalf the Grey",
+        "tags": [
+          "npc",
+          "ally",
+          "wizard"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z"
       },
       "properties": {
-        "authenticated": {
-          "description": "Whether user is authenticated",
-          "type": "boolean"
+        "class": {
+          "description": "Character class",
+          "type": "string"
         },
-        "user": {
-          "$ref": "#/definitions/User",
-          "description": "User information if authenticated"
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Character description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Character description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Character ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Character image URL",
+          "type": "string"
+        },
+        "level": {
+          "description": "Character level",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Character name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this character",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "format": "datetime",
+          "type": "string"
         }
       },
       "required": [
-        "authenticated"
+        "level",
+        "class",
+        "name",
+        "id"
       ],
-      "title": "Auth Status Response",
-      "type": "object"
-    },
-    "FactionLinks": {
-      "description": "Collections of entities linked to a faction",
-      "properties": {
-        "characters": {
-          "description": "Linked characters with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedCharacter"
-          },
-          "type": "array"
-        },
-        "factions": {
-          "description": "Linked factions with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedFaction"
-          },
-          "type": "array"
-        },
-        "locations": {
-          "description": "Linked locations with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedLocation"
-          },
-          "type": "array"
-        },
-        "notes": {
-          "description": "Linked notes with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Linked quests with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedQuest"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Faction Links",
-      "type": "object"
-    },
-    "MembersResponse": {
-      "description": "Response containing a list of game members",
-      "properties": {
-        "data": {
-          "description": "Response data",
-          "items": {
-            "$ref": "#/definitions/Member"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Members Response",
-      "type": "object"
-    },
-    "EntitiesResponse": {
-      "description": "Response containing all game entities",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/EntitiesData",
-          "description": "Response data"
-        }
-      },
-      "title": "Entities Response",
-      "type": "object"
-    },
-    "NoteLinks": {
-      "description": "Collections of entities linked to a note",
-      "properties": {
-        "characters": {
-          "description": "Linked characters with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedCharacter"
-          },
-          "type": "array"
-        },
-        "factions": {
-          "description": "Linked factions with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedFaction"
-          },
-          "type": "array"
-        },
-        "locations": {
-          "description": "Linked locations with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedLocation"
-          },
-          "type": "array"
-        },
-        "notes": {
-          "description": "Linked notes with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Linked quests with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedQuest"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Note Links",
-      "type": "object"
-    },
-    "LocationUpdateRequest": {
-      "description": "Location update parameters",
-      "properties": {
-        "location": {
-          "$ref": "#/definitions/LocationUpdateParams",
-          "description": "Location parameters"
-        }
-      },
-      "required": [
-        "location"
-      ],
-      "title": "Location Update Request",
+      "title": "Entity Character",
       "type": "object"
     },
     "LocationLinksData": {
@@ -2140,22 +2269,16 @@
       "title": "Location Links Data",
       "type": "object"
     },
-    "Note": {
-      "description": "A game note",
+    "NoteCreateParams": {
+      "description": "Parameters for creating a new note",
       "example": {
         "content": "The dragon is hiding in the crystal cave beyond the misty mountains.",
         "content_plain_text": "The dragon is hiding in the crystal cave beyond the misty mountains.",
-        "created_at": "2023-08-20T12:00:00Z",
-        "game_id": "123e4567-e89b-12d3-a456-426614174000",
-        "id": "223e4567-e89b-12d3-a456-426614174001",
         "name": "Important Quest Notes",
         "tags": [
           "important",
-          "dragon",
-          "quest"
-        ],
-        "updated_at": "2023-08-20T12:00:00Z",
-        "user_id": 1
+          "dragon"
+        ]
       },
       "properties": {
         "content": {
@@ -2164,21 +2287,6 @@
         },
         "content_plain_text": {
           "description": "Note content as plain text",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "game_id": {
-          "description": "Associated game ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "id": {
-          "description": "Note ID",
-          "format": "uuid",
           "type": "string"
         },
         "name": {
@@ -2191,7 +2299,76 @@
           "type": "string"
         },
         "tags": {
-          "description": "Tags associated with this note",
+          "description": "Tags for this note",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "content",
+        "content",
+        "name"
+      ],
+      "title": "Note Create Parameters",
+      "type": "object"
+    },
+    "GameCreateRequest": {
+      "description": "Game creation parameters",
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/GameCreateParams",
+          "description": "Game parameters"
+        }
+      },
+      "required": [
+        "game"
+      ],
+      "title": "Game Create Request",
+      "type": "object"
+    },
+    "EntityFaction": {
+      "description": "Faction entity in game entities list",
+      "example": {
+        "created_at": "2023-08-20T12:00:00Z",
+        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "description_plain_text": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "id": "423e4567-e89b-12d3-a456-426614174003",
+        "name": "The Shadow Council",
+        "tags": [
+          "secret",
+          "political",
+          "antagonist"
+        ],
+        "updated_at": "2023-08-20T12:00:00Z"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "format": "datetime",
+          "type": "string"
+        },
+        "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Faction description as plain text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Faction ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags associated with this faction",
           "items": {
             "type": "string"
           },
@@ -2201,106 +2378,181 @@
           "description": "Last update timestamp",
           "format": "datetime",
           "type": "string"
-        },
-        "user_id": {
-          "description": "Author user ID",
-          "type": "integer"
         }
       },
       "required": [
-        "user_id",
-        "game_id",
-        "content",
+        "description",
         "name",
         "id"
       ],
-      "title": "Note",
+      "title": "Entity Faction",
       "type": "object"
     },
-    "QuestCreateRequest": {
-      "description": "Quest creation parameters",
+    "QuestLinksResponse": {
+      "description": "Response containing quest links",
       "properties": {
-        "quest": {
-          "$ref": "#/definitions/QuestCreateParams",
-          "description": "Quest parameters"
+        "data": {
+          "$ref": "#/definitions/QuestLinksData",
+          "description": "Response data"
+        }
+      },
+      "title": "Quest Links Response",
+      "type": "object"
+    },
+    "LocationCreateRequest": {
+      "description": "Location creation parameters",
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/LocationCreateParams",
+          "description": "Location parameters"
         }
       },
       "required": [
-        "quest"
+        "location"
       ],
-      "title": "Quest Create Request",
+      "title": "Location Create Request",
       "type": "object"
     },
-    "LocationCreateParams": {
-      "description": "Parameters for creating a new location",
+    "FactionCreateParams": {
+      "description": "Parameters for creating a new faction",
       "example": {
-        "description": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        "description_plain_text": "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        "name": "The Crystal Cave",
-        "parent_id": "723e4567-e89b-12d3-a456-426614174006",
+        "description": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "description_plain_text": "A secretive organization that seeks to control the realm from behind the scenes.",
+        "name": "The Shadow Council",
         "tags": [
-          "magical",
-          "hidden"
-        ],
-        "type": "building"
+          "secret",
+          "political"
+        ]
       },
       "properties": {
         "description": {
+          "description": "Faction description",
+          "type": "string"
+        },
+        "description_plain_text": {
+          "description": "Faction description as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Faction name",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for this faction",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "description",
+        "name"
+      ],
+      "title": "Faction Create Parameters",
+      "type": "object"
+    },
+    "LinkedLocation": {
+      "description": "A location with relationship metadata",
+      "properties": {
+        "description": {
           "description": "Location description",
+          "type": "string"
+        },
+        "description_meta": {
+          "description": "Description of the relationship",
           "type": "string"
         },
         "description_plain_text": {
           "description": "Location description as plain text",
           "type": "string"
         },
+        "id": {
+          "description": "Location ID",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "description": "Whether the relationship is active",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Additional metadata",
+          "type": "object"
+        },
         "name": {
           "description": "Location name",
           "type": "string"
         },
+        "relationship_type": {
+          "description": "Type of relationship",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Relationship strength (1-10)",
+          "type": "integer"
+        },
+        "tags": {
+          "description": "Location tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "name",
+        "id"
+      ],
+      "title": "Linked Location",
+      "type": "object"
+    },
+    "MembersResponse": {
+      "description": "Response containing a list of game members",
+      "properties": {
+        "data": {
+          "description": "Response data",
+          "items": {
+            "$ref": "#/definitions/Member"
+          },
+          "type": "array"
+        }
+      },
+      "title": "Members Response",
+      "type": "object"
+    },
+    "NoteUpdateParams": {
+      "description": "Parameters for updating an existing note (partial updates supported)",
+      "example": {
+        "name": "Updated Quest Notes"
+      },
+      "properties": {
+        "content": {
+          "description": "Note content",
+          "type": "string"
+        },
+        "content_plain_text": {
+          "description": "Note content as plain text",
+          "type": "string"
+        },
+        "name": {
+          "description": "Note name",
+          "type": "string"
+        },
         "parent_id": {
-          "description": "Parent location ID",
+          "description": "Parent note ID",
           "format": "uuid",
           "type": "string"
         },
         "tags": {
-          "description": "Tags for this location",
+          "description": "Tags for this note",
           "items": {
             "type": "string"
           },
           "type": "array"
-        },
-        "type": {
-          "description": "Location type",
-          "enum": [
-            "continent",
-            "nation",
-            "region",
-            "city",
-            "settlement",
-            "building",
-            "complex"
-          ],
-          "type": "string"
         }
       },
-      "required": [
-        "name",
-        "type",
-        "type",
-        "name"
-      ],
-      "title": "Location Create Parameters",
-      "type": "object"
-    },
-    "GameResponse": {
-      "description": "Response containing a single game",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/Game",
-          "description": "Response data"
-        }
-      },
-      "title": "Game Response",
+      "title": "Note Update Parameters",
       "type": "object"
     },
     "Faction": {
@@ -2375,267 +2627,15 @@
       "title": "Faction",
       "type": "object"
     },
-    "QuestsResponse": {
-      "description": "Response containing a list of quests",
+    "NoteResponse": {
+      "description": "Response containing a single note",
       "properties": {
         "data": {
-          "description": "Response data",
-          "items": {
-            "$ref": "#/definitions/Quest"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Quests Response",
-      "type": "object"
-    },
-    "NoteCreateRequest": {
-      "description": "Note creation parameters",
-      "properties": {
-        "note": {
-          "$ref": "#/definitions/NoteCreateParams",
-          "description": "Note parameters"
-        }
-      },
-      "required": [
-        "note"
-      ],
-      "title": "Note Create Request",
-      "type": "object"
-    },
-    "CharacterUpdateRequest": {
-      "description": "Character update parameters",
-      "properties": {
-        "character": {
-          "$ref": "#/definitions/CharacterUpdateParams",
-          "description": "Character parameters"
-        }
-      },
-      "required": [
-        "character"
-      ],
-      "title": "Character Update Request",
-      "type": "object"
-    },
-    "CharacterLinksResponse": {
-      "description": "Response containing character links",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/CharacterLinksData",
+          "$ref": "#/definitions/Note",
           "description": "Response data"
         }
       },
-      "title": "Character Links Response",
-      "type": "object"
-    },
-    "FactionLinksData": {
-      "description": "Links associated with a faction",
-      "properties": {
-        "faction_id": {
-          "description": "Faction ID",
-          "format": "uuid",
-          "type": "string"
-        },
-        "faction_name": {
-          "description": "Faction name",
-          "type": "string"
-        },
-        "links": {
-          "$ref": "#/definitions/FactionLinks",
-          "description": "Associated entity links"
-        }
-      },
-      "required": [
-        "faction_name",
-        "faction_id"
-      ],
-      "title": "Faction Links Data",
-      "type": "object"
-    },
-    "GameCreateParams": {
-      "description": "Parameters for creating a new game",
-      "example": {
-        "description": "An epic adventure",
-        "description_plain_text": "An epic adventure",
-        "name": "My Campaign",
-        "setting": "Fantasy"
-      },
-      "properties": {
-        "description": {
-          "description": "Game description",
-          "type": "string"
-        },
-        "description_plain_text": {
-          "description": "Game description as plain text",
-          "type": "string"
-        },
-        "name": {
-          "description": "Game name",
-          "type": "string"
-        },
-        "setting": {
-          "description": "Game setting",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "name"
-      ],
-      "title": "Game Create Parameters",
-      "type": "object"
-    },
-    "NotesResponse": {
-      "description": "Response containing a list of notes",
-      "properties": {
-        "data": {
-          "description": "Response data",
-          "items": {
-            "$ref": "#/definitions/Note"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Notes Response",
-      "type": "object"
-    },
-    "FactionUpdateRequest": {
-      "description": "Faction update parameters",
-      "properties": {
-        "faction": {
-          "$ref": "#/definitions/FactionUpdateParams",
-          "description": "Faction parameters"
-        }
-      },
-      "required": [
-        "faction"
-      ],
-      "title": "Faction Update Request",
-      "type": "object"
-    },
-    "CharacterLinks": {
-      "description": "Collections of entities linked to a character",
-      "properties": {
-        "characters": {
-          "description": "Linked characters with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedCharacter"
-          },
-          "type": "array"
-        },
-        "factions": {
-          "description": "Linked factions with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedFaction"
-          },
-          "type": "array"
-        },
-        "locations": {
-          "description": "Linked locations with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedLocation"
-          },
-          "type": "array"
-        },
-        "notes": {
-          "description": "Linked notes with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedNote"
-          },
-          "type": "array"
-        },
-        "quests": {
-          "description": "Linked quests with metadata",
-          "items": {
-            "$ref": "#/definitions/LinkedQuest"
-          },
-          "type": "array"
-        }
-      },
-      "title": "Character Links",
-      "type": "object"
-    },
-    "LoginRequest": {
-      "description": "Login credentials - either email/password or magic link token",
-      "example": {
-        "email": "user@example.com",
-        "password": "password123"
-      },
-      "properties": {
-        "email": {
-          "description": "User email",
-          "type": "string"
-        },
-        "password": {
-          "description": "User password",
-          "type": "string"
-        },
-        "token": {
-          "description": "Magic link token",
-          "type": "string"
-        }
-      },
-      "title": "Login Request",
-      "type": "object"
-    },
-    "QuestLinksResponse": {
-      "description": "Response containing quest links",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/QuestLinksData",
-          "description": "Response data"
-        }
-      },
-      "title": "Quest Links Response",
-      "type": "object"
-    },
-    "GameCreateRequest": {
-      "description": "Game creation parameters",
-      "properties": {
-        "game": {
-          "$ref": "#/definitions/GameCreateParams",
-          "description": "Game parameters"
-        }
-      },
-      "required": [
-        "game"
-      ],
-      "title": "Game Create Request",
-      "type": "object"
-    },
-    "Member": {
-      "description": "A game member",
-      "example": {
-        "email": "user@example.com",
-        "joined_at": "2023-08-20T12:00:00Z",
-        "role": "member",
-        "user_id": 1
-      },
-      "properties": {
-        "email": {
-          "description": "User email",
-          "type": "string"
-        },
-        "joined_at": {
-          "description": "Join timestamp",
-          "format": "datetime",
-          "type": "string"
-        },
-        "role": {
-          "description": "Member role",
-          "type": "string"
-        },
-        "user_id": {
-          "description": "User ID",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "role",
-        "email",
-        "user_id"
-      ],
-      "title": "Member",
+      "title": "Note Response",
       "type": "object"
     }
   },

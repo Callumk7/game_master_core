@@ -4,11 +4,13 @@ title: Implement location tree endpoint
 status: To Do
 assignee: []
 created_date: '2025-09-19 09:48'
+updated_date: '2025-09-19 11:17'
 labels:
   - backend
   - api
 dependencies: []
 priority: high
+ordinal: 1000
 ---
 
 ## Description
