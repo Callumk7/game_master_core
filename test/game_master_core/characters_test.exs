@@ -337,8 +337,9 @@ defmodule GameMasterCore.CharactersTest do
       {:ok, _} = Characters.link_note(scope, character.id, note1.id)
       {:ok, _} = Characters.link_note(scope, character.id, note2.id)
 
-      linked_notes = Characters.linked_notes(scope, character.id)
-      assert length(linked_notes) == 2
+      linked_notes_with_meta = Characters.linked_notes(scope, character.id)
+      assert length(linked_notes_with_meta) == 2
+      linked_notes = Enum.map(linked_notes_with_meta, & &1.entity)
       assert note1 in linked_notes
       assert note2 in linked_notes
       refute unlinked_note in linked_notes
@@ -513,8 +514,9 @@ defmodule GameMasterCore.CharactersTest do
       {:ok, _} = Characters.link_faction(scope, character.id, faction1.id)
       {:ok, _} = Characters.link_faction(scope, character.id, faction2.id)
 
-      linked_factions = Characters.linked_factions(scope, character.id)
-      assert length(linked_factions) == 2
+      linked_factions_with_meta = Characters.linked_factions(scope, character.id)
+      assert length(linked_factions_with_meta) == 2
+      linked_factions = Enum.map(linked_factions_with_meta, & &1.entity)
       assert faction1 in linked_factions
       assert faction2 in linked_factions
       refute unlinked_faction in linked_factions
@@ -685,8 +687,9 @@ defmodule GameMasterCore.CharactersTest do
       {:ok, _} = Characters.link_quest(scope, character.id, quest1.id)
       {:ok, _} = Characters.link_quest(scope, character.id, quest2.id)
 
-      linked_quests = Characters.linked_quests(scope, character.id)
-      assert length(linked_quests) == 2
+      linked_quests_with_meta = Characters.linked_quests(scope, character.id)
+      assert length(linked_quests_with_meta) == 2
+      linked_quests = Enum.map(linked_quests_with_meta, & &1.entity)
       assert quest1 in linked_quests
       assert quest2 in linked_quests
       refute unlinked_quest in linked_quests

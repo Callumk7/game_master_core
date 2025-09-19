@@ -1,10 +1,11 @@
 ---
 id: task-011
 title: Update JSON responses to include relationship metadata
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@gemini'
 created_date: '2025-09-19 11:13'
-updated_date: '2025-09-19 11:17'
+updated_date: '2025-09-19 11:37'
 labels:
   - backend
   - api
@@ -22,11 +23,11 @@ Fix mismatch between Swagger documentation and actual JSON responses. The Swagge
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Update Links module get_*_for_* functions to return entities with relationship metadata
-- [ ] #2 Create helper functions in JSONHelpers for all entity types with metadata
-- [ ] #3 Update all 5 JSON view files to use metadata helper functions
-- [ ] #4 Update existing tests to expect new response format with metadata
-- [ ] #5 Verify all /links endpoints return data matching Swagger documentation
+- [x] #1 Update Links module get_*_for_* functions to return entities with relationship metadata
+- [x] #2 Create helper functions in JSONHelpers for all entity types with metadata
+- [x] #3 Update all 5 JSON view files to use metadata helper functions
+- [x] #4 Update existing tests to expect new response format with metadata
+- [x] #5 Verify all /links endpoints return data matching Swagger documentation
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -212,3 +213,12 @@ assert note1 in linked_note_entities
 }
 ```
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+- Updated all `get_*_for_*` functions in `lib/game_master_core/links.ex` to return a map with the entity and relationship metadata.
+- Added `*_data_with_metadata` functions to `lib/game_master_core_web/views/json_helpers.ex` to format the new data structure for JSON responses.
+- Updated all `*_json.ex` files to use the new `*_data_with_metadata` functions in their `links/1` functions.
+- Updated all tests to handle the new data structure. The tests now extract the entity from the map before making assertions.
+<!-- SECTION:NOTES:END -->

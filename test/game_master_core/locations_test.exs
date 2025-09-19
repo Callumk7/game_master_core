@@ -260,8 +260,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_character(scope, location.id, character1.id)
       {:ok, _} = Locations.link_character(scope, location.id, character2.id)
 
-      linked_characters = Locations.linked_characters(scope, location.id)
-      assert length(linked_characters) == 2
+      linked_characters_with_meta = Locations.linked_characters(scope, location.id)
+      assert length(linked_characters_with_meta) == 2
+      linked_characters = Enum.map(linked_characters_with_meta, & &1.entity)
       assert character1 in linked_characters
       assert character2 in linked_characters
       refute unlinked_character in linked_characters
@@ -429,8 +430,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_note(scope, location.id, note1.id)
       {:ok, _} = Locations.link_note(scope, location.id, note2.id)
 
-      linked_notes = Locations.linked_notes(scope, location.id)
-      assert length(linked_notes) == 2
+      linked_notes_with_meta = Locations.linked_notes(scope, location.id)
+      assert length(linked_notes_with_meta) == 2
+      linked_notes = Enum.map(linked_notes_with_meta, & &1.entity)
       assert note1 in linked_notes
       assert note2 in linked_notes
       refute unlinked_note in linked_notes
@@ -602,8 +604,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_faction(scope, location.id, faction1.id)
       {:ok, _} = Locations.link_faction(scope, location.id, faction2.id)
 
-      linked_factions = Locations.linked_factions(scope, location.id)
-      assert length(linked_factions) == 2
+      linked_factions_with_meta = Locations.linked_factions(scope, location.id)
+      assert length(linked_factions_with_meta) == 2
+      linked_factions = Enum.map(linked_factions_with_meta, & &1.entity)
       assert faction1 in linked_factions
       assert faction2 in linked_factions
       refute unlinked_faction in linked_factions

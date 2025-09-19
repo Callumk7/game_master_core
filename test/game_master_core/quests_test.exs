@@ -225,8 +225,9 @@ defmodule GameMasterCore.QuestsTest do
       {:ok, _} = Quests.link_note(scope, quest.id, note1.id)
       {:ok, _} = Quests.link_note(scope, quest.id, note2.id)
 
-      linked_notes = Quests.linked_notes(scope, quest.id)
-      assert length(linked_notes) == 2
+      linked_notes_with_meta = Quests.linked_notes(scope, quest.id)
+      assert length(linked_notes_with_meta) == 2
+      linked_notes = Enum.map(linked_notes_with_meta, & &1.entity)
       assert note1 in linked_notes
       assert note2 in linked_notes
       refute unlinked_note in linked_notes
@@ -343,8 +344,9 @@ defmodule GameMasterCore.QuestsTest do
       {:ok, _} = Quests.link_character(scope, quest.id, character1.id)
       {:ok, _} = Quests.link_character(scope, quest.id, character2.id)
 
-      linked_characters = Quests.linked_characters(scope, quest.id)
-      assert length(linked_characters) == 2
+      linked_characters_with_meta = Quests.linked_characters(scope, quest.id)
+      assert length(linked_characters_with_meta) == 2
+      linked_characters = Enum.map(linked_characters_with_meta, & &1.entity)
       assert character1 in linked_characters
       assert character2 in linked_characters
       refute unlinked_character in linked_characters
@@ -440,8 +442,9 @@ defmodule GameMasterCore.QuestsTest do
       {:ok, _} = Quests.link_faction(scope, quest.id, faction1.id)
       {:ok, _} = Quests.link_faction(scope, quest.id, faction2.id)
 
-      linked_factions = Quests.linked_factions(scope, quest.id)
-      assert length(linked_factions) == 2
+      linked_factions_with_meta = Quests.linked_factions(scope, quest.id)
+      assert length(linked_factions_with_meta) == 2
+      linked_factions = Enum.map(linked_factions_with_meta, & &1.entity)
       assert faction1 in linked_factions
       assert faction2 in linked_factions
       refute unlinked_faction in linked_factions
@@ -539,8 +542,9 @@ defmodule GameMasterCore.QuestsTest do
       {:ok, _} = Quests.link_location(scope, quest.id, location1.id)
       {:ok, _} = Quests.link_location(scope, quest.id, location2.id)
 
-      linked_locations = Quests.linked_locations(scope, quest.id)
-      assert length(linked_locations) == 2
+      linked_locations_with_meta = Quests.linked_locations(scope, quest.id)
+      assert length(linked_locations_with_meta) == 2
+      linked_locations = Enum.map(linked_locations_with_meta, & &1.entity)
       assert location1 in linked_locations
       assert location2 in linked_locations
       refute unlinked_location in linked_locations
