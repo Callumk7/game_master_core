@@ -122,12 +122,14 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         description("Link a character to another entity (note, faction, etc.)")
         operation_id("createCharacterLink")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           character_id(:path, :string, "Character ID", required: true, format: :uuid)
 
-          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
+          body(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         security([%{Bearer: []}])

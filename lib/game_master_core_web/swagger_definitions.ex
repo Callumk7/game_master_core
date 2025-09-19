@@ -772,7 +772,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         entity_type(:string, "Entity type to link",
           required: true,
-          enum: [:character, :faction, :location, :quest]
+          enum: ["character", "faction", "location", "quest", "note"]
         )
 
         entity_id(:string, "Entity ID to link", required: true, format: :uuid)
