@@ -127,12 +127,7 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           location_id(:path, :string, "Location ID", required: true, format: :uuid)
 
-          entity_type(:query, :string, "Entity type to link",
-            required: true,
-            enum: ["character", "faction", "location", "quest", "note"]
-          )
-
-          entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
+          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         security([%{Bearer: []}])

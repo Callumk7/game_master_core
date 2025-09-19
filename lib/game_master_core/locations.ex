@@ -244,50 +244,50 @@ defmodule GameMasterCore.Locations do
   @doc """
   Links a character to a location.
   """
-  def link_character(%Scope{} = scope, location_id, character_id) do
+  def link_character(%Scope{} = scope, location_id, character_id, metadata_attrs \\ %{}) do
     with {:ok, location} <- get_scoped_location(scope, location_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
-      Links.link(location, character)
+      Links.link(location, character, metadata_attrs)
     end
   end
 
   @doc """
   Links a note to a location.
   """
-  def link_note(%Scope{} = scope, location_id, note_id) do
+  def link_note(%Scope{} = scope, location_id, note_id, metadata_attrs \\ %{}) do
     with {:ok, location} <- get_scoped_location(scope, location_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
-      Links.link(location, note)
+      Links.link(location, note, metadata_attrs)
     end
   end
 
   @doc """
   Links a faction to a location.
   """
-  def link_faction(%Scope{} = scope, location_id, faction_id) do
+  def link_faction(%Scope{} = scope, location_id, faction_id, metadata_attrs \\ %{}) do
     with {:ok, location} <- get_scoped_location(scope, location_id),
          {:ok, faction} <- get_scoped_faction(scope, faction_id) do
-      Links.link(location, faction)
+      Links.link(location, faction, metadata_attrs)
     end
   end
 
   @doc """
   Links a quest to a location.
   """
-  def link_quest(%Scope{} = scope, location_id, quest_id) do
+  def link_quest(%Scope{} = scope, location_id, quest_id, metadata_attrs \\ %{}) do
     with {:ok, location} <- get_scoped_location(scope, location_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
-      Links.link(location, quest)
+      Links.link(location, quest, metadata_attrs)
     end
   end
 
   @doc """
   Links a location to another location.
   """
-  def link_location(%Scope{} = scope, location_id_1, location_id_2) do
+  def link_location(%Scope{} = scope, location_id_1, location_id_2, metadata_attrs \\ %{}) do
     with {:ok, location_1} <- get_scoped_location(scope, location_id_1),
          {:ok, location_2} <- get_scoped_location(scope, location_id_2) do
-      Links.link(location_1, location_2)
+      Links.link(location_1, location_2, metadata_attrs)
     end
   end
 

@@ -516,6 +516,118 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
     end
   end
 
+  describe "note hierarchy" do
+    setup [:create_note]
+
+    test "creates note with valid parent_id", %{conn: conn, game: game, scope: scope} do
+      parent_note = note_fixture(scope, %{game_id: game.id})
+
+      create_attrs_with_parent = Map.put(@create_attrs, :parent_id, parent_note.id)
+
+      conn = post(conn, ~p"/api/games/#{game.id}/notes", note: create_attrs_with_parent)
+      assert %{"id" => id, "parent_id" => parent_id} = json_response(conn, 201)["data"]
+      assert parent_id == parent_note.id
+
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{id}")
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["parent_id"] == parent_note.id
+    end
+
+    test "updates note with valid parent_id", %{conn: conn, game: game, note: note, scope: scope} do
+      parent_note = note_fixture(scope, %{game_id: game.id})
+
+      update_attrs_with_parent = Map.put(@update_attrs, :parent_id, parent_note.id)
+
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}", note: update_attrs_with_parent)
+      assert %{"parent_id" => parent_id} = json_response(conn, 200)["data"]
+      assert parent_id == parent_note.id
+    end
+
+    test "rejects note creation with self-referencing parent_id", %{conn: conn, game: game} do
+      # Create a note first
+      conn = post(conn, ~p"/api/games/#{game.id}/notes", note: @create_attrs)
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+
+      # Try to update it to be its own parent
+      update_attrs_with_self_parent = Map.put(@update_attrs, :parent_id, id)
+
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/#{id}", note: update_attrs_with_self_parent)
+      response = json_response(conn, 422)
+      assert response["errors"]["parent_id"] == ["note cannot be its own parent"]
+    end
+
+    test "rejects note creation with non-existent parent_id", %{conn: conn, game: game} do
+      non_existent_uuid = Ecto.UUID.generate()
+      create_attrs_with_invalid_parent = Map.put(@create_attrs, :parent_id, non_existent_uuid)
+
+      conn = post(conn, ~p"/api/games/#{game.id}/notes", note: create_attrs_with_invalid_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent note does not exist or does not belong to the same game"
+             ]
+    end
+
+    test "rejects note creation with parent from different game", %{conn: conn, game: game} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
+
+      create_attrs_with_cross_game_parent = Map.put(@create_attrs, :parent_id, other_note.id)
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/notes", note: create_attrs_with_cross_game_parent)
+
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent note does not exist or does not belong to the same game"
+             ]
+    end
+
+    test "rejects note update that would create circular reference", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      # Create a hierarchy: grandparent -> parent -> child
+      grandparent = note_fixture(scope, %{game_id: game.id})
+      parent_attrs = Map.put(@create_attrs, :parent_id, grandparent.id)
+
+      conn = post(conn, ~p"/api/games/#{game.id}/notes", note: parent_attrs)
+      assert %{"id" => parent_id} = json_response(conn, 201)["data"]
+
+      child_attrs = Map.put(@create_attrs, :parent_id, parent_id)
+      conn = post(conn, ~p"/api/games/#{game.id}/notes", note: child_attrs)
+      assert %{"id" => child_id} = json_response(conn, 201)["data"]
+
+      # Try to make grandparent a child of child (would create a cycle)
+      update_attrs_cycle = Map.put(@update_attrs, :parent_id, child_id)
+
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/notes/#{grandparent.id}", note: update_attrs_cycle)
+
+      response = json_response(conn, 422)
+      assert response["errors"]["parent_id"] == ["would create a circular reference"]
+    end
+
+    test "removes parent_id when set to nil", %{conn: conn, game: game, note: note, scope: scope} do
+      parent_note = note_fixture(scope, %{game_id: game.id})
+
+      # First set a parent
+      update_attrs_with_parent = Map.put(@update_attrs, :parent_id, parent_note.id)
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}", note: update_attrs_with_parent)
+      assert %{"parent_id" => parent_id} = json_response(conn, 200)["data"]
+      assert parent_id == parent_note.id
+
+      # Then remove the parent
+      update_attrs_no_parent = Map.put(@update_attrs, :parent_id, nil)
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}", note: update_attrs_no_parent)
+      assert %{"parent_id" => parent_id} = json_response(conn, 200)["data"]
+      assert parent_id == nil
+    end
+  end
+
   defp create_note(%{scope: scope, game: game}) do
     note = note_fixture(scope, %{game_id: game.id})
 

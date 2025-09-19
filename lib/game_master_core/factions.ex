@@ -194,10 +194,10 @@ defmodule GameMasterCore.Factions do
   @doc """
   Links a faction to a note.
   """
-  def link_note(%Scope{} = scope, faction_id, note_id) do
+  def link_note(%Scope{} = scope, faction_id, note_id, metadata_attrs \\ %{}) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
-      Links.link(faction, note)
+      Links.link(faction, note, metadata_attrs)
     end
   end
 
@@ -220,37 +220,37 @@ defmodule GameMasterCore.Factions do
   @doc """
   Links a faction to a character.
   """
-  def link_character(%Scope{} = scope, faction_id, character_id) do
+  def link_character(%Scope{} = scope, faction_id, character_id, metadata_attrs \\ %{}) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
-      Links.link(faction, character)
+      Links.link(faction, character, metadata_attrs)
     end
   end
 
-  def link_location(%Scope{} = scope, faction_id, location_id) do
+  def link_location(%Scope{} = scope, faction_id, location_id, metadata_attrs \\ %{}) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
-      Links.link(faction, location)
+      Links.link(faction, location, metadata_attrs)
     end
   end
 
   @doc """
   Links a faction to a quest.
   """
-  def link_quest(%Scope{} = scope, faction_id, quest_id) do
+  def link_quest(%Scope{} = scope, faction_id, quest_id, metadata_attrs \\ %{}) do
     with {:ok, faction} <- get_scoped_faction(scope, faction_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
-      Links.link(faction, quest)
+      Links.link(faction, quest, metadata_attrs)
     end
   end
 
   @doc """
   Links a faction to another faction.
   """
-  def link_faction(%Scope{} = scope, faction_id_1, faction_id_2) do
+  def link_faction(%Scope{} = scope, faction_id_1, faction_id_2, metadata_attrs \\ %{}) do
     with {:ok, faction_1} <- get_scoped_faction(scope, faction_id_1),
          {:ok, faction_2} <- get_scoped_faction(scope, faction_id_2) do
-      Links.link(faction_1, faction_2)
+      Links.link(faction_1, faction_2, metadata_attrs)
     end
   end
 

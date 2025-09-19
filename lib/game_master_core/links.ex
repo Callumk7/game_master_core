@@ -27,83 +27,83 @@ defmodule GameMasterCore.Links do
   Creates a link between two entities.
   Returns {:ok, link} on success, {:error, changeset} on failure.
   """
-  def link(entity1, entity2) do
+  def link(entity1, entity2, metadata_attrs \\ %{}) do
     case {entity1, entity2} do
       {%Character{} = character, %Note{} = note} ->
-        create_character_note_link(character, note)
+        create_character_note_link(character, note, metadata_attrs)
 
       {%Note{} = note, %Character{} = character} ->
-        create_character_note_link(character, note)
+        create_character_note_link(character, note, metadata_attrs)
 
       {%Note{} = note, %Faction{} = faction} ->
-        create_faction_note_link(faction, note)
+        create_faction_note_link(faction, note, metadata_attrs)
 
       {%Faction{} = faction, %Note{} = note} ->
-        create_faction_note_link(faction, note)
+        create_faction_note_link(faction, note, metadata_attrs)
 
       {%Character{} = character, %Faction{} = faction} ->
-        create_character_faction_link(character, faction)
+        create_character_faction_link(character, faction, metadata_attrs)
 
       {%Faction{} = faction, %Character{} = character} ->
-        create_character_faction_link(character, faction)
+        create_character_faction_link(character, faction, metadata_attrs)
 
       {%Location{} = location, %Note{} = note} ->
-        create_location_note_link(location, note)
+        create_location_note_link(location, note, metadata_attrs)
 
       {%Location{} = location, %Character{} = character} ->
-        create_character_location_link(character, location)
+        create_character_location_link(character, location, metadata_attrs)
 
       {%Location{} = location, %Faction{} = faction} ->
-        create_faction_location_link(faction, location)
+        create_faction_location_link(faction, location, metadata_attrs)
 
       {%Note{} = note, %Location{} = location} ->
-        create_location_note_link(location, note)
+        create_location_note_link(location, note, metadata_attrs)
 
       {%Character{} = character, %Location{} = location} ->
-        create_character_location_link(character, location)
+        create_character_location_link(character, location, metadata_attrs)
 
       {%Faction{} = faction, %Location{} = location} ->
-        create_faction_location_link(faction, location)
+        create_faction_location_link(faction, location, metadata_attrs)
 
       {%Quest{} = quest, %Character{} = character} ->
-        create_quest_character_link(quest, character)
+        create_quest_character_link(quest, character, metadata_attrs)
 
       {%Character{} = character, %Quest{} = quest} ->
-        create_quest_character_link(quest, character)
+        create_quest_character_link(quest, character, metadata_attrs)
 
       {%Quest{} = quest, %Faction{} = faction} ->
-        create_quest_faction_link(quest, faction)
+        create_quest_faction_link(quest, faction, metadata_attrs)
 
       {%Faction{} = faction, %Quest{} = quest} ->
-        create_quest_faction_link(quest, faction)
+        create_quest_faction_link(quest, faction, metadata_attrs)
 
       {%Quest{} = quest, %Location{} = location} ->
-        create_quest_location_link(quest, location)
+        create_quest_location_link(quest, location, metadata_attrs)
 
       {%Location{} = location, %Quest{} = quest} ->
-        create_quest_location_link(quest, location)
+        create_quest_location_link(quest, location, metadata_attrs)
 
       {%Quest{} = quest, %Note{} = note} ->
-        create_quest_note_link(quest, note)
+        create_quest_note_link(quest, note, metadata_attrs)
 
       {%Note{} = note, %Quest{} = quest} ->
-        create_quest_note_link(quest, note)
+        create_quest_note_link(quest, note, metadata_attrs)
 
       # Self-join relationships
       {%Character{} = character1, %Character{} = character2} ->
-        create_character_character_link(character1, character2)
+        create_character_character_link(character1, character2, metadata_attrs)
 
       {%Faction{} = faction1, %Faction{} = faction2} ->
-        create_faction_faction_link(faction1, faction2)
+        create_faction_faction_link(faction1, faction2, metadata_attrs)
 
       {%Location{} = location1, %Location{} = location2} ->
-        create_location_location_link(location1, location2)
+        create_location_location_link(location1, location2, metadata_attrs)
 
       {%Quest{} = quest1, %Quest{} = quest2} ->
-        create_quest_quest_link(quest1, quest2)
+        create_quest_quest_link(quest1, quest2, metadata_attrs)
 
       {%Note{} = note1, %Note{} = note2} ->
-        create_note_note_link(note1, note2)
+        create_note_note_link(note1, note2, metadata_attrs)
 
       # Add more entity combinations as needed
       _ ->
@@ -343,12 +343,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Note links
 
-  defp create_character_note_link(character, note) do
+  defp create_character_note_link(character, note, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterNote{}
-    |> CharacterNote.changeset(%{
-      character_id: character.id,
-      note_id: note.id
-    })
+    |> CharacterNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -386,12 +390,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Faction <-> Note links
 
-  defp create_faction_note_link(faction, note) do
+  defp create_faction_note_link(faction, note, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        faction_id: faction.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionNote{}
-    |> FactionNote.changeset(%{
-      faction_id: faction.id,
-      note_id: note.id
-    })
+    |> FactionNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -429,12 +437,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Faction links
 
-  defp create_character_faction_link(character, faction) do
+  defp create_character_faction_link(character, faction, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        faction_id: faction.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterFaction{}
-    |> CharacterFaction.changeset(%{
-      character_id: character.id,
-      faction_id: faction.id
-    })
+    |> CharacterFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -472,12 +484,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Location <-> Note links
 
-  defp create_location_note_link(location, note) do
+  defp create_location_note_link(location, note, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        location_id: location.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %LocationNote{}
-    |> LocationNote.changeset(%{
-      location_id: location.id,
-      note_id: note.id
-    })
+    |> LocationNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -515,12 +531,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Location links
 
-  defp create_character_location_link(character, location) do
+  defp create_character_location_link(character, location, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterLocation{}
-    |> CharacterLocation.changeset(%{
-      character_id: character.id,
-      location_id: location.id
-    })
+    |> CharacterLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -557,12 +577,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Faction <-> Location links
-  defp create_faction_location_link(faction, location) do
+  defp create_faction_location_link(faction, location, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        faction_id: faction.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionLocation{}
-    |> FactionLocation.changeset(%{
-      faction_id: faction.id,
-      location_id: location.id
-    })
+    |> FactionLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -599,12 +623,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Character links
-  defp create_quest_character_link(quest, character) do
+  defp create_quest_character_link(quest, character, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        character_id: character.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestCharacter{}
-    |> QuestCharacter.changeset(%{
-      quest_id: quest.id,
-      character_id: character.id
-    })
+    |> QuestCharacter.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -641,12 +669,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Faction links
-  defp create_quest_faction_link(quest, faction) do
+  defp create_quest_faction_link(quest, faction, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        faction_id: faction.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestFaction{}
-    |> QuestFaction.changeset(%{
-      quest_id: quest.id,
-      faction_id: faction.id
-    })
+    |> QuestFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -683,12 +715,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Location links
-  defp create_quest_location_link(quest, location) do
+  defp create_quest_location_link(quest, location, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestLocation{}
-    |> QuestLocation.changeset(%{
-      quest_id: quest.id,
-      location_id: location.id
-    })
+    |> QuestLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -725,12 +761,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Note links
-  defp create_quest_note_link(quest, note) do
+  defp create_quest_note_link(quest, note, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestNote{}
-    |> QuestNote.changeset(%{
-      quest_id: quest.id,
-      note_id: note.id
-    })
+    |> QuestNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -767,12 +807,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Character <-> Character links
-  defp create_character_character_link(character1, character2) do
+  defp create_character_character_link(character1, character2, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        character_1_id: character1.id,
+        character_2_id: character2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterCharacter{}
-    |> CharacterCharacter.changeset(%{
-      character_1_id: character1.id,
-      character_2_id: character2.id
-    })
+    |> CharacterCharacter.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -817,12 +861,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Faction <-> Faction links
-  defp create_faction_faction_link(faction1, faction2) do
+  defp create_faction_faction_link(faction1, faction2, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        faction_1_id: faction1.id,
+        faction_2_id: faction2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionFaction{}
-    |> FactionFaction.changeset(%{
-      faction_1_id: faction1.id,
-      faction_2_id: faction2.id
-    })
+    |> FactionFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -860,12 +908,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Location <-> Location links
-  defp create_location_location_link(location1, location2) do
+  defp create_location_location_link(location1, location2, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        location_1_id: location1.id,
+        location_2_id: location2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %LocationLocation{}
-    |> LocationLocation.changeset(%{
-      location_1_id: location1.id,
-      location_2_id: location2.id
-    })
+    |> LocationLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -906,12 +958,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Quest links
-  defp create_quest_quest_link(quest1, quest2) do
+  defp create_quest_quest_link(quest1, quest2, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        quest_1_id: quest1.id,
+        quest_2_id: quest2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestQuest{}
-    |> QuestQuest.changeset(%{
-      quest_1_id: quest1.id,
-      quest_2_id: quest2.id
-    })
+    |> QuestQuest.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -949,12 +1005,16 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Note <-> Note links
-  defp create_note_note_link(note1, note2) do
+  defp create_note_note_link(note1, note2, metadata_attrs \\ %{}) do
+    changeset_attrs =
+      %{
+        note_1_id: note1.id,
+        note_2_id: note2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %NoteNote{}
-    |> NoteNote.changeset(%{
-      note_1_id: note1.id,
-      note_2_id: note2.id
-    })
+    |> NoteNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 

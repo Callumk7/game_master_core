@@ -127,12 +127,7 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
 
-          entity_type(:query, :string, "Entity type to link",
-            required: true,
-            enum: ["character", "location", "quest", "note", "faction"]
-          )
-
-          entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
+          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         security([%{Bearer: []}])
