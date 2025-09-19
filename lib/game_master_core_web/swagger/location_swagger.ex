@@ -122,12 +122,14 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
         description("Link a location to another entity (note, faction, etc.)")
         operation_id("createLocationLink")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           location_id(:path, :string, "Location ID", required: true, format: :uuid)
 
-          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
+          body(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         security([%{Bearer: []}])

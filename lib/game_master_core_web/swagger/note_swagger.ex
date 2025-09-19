@@ -113,12 +113,14 @@ defmodule GameMasterCoreWeb.Swagger.NoteSwagger do
 
         operation_id("createNoteLink")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           note_id(:path, :string, "Note ID", required: true, format: :uuid)
 
-          link_data(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
+          body(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         response(201, "Created", %{
