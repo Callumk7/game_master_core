@@ -21,6 +21,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: note.id,
       name: note.name,
       content: note.content,
+      content_plain_text: note.content_plain_text,
       tags: note.tags,
       created_at: note.inserted_at,
       updated_at: note.updated_at
@@ -35,6 +36,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: character.id,
       name: character.name,
       description: character.description,
+      description_plain_text: character.description_plain_text,
       class: character.class,
       level: character.level,
       image_url: character.image_url,
@@ -44,20 +46,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     }
   end
 
-  @doc """
-  Formats a character for JSON response (summary data for links).
-  """
-  def character_summary_data(%Character{} = character) do
-    %{
-      id: character.id,
-      name: character.name,
-      level: character.level,
-      class: character.class,
-      tags: character.tags,
-      created_at: character.inserted_at,
-      updated_at: character.updated_at
-    }
-  end
 
   @doc """
   Formats a faction for JSON response.
@@ -67,6 +55,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: faction.id,
       name: faction.name,
       description: faction.description,
+      description_plain_text: faction.description_plain_text,
       tags: faction.tags,
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
@@ -81,6 +70,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: game.id,
       name: game.name,
       description: game.description,
+      description_plain_text: game.description_plain_text,
       setting: game.setting,
       created_at: game.inserted_at,
       updated_at: game.updated_at
@@ -95,6 +85,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: location.id,
       name: location.name,
       description: location.description,
+      description_plain_text: location.description_plain_text,
       type: location.type,
       has_parent: location.parent_id != nil,
       tags: location.tags,
@@ -111,6 +102,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       id: quest.id,
       name: quest.name,
       content: quest.content,
+      content_plain_text: quest.content_plain_text,
       tags: quest.tags,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at

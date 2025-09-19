@@ -31,7 +31,7 @@ defmodule GameMasterCoreWeb.NoteJSON do
         note_id: note.id,
         note_name: note.name,
         links: %{
-          characters: for(character <- characters, do: character_summary_data(character)),
+          characters: for(character <- characters, do: character_data(character)),
           factions: for(faction <- factions, do: faction_data(faction)),
           locations: for(location <- locations, do: location_data(location)),
           quests: for(quest <- quests, do: quest_data(quest)),
