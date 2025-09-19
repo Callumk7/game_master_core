@@ -374,7 +374,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: cn in CharacterNote,
       on: cn.note_id == n.id,
-      where: cn.character_id == ^character.id
+      where: cn.character_id == ^character.id,
+      select: %{
+        entity: n,
+        relationship_type: cn.relationship_type,
+        description: cn.description,
+        strength: cn.strength,
+        is_active: cn.is_active,
+        metadata: cn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -383,7 +391,15 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: cn in CharacterNote,
       on: cn.character_id == c.id,
-      where: cn.note_id == ^note.id
+      where: cn.note_id == ^note.id,
+      select: %{
+        entity: c,
+        relationship_type: cn.relationship_type,
+        description: cn.description,
+        strength: cn.strength,
+        is_active: cn.is_active,
+        metadata: cn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -421,7 +437,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: facn in FactionNote,
       on: facn.faction_id == f.id,
-      where: facn.note_id == ^note.id
+      where: facn.note_id == ^note.id,
+      select: %{
+        entity: f,
+        relationship_type: facn.relationship_type,
+        description: facn.description,
+        strength: facn.strength,
+        is_active: facn.is_active,
+        metadata: facn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -430,7 +454,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: facn in FactionNote,
       on: facn.note_id == n.id,
-      where: facn.faction_id == ^faction.id
+      where: facn.faction_id == ^faction.id,
+      select: %{
+        entity: n,
+        relationship_type: facn.relationship_type,
+        description: facn.description,
+        strength: facn.strength,
+        is_active: facn.is_active,
+        metadata: facn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -468,7 +500,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: fc in CharacterFaction,
       on: fc.faction_id == f.id,
-      where: fc.character_id == ^character.id
+      where: fc.character_id == ^character.id,
+      select: %{
+        entity: f,
+        relationship_type: fc.relationship_type,
+        description: fc.description,
+        strength: fc.strength,
+        is_active: fc.is_active,
+        metadata: fc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -477,7 +517,15 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: fc in CharacterFaction,
       on: fc.character_id == c.id,
-      where: fc.faction_id == ^faction.id
+      where: fc.faction_id == ^faction.id,
+      select: %{
+        entity: c,
+        relationship_type: fc.relationship_type,
+        description: fc.description,
+        strength: fc.strength,
+        is_active: fc.is_active,
+        metadata: fc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -515,7 +563,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: ln in LocationNote,
       on: ln.note_id == n.id,
-      where: ln.location_id == ^location.id
+      where: ln.location_id == ^location.id,
+      select: %{
+        entity: n,
+        relationship_type: ln.relationship_type,
+        description: ln.description,
+        strength: ln.strength,
+        is_active: ln.is_active,
+        metadata: ln.metadata
+      }
     )
     |> Repo.all()
   end
@@ -524,7 +580,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: ln in LocationNote,
       on: ln.location_id == l.id,
-      where: ln.note_id == ^note.id
+      where: ln.note_id == ^note.id,
+      select: %{
+        entity: l,
+        relationship_type: ln.relationship_type,
+        description: ln.description,
+        strength: ln.strength,
+        is_active: ln.is_active,
+        metadata: ln.metadata
+      }
     )
     |> Repo.all()
   end
@@ -562,7 +626,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: cl in CharacterLocation,
       on: cl.location_id == l.id,
-      where: cl.character_id == ^character.id
+      where: cl.character_id == ^character.id,
+      select: %{
+        entity: l,
+        relationship_type: cl.relationship_type,
+        description: cl.description,
+        strength: cl.strength,
+        is_active: cl.is_active,
+        metadata: cl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -571,7 +643,15 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: cl in CharacterLocation,
       on: cl.character_id == c.id,
-      where: cl.location_id == ^location.id
+      where: cl.location_id == ^location.id,
+      select: %{
+        entity: c,
+        relationship_type: cl.relationship_type,
+        description: cl.description,
+        strength: cl.strength,
+        is_active: cl.is_active,
+        metadata: cl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -608,7 +688,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: fl in FactionLocation,
       on: fl.faction_id == f.id,
-      where: fl.location_id == ^location.id
+      where: fl.location_id == ^location.id,
+      select: %{
+        entity: f,
+        relationship_type: fl.relationship_type,
+        description: fl.description,
+        strength: fl.strength,
+        is_active: fl.is_active,
+        metadata: fl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -617,7 +705,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: fl in FactionLocation,
       on: fl.location_id == l.id,
-      where: fl.faction_id == ^faction.id
+      where: fl.faction_id == ^faction.id,
+      select: %{
+        entity: l,
+        relationship_type: fl.relationship_type,
+        description: fl.description,
+        strength: fl.strength,
+        is_active: fl.is_active,
+        metadata: fl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -654,7 +750,15 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qc in QuestCharacter,
       on: qc.quest_id == q.id,
-      where: qc.character_id == ^character.id
+      where: qc.character_id == ^character.id,
+      select: %{
+        entity: q,
+        relationship_type: qc.relationship_type,
+        description: qc.description,
+        strength: qc.strength,
+        is_active: qc.is_active,
+        metadata: qc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -663,7 +767,15 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: qc in QuestCharacter,
       on: qc.character_id == c.id,
-      where: qc.quest_id == ^quest.id
+      where: qc.quest_id == ^quest.id,
+      select: %{
+        entity: c,
+        relationship_type: qc.relationship_type,
+        description: qc.description,
+        strength: qc.strength,
+        is_active: qc.is_active,
+        metadata: qc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -700,7 +812,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: qf in QuestFaction,
       on: qf.faction_id == f.id,
-      where: qf.quest_id == ^quest.id
+      where: qf.quest_id == ^quest.id,
+      select: %{
+        entity: f,
+        relationship_type: qf.relationship_type,
+        description: qf.description,
+        strength: qf.strength,
+        is_active: qf.is_active,
+        metadata: qf.metadata
+      }
     )
     |> Repo.all()
   end
@@ -709,7 +829,15 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qf in QuestFaction,
       on: qf.quest_id == q.id,
-      where: qf.faction_id == ^faction.id
+      where: qf.faction_id == ^faction.id,
+      select: %{
+        entity: q,
+        relationship_type: qf.relationship_type,
+        description: qf.description,
+        strength: qf.strength,
+        is_active: qf.is_active,
+        metadata: qf.metadata
+      }
     )
     |> Repo.all()
   end
@@ -746,7 +874,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: ql in QuestLocation,
       on: ql.location_id == l.id,
-      where: ql.quest_id == ^quest.id
+      where: ql.quest_id == ^quest.id,
+      select: %{
+        entity: l,
+        relationship_type: ql.relationship_type,
+        description: ql.description,
+        strength: ql.strength,
+        is_active: ql.is_active,
+        metadata: ql.metadata
+      }
     )
     |> Repo.all()
   end
@@ -755,7 +891,15 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: ql in QuestLocation,
       on: ql.quest_id == q.id,
-      where: ql.location_id == ^location.id
+      where: ql.location_id == ^location.id,
+      select: %{
+        entity: q,
+        relationship_type: ql.relationship_type,
+        description: ql.description,
+        strength: ql.strength,
+        is_active: ql.is_active,
+        metadata: ql.metadata
+      }
     )
     |> Repo.all()
   end
@@ -792,7 +936,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: qn in QuestNote,
       on: qn.note_id == n.id,
-      where: qn.quest_id == ^quest.id
+      where: qn.quest_id == ^quest.id,
+      select: %{
+        entity: n,
+        relationship_type: qn.relationship_type,
+        description: qn.description,
+        strength: qn.strength,
+        is_active: qn.is_active,
+        metadata: qn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -801,7 +953,15 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qn in QuestNote,
       on: qn.quest_id == q.id,
-      where: qn.note_id == ^note.id
+      where: qn.note_id == ^note.id,
+      select: %{
+        entity: q,
+        relationship_type: qn.relationship_type,
+        description: qn.description,
+        strength: qn.strength,
+        is_active: qn.is_active,
+        metadata: qn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -855,7 +1015,15 @@ defmodule GameMasterCore.Links do
       on:
         (cc.character_1_id == c.id and cc.character_2_id == ^character.id) or
           (cc.character_2_id == c.id and cc.character_1_id == ^character.id),
-      where: c.id != ^character.id
+      where: c.id != ^character.id,
+      select: %{
+        entity: c,
+        relationship_type: cc.relationship_type,
+        description: cc.description,
+        strength: cc.strength,
+        is_active: cc.is_active,
+        metadata: cc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -902,7 +1070,15 @@ defmodule GameMasterCore.Links do
       on:
         (ff.faction_1_id == f.id and ff.faction_2_id == ^faction.id) or
           (ff.faction_2_id == f.id and ff.faction_1_id == ^faction.id),
-      where: f.id != ^faction.id
+      where: f.id != ^faction.id,
+      select: %{
+        entity: f,
+        relationship_type: ff.relationship_type,
+        description: ff.description,
+        strength: ff.strength,
+        is_active: ff.is_active,
+        metadata: ff.metadata
+      }
     )
     |> Repo.all()
   end
@@ -952,7 +1128,15 @@ defmodule GameMasterCore.Links do
       on:
         (ll.location_1_id == l.id and ll.location_2_id == ^location.id) or
           (ll.location_2_id == l.id and ll.location_1_id == ^location.id),
-      where: l.id != ^location.id
+      where: l.id != ^location.id,
+      select: %{
+        entity: l,
+        relationship_type: ll.relationship_type,
+        description: ll.description,
+        strength: ll.strength,
+        is_active: ll.is_active,
+        metadata: ll.metadata
+      }
     )
     |> Repo.all()
   end
@@ -999,7 +1183,15 @@ defmodule GameMasterCore.Links do
       on:
         (qq.quest_1_id == q.id and qq.quest_2_id == ^quest.id) or
           (qq.quest_2_id == q.id and qq.quest_1_id == ^quest.id),
-      where: q.id != ^quest.id
+      where: q.id != ^quest.id,
+      select: %{
+        entity: q,
+        relationship_type: qq.relationship_type,
+        description: qq.description,
+        strength: qq.strength,
+        is_active: qq.is_active,
+        metadata: qq.metadata
+      }
     )
     |> Repo.all()
   end
@@ -1046,7 +1238,15 @@ defmodule GameMasterCore.Links do
       on:
         (nn.note_1_id == n.id and nn.note_2_id == ^note.id) or
           (nn.note_2_id == n.id and nn.note_1_id == ^note.id),
-      where: n.id != ^note.id
+      where: n.id != ^note.id,
+      select: %{
+        entity: n,
+        relationship_type: nn.relationship_type,
+        description: nn.description,
+        strength: nn.strength,
+        is_active: nn.is_active,
+        metadata: nn.metadata
+      }
     )
     |> Repo.all()
   end

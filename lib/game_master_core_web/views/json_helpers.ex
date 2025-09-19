@@ -109,4 +109,59 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       updated_at: quest.updated_at
     }
   end
+
+  def character_data_with_metadata(%{entity: character, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+    character_data(character)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      metadata: metadata
+    })
+  end
+
+  def faction_data_with_metadata(%{entity: faction, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+    faction_data(faction)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      metadata: metadata
+    })
+  end
+
+  def location_data_with_metadata(%{entity: location, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+    location_data(location)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      metadata: metadata
+    })
+  end
+
+  def quest_data_with_metadata(%{entity: quest, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+    quest_data(quest)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      metadata: metadata
+    })
+  end
+
+  def note_data_with_metadata(%{entity: note, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+    note_data(note)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      metadata: metadata
+    })
+  end
 end
