@@ -343,7 +343,7 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Note links
 
-  defp create_character_note_link(character, note, metadata_attrs \\ %{}) do
+  defp create_character_note_link(character, note, metadata_attrs) do
     changeset_attrs =
       %{
         character_id: character.id,
@@ -406,7 +406,7 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Faction <-> Note links
 
-  defp create_faction_note_link(faction, note, metadata_attrs \\ %{}) do
+  defp create_faction_note_link(faction, note, metadata_attrs) do
     changeset_attrs =
       %{
         faction_id: faction.id,
@@ -469,7 +469,7 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Faction links
 
-  defp create_character_faction_link(character, faction, metadata_attrs \\ %{}) do
+  defp create_character_faction_link(character, faction, metadata_attrs) do
     changeset_attrs =
       %{
         character_id: character.id,
@@ -532,7 +532,7 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Location <-> Note links
 
-  defp create_location_note_link(location, note, metadata_attrs \\ %{}) do
+  defp create_location_note_link(location, note, metadata_attrs) do
     changeset_attrs =
       %{
         location_id: location.id,
@@ -595,7 +595,7 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Location links
 
-  defp create_character_location_link(character, location, metadata_attrs \\ %{}) do
+  defp create_character_location_link(character, location, metadata_attrs) do
     changeset_attrs =
       %{
         character_id: character.id,
@@ -657,7 +657,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Faction <-> Location links
-  defp create_faction_location_link(faction, location, metadata_attrs \\ %{}) do
+  defp create_faction_location_link(faction, location, metadata_attrs) do
     changeset_attrs =
       %{
         faction_id: faction.id,
@@ -719,7 +719,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Character links
-  defp create_quest_character_link(quest, character, metadata_attrs \\ %{}) do
+  defp create_quest_character_link(quest, character, metadata_attrs) do
     changeset_attrs =
       %{
         quest_id: quest.id,
@@ -781,7 +781,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Faction links
-  defp create_quest_faction_link(quest, faction, metadata_attrs \\ %{}) do
+  defp create_quest_faction_link(quest, faction, metadata_attrs) do
     changeset_attrs =
       %{
         quest_id: quest.id,
@@ -843,7 +843,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Location links
-  defp create_quest_location_link(quest, location, metadata_attrs \\ %{}) do
+  defp create_quest_location_link(quest, location, metadata_attrs) do
     changeset_attrs =
       %{
         quest_id: quest.id,
@@ -905,7 +905,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Note links
-  defp create_quest_note_link(quest, note, metadata_attrs \\ %{}) do
+  defp create_quest_note_link(quest, note, metadata_attrs) do
     changeset_attrs =
       %{
         quest_id: quest.id,
@@ -967,7 +967,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Character <-> Character links
-  defp create_character_character_link(character1, character2, metadata_attrs \\ %{}) do
+  defp create_character_character_link(character1, character2, metadata_attrs) do
     changeset_attrs =
       %{
         character_1_id: character1.id,
@@ -1029,7 +1029,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Faction <-> Faction links
-  defp create_faction_faction_link(faction1, faction2, metadata_attrs \\ %{}) do
+  defp create_faction_faction_link(faction1, faction2, metadata_attrs) do
     changeset_attrs =
       %{
         faction_1_id: faction1.id,
@@ -1084,7 +1084,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Location <-> Location links
-  defp create_location_location_link(location1, location2, metadata_attrs \\ %{}) do
+  defp create_location_location_link(location1, location2, metadata_attrs) do
     changeset_attrs =
       %{
         location_1_id: location1.id,
@@ -1142,7 +1142,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Quest <-> Quest links
-  defp create_quest_quest_link(quest1, quest2, metadata_attrs \\ %{}) do
+  defp create_quest_quest_link(quest1, quest2, metadata_attrs) do
     changeset_attrs =
       %{
         quest_1_id: quest1.id,
@@ -1197,7 +1197,7 @@ defmodule GameMasterCore.Links do
   end
 
   # Private functions for Note <-> Note links
-  defp create_note_note_link(note1, note2, metadata_attrs \\ %{}) do
+  defp create_note_note_link(note1, note2, metadata_attrs) do
     changeset_attrs =
       %{
         note_1_id: note1.id,
