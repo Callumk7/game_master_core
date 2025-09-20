@@ -1219,6 +1219,63 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def location_tree_node_schema do
+    swagger_schema do
+      title("Location Tree Node")
+      description("A node in the location hierarchy tree")
+
+      properties do
+        id(:string, "Location ID", required: true, format: :uuid)
+        name(:string, "Location name", required: true)
+        description(:string, "Location description")
+        type(:string, "Location type", 
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+        tags(Schema.array(:string), "Tags associated with this location")
+        parent_id(:string, "Parent location ID", format: :uuid)
+        children(Schema.array(:LocationTreeNode), "Child locations")
+      end
+
+      example(%{
+        id: "523e4567-e89b-12d3-a456-426614174004",
+        name: "The Crystal Cave",
+        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        type: "building",
+        tags: ["magical", "hidden", "dangerous"],
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        children: []
+      })
+    end
+  end
+
+  def quest_tree_node_schema do
+    swagger_schema do
+      title("Quest Tree Node")
+      description("A node in the quest hierarchy tree")
+
+      properties do
+        id(:string, "Quest ID", required: true, format: :uuid)
+        name(:string, "Quest name", required: true)
+        content(:string, "Quest content")
+        content_plain_text(:string, "Quest content as plain text")
+        tags(Schema.array(:string), "Tags associated with this quest")
+        parent_id(:string, "Parent quest ID", format: :uuid)
+        children(Schema.array(:QuestTreeNode), "Child quests")
+      end
+
+      example(%{
+        id: "623e4567-e89b-12d3-a456-426614174005",
+        name: "The Lost Treasure",
+        content: "Find the lost treasure hidden in the ancient ruins.",
+        content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
+        tags: ["main", "treasure", "exploration"],
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        children: []
+      })
+    end
+  end
+
   # Linked entity schemas with metadata
   def linked_entity_base_schema do
     swagger_schema do
@@ -1449,6 +1506,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Location Links Response",
           "Response containing location links"
         ),
+      LocationTreeNode: location_tree_node_schema(),
+      LocationTreeResponse:
+        array_response_schema(
+          :LocationTreeNode,
+          "Location Tree Response",
+          "Response containing hierarchical location tree"
+        ),
       Quest: quest_schema(),
       QuestCreateParams: quest_create_params_schema(),
       QuestUpdateParams: quest_update_params_schema(),
@@ -1469,6 +1533,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:QuestLinksData),
           "Quest Links Response",
           "Response containing quest links"
+        ),
+      QuestTreeNode: quest_tree_node_schema(),
+      QuestTreeResponse:
+        array_response_schema(
+          :QuestTreeNode,
+          "Quest Tree Response",
+          "Response containing hierarchical quest tree"
         ),
       Entities: entities_schema(),
       EntitiesData: entities_data_schema(),

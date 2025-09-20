@@ -21,6 +21,11 @@ defmodule GameMasterCoreWeb.QuestController do
     render(conn, :index, quests: quests)
   end
 
+  def tree(conn, _params) do
+    tree = Quests.list_quests_tree_for_game(conn.assigns.current_scope)
+    render(conn, :tree, tree: tree)
+  end
+
   def create(conn, %{"quest" => quest_params}) do
     with {:ok, %Quest{} = quest} <-
            Quests.create_quest_for_game(conn.assigns.current_scope, quest_params) do

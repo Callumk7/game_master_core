@@ -54,6 +54,56 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Returns a hierarchical tree structure of locations for a game.
+
+  ## Examples
+
+      iex> list_locations_tree_for_game(scope)
+      [%{id: "...", name: "Continent", children: [%{id: "...", name: "City", children: []}]}]
+
+  """
+  def list_locations_tree_for_game(%Scope{} = scope) do
+    locations = 
+      from(l in Location, 
+        where: l.game_id == ^scope.game.id,
+        order_by: [asc: l.name]
+      )
+      |> Repo.all()
+
+    build_tree(locations)
+  end
+
+  defp build_tree(locations) do
+    # Group locations by parent_id
+    grouped = Enum.group_by(locations, & &1.parent_id)
+    
+    # Start with root locations (parent_id is nil)
+    root_locations = Map.get(grouped, nil, [])
+    
+    # Build tree recursively
+    Enum.map(root_locations, fn location ->
+      build_location_node(location, grouped)
+    end)
+  end
+
+  defp build_location_node(location, grouped) do
+    children = 
+      grouped
+      |> Map.get(location.id, [])
+      |> Enum.map(&build_location_node(&1, grouped))
+
+    %{
+      id: location.id,
+      name: location.name,
+      description: location.description,
+      type: location.type,
+      tags: location.tags,
+      parent_id: location.parent_id,
+      children: children
+    }
+  end
+
+  @doc """
   Returns the list of locations.
 
   ## Examples

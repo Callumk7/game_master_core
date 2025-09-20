@@ -62,6 +62,56 @@ defmodule GameMasterCore.Quests do
   end
 
   @doc """
+  Returns a hierarchical tree structure of quests for a game.
+
+  ## Examples
+
+      iex> list_quests_tree_for_game(scope)
+      [%{id: "...", name: "Main Quest", children: [%{id: "...", name: "Sub Quest", children: []}]}]
+
+  """
+  def list_quests_tree_for_game(%Scope{} = scope) do
+    quests = 
+      from(q in Quest, 
+        where: q.game_id == ^scope.game.id,
+        order_by: [asc: q.name]
+      )
+      |> Repo.all()
+
+    build_tree(quests)
+  end
+
+  defp build_tree(quests) do
+    # Group quests by parent_id
+    grouped = Enum.group_by(quests, & &1.parent_id)
+    
+    # Start with root quests (parent_id is nil)
+    root_quests = Map.get(grouped, nil, [])
+    
+    # Build tree recursively
+    Enum.map(root_quests, fn quest ->
+      build_quest_node(quest, grouped)
+    end)
+  end
+
+  defp build_quest_node(quest, grouped) do
+    children = 
+      grouped
+      |> Map.get(quest.id, [])
+      |> Enum.map(&build_quest_node(&1, grouped))
+
+    %{
+      id: quest.id,
+      name: quest.name,
+      content: quest.content,
+      content_plain_text: quest.content_plain_text,
+      tags: quest.tags,
+      parent_id: quest.parent_id,
+      children: children
+    }
+  end
+
+  @doc """
   Returns the list of quests.
 
   ## Examples
