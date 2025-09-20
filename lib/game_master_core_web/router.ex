@@ -69,6 +69,7 @@ defmodule GameMasterCoreWeb.Router do
       end
 
       resources "/characters", CharacterController, except: [:new, :edit] do
+        get "/notes/tree", CharacterController, :notes_tree
         get "/links", CharacterController, :list_links
         post "/links", CharacterController, :create_link
         delete "/links/:entity_type/:entity_id", CharacterController, :delete_link

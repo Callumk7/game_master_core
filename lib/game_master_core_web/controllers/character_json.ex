@@ -40,4 +40,22 @@ defmodule GameMasterCoreWeb.CharacterJSON do
       }
     }
   end
+
+  @doc """
+  Renders character notes tree.
+  """
+  def notes_tree(%{character: character, notes_tree: notes_tree}) do
+    %{
+      data: %{
+        character_id: character.id,
+        character_name: character.name,
+        notes_tree: for(note <- notes_tree, do: note_tree_data(note))
+      }
+    }
+  end
+
+  defp note_tree_data(note) do
+    note_data(note)
+    |> Map.put(:children, for(child <- Map.get(note, :children, []), do: note_tree_data(child)))
+  end
 end
