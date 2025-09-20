@@ -62,10 +62,25 @@ defmodule GameMasterCoreWeb.FactionController do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
     with {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
-           create_faction_link(conn.assigns.current_scope, faction.id, entity_type, entity_id) do
+           create_faction_link(
+             conn.assigns.current_scope,
+             faction.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
       conn
       |> put_status(:created)
       |> json(%{
@@ -113,27 +128,27 @@ defmodule GameMasterCoreWeb.FactionController do
 
   # Private helpers for link management
 
-  defp create_faction_link(scope, faction_id, :note, note_id) do
-    Factions.link_note(scope, faction_id, note_id)
+  defp create_faction_link(scope, faction_id, :note, note_id, metadata_attrs) do
+    Factions.link_note(scope, faction_id, note_id, metadata_attrs)
   end
 
-  defp create_faction_link(scope, faction_id, :character, character_id) do
-    Factions.link_character(scope, faction_id, character_id)
+  defp create_faction_link(scope, faction_id, :character, character_id, metadata_attrs) do
+    Factions.link_character(scope, faction_id, character_id, metadata_attrs)
   end
 
-  defp create_faction_link(scope, faction_id, :location, location_id) do
-    Factions.link_location(scope, faction_id, location_id)
+  defp create_faction_link(scope, faction_id, :location, location_id, metadata_attrs) do
+    Factions.link_location(scope, faction_id, location_id, metadata_attrs)
   end
 
-  defp create_faction_link(scope, faction_id, :quest, quest_id) do
-    Factions.link_quest(scope, faction_id, quest_id)
+  defp create_faction_link(scope, faction_id, :quest, quest_id, metadata_attrs) do
+    Factions.link_quest(scope, faction_id, quest_id, metadata_attrs)
   end
 
-  defp create_faction_link(scope, faction_id, :faction, other_faction_id) do
-    Factions.link_faction(scope, faction_id, other_faction_id)
+  defp create_faction_link(scope, faction_id, :faction, other_faction_id, metadata_attrs) do
+    Factions.link_faction(scope, faction_id, other_faction_id, metadata_attrs)
   end
 
-  defp create_faction_link(_scope, _faction_id, entity_type, _entity_id) do
+  defp create_faction_link(_scope, _faction_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :faction, entity_type}}
   end
 

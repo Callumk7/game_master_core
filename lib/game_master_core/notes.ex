@@ -205,50 +205,50 @@ defmodule GameMasterCore.Notes do
   @doc """
   Links a character to a note.
   """
-  def link_character(%Scope{} = scope, note_id, character_id) do
+  def link_character(%Scope{} = scope, note_id, character_id, metadata_attrs \\ %{}) do
     with {:ok, note} <- get_scoped_note(scope, note_id),
          {:ok, character} <- get_scoped_character(scope, character_id) do
-      Links.link(note, character)
+      Links.link(note, character, metadata_attrs)
     end
   end
 
   @doc """
   Links a faction to a note.
   """
-  def link_faction(%Scope{} = scope, note_id, faction_id) do
+  def link_faction(%Scope{} = scope, note_id, faction_id, metadata_attrs \\ %{}) do
     with {:ok, note} <- get_scoped_note(scope, note_id),
          {:ok, faction} <- get_scoped_faction(scope, faction_id) do
-      Links.link(note, faction)
+      Links.link(note, faction, metadata_attrs)
     end
   end
 
   @doc """
   Links a location to a note.
   """
-  def link_location(%Scope{} = scope, note_id, location_id) do
+  def link_location(%Scope{} = scope, note_id, location_id, metadata_attrs \\ %{}) do
     with {:ok, note} <- get_scoped_note(scope, note_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
-      Links.link(note, location)
+      Links.link(note, location, metadata_attrs)
     end
   end
 
   @doc """
   Links a quest to a note.
   """
-  def link_quest(%Scope{} = scope, note_id, quest_id) do
+  def link_quest(%Scope{} = scope, note_id, quest_id, metadata_attrs \\ %{}) do
     with {:ok, note} <- get_scoped_note(scope, note_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
-      Links.link(note, quest)
+      Links.link(note, quest, metadata_attrs)
     end
   end
 
   @doc """
   Links a note to another note.
   """
-  def link_note(%Scope{} = scope, note_id_1, note_id_2) do
+  def link_note(%Scope{} = scope, note_id_1, note_id_2, metadata_attrs \\ %{}) do
     with {:ok, note_1} <- get_scoped_note(scope, note_id_1),
          {:ok, note_2} <- get_scoped_note(scope, note_id_2) do
-      Links.link(note_1, note_2)
+      Links.link(note_1, note_2, metadata_attrs)
     end
   end
 

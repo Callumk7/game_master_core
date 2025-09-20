@@ -302,8 +302,9 @@ defmodule GameMasterCore.NotesTest do
       {:ok, _} = Notes.link_character(scope, note.id, character1.id)
       {:ok, _} = Notes.link_character(scope, note.id, character2.id)
 
-      linked_characters = Notes.linked_characters(scope, note.id)
-      assert length(linked_characters) == 2
+      linked_characters_with_meta = Notes.linked_characters(scope, note.id)
+      assert length(linked_characters_with_meta) == 2
+      linked_characters = Enum.map(linked_characters_with_meta, & &1.entity)
       assert character1 in linked_characters
       assert character2 in linked_characters
       refute unlinked_character in linked_characters
@@ -473,8 +474,9 @@ defmodule GameMasterCore.NotesTest do
       {:ok, _} = Notes.link_faction(scope, note.id, faction1.id)
       {:ok, _} = Notes.link_faction(scope, note.id, faction2.id)
 
-      linked_factions = Notes.linked_factions(scope, note.id)
-      assert length(linked_factions) == 2
+      linked_factions_with_meta = Notes.linked_factions(scope, note.id)
+      assert length(linked_factions_with_meta) == 2
+      linked_factions = Enum.map(linked_factions_with_meta, & &1.entity)
       assert faction1 in linked_factions
       assert faction2 in linked_factions
       refute unlinked_faction in linked_factions
@@ -642,8 +644,9 @@ defmodule GameMasterCore.NotesTest do
       {:ok, _} = Notes.link_quest(scope, note.id, quest1.id)
       {:ok, _} = Notes.link_quest(scope, note.id, quest2.id)
 
-      linked_quests = Notes.linked_quests(scope, note.id)
-      assert length(linked_quests) == 2
+      linked_quests_with_meta = Notes.linked_quests(scope, note.id)
+      assert length(linked_quests_with_meta) == 2
+      linked_quests = Enum.map(linked_quests_with_meta, & &1.entity)
       assert quest1 in linked_quests
       assert quest2 in linked_quests
       refute unlinked_quest in linked_quests
@@ -673,6 +676,231 @@ defmodule GameMasterCore.NotesTest do
 
       # Same note ID in different scope should return empty
       assert Notes.linked_quests(scope2, note.id) == []
+    end
+  end
+
+  describe "note parent relationships" do
+    alias GameMasterCore.Notes.Note
+
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.NotesFixtures
+    import GameMasterCore.GamesFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.QuestsFixtures
+    import GameMasterCore.LocationsFixtures
+
+    test "create_note/2 with valid note parent creates hierarchical relationship" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      parent_note = note_fixture(scope, %{game_id: game.id, name: "Parent Note"})
+      
+      valid_attrs = %{
+        name: "Child Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: parent_note.id
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
+      assert note.parent_id == parent_note.id
+      assert note.parent_type == nil  # Backward compatibility: nil means Note parent
+    end
+
+    test "create_note/2 with valid character parent creates polymorphic relationship" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      character = character_fixture(scope, %{game_id: game.id})
+      
+      valid_attrs = %{
+        name: "Character Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: character.id,
+        parent_type: "Character"
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
+      assert note.parent_id == character.id
+      assert note.parent_type == "Character"
+    end
+
+    test "create_note/2 with valid quest parent creates polymorphic relationship" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+      
+      valid_attrs = %{
+        name: "Quest Note", 
+        content: "some content",
+        parent_id: quest.id,
+        parent_type: "Quest"
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note_for_game(scope, valid_attrs)
+      assert note.parent_id == quest.id
+      assert note.parent_type == "Quest"
+    end
+
+    test "create_note/2 with valid location parent creates polymorphic relationship" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      location = location_fixture(scope, %{game_id: game.id})
+      
+      valid_attrs = %{
+        name: "Location Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: location.id,
+        parent_type: "Location"
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
+      assert note.parent_id == location.id
+      assert note.parent_type == "Location"
+    end
+
+    test "create_note/2 with valid faction parent creates polymorphic relationship" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: game.id})
+      
+      valid_attrs = %{
+        name: "Faction Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: faction.id,
+        parent_type: "Faction"
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
+      assert note.parent_id == faction.id
+      assert note.parent_type == "Faction"
+    end
+
+    test "create_note/2 with parent_type but no parent_id returns error" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      
+      invalid_attrs = %{
+        name: "Invalid Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_type: "Character"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
+      assert "cannot set parent_type without parent_id" in errors_on(changeset).parent_type
+    end
+
+    test "create_note/2 with invalid parent_type returns error" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      
+      invalid_attrs = %{
+        name: "Invalid Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: Ecto.UUID.generate(),
+        parent_type: "InvalidType"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
+      assert "must be one of: Character, Quest, Location, Faction" in errors_on(changeset).parent_type
+    end
+
+    test "create_note/2 with non-existent character parent returns error" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      
+      invalid_attrs = %{
+        name: "Invalid Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: Ecto.UUID.generate(),
+        parent_type: "Character"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
+      assert "parent Character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
+    end
+
+    test "create_note/2 with cross-game character parent returns error" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      game = game_fixture(scope)
+      other_game = game_fixture(other_scope)
+      character = character_fixture(other_scope, %{game_id: other_game.id})
+      
+      invalid_attrs = %{
+        name: "Invalid Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: character.id,
+        parent_type: "Character"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
+      assert "parent Character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
+    end
+
+    test "create_note/2 with self-referencing parent returns error" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      note = note_fixture(scope, %{game_id: game.id})
+      
+      update_attrs = %{parent_id: note.id}
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Notes.update_note(scope, note, update_attrs)
+      assert "note cannot be its own parent" in errors_on(changeset).parent_id
+    end
+
+    test "update_note/3 can add polymorphic parent to existing note" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      note = note_fixture(scope, %{game_id: game.id})
+      character = character_fixture(scope, %{game_id: game.id})
+      
+      update_attrs = %{parent_id: character.id, parent_type: "Character"}
+
+      assert {:ok, %Note{} = updated_note} = Notes.update_note(scope, note, update_attrs)
+      assert updated_note.parent_id == character.id
+      assert updated_note.parent_type == "Character"
+    end
+
+    test "update_note/3 can remove polymorphic parent" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      character = character_fixture(scope, %{game_id: game.id})
+      note = note_fixture(scope, %{
+        game_id: game.id,
+        parent_id: character.id,
+        parent_type: "Character"
+      })
+      
+      update_attrs = %{parent_id: nil, parent_type: nil}
+
+      assert {:ok, %Note{} = updated_note} = Notes.update_note(scope, note, update_attrs)
+      assert updated_note.parent_id == nil
+      assert updated_note.parent_type == nil
+    end
+
+    test "backward compatibility: existing parent_id without parent_type works" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      parent_note = note_fixture(scope, %{game_id: game.id, name: "Parent Note"})
+      
+      # Simulate existing data where parent_type is nil but parent_id exists (note hierarchy)
+      valid_attrs = %{
+        name: "Child Note", 
+        content: "some content",
+        game_id: game.id,
+        parent_id: parent_note.id
+        # parent_type intentionally omitted (nil)
+      }
+
+      assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
+      assert note.parent_id == parent_note.id
+      assert note.parent_type == nil  # Backward compatibility maintained
     end
   end
 end

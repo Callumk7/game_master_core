@@ -65,10 +65,25 @@ defmodule GameMasterCoreWeb.CharacterController do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
     with {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
-           create_character_link(conn.assigns.current_scope, character_id, entity_type, entity_id) do
+           create_character_link(
+             conn.assigns.current_scope,
+             character_id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
       conn
       |> put_status(:created)
       |> json(%{
@@ -112,27 +127,27 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   # Private helpers for link management
 
-  defp create_character_link(scope, character_id, :note, note_id) do
-    Characters.link_note(scope, character_id, note_id)
+  defp create_character_link(scope, character_id, :note, note_id, metadata_attrs) do
+    Characters.link_note(scope, character_id, note_id, metadata_attrs)
   end
 
-  defp create_character_link(scope, character_id, :faction, faction_id) do
-    Characters.link_faction(scope, character_id, faction_id)
+  defp create_character_link(scope, character_id, :faction, faction_id, metadata_attrs) do
+    Characters.link_faction(scope, character_id, faction_id, metadata_attrs)
   end
 
-  defp create_character_link(scope, character_id, :location, location_id) do
-    Characters.link_location(scope, character_id, location_id)
+  defp create_character_link(scope, character_id, :location, location_id, metadata_attrs) do
+    Characters.link_location(scope, character_id, location_id, metadata_attrs)
   end
 
-  defp create_character_link(scope, character_id, :quest, quest_id) do
-    Characters.link_quest(scope, character_id, quest_id)
+  defp create_character_link(scope, character_id, :quest, quest_id, metadata_attrs) do
+    Characters.link_quest(scope, character_id, quest_id, metadata_attrs)
   end
 
-  defp create_character_link(scope, character_id, :character, other_character_id) do
-    Characters.link_character(scope, character_id, other_character_id)
+  defp create_character_link(scope, character_id, :character, other_character_id, metadata_attrs) do
+    Characters.link_character(scope, character_id, other_character_id, metadata_attrs)
   end
 
-  defp create_character_link(_scope, _character_id, entity_type, _entity_id) do
+  defp create_character_link(_scope, _character_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :character, entity_type}}
   end
 

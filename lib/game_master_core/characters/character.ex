@@ -11,6 +11,7 @@ defmodule GameMasterCore.Characters.Character do
   schema "characters" do
     field :name, :string
     field :description, :string
+    field :description_plain_text, :string
     field :class, :string
     field :level, :integer
     field :image_url, :string
@@ -33,7 +34,15 @@ defmodule GameMasterCore.Characters.Character do
   @doc false
   def changeset(character, attrs, user_scope, game_id) do
     character
-    |> cast(attrs, [:name, :description, :class, :level, :image_url, :tags])
+    |> cast(attrs, [
+      :name,
+      :description,
+      :description_plain_text,
+      :class,
+      :level,
+      :image_url,
+      :tags
+    ])
     |> validate_required([:name, :class, :level])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)

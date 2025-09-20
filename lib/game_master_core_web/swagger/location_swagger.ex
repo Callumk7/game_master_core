@@ -27,6 +27,25 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :tree do
+        get("/api/games/{game_id}/locations/tree")
+        summary("Get location tree")
+        description("Get hierarchical tree structure of all locations in a game")
+        operation_id("getLocationTree")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:LocationTreeResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
       swagger_path :create do
         post("/api/games/{game_id}/locations")
         summary("Create location")
@@ -122,17 +141,14 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
         description("Link a location to another entity (note, faction, etc.)")
         operation_id("createLocationLink")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           location_id(:path, :string, "Location ID", required: true, format: :uuid)
 
-          entity_type(:query, :string, "Entity type to link",
-            required: true,
-            enum: ["character", "faction", "location", "quest", "note"]
-          )
-
-          entity_id(:query, :string, "Entity ID to link", required: true, format: :uuid)
+          body(:body, Schema.ref(:LinkRequest), "Link creation data", required: true)
         end
 
         security([%{Bearer: []}])

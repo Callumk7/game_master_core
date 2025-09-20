@@ -260,8 +260,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_character(scope, location.id, character1.id)
       {:ok, _} = Locations.link_character(scope, location.id, character2.id)
 
-      linked_characters = Locations.linked_characters(scope, location.id)
-      assert length(linked_characters) == 2
+      linked_characters_with_meta = Locations.linked_characters(scope, location.id)
+      assert length(linked_characters_with_meta) == 2
+      linked_characters = Enum.map(linked_characters_with_meta, & &1.entity)
       assert character1 in linked_characters
       assert character2 in linked_characters
       refute unlinked_character in linked_characters
@@ -429,8 +430,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_note(scope, location.id, note1.id)
       {:ok, _} = Locations.link_note(scope, location.id, note2.id)
 
-      linked_notes = Locations.linked_notes(scope, location.id)
-      assert length(linked_notes) == 2
+      linked_notes_with_meta = Locations.linked_notes(scope, location.id)
+      assert length(linked_notes_with_meta) == 2
+      linked_notes = Enum.map(linked_notes_with_meta, & &1.entity)
       assert note1 in linked_notes
       assert note2 in linked_notes
       refute unlinked_note in linked_notes
@@ -602,8 +604,9 @@ defmodule GameMasterCore.LocationsTest do
       {:ok, _} = Locations.link_faction(scope, location.id, faction1.id)
       {:ok, _} = Locations.link_faction(scope, location.id, faction2.id)
 
-      linked_factions = Locations.linked_factions(scope, location.id)
-      assert length(linked_factions) == 2
+      linked_factions_with_meta = Locations.linked_factions(scope, location.id)
+      assert length(linked_factions_with_meta) == 2
+      linked_factions = Enum.map(linked_factions_with_meta, & &1.entity)
       assert faction1 in linked_factions
       assert faction2 in linked_factions
       refute unlinked_faction in linked_factions
@@ -633,6 +636,238 @@ defmodule GameMasterCore.LocationsTest do
 
       # Same location ID in different scope should return empty
       assert Locations.linked_factions(scope2, location.id) == []
+    end
+  end
+
+  describe "location tree" do
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.LocationsFixtures
+    import GameMasterCore.GamesFixtures
+
+    test "list_locations_tree_for_game/1 returns empty list when no locations exist" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      assert Locations.list_locations_tree_for_game(scope) == []
+    end
+
+    test "list_locations_tree_for_game/1 returns flat tree for root locations" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      location1 = location_fixture(scope, %{
+        game_id: game.id, 
+        name: "Forest", 
+        type: "region", 
+        parent_id: nil
+      })
+      location2 = location_fixture(scope, %{
+        game_id: game.id, 
+        name: "Mountains", 
+        type: "region", 
+        parent_id: nil
+      })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+
+      assert length(tree) == 2
+      # Should be sorted by name
+      [first, second] = tree
+      assert first.id == location1.id
+      assert first.name == "Forest"
+      assert first.children == []
+
+      assert second.id == location2.id
+      assert second.name == "Mountains"
+      assert second.children == []
+    end
+
+    test "list_locations_tree_for_game/1 builds hierarchical structure correctly" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      # Create continent (root)
+      continent = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Westeros",
+        type: "continent",
+        parent_id: nil
+      })
+
+      # Create nation (child of continent)
+      nation = location_fixture(scope, %{
+        game_id: game.id,
+        name: "The North",
+        type: "nation", 
+        parent_id: continent.id
+      })
+
+      # Create city (child of nation)
+      city = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Winterfell",
+        type: "city",
+        parent_id: nation.id
+      })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+
+      assert length(tree) == 1
+      [continent_node] = tree
+      assert continent_node.id == continent.id
+      assert continent_node.name == "Westeros"
+      assert continent_node.parent_id == nil
+
+      assert length(continent_node.children) == 1
+      [nation_node] = continent_node.children
+      assert nation_node.id == nation.id
+      assert nation_node.name == "The North"
+      assert nation_node.parent_id == continent.id
+
+      assert length(nation_node.children) == 1
+      [city_node] = nation_node.children
+      assert city_node.id == city.id
+      assert city_node.name == "Winterfell"
+      assert city_node.parent_id == nation.id
+      assert city_node.children == []
+    end
+
+    test "list_locations_tree_for_game/1 handles multiple children correctly" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      # Create parent location
+      continent = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Continent",
+        type: "continent",
+        parent_id: nil
+      })
+
+      # Create multiple children
+      nation1 = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Zebra Nation",
+        type: "nation",
+        parent_id: continent.id
+      })
+
+      nation2 = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Alpha Nation",
+        type: "nation",
+        parent_id: continent.id
+      })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+
+      [continent_node] = tree
+      assert length(continent_node.children) == 2
+      
+      # Should be sorted by name
+      [child1, child2] = continent_node.children
+      assert child1.name == "Alpha Nation"
+      assert child1.id == nation2.id
+      
+      assert child2.name == "Zebra Nation"
+      assert child2.id == nation1.id
+    end
+
+    test "list_locations_tree_for_game/1 includes all location fields" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      location = location_fixture(scope, %{
+        game_id: game.id,
+        name: "Test Location",
+        description: "A test description",
+        type: "city",
+        tags: ["test", "example"],
+        parent_id: nil
+      })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+
+      [node] = tree
+      assert node.id == location.id
+      assert node.name == "Test Location"
+      assert node.description == "A test description"
+      assert node.type == "city"
+      assert node.tags == ["test", "example"]
+      assert node.parent_id == nil
+      assert node.children == []
+    end
+
+    test "list_locations_tree_for_game/1 only returns locations for specified game" do
+      scope = user_scope_fixture()
+      game1 = game_fixture(scope)
+      game2 = game_fixture(scope)
+
+      # Create location in game1
+      _location1 = location_fixture(scope, %{
+        game_id: game1.id, 
+        name: "Game 1 Location", 
+        type: "city"
+      })
+
+      # Create location in game2  
+      _location2 = location_fixture(scope, %{
+        game_id: game2.id, 
+        name: "Game 2 Location", 
+        type: "city"
+      })
+
+      # Test game1
+      scope1 = %{scope | game: game1}
+      tree1 = Locations.list_locations_tree_for_game(scope1)
+      assert length(tree1) == 1
+      [node1] = tree1
+      assert node1.name == "Game 1 Location"
+
+      # Test game2
+      scope2 = %{scope | game: game2}
+      tree2 = Locations.list_locations_tree_for_game(scope2)
+      assert length(tree2) == 1
+      [node2] = tree2
+      assert node2.name == "Game 2 Location"
+    end
+
+    test "list_locations_tree_for_game/1 handles deep nesting" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      # Create 4-level hierarchy
+      continent = location_fixture(scope, %{
+        game_id: game.id, name: "Continent", type: "continent", parent_id: nil
+      })
+      nation = location_fixture(scope, %{
+        game_id: game.id, name: "Nation", type: "nation", parent_id: continent.id
+      })
+      region = location_fixture(scope, %{
+        game_id: game.id, name: "Region", type: "region", parent_id: nation.id
+      })
+      _city = location_fixture(scope, %{
+        game_id: game.id, name: "City", type: "city", parent_id: region.id
+      })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+
+      [continent_node] = tree
+      [nation_node] = continent_node.children
+      [region_node] = nation_node.children
+      [city_node] = region_node.children
+
+      assert continent_node.name == "Continent"
+      assert nation_node.name == "Nation"
+      assert region_node.name == "Region"
+      assert city_node.name == "City"
+      assert city_node.children == []
     end
   end
 end

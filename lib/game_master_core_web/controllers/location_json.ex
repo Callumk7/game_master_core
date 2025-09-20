@@ -15,6 +15,13 @@ defmodule GameMasterCoreWeb.LocationJSON do
     %{data: location_data(location)}
   end
 
+  @doc """
+  Renders the location tree structure.
+  """
+  def tree(%{tree: tree}) do
+    %{data: tree}
+  end
+
   def links(%{
         location: location,
         notes: notes,
@@ -29,11 +36,11 @@ defmodule GameMasterCoreWeb.LocationJSON do
         location_name: location.name,
         location_type: location.type,
         links: %{
-          notes: for(note <- notes, do: note_data(note)),
-          factions: for(faction <- factions, do: faction_data(faction)),
-          characters: for(character <- characters, do: character_data(character)),
-          quests: for(quest <- quests, do: quest_data(quest)),
-          locations: for(loc <- locations, do: location_data(loc))
+          notes: for(note <- notes, do: note_data_with_metadata(note)),
+          factions: for(faction <- factions, do: faction_data_with_metadata(faction)),
+          characters: for(character <- characters, do: character_data_with_metadata(character)),
+          quests: for(quest <- quests, do: quest_data_with_metadata(quest)),
+          locations: for(loc <- locations, do: location_data_with_metadata(loc))
         }
       }
     }

@@ -27,83 +27,83 @@ defmodule GameMasterCore.Links do
   Creates a link between two entities.
   Returns {:ok, link} on success, {:error, changeset} on failure.
   """
-  def link(entity1, entity2) do
+  def link(entity1, entity2, metadata_attrs \\ %{}) do
     case {entity1, entity2} do
       {%Character{} = character, %Note{} = note} ->
-        create_character_note_link(character, note)
+        create_character_note_link(character, note, metadata_attrs)
 
       {%Note{} = note, %Character{} = character} ->
-        create_character_note_link(character, note)
+        create_character_note_link(character, note, metadata_attrs)
 
       {%Note{} = note, %Faction{} = faction} ->
-        create_faction_note_link(faction, note)
+        create_faction_note_link(faction, note, metadata_attrs)
 
       {%Faction{} = faction, %Note{} = note} ->
-        create_faction_note_link(faction, note)
+        create_faction_note_link(faction, note, metadata_attrs)
 
       {%Character{} = character, %Faction{} = faction} ->
-        create_character_faction_link(character, faction)
+        create_character_faction_link(character, faction, metadata_attrs)
 
       {%Faction{} = faction, %Character{} = character} ->
-        create_character_faction_link(character, faction)
+        create_character_faction_link(character, faction, metadata_attrs)
 
       {%Location{} = location, %Note{} = note} ->
-        create_location_note_link(location, note)
+        create_location_note_link(location, note, metadata_attrs)
 
       {%Location{} = location, %Character{} = character} ->
-        create_character_location_link(character, location)
+        create_character_location_link(character, location, metadata_attrs)
 
       {%Location{} = location, %Faction{} = faction} ->
-        create_faction_location_link(faction, location)
+        create_faction_location_link(faction, location, metadata_attrs)
 
       {%Note{} = note, %Location{} = location} ->
-        create_location_note_link(location, note)
+        create_location_note_link(location, note, metadata_attrs)
 
       {%Character{} = character, %Location{} = location} ->
-        create_character_location_link(character, location)
+        create_character_location_link(character, location, metadata_attrs)
 
       {%Faction{} = faction, %Location{} = location} ->
-        create_faction_location_link(faction, location)
+        create_faction_location_link(faction, location, metadata_attrs)
 
       {%Quest{} = quest, %Character{} = character} ->
-        create_quest_character_link(quest, character)
+        create_quest_character_link(quest, character, metadata_attrs)
 
       {%Character{} = character, %Quest{} = quest} ->
-        create_quest_character_link(quest, character)
+        create_quest_character_link(quest, character, metadata_attrs)
 
       {%Quest{} = quest, %Faction{} = faction} ->
-        create_quest_faction_link(quest, faction)
+        create_quest_faction_link(quest, faction, metadata_attrs)
 
       {%Faction{} = faction, %Quest{} = quest} ->
-        create_quest_faction_link(quest, faction)
+        create_quest_faction_link(quest, faction, metadata_attrs)
 
       {%Quest{} = quest, %Location{} = location} ->
-        create_quest_location_link(quest, location)
+        create_quest_location_link(quest, location, metadata_attrs)
 
       {%Location{} = location, %Quest{} = quest} ->
-        create_quest_location_link(quest, location)
+        create_quest_location_link(quest, location, metadata_attrs)
 
       {%Quest{} = quest, %Note{} = note} ->
-        create_quest_note_link(quest, note)
+        create_quest_note_link(quest, note, metadata_attrs)
 
       {%Note{} = note, %Quest{} = quest} ->
-        create_quest_note_link(quest, note)
+        create_quest_note_link(quest, note, metadata_attrs)
 
       # Self-join relationships
       {%Character{} = character1, %Character{} = character2} ->
-        create_character_character_link(character1, character2)
+        create_character_character_link(character1, character2, metadata_attrs)
 
       {%Faction{} = faction1, %Faction{} = faction2} ->
-        create_faction_faction_link(faction1, faction2)
+        create_faction_faction_link(faction1, faction2, metadata_attrs)
 
       {%Location{} = location1, %Location{} = location2} ->
-        create_location_location_link(location1, location2)
+        create_location_location_link(location1, location2, metadata_attrs)
 
       {%Quest{} = quest1, %Quest{} = quest2} ->
-        create_quest_quest_link(quest1, quest2)
+        create_quest_quest_link(quest1, quest2, metadata_attrs)
 
       {%Note{} = note1, %Note{} = note2} ->
-        create_note_note_link(note1, note2)
+        create_note_note_link(note1, note2, metadata_attrs)
 
       # Add more entity combinations as needed
       _ ->
@@ -343,12 +343,16 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Note links
 
-  defp create_character_note_link(character, note) do
+  defp create_character_note_link(character, note, metadata_attrs) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterNote{}
-    |> CharacterNote.changeset(%{
-      character_id: character.id,
-      note_id: note.id
-    })
+    |> CharacterNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -370,7 +374,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: cn in CharacterNote,
       on: cn.note_id == n.id,
-      where: cn.character_id == ^character.id
+      where: cn.character_id == ^character.id,
+      select: %{
+        entity: n,
+        relationship_type: cn.relationship_type,
+        description: cn.description,
+        strength: cn.strength,
+        is_active: cn.is_active,
+        metadata: cn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -379,19 +391,31 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: cn in CharacterNote,
       on: cn.character_id == c.id,
-      where: cn.note_id == ^note.id
+      where: cn.note_id == ^note.id,
+      select: %{
+        entity: c,
+        relationship_type: cn.relationship_type,
+        description: cn.description,
+        strength: cn.strength,
+        is_active: cn.is_active,
+        metadata: cn.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Faction <-> Note links
 
-  defp create_faction_note_link(faction, note) do
+  defp create_faction_note_link(faction, note, metadata_attrs) do
+    changeset_attrs =
+      %{
+        faction_id: faction.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionNote{}
-    |> FactionNote.changeset(%{
-      faction_id: faction.id,
-      note_id: note.id
-    })
+    |> FactionNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -413,7 +437,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: facn in FactionNote,
       on: facn.faction_id == f.id,
-      where: facn.note_id == ^note.id
+      where: facn.note_id == ^note.id,
+      select: %{
+        entity: f,
+        relationship_type: facn.relationship_type,
+        description: facn.description,
+        strength: facn.strength,
+        is_active: facn.is_active,
+        metadata: facn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -422,19 +454,31 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: facn in FactionNote,
       on: facn.note_id == n.id,
-      where: facn.faction_id == ^faction.id
+      where: facn.faction_id == ^faction.id,
+      select: %{
+        entity: n,
+        relationship_type: facn.relationship_type,
+        description: facn.description,
+        strength: facn.strength,
+        is_active: facn.is_active,
+        metadata: facn.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Character <-> Faction links
 
-  defp create_character_faction_link(character, faction) do
+  defp create_character_faction_link(character, faction, metadata_attrs) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        faction_id: faction.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterFaction{}
-    |> CharacterFaction.changeset(%{
-      character_id: character.id,
-      faction_id: faction.id
-    })
+    |> CharacterFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -456,7 +500,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: fc in CharacterFaction,
       on: fc.faction_id == f.id,
-      where: fc.character_id == ^character.id
+      where: fc.character_id == ^character.id,
+      select: %{
+        entity: f,
+        relationship_type: fc.relationship_type,
+        description: fc.description,
+        strength: fc.strength,
+        is_active: fc.is_active,
+        metadata: fc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -465,19 +517,31 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: fc in CharacterFaction,
       on: fc.character_id == c.id,
-      where: fc.faction_id == ^faction.id
+      where: fc.faction_id == ^faction.id,
+      select: %{
+        entity: c,
+        relationship_type: fc.relationship_type,
+        description: fc.description,
+        strength: fc.strength,
+        is_active: fc.is_active,
+        metadata: fc.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Location <-> Note links
 
-  defp create_location_note_link(location, note) do
+  defp create_location_note_link(location, note, metadata_attrs) do
+    changeset_attrs =
+      %{
+        location_id: location.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %LocationNote{}
-    |> LocationNote.changeset(%{
-      location_id: location.id,
-      note_id: note.id
-    })
+    |> LocationNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -499,7 +563,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: ln in LocationNote,
       on: ln.note_id == n.id,
-      where: ln.location_id == ^location.id
+      where: ln.location_id == ^location.id,
+      select: %{
+        entity: n,
+        relationship_type: ln.relationship_type,
+        description: ln.description,
+        strength: ln.strength,
+        is_active: ln.is_active,
+        metadata: ln.metadata
+      }
     )
     |> Repo.all()
   end
@@ -508,19 +580,31 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: ln in LocationNote,
       on: ln.location_id == l.id,
-      where: ln.note_id == ^note.id
+      where: ln.note_id == ^note.id,
+      select: %{
+        entity: l,
+        relationship_type: ln.relationship_type,
+        description: ln.description,
+        strength: ln.strength,
+        is_active: ln.is_active,
+        metadata: ln.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Character <-> Location links
 
-  defp create_character_location_link(character, location) do
+  defp create_character_location_link(character, location, metadata_attrs) do
+    changeset_attrs =
+      %{
+        character_id: character.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterLocation{}
-    |> CharacterLocation.changeset(%{
-      character_id: character.id,
-      location_id: location.id
-    })
+    |> CharacterLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -542,7 +626,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: cl in CharacterLocation,
       on: cl.location_id == l.id,
-      where: cl.character_id == ^character.id
+      where: cl.character_id == ^character.id,
+      select: %{
+        entity: l,
+        relationship_type: cl.relationship_type,
+        description: cl.description,
+        strength: cl.strength,
+        is_active: cl.is_active,
+        metadata: cl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -551,18 +643,30 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: cl in CharacterLocation,
       on: cl.character_id == c.id,
-      where: cl.location_id == ^location.id
+      where: cl.location_id == ^location.id,
+      select: %{
+        entity: c,
+        relationship_type: cl.relationship_type,
+        description: cl.description,
+        strength: cl.strength,
+        is_active: cl.is_active,
+        metadata: cl.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Faction <-> Location links
-  defp create_faction_location_link(faction, location) do
+  defp create_faction_location_link(faction, location, metadata_attrs) do
+    changeset_attrs =
+      %{
+        faction_id: faction.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionLocation{}
-    |> FactionLocation.changeset(%{
-      faction_id: faction.id,
-      location_id: location.id
-    })
+    |> FactionLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -584,7 +688,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: fl in FactionLocation,
       on: fl.faction_id == f.id,
-      where: fl.location_id == ^location.id
+      where: fl.location_id == ^location.id,
+      select: %{
+        entity: f,
+        relationship_type: fl.relationship_type,
+        description: fl.description,
+        strength: fl.strength,
+        is_active: fl.is_active,
+        metadata: fl.metadata
+      }
     )
     |> Repo.all()
   end
@@ -593,18 +705,30 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: fl in FactionLocation,
       on: fl.location_id == l.id,
-      where: fl.faction_id == ^faction.id
+      where: fl.faction_id == ^faction.id,
+      select: %{
+        entity: l,
+        relationship_type: fl.relationship_type,
+        description: fl.description,
+        strength: fl.strength,
+        is_active: fl.is_active,
+        metadata: fl.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Quest <-> Character links
-  defp create_quest_character_link(quest, character) do
+  defp create_quest_character_link(quest, character, metadata_attrs) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        character_id: character.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestCharacter{}
-    |> QuestCharacter.changeset(%{
-      quest_id: quest.id,
-      character_id: character.id
-    })
+    |> QuestCharacter.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -626,7 +750,15 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qc in QuestCharacter,
       on: qc.quest_id == q.id,
-      where: qc.character_id == ^character.id
+      where: qc.character_id == ^character.id,
+      select: %{
+        entity: q,
+        relationship_type: qc.relationship_type,
+        description: qc.description,
+        strength: qc.strength,
+        is_active: qc.is_active,
+        metadata: qc.metadata
+      }
     )
     |> Repo.all()
   end
@@ -635,18 +767,30 @@ defmodule GameMasterCore.Links do
     from(c in Character,
       join: qc in QuestCharacter,
       on: qc.character_id == c.id,
-      where: qc.quest_id == ^quest.id
+      where: qc.quest_id == ^quest.id,
+      select: %{
+        entity: c,
+        relationship_type: qc.relationship_type,
+        description: qc.description,
+        strength: qc.strength,
+        is_active: qc.is_active,
+        metadata: qc.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Quest <-> Faction links
-  defp create_quest_faction_link(quest, faction) do
+  defp create_quest_faction_link(quest, faction, metadata_attrs) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        faction_id: faction.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestFaction{}
-    |> QuestFaction.changeset(%{
-      quest_id: quest.id,
-      faction_id: faction.id
-    })
+    |> QuestFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -668,7 +812,15 @@ defmodule GameMasterCore.Links do
     from(f in Faction,
       join: qf in QuestFaction,
       on: qf.faction_id == f.id,
-      where: qf.quest_id == ^quest.id
+      where: qf.quest_id == ^quest.id,
+      select: %{
+        entity: f,
+        relationship_type: qf.relationship_type,
+        description: qf.description,
+        strength: qf.strength,
+        is_active: qf.is_active,
+        metadata: qf.metadata
+      }
     )
     |> Repo.all()
   end
@@ -677,18 +829,30 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qf in QuestFaction,
       on: qf.quest_id == q.id,
-      where: qf.faction_id == ^faction.id
+      where: qf.faction_id == ^faction.id,
+      select: %{
+        entity: q,
+        relationship_type: qf.relationship_type,
+        description: qf.description,
+        strength: qf.strength,
+        is_active: qf.is_active,
+        metadata: qf.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Quest <-> Location links
-  defp create_quest_location_link(quest, location) do
+  defp create_quest_location_link(quest, location, metadata_attrs) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        location_id: location.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestLocation{}
-    |> QuestLocation.changeset(%{
-      quest_id: quest.id,
-      location_id: location.id
-    })
+    |> QuestLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -710,7 +874,15 @@ defmodule GameMasterCore.Links do
     from(l in Location,
       join: ql in QuestLocation,
       on: ql.location_id == l.id,
-      where: ql.quest_id == ^quest.id
+      where: ql.quest_id == ^quest.id,
+      select: %{
+        entity: l,
+        relationship_type: ql.relationship_type,
+        description: ql.description,
+        strength: ql.strength,
+        is_active: ql.is_active,
+        metadata: ql.metadata
+      }
     )
     |> Repo.all()
   end
@@ -719,18 +891,30 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: ql in QuestLocation,
       on: ql.quest_id == q.id,
-      where: ql.location_id == ^location.id
+      where: ql.location_id == ^location.id,
+      select: %{
+        entity: q,
+        relationship_type: ql.relationship_type,
+        description: ql.description,
+        strength: ql.strength,
+        is_active: ql.is_active,
+        metadata: ql.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Quest <-> Note links
-  defp create_quest_note_link(quest, note) do
+  defp create_quest_note_link(quest, note, metadata_attrs) do
+    changeset_attrs =
+      %{
+        quest_id: quest.id,
+        note_id: note.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestNote{}
-    |> QuestNote.changeset(%{
-      quest_id: quest.id,
-      note_id: note.id
-    })
+    |> QuestNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -752,7 +936,15 @@ defmodule GameMasterCore.Links do
     from(n in Note,
       join: qn in QuestNote,
       on: qn.note_id == n.id,
-      where: qn.quest_id == ^quest.id
+      where: qn.quest_id == ^quest.id,
+      select: %{
+        entity: n,
+        relationship_type: qn.relationship_type,
+        description: qn.description,
+        strength: qn.strength,
+        is_active: qn.is_active,
+        metadata: qn.metadata
+      }
     )
     |> Repo.all()
   end
@@ -761,18 +953,30 @@ defmodule GameMasterCore.Links do
     from(q in Quest,
       join: qn in QuestNote,
       on: qn.quest_id == q.id,
-      where: qn.note_id == ^note.id
+      where: qn.note_id == ^note.id,
+      select: %{
+        entity: q,
+        relationship_type: qn.relationship_type,
+        description: qn.description,
+        strength: qn.strength,
+        is_active: qn.is_active,
+        metadata: qn.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Character <-> Character links
-  defp create_character_character_link(character1, character2) do
+  defp create_character_character_link(character1, character2, metadata_attrs) do
+    changeset_attrs =
+      %{
+        character_1_id: character1.id,
+        character_2_id: character2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %CharacterCharacter{}
-    |> CharacterCharacter.changeset(%{
-      character_1_id: character1.id,
-      character_2_id: character2.id
-    })
+    |> CharacterCharacter.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -811,18 +1015,30 @@ defmodule GameMasterCore.Links do
       on:
         (cc.character_1_id == c.id and cc.character_2_id == ^character.id) or
           (cc.character_2_id == c.id and cc.character_1_id == ^character.id),
-      where: c.id != ^character.id
+      where: c.id != ^character.id,
+      select: %{
+        entity: c,
+        relationship_type: cc.relationship_type,
+        description: cc.description,
+        strength: cc.strength,
+        is_active: cc.is_active,
+        metadata: cc.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Faction <-> Faction links
-  defp create_faction_faction_link(faction1, faction2) do
+  defp create_faction_faction_link(faction1, faction2, metadata_attrs) do
+    changeset_attrs =
+      %{
+        faction_1_id: faction1.id,
+        faction_2_id: faction2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %FactionFaction{}
-    |> FactionFaction.changeset(%{
-      faction_1_id: faction1.id,
-      faction_2_id: faction2.id
-    })
+    |> FactionFaction.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -854,18 +1070,30 @@ defmodule GameMasterCore.Links do
       on:
         (ff.faction_1_id == f.id and ff.faction_2_id == ^faction.id) or
           (ff.faction_2_id == f.id and ff.faction_1_id == ^faction.id),
-      where: f.id != ^faction.id
+      where: f.id != ^faction.id,
+      select: %{
+        entity: f,
+        relationship_type: ff.relationship_type,
+        description: ff.description,
+        strength: ff.strength,
+        is_active: ff.is_active,
+        metadata: ff.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Location <-> Location links
-  defp create_location_location_link(location1, location2) do
+  defp create_location_location_link(location1, location2, metadata_attrs) do
+    changeset_attrs =
+      %{
+        location_1_id: location1.id,
+        location_2_id: location2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %LocationLocation{}
-    |> LocationLocation.changeset(%{
-      location_1_id: location1.id,
-      location_2_id: location2.id
-    })
+    |> LocationLocation.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -900,18 +1128,30 @@ defmodule GameMasterCore.Links do
       on:
         (ll.location_1_id == l.id and ll.location_2_id == ^location.id) or
           (ll.location_2_id == l.id and ll.location_1_id == ^location.id),
-      where: l.id != ^location.id
+      where: l.id != ^location.id,
+      select: %{
+        entity: l,
+        relationship_type: ll.relationship_type,
+        description: ll.description,
+        strength: ll.strength,
+        is_active: ll.is_active,
+        metadata: ll.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Quest <-> Quest links
-  defp create_quest_quest_link(quest1, quest2) do
+  defp create_quest_quest_link(quest1, quest2, metadata_attrs) do
+    changeset_attrs =
+      %{
+        quest_1_id: quest1.id,
+        quest_2_id: quest2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %QuestQuest{}
-    |> QuestQuest.changeset(%{
-      quest_1_id: quest1.id,
-      quest_2_id: quest2.id
-    })
+    |> QuestQuest.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -943,18 +1183,30 @@ defmodule GameMasterCore.Links do
       on:
         (qq.quest_1_id == q.id and qq.quest_2_id == ^quest.id) or
           (qq.quest_2_id == q.id and qq.quest_1_id == ^quest.id),
-      where: q.id != ^quest.id
+      where: q.id != ^quest.id,
+      select: %{
+        entity: q,
+        relationship_type: qq.relationship_type,
+        description: qq.description,
+        strength: qq.strength,
+        is_active: qq.is_active,
+        metadata: qq.metadata
+      }
     )
     |> Repo.all()
   end
 
   # Private functions for Note <-> Note links
-  defp create_note_note_link(note1, note2) do
+  defp create_note_note_link(note1, note2, metadata_attrs) do
+    changeset_attrs =
+      %{
+        note_1_id: note1.id,
+        note_2_id: note2.id
+      }
+      |> Map.merge(metadata_attrs)
+
     %NoteNote{}
-    |> NoteNote.changeset(%{
-      note_1_id: note1.id,
-      note_2_id: note2.id
-    })
+    |> NoteNote.changeset(changeset_attrs)
     |> Repo.insert()
   end
 
@@ -986,7 +1238,15 @@ defmodule GameMasterCore.Links do
       on:
         (nn.note_1_id == n.id and nn.note_2_id == ^note.id) or
           (nn.note_2_id == n.id and nn.note_1_id == ^note.id),
-      where: n.id != ^note.id
+      where: n.id != ^note.id,
+      select: %{
+        entity: n,
+        relationship_type: nn.relationship_type,
+        description: nn.description,
+        strength: nn.strength,
+        is_active: nn.is_active,
+        metadata: nn.metadata
+      }
     )
     |> Repo.all()
   end

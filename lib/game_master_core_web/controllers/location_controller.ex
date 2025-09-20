@@ -21,6 +21,11 @@ defmodule GameMasterCoreWeb.LocationController do
     render(conn, :index, locations: locations)
   end
 
+  def tree(conn, _params) do
+    tree = Locations.list_locations_tree_for_game(conn.assigns.current_scope)
+    render(conn, :tree, tree: tree)
+  end
+
   def create(conn, %{"location" => location_params}) do
     with {:ok, %Location{} = location} <-
            Locations.create_location_for_game(conn.assigns.current_scope, location_params) do
@@ -62,10 +67,25 @@ defmodule GameMasterCoreWeb.LocationController do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
     with {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
-           create_location_link(conn.assigns.current_scope, location.id, entity_type, entity_id) do
+           create_location_link(
+             conn.assigns.current_scope,
+             location.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
       conn
       |> put_status(:created)
       |> json(%{
@@ -109,27 +129,27 @@ defmodule GameMasterCoreWeb.LocationController do
 
   # Private helpers for link management
 
-  defp create_location_link(scope, location_id, :note, note_id) do
-    Locations.link_note(scope, location_id, note_id)
+  defp create_location_link(scope, location_id, :note, note_id, metadata_attrs) do
+    Locations.link_note(scope, location_id, note_id, metadata_attrs)
   end
 
-  defp create_location_link(scope, location_id, :faction, faction_id) do
-    Locations.link_faction(scope, location_id, faction_id)
+  defp create_location_link(scope, location_id, :faction, faction_id, metadata_attrs) do
+    Locations.link_faction(scope, location_id, faction_id, metadata_attrs)
   end
 
-  defp create_location_link(scope, location_id, :character, character_id) do
-    Locations.link_character(scope, location_id, character_id)
+  defp create_location_link(scope, location_id, :character, character_id, metadata_attrs) do
+    Locations.link_character(scope, location_id, character_id, metadata_attrs)
   end
 
-  defp create_location_link(scope, location_id, :quest, quest_id) do
-    Locations.link_quest(scope, location_id, quest_id)
+  defp create_location_link(scope, location_id, :quest, quest_id, metadata_attrs) do
+    Locations.link_quest(scope, location_id, quest_id, metadata_attrs)
   end
 
-  defp create_location_link(scope, location_id, :location, other_location_id) do
-    Locations.link_location(scope, location_id, other_location_id)
+  defp create_location_link(scope, location_id, :location, other_location_id, metadata_attrs) do
+    Locations.link_location(scope, location_id, other_location_id, metadata_attrs)
   end
 
-  defp create_location_link(_scope, _location_id, entity_type, _entity_id) do
+  defp create_location_link(_scope, _location_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :location, entity_type}}
   end
 

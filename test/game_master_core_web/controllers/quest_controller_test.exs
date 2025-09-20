@@ -55,8 +55,34 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some content",
-               "name" => "some name"
+               "name" => "some name",
+               "parent_id" => nil
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders quest with parent_id when data is valid", %{
+      conn: conn,
+      scope: scope,
+      game: game
+    } do
+      # Create parent quest first
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      parent_quest = quest_fixture(game_scope, %{game_id: game.id})
+
+      attrs_with_parent = Map.put(@create_attrs, :parent_id, parent_quest.id)
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_parent)
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+
+      assert %{
+               "id" => ^id,
+               "content" => "some content",
+               "name" => "some name",
+               "parent_id" => parent_id
+             } = json_response(conn, 200)["data"]
+
+      assert parent_id == parent_quest.id
     end
 
     test "denies quest creation for games user cannot access", %{conn: conn, scope: _scope} do
@@ -71,6 +97,43 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     test "renders errors when data is invalid", %{conn: conn, scope: _scope, game: game} do
       conn = post(conn, ~p"/api/games/#{game}/quests", quest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "renders error when parent quest does not exist", %{
+      conn: conn,
+      scope: _scope,
+      game: game
+    } do
+      invalid_parent_id = Ecto.UUID.generate()
+      attrs_with_invalid_parent = Map.put(@create_attrs, :parent_id, invalid_parent_id)
+
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_invalid_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent quest does not exist or does not belong to the same game"
+             ]
+    end
+
+    test "renders error when parent quest belongs to different game", %{
+      conn: conn,
+      scope: _scope,
+      game: game
+    } do
+      # Create a quest in a different game
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_user_scope, other_game)
+      other_quest = quest_fixture(other_game_scope, %{game_id: other_game.id})
+
+      attrs_with_cross_game_parent = Map.put(@create_attrs, :parent_id, other_quest.id)
+
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: attrs_with_cross_game_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == [
+               "parent quest does not exist or does not belong to the same game"
+             ]
     end
   end
 
@@ -91,8 +154,35 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some updated content",
-               "name" => "some updated name"
+               "name" => "some updated name",
+               "parent_id" => nil
              } = json_response(conn, 200)["data"]
+    end
+
+    test "renders quest when updating parent_id", %{
+      conn: conn,
+      quest: %Quest{id: id} = _quest,
+      scope: scope,
+      game: game
+    } do
+      # Create parent quest
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      parent_quest = quest_fixture(game_scope, %{game_id: game.id})
+
+      update_attrs_with_parent = Map.put(@update_attrs, :parent_id, parent_quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{id}", quest: update_attrs_with_parent)
+      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+
+      assert %{
+               "id" => ^id,
+               "content" => "some updated content",
+               "name" => "some updated name",
+               "parent_id" => parent_id
+             } = json_response(conn, 200)["data"]
+
+      assert parent_id == parent_quest.id
     end
 
     test "renders errors when data is invalid", %{
@@ -103,6 +193,37 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     } do
       conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "renders error when trying to set quest as its own parent", %{
+      conn: conn,
+      quest: quest,
+      scope: _scope,
+      game: game
+    } do
+      update_attrs_self_parent = Map.put(@update_attrs, :parent_id, quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: update_attrs_self_parent)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == ["quest cannot be its own parent"]
+    end
+
+    test "renders error when trying to create circular reference", %{
+      conn: conn,
+      quest: quest,
+      scope: scope,
+      game: game
+    } do
+      # Create child quest with quest as parent
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      child_quest = quest_fixture(game_scope, %{game_id: game.id, parent_id: quest.id})
+
+      # Try to make the original quest a child of its child (circular reference)
+      update_attrs_circular = Map.put(@update_attrs, :parent_id, child_quest.id)
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{quest}", quest: update_attrs_circular)
+      response = json_response(conn, 422)
+
+      assert response["errors"]["parent_id"] == ["would create a circular reference"]
     end
   end
 
@@ -511,6 +632,236 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
           ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/character/#{dummy_uuid}"
         )
       end
+    end
+  end
+
+  describe "quest tree" do
+    test "returns empty tree when no quests exist", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      assert response["data"] == []
+    end
+
+    test "returns flat tree structure for single level quests", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      # Create two root quests
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      quest1 = quest_fixture(game_scope, %{
+        game_id: game.id, 
+        name: "Ancient Prophecy", 
+        content: "Discover the ancient prophecy",
+        parent_id: nil
+      })
+      quest2 = quest_fixture(game_scope, %{
+        game_id: game.id, 
+        name: "Dragon Hunt", 
+        content: "Hunt the legendary dragon",
+        parent_id: nil
+      })
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      assert length(response["data"]) == 2
+      
+      # Should be sorted by name
+      [first, second] = response["data"]
+      assert first["name"] == "Ancient Prophecy"
+      assert first["id"] == quest1.id
+      assert first["children"] == []
+      
+      assert second["name"] == "Dragon Hunt"
+      assert second["id"] == quest2.id
+      assert second["children"] == []
+    end
+
+    test "returns hierarchical tree structure with parent-child relationships", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create main quest (root)
+      main_quest = quest_fixture(game_scope, %{
+        game_id: game.id,
+        name: "The Great Adventure",
+        content: "Embark on the great adventure",
+        parent_id: nil
+      })
+
+      # Create sub-quest (child of main quest)
+      sub_quest = quest_fixture(game_scope, %{
+        game_id: game.id,
+        name: "Find the Key",
+        content: "Locate the ancient key",
+        parent_id: main_quest.id
+      })
+
+      # Create sub-sub-quest (child of sub-quest)
+      sub_sub_quest = quest_fixture(game_scope, %{
+        game_id: game.id,
+        name: "Talk to Oracle",
+        content: "Speak with the wise oracle",
+        parent_id: sub_quest.id
+      })
+
+      # Create another sub-quest in the same main quest
+      sub_quest2 = quest_fixture(game_scope, %{
+        game_id: game.id,
+        name: "Gather Supplies",
+        content: "Collect necessary supplies",
+        parent_id: main_quest.id
+      })
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      assert length(response["data"]) == 1
+      
+      # Check main quest level
+      [main_quest_data] = response["data"]
+      assert main_quest_data["name"] == "The Great Adventure"
+      assert main_quest_data["id"] == main_quest.id
+      assert main_quest_data["content"] == "Embark on the great adventure"
+      assert main_quest_data["parent_id"] == nil
+      
+      # Check sub-quest level (should be sorted by name)
+      assert length(main_quest_data["children"]) == 2
+      [sub1_data, sub2_data] = main_quest_data["children"]
+      assert sub1_data["name"] == "Find the Key"
+      assert sub1_data["id"] == sub_quest.id
+      assert sub1_data["parent_id"] == main_quest.id
+      
+      assert sub2_data["name"] == "Gather Supplies"
+      assert sub2_data["id"] == sub_quest2.id
+      assert sub2_data["children"] == []
+
+      # Check sub-sub-quest level
+      assert length(sub1_data["children"]) == 1
+      [sub_sub_data] = sub1_data["children"]
+      assert sub_sub_data["name"] == "Talk to Oracle"
+      assert sub_sub_data["id"] == sub_sub_quest.id
+      assert sub_sub_data["children"] == []
+    end
+
+    test "includes all quest fields in tree response", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      quest = quest_fixture(game_scope, %{
+        game_id: game.id,
+        name: "Test Quest",
+        content: "A test quest content",
+        content_plain_text: "A test quest content",
+        tags: ["test", "example"],
+        parent_id: nil
+      })
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      [quest_data] = response["data"]
+      assert quest_data["id"] == quest.id
+      assert quest_data["name"] == "Test Quest"
+      assert quest_data["content"] == "A test quest content"
+      assert quest_data["content_plain_text"] == "A test quest content"
+      assert quest_data["tags"] == ["test", "example"]
+      assert quest_data["parent_id"] == nil
+      assert quest_data["children"] == []
+    end
+
+    test "handles deep nesting correctly", %{conn: conn, game: game, scope: scope} do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create a 4-level hierarchy
+      main_quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Main Quest", content: "Main quest", parent_id: nil
+      })
+      sub_quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Sub Quest", content: "Sub quest", parent_id: main_quest.id
+      })
+      sub_sub_quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Sub Sub Quest", content: "Sub sub quest", parent_id: sub_quest.id
+      })
+      _final_quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Final Quest", content: "Final quest", parent_id: sub_sub_quest.id
+      })
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      [main_data] = response["data"]
+      [sub_data] = main_data["children"]
+      [sub_sub_data] = sub_data["children"]
+      [final_data] = sub_sub_data["children"]
+
+      assert main_data["name"] == "Main Quest"
+      assert sub_data["name"] == "Sub Quest"
+      assert sub_sub_data["name"] == "Sub Sub Quest"
+      assert final_data["name"] == "Final Quest"
+      assert final_data["children"] == []
+    end
+
+    test "only returns quests for the specified game", %{conn: conn, game: game, scope: scope} do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      
+      # Create quest in this game
+      _our_quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Our Quest", content: "Our quest"
+      })
+
+      # Create another game and quest
+      other_scope = user_scope_fixture()
+      other_game = game_fixture(other_scope)
+      other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_scope, other_game)
+      _other_quest = quest_fixture(other_game_scope, %{
+        game_id: other_game.id, name: "Other Quest", content: "Other quest"
+      })
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      # Should only return our quest
+      assert length(response["data"]) == 1
+      [quest_data] = response["data"]
+      assert quest_data["name"] == "Our Quest"
+    end
+
+    test "denies access to tree for games user cannot access", %{conn: conn, scope: _scope} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+
+      assert_error_sent 404, fn ->
+        get(conn, ~p"/api/games/#{other_game.id}/quests/tree")
+      end
+    end
+
+    test "allows game members to access quest tree", %{conn: _conn, game: game, scope: scope} do
+      member_scope = user_scope_fixture()
+      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create a quest
+      _quest = quest_fixture(game_scope, %{
+        game_id: game.id, name: "Member Quest", content: "Member quest"
+      })
+
+      # Login as member
+      member_conn = authenticate_api_user(build_conn(), member_scope.user)
+
+      conn = get(member_conn, ~p"/api/games/#{game.id}/quests/tree")
+      response = json_response(conn, 200)
+
+      assert length(response["data"]) == 1
+      [quest_data] = response["data"]
+      assert quest_data["name"] == "Member Quest"
     end
   end
 

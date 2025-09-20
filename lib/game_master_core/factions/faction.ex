@@ -11,6 +11,7 @@ defmodule GameMasterCore.Factions.Faction do
   schema "factions" do
     field :name, :string
     field :description, :string
+    field :description_plain_text, :string
     field :tags, {:array, :string}, default: []
 
     belongs_to :game, Game
@@ -30,7 +31,7 @@ defmodule GameMasterCore.Factions.Faction do
   @doc false
   def changeset(faction, attrs, user_scope, game_id) do
     faction
-    |> cast(attrs, [:name, :description, :tags])
+    |> cast(attrs, [:name, :description, :description_plain_text, :tags])
     |> validate_required([:name, :description])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)
