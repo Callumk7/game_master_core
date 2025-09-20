@@ -634,6 +634,59 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def character_notes_tree_data_schema do
+    swagger_schema do
+      title("Character Notes Tree Data")
+      description("Hierarchical tree of notes associated with a character")
+
+      properties do
+        character_id(:string, "Character ID", required: true, format: :uuid)
+        character_name(:string, "Character name", required: true)
+        notes_tree(Schema.array(:NoteTreeNode), "Hierarchical notes tree")
+      end
+    end
+  end
+
+  def note_tree_node_schema do
+    swagger_schema do
+      title("Note Tree Node")
+      description("A node in the note hierarchy tree")
+
+      properties do
+        id(:string, "Note ID", required: true, format: :uuid)
+        name(:string, "Note name", required: true)
+        content(:string, "Note content", required: true)
+        content_plain_text(:string, "Note content as plain text")
+        tags(Schema.array(:string), "Tags associated with this note")
+        parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
+        parent_type(:string, "Type of parent entity (Character, Quest, Location, Faction)", enum: ["Character", "Quest", "Location", "Faction"])
+        children(Schema.array(:NoteTreeNode), "Child notes")
+        created_at(:string, "Creation timestamp", format: :datetime)
+        updated_at(:string, "Last update timestamp", format: :datetime)
+      end
+
+      example(%{
+        id: "723e4567-e89b-12d3-a456-426614174006",
+        name: "Character Backstory",
+        content: "Detailed backstory information...",
+        content_plain_text: "Detailed backstory information...",
+        tags: ["backstory", "important"],
+        parent_id: "523e4567-e89b-12d3-a456-426614174004",
+        parent_type: "Character",
+        children: [
+          %{
+            id: "823e4567-e89b-12d3-a456-426614174007",
+            name: "Childhood Memories",
+            content: "Early life details...",
+            children: []
+          }
+        ],
+        created_at: "2024-01-01T00:00:00Z",
+        updated_at: "2024-01-01T00:00:00Z"
+      })
+    end
+  end
+
   def faction_schema do
     swagger_schema do
       title("Faction")
@@ -1458,6 +1511,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Character Links Response",
           "Response containing character links"
         ),
+      CharacterNotesTreeData: character_notes_tree_data_schema(),
+      CharacterNotesTreeResponse:
+        response_schema(
+          Schema.ref(:CharacterNotesTreeData),
+          "Character Notes Tree Response",
+          "Response containing character notes tree"
+        ),
+      NoteTreeNode: note_tree_node_schema(),
       Faction: faction_schema(),
       FactionCreateParams: faction_create_params_schema(),
       FactionUpdateParams: faction_update_params_schema(),

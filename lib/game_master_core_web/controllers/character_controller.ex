@@ -4,6 +4,7 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   alias GameMasterCore.Characters
   alias GameMasterCore.Characters.Character
+  alias GameMasterCore.Notes
   alias GameMasterCoreWeb.SwaggerDefinitions
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
@@ -57,6 +58,13 @@ defmodule GameMasterCoreWeb.CharacterController do
     with {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  def notes_tree(conn, params) do
+    character_id = params["character_id"] || params["id"]
+    character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
+    notes_tree = Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
+    render(conn, :notes_tree, character: character, notes_tree: notes_tree)
   end
 
   def create_link(conn, %{"character_id" => character_id} = params) do
