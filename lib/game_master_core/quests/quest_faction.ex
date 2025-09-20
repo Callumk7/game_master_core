@@ -12,14 +12,29 @@ defmodule GameMasterCore.Quests.QuestFaction do
     belongs_to :quest, Quest
     belongs_to :faction, Faction
 
+    field :relationship_type, :string
+    field :description, :string
+    field :strength, :integer
+    field :is_active, :boolean, default: true
+    field :metadata, :map
+
     timestamps(type: :utc_datetime)
   end
 
   @doc false
   def changeset(quest_faction, attrs) do
     quest_faction
-    |> cast(attrs, [:quest_id, :faction_id])
+    |> cast(attrs, [
+      :quest_id,
+      :faction_id,
+      :relationship_type,
+      :description,
+      :strength,
+      :is_active,
+      :metadata
+    ])
     |> validate_required([:quest_id, :faction_id])
+    |> validate_inclusion(:strength, 1..10)
     |> foreign_key_constraint(:quest_id)
     |> foreign_key_constraint(:faction_id)
     |> unique_constraint([:quest_id, :faction_id])

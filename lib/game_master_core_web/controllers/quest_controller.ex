@@ -21,6 +21,11 @@ defmodule GameMasterCoreWeb.QuestController do
     render(conn, :index, quests: quests)
   end
 
+  def tree(conn, _params) do
+    tree = Quests.list_quests_tree_for_game(conn.assigns.current_scope)
+    render(conn, :tree, tree: tree)
+  end
+
   def create(conn, %{"quest" => quest_params}) do
     with {:ok, %Quest{} = quest} <-
            Quests.create_quest_for_game(conn.assigns.current_scope, quest_params) do
@@ -62,10 +67,25 @@ defmodule GameMasterCoreWeb.QuestController do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
     with {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
-           create_quest_link(conn.assigns.current_scope, quest.id, entity_type, entity_id) do
+           create_quest_link(
+             conn.assigns.current_scope,
+             quest.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
       conn
       |> put_status(:created)
       |> json(%{
@@ -107,27 +127,27 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  defp create_quest_link(scope, quest_id, :character, character_id) do
-    Quests.link_character(scope, quest_id, character_id)
+  defp create_quest_link(scope, quest_id, :character, character_id, metadata_attrs) do
+    Quests.link_character(scope, quest_id, character_id, metadata_attrs)
   end
 
-  defp create_quest_link(scope, quest_id, :faction, faction_id) do
-    Quests.link_faction(scope, quest_id, faction_id)
+  defp create_quest_link(scope, quest_id, :faction, faction_id, metadata_attrs) do
+    Quests.link_faction(scope, quest_id, faction_id, metadata_attrs)
   end
 
-  defp create_quest_link(scope, quest_id, :note, note_id) do
-    Quests.link_note(scope, quest_id, note_id)
+  defp create_quest_link(scope, quest_id, :note, note_id, metadata_attrs) do
+    Quests.link_note(scope, quest_id, note_id, metadata_attrs)
   end
 
-  defp create_quest_link(scope, quest_id, :location, location_id) do
-    Quests.link_location(scope, quest_id, location_id)
+  defp create_quest_link(scope, quest_id, :location, location_id, metadata_attrs) do
+    Quests.link_location(scope, quest_id, location_id, metadata_attrs)
   end
 
-  defp create_quest_link(scope, quest_id, :quest, other_quest_id) do
-    Quests.link_quest(scope, quest_id, other_quest_id)
+  defp create_quest_link(scope, quest_id, :quest, other_quest_id, metadata_attrs) do
+    Quests.link_quest(scope, quest_id, other_quest_id, metadata_attrs)
   end
 
-  defp create_quest_link(_scope, _quest_id, entity_type, _entity_id) do
+  defp create_quest_link(_scope, _quest_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :quest, entity_type}}
   end
 

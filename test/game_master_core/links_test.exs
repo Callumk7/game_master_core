@@ -87,15 +87,17 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(character)
       assert %{notes: notes} = links
       assert length(notes) == 2
-      assert note1 in notes
-      assert note2 in notes
+      linked_notes = Enum.map(notes, & &1.entity)
+      assert note1 in linked_notes
+      assert note2 in linked_notes
     end
 
     test "returns all linked characters for a note", %{character: character, note1: note1} do
       links = Links.links_for(note1)
       assert %{characters: characters} = links
       assert length(characters) == 1
-      assert character in characters
+      linked_characters = Enum.map(characters, & &1.entity)
+      assert character in linked_characters
     end
 
     test "returns empty list for entity with no links" do
@@ -482,10 +484,10 @@ defmodule GameMasterCore.LinksTest do
 
       links = Links.links_for(character)
       assert %{notes: notes, factions: factions, locations: locations, quests: quests} = links
-      assert note in notes
-      assert faction in factions
-      assert location in locations
-      assert quest in quests
+      assert note in Enum.map(notes, & &1.entity)
+      assert faction in Enum.map(factions, & &1.entity)
+      assert location in Enum.map(locations, & &1.entity)
+      assert quest in Enum.map(quests, & &1.entity)
     end
 
     test "returns all linked entities for a faction", %{
@@ -502,10 +504,10 @@ defmodule GameMasterCore.LinksTest do
 
       links = Links.links_for(faction)
       assert %{characters: characters, notes: notes, locations: locations, quests: quests} = links
-      assert character in characters
-      assert note in notes
-      assert location in locations
-      assert quest in quests
+      assert character in Enum.map(characters, & &1.entity)
+      assert note in Enum.map(notes, & &1.entity)
+      assert location in Enum.map(locations, & &1.entity)
+      assert quest in Enum.map(quests, & &1.entity)
     end
 
     test "returns all linked entities for a location", %{
@@ -522,10 +524,10 @@ defmodule GameMasterCore.LinksTest do
 
       links = Links.links_for(location)
       assert %{characters: characters, notes: notes, factions: factions, quests: quests} = links
-      assert character in characters
-      assert note in notes
-      assert faction in factions
-      assert quest in quests
+      assert character in Enum.map(characters, & &1.entity)
+      assert note in Enum.map(notes, & &1.entity)
+      assert faction in Enum.map(factions, & &1.entity)
+      assert quest in Enum.map(quests, & &1.entity)
     end
 
     test "returns all linked entities for a quest", %{
@@ -545,10 +547,10 @@ defmodule GameMasterCore.LinksTest do
       assert %{characters: characters, notes: notes, factions: factions, locations: locations} =
                links
 
-      assert character in characters
-      assert note in notes
-      assert faction in factions
-      assert location in locations
+      assert character in Enum.map(characters, & &1.entity)
+      assert note in Enum.map(notes, & &1.entity)
+      assert faction in Enum.map(factions, & &1.entity)
+      assert location in Enum.map(locations, & &1.entity)
     end
 
     test "returns empty lists for entity with no links" do
@@ -573,8 +575,9 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(character1)
       assert %{characters: characters} = links
       assert length(characters) == 2
-      assert character2 in characters
-      assert character3 in characters
+      linked_characters = Enum.map(characters, & &1.entity)
+      assert character2 in linked_characters
+      assert character3 in linked_characters
     end
 
     test "returns self-linked notes for a note" do
@@ -587,7 +590,8 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(note1)
       assert %{notes: notes} = links
       assert length(notes) == 1
-      assert note2 in notes
+      linked_notes = Enum.map(notes, & &1.entity)
+      assert note2 in linked_notes
     end
 
     test "returns self-linked factions for a faction" do
@@ -600,7 +604,8 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(faction1)
       assert %{factions: factions} = links
       assert length(factions) == 1
-      assert faction2 in factions
+      linked_factions = Enum.map(factions, & &1.entity)
+      assert faction2 in linked_factions
     end
 
     test "returns self-linked locations for a location" do
@@ -613,7 +618,8 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(location1)
       assert %{locations: locations} = links
       assert length(locations) == 1
-      assert location2 in locations
+      linked_locations = Enum.map(locations, & &1.entity)
+      assert location2 in linked_locations
     end
 
     test "returns self-linked quests for a quest" do
@@ -626,7 +632,8 @@ defmodule GameMasterCore.LinksTest do
       links = Links.links_for(quest1)
       assert %{quests: quests} = links
       assert length(quests) == 1
-      assert quest2 in quests
+      linked_quests = Enum.map(quests, & &1.entity)
+      assert quest2 in linked_quests
     end
   end
 end

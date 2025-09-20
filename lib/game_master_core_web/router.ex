@@ -80,12 +80,16 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", FactionController, :delete_link
       end
 
+      get "/locations/tree", LocationController, :tree
+      
       resources "/locations", LocationController, except: [:new, :edit] do
         get "/links", LocationController, :list_links
         post "/links", LocationController, :create_link
         delete "/links/:entity_type/:entity_id", LocationController, :delete_link
       end
 
+      get "/quests/tree", QuestController, :tree
+      
       resources "/quests", QuestController, except: [:new, :edit] do
         get "/links", QuestController, :list_links
         post "/links", QuestController, :create_link

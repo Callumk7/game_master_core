@@ -16,6 +16,13 @@ defmodule GameMasterCoreWeb.QuestJSON do
   end
 
   @doc """
+  Renders the quest tree structure.
+  """
+  def tree(%{tree: tree}) do
+    %{data: tree}
+  end
+
+  @doc """
   Renders quest links.
   """
   def links(%{
@@ -31,11 +38,11 @@ defmodule GameMasterCoreWeb.QuestJSON do
         quest_id: quest.id,
         quest_name: quest.name,
         links: %{
-          characters: for(character <- characters, do: character_data(character)),
-          factions: for(faction <- factions, do: faction_data(faction)),
-          notes: for(note <- notes, do: note_data(note)),
-          locations: for(location <- locations, do: location_data(location)),
-          quests: for(q <- quests, do: quest_data(q))
+          characters: for(character <- characters, do: character_data_with_metadata(character)),
+          factions: for(faction <- factions, do: faction_data_with_metadata(faction)),
+          notes: for(note <- notes, do: note_data_with_metadata(note)),
+          locations: for(location <- locations, do: location_data_with_metadata(location)),
+          quests: for(q <- quests, do: quest_data_with_metadata(q))
         }
       }
     }

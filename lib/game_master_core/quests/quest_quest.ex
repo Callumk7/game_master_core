@@ -11,14 +11,27 @@ defmodule GameMasterCore.Quests.QuestQuest do
     belongs_to :quest_1, Quest
     belongs_to :quest_2, Quest
     field :relationship_type, :string
+    field :description, :string
+    field :strength, :integer
+    field :is_active, :boolean, default: true
+    field :metadata, :map
 
     timestamps(type: :utc_datetime)
   end
 
   def changeset(quest_quest, attrs) do
     quest_quest
-    |> cast(attrs, [:quest_1_id, :quest_2_id, :relationship_type])
+    |> cast(attrs, [
+      :quest_1_id,
+      :quest_2_id,
+      :relationship_type,
+      :description,
+      :strength,
+      :is_active,
+      :metadata
+    ])
     |> validate_required([:quest_1_id, :quest_2_id])
+    |> validate_inclusion(:strength, 1..10)
     |> validate_not_self_link()
     |> unique_constraint([:quest_1_id, :quest_2_id],
       name: :quest_quests_quest_1_id_quest_2_id_index

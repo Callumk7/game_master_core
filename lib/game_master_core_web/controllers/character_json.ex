@@ -31,11 +31,11 @@ defmodule GameMasterCoreWeb.CharacterJSON do
         character_id: character.id,
         character_name: character.name,
         links: %{
-          notes: for(note <- notes, do: note_data(note)),
-          factions: for(faction <- factions, do: faction_data(faction)),
-          locations: for(location <- locations, do: location_data(location)),
-          quests: for(quest <- quests, do: quest_data(quest)),
-          characters: for(char <- characters, do: character_data(char))
+          notes: for(note <- notes, do: note_data_with_metadata(note)),
+          factions: for(faction <- factions, do: faction_data_with_metadata(faction)),
+          locations: for(location <- locations, do: location_data_with_metadata(location)),
+          quests: for(quest <- quests, do: quest_data_with_metadata(quest)),
+          characters: for(char <- characters, do: character_data_with_metadata(char))
         }
       }
     }

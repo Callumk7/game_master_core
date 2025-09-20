@@ -199,50 +199,50 @@ defmodule GameMasterCore.Characters do
       {:error, :character_not_found}
 
   """
-  def link_note(%Scope{} = scope, character_id, note_id) do
+  def link_note(%Scope{} = scope, character_id, note_id, metadata_attrs \\ %{}) do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, note} <- get_scoped_note(scope, note_id) do
-      Links.link(character, note)
+      Links.link(character, note, metadata_attrs)
     end
   end
 
   @doc """
   Links a faction to a character.
   """
-  def link_faction(%Scope{} = scope, character_id, faction_id) do
+  def link_faction(%Scope{} = scope, character_id, faction_id, metadata_attrs \\ %{}) do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, faction} <- get_scoped_faction(scope, faction_id) do
-      Links.link(character, faction)
+      Links.link(character, faction, metadata_attrs)
     end
   end
 
   @doc """
   Links a quest to a character.
   """
-  def link_quest(%Scope{} = scope, character_id, quest_id) do
+  def link_quest(%Scope{} = scope, character_id, quest_id, metadata_attrs \\ %{}) do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, quest} <- get_scoped_quest(scope, quest_id) do
-      Links.link(character, quest)
+      Links.link(character, quest, metadata_attrs)
     end
   end
 
   @doc """
   Links a location to a character.
   """
-  def link_location(%Scope{} = scope, character_id, location_id) do
+  def link_location(%Scope{} = scope, character_id, location_id, metadata_attrs \\ %{}) do
     with {:ok, character} <- get_scoped_character(scope, character_id),
          {:ok, location} <- get_scoped_location(scope, location_id) do
-      Links.link(character, location)
+      Links.link(character, location, metadata_attrs)
     end
   end
 
   @doc """
   Links a character to another character.
   """
-  def link_character(%Scope{} = scope, character_id_1, character_id_2) do
+  def link_character(%Scope{} = scope, character_id_1, character_id_2, metadata_attrs \\ %{}) do
     with {:ok, character_1} <- get_scoped_character(scope, character_id_1),
          {:ok, character_2} <- get_scoped_character(scope, character_id_2) do
-      Links.link(character_1, character_2)
+      Links.link(character_1, character_2, metadata_attrs)
     end
   end
 
