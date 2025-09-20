@@ -13,6 +13,7 @@ defmodule GameMasterCore.Notes.Note do
     field :content, :string
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
+    field :parent_type, :string
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -34,9 +35,10 @@ defmodule GameMasterCore.Notes.Note do
   @doc false
   def changeset(note, attrs, user_scope, game_id) do
     note
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :parent_type])
     |> validate_required([:name, :content])
     |> validate_tags()
+    |> validate_parent_type()
     |> validate_parent_note(game_id)
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
@@ -60,27 +62,51 @@ defmodule GameMasterCore.Notes.Note do
     end
   end
 
+  @valid_parent_types ["Character", "Quest", "Location", "Faction"]
+
+  defp validate_parent_type(changeset) do
+    parent_id = get_field(changeset, :parent_id)
+    parent_type = get_field(changeset, :parent_type)
+
+    cond do
+      is_nil(parent_id) and is_nil(parent_type) ->
+        # Both nil is valid (no parent)
+        changeset
+
+      is_nil(parent_id) and not is_nil(parent_type) ->
+        add_error(changeset, :parent_type, "cannot set parent_type without parent_id")
+
+      not is_nil(parent_id) and is_nil(parent_type) ->
+        # parent_id without parent_type means Note parent (backward compatibility)
+        changeset
+
+      parent_type not in @valid_parent_types ->
+        add_error(changeset, :parent_type, "must be one of: #{Enum.join(@valid_parent_types, ", ")}")
+
+      true ->
+        changeset
+    end
+  end
+
   defp validate_parent_note(changeset, game_id) do
     case get_field(changeset, :parent_id) do
       nil ->
         changeset
 
       parent_id ->
+        parent_type = get_field(changeset, :parent_type)
         note_id = get_field(changeset, :id)
 
         cond do
           note_id && note_id == parent_id ->
             add_error(changeset, :parent_id, "note cannot be its own parent")
 
-          not parent_note_exists_in_game?(parent_id, game_id) ->
-            add_error(
-              changeset,
-              :parent_id,
-              "parent note does not exist or does not belong to the same game"
-            )
+          is_nil(parent_type) ->
+            # Backward compatibility: parent_type nil means Note parent
+            validate_note_parent(changeset, parent_id, game_id, note_id)
 
-          would_create_cycle?(note_id, parent_id) ->
-            add_error(changeset, :parent_id, "would create a circular reference")
+          parent_type in @valid_parent_types ->
+            validate_polymorphic_parent(changeset, parent_id, parent_type, game_id)
 
           true ->
             changeset
@@ -88,10 +114,54 @@ defmodule GameMasterCore.Notes.Note do
     end
   end
 
+  defp validate_note_parent(changeset, parent_id, game_id, note_id) do
+    cond do
+      not parent_note_exists_in_game?(parent_id, game_id) ->
+        add_error(
+          changeset,
+          :parent_id,
+          "parent note does not exist or does not belong to the same game"
+        )
+
+      would_create_cycle?(note_id, parent_id) ->
+        add_error(changeset, :parent_id, "would create a circular reference")
+
+      true ->
+        changeset
+    end
+  end
+
+  defp validate_polymorphic_parent(changeset, parent_id, parent_type, game_id) do
+    if polymorphic_parent_exists_in_game?(parent_id, parent_type, game_id) do
+      changeset
+    else
+      add_error(
+        changeset,
+        :parent_id,
+        "parent #{parent_type} does not exist or does not belong to the same game"
+      )
+    end
+  end
+
   defp parent_note_exists_in_game?(parent_id, game_id) do
     case GameMasterCore.Repo.get(__MODULE__, parent_id) do
       nil -> false
       note -> note.game_id == game_id
+    end
+  end
+
+  defp polymorphic_parent_exists_in_game?(parent_id, parent_type, game_id) do
+    module = case parent_type do
+      "Character" -> GameMasterCore.Characters.Character
+      "Quest" -> GameMasterCore.Quests.Quest
+      "Location" -> GameMasterCore.Locations.Location
+      "Faction" -> GameMasterCore.Factions.Faction
+      _ -> nil
+    end
+
+    case module && GameMasterCore.Repo.get(module, parent_id) do
+      nil -> false
+      entity -> entity.game_id == game_id
     end
   end
 

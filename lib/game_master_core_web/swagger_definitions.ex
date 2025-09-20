@@ -367,7 +367,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content", required: true)
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
-        parent_id(:string, "Parent note ID", format: :uuid)
+        parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
+        parent_type(:string, "Type of parent entity (Character, Quest, Location, Faction)", enum: ["Character", "Quest", "Location", "Faction"])
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -399,7 +400,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content", required: true)
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
-        parent_id(:string, "Parent note ID", format: :uuid)
+        parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
+        parent_type(:string, "Type of parent entity (Character, Quest, Location, Faction)", enum: ["Character", "Quest", "Location", "Faction"])
       end
 
       required([:name, :content])
@@ -424,7 +426,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
-        parent_id(:string, "Parent note ID", format: :uuid)
+        parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
+        parent_type(:string, "Type of parent entity (Character, Quest, Location, Faction)", enum: ["Character", "Quest", "Location", "Faction"])
       end
 
       example(%{
