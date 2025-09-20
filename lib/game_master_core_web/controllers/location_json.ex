@@ -15,6 +15,13 @@ defmodule GameMasterCoreWeb.LocationJSON do
     %{data: location_data(location)}
   end
 
+  @doc """
+  Renders the location tree structure.
+  """
+  def tree(%{tree: tree}) do
+    %{data: tree}
+  end
+
   def links(%{
         location: location,
         notes: notes,

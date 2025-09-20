@@ -16,6 +16,13 @@ defmodule GameMasterCoreWeb.QuestJSON do
   end
 
   @doc """
+  Renders the quest tree structure.
+  """
+  def tree(%{tree: tree}) do
+    %{data: tree}
+  end
+
+  @doc """
   Renders quest links.
   """
   def links(%{

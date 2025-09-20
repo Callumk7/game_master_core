@@ -27,6 +27,25 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :tree do
+        get("/api/games/{game_id}/locations/tree")
+        summary("Get location tree")
+        description("Get hierarchical tree structure of all locations in a game")
+        operation_id("getLocationTree")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:LocationTreeResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
       swagger_path :create do
         post("/api/games/{game_id}/locations")
         summary("Create location")

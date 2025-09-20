@@ -27,6 +27,25 @@ defmodule GameMasterCoreWeb.Swagger.QuestSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :tree do
+        get("/api/games/{game_id}/quests/tree")
+        summary("Get quest tree")
+        description("Get hierarchical tree structure of all quests in a game")
+        operation_id("getQuestTree")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:QuestTreeResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
       swagger_path :create do
         post("/api/games/{game_id}/quests")
         summary("Create quest")
