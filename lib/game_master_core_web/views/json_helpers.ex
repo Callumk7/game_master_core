@@ -24,6 +24,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content_plain_text: note.content_plain_text,
       tags: note.tags,
       parent_id: note.parent_id,
+      parent_type: note.parent_type,
       created_at: note.inserted_at,
       updated_at: note.updated_at
     }
