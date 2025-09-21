@@ -62,7 +62,7 @@ defmodule GameMasterCore.Notes.Note do
     end
   end
 
-  @valid_parent_types ["Character", "Quest", "Location", "Faction"]
+  @valid_parent_types ["character", "quest", "location", "faction"]
 
   defp validate_parent_type(changeset) do
     parent_id = get_field(changeset, :parent_id)
@@ -152,10 +152,10 @@ defmodule GameMasterCore.Notes.Note do
 
   defp polymorphic_parent_exists_in_game?(parent_id, parent_type, game_id) do
     module = case parent_type do
-      "Character" -> GameMasterCore.Characters.Character
-      "Quest" -> GameMasterCore.Quests.Quest
-      "Location" -> GameMasterCore.Locations.Location
-      "Faction" -> GameMasterCore.Factions.Faction
+      "character" -> GameMasterCore.Characters.Character
+      "quest" -> GameMasterCore.Quests.Quest
+      "location" -> GameMasterCore.Locations.Location
+      "faction" -> GameMasterCore.Factions.Faction
       _ -> nil
     end
 

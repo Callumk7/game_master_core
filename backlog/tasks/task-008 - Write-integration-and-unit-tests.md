@@ -4,13 +4,13 @@ title: Write integration and unit tests
 status: To Do
 assignee: []
 created_date: '2025-09-19 09:49'
-updated_date: '2025-09-19 11:17'
+updated_date: '2025-09-21 09:00'
 labels:
   - backend
   - testing
 dependencies: []
 priority: high
-ordinal: 4000
+ordinal: 2000
 ---
 
 ## Description

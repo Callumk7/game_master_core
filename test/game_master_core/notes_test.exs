@@ -717,12 +717,12 @@ defmodule GameMasterCore.NotesTest do
         content: "some content",
         game_id: game.id,
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       }
 
       assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
       assert note.parent_id == character.id
-      assert note.parent_type == "Character"
+      assert note.parent_type == "character"
     end
 
     test "create_note/2 with valid quest parent creates polymorphic relationship" do
@@ -733,12 +733,12 @@ defmodule GameMasterCore.NotesTest do
         name: "Quest Note", 
         content: "some content",
         parent_id: quest.id,
-        parent_type: "Quest"
+        parent_type: "quest"
       }
 
       assert {:ok, %Note{} = note} = Notes.create_note_for_game(scope, valid_attrs)
       assert note.parent_id == quest.id
-      assert note.parent_type == "Quest"
+      assert note.parent_type == "quest"
     end
 
     test "create_note/2 with valid location parent creates polymorphic relationship" do
@@ -751,12 +751,12 @@ defmodule GameMasterCore.NotesTest do
         content: "some content",
         game_id: game.id,
         parent_id: location.id,
-        parent_type: "Location"
+        parent_type: "location"
       }
 
       assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
       assert note.parent_id == location.id
-      assert note.parent_type == "Location"
+      assert note.parent_type == "location"
     end
 
     test "create_note/2 with valid faction parent creates polymorphic relationship" do
@@ -769,12 +769,12 @@ defmodule GameMasterCore.NotesTest do
         content: "some content",
         game_id: game.id,
         parent_id: faction.id,
-        parent_type: "Faction"
+        parent_type: "faction"
       }
 
       assert {:ok, %Note{} = note} = Notes.create_note(scope, valid_attrs)
       assert note.parent_id == faction.id
-      assert note.parent_type == "Faction"
+      assert note.parent_type == "faction"
     end
 
     test "create_note/2 with parent_type but no parent_id returns error" do
@@ -785,7 +785,7 @@ defmodule GameMasterCore.NotesTest do
         name: "Invalid Note", 
         content: "some content",
         game_id: game.id,
-        parent_type: "Character"
+        parent_type: "character"
       }
 
       assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
@@ -805,7 +805,7 @@ defmodule GameMasterCore.NotesTest do
       }
 
       assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
-      assert "must be one of: Character, Quest, Location, Faction" in errors_on(changeset).parent_type
+      assert "must be one of: character, quest, location, faction" in errors_on(changeset).parent_type
     end
 
     test "create_note/2 with non-existent character parent returns error" do
@@ -817,11 +817,11 @@ defmodule GameMasterCore.NotesTest do
         content: "some content",
         game_id: game.id,
         parent_id: Ecto.UUID.generate(),
-        parent_type: "Character"
+        parent_type: "character"
       }
 
       assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
-      assert "parent Character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
+      assert "parent character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
     end
 
     test "create_note/2 with cross-game character parent returns error" do
@@ -836,11 +836,11 @@ defmodule GameMasterCore.NotesTest do
         content: "some content",
         game_id: game.id,
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       }
 
       assert {:error, %Ecto.Changeset{} = changeset} = Notes.create_note(scope, invalid_attrs)
-      assert "parent Character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
+      assert "parent character does not exist or does not belong to the same game" in errors_on(changeset).parent_id
     end
 
     test "create_note/2 with self-referencing parent returns error" do
@@ -860,11 +860,11 @@ defmodule GameMasterCore.NotesTest do
       note = note_fixture(scope, %{game_id: game.id})
       character = character_fixture(scope, %{game_id: game.id})
       
-      update_attrs = %{parent_id: character.id, parent_type: "Character"}
+      update_attrs = %{parent_id: character.id, parent_type: "character"}
 
       assert {:ok, %Note{} = updated_note} = Notes.update_note(scope, note, update_attrs)
       assert updated_note.parent_id == character.id
-      assert updated_note.parent_type == "Character"
+      assert updated_note.parent_type == "character"
     end
 
     test "update_note/3 can remove polymorphic parent" do
@@ -874,7 +874,7 @@ defmodule GameMasterCore.NotesTest do
       note = note_fixture(scope, %{
         game_id: game.id,
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       
       update_attrs = %{parent_id: nil, parent_type: nil}
@@ -932,13 +932,13 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Character Note 1",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       _note2 = note_fixture(scope, %{
         game_id: game.id,
         name: "Character Note 2", 
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       tree = Notes.list_character_notes_tree_for_game(scope, character.id)
@@ -962,7 +962,7 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Root Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       
       # Create child note (traditional note hierarchy)
@@ -1013,7 +1013,7 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Character 1 Note",
         parent_id: character1.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       
       # Note for character2
@@ -1021,7 +1021,7 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Character 2 Note",
         parent_id: character2.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       tree1 = Notes.list_character_notes_tree_for_game(scope, character1.id)
@@ -1048,7 +1048,7 @@ defmodule GameMasterCore.NotesTest do
         game_id: game1.id,
         name: "Game 1 Note",
         parent_id: character1.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       
       # Note in game2  
@@ -1056,7 +1056,7 @@ defmodule GameMasterCore.NotesTest do
         game_id: game2.id,
         name: "Game 2 Note",
         parent_id: character2.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       # Use different scopes to access different games
@@ -1079,19 +1079,19 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Z Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       _note_a = note_fixture(scope, %{
         game_id: game.id,
         name: "A Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       _note_m = note_fixture(scope, %{
         game_id: game.id,
         name: "M Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       tree = Notes.list_character_notes_tree_for_game(scope, character.id)
@@ -1112,13 +1112,13 @@ defmodule GameMasterCore.NotesTest do
         game_id: game.id,
         name: "Root 1",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       root2 = note_fixture(scope, %{
         game_id: game.id,
         name: "Root 2",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
       
       # Root 1 children

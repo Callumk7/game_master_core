@@ -559,7 +559,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         name: "Character Note 1",
         content: "Content 1",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       _note2 = note_fixture(scope, %{
@@ -567,7 +567,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         name: "Character Note 2",
         content: "Content 2",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
@@ -584,7 +584,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert first_note["name"] == "Character Note 1"
       assert first_note["content"] == "Content 1"
       assert first_note["parent_id"] == character.id
-      assert first_note["parent_type"] == "Character"
+      assert first_note["parent_type"] == "character"
       assert first_note["children"] == []
       
       assert second_note["name"] == "Character Note 2"
@@ -604,7 +604,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         name: "Root Note",
         content: "Root content",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       # Create child note (traditional note hierarchy)
@@ -635,7 +635,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert root["name"] == "Root Note"
       assert root["id"] == root_note.id
       assert root["parent_id"] == character.id
-      assert root["parent_type"] == "Character"
+      assert root["parent_type"] == "character"
 
       # Check child structure
       children = root["children"]
@@ -669,7 +669,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         game_id: game.id,
         name: "My Character Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       # Note for other character
@@ -677,7 +677,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         game_id: game.id,
         name: "Other Character Note",
         parent_id: other_character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
@@ -726,21 +726,21 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         game_id: game.id,
         name: "Z Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       _note_a = note_fixture(scope, %{
         game_id: game.id,
         name: "A Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       _note_m = note_fixture(scope, %{
         game_id: game.id,
         name: "M Note",
         parent_id: character.id,
-        parent_type: "Character"
+        parent_type: "character"
       })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
