@@ -4,13 +4,13 @@ title: Implement link metadata updates and deletion
 status: To Do
 assignee: []
 created_date: '2025-09-19 09:49'
-updated_date: '2025-09-19 11:17'
+updated_date: '2025-09-21 09:00'
 labels:
   - backend
   - api
 dependencies: []
 priority: medium
-ordinal: 3000
+ordinal: 1000
 ---
 
 ## Description

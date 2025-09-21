@@ -72,7 +72,7 @@ defmodule GameMasterCore.Notes do
       |> Repo.all()
 
     # Filter to notes that belong to this character's tree and build hierarchy
-    build_entity_note_tree(all_notes, character_id, "Character")
+    build_entity_note_tree(all_notes, character_id, "character")
   end
 
   defp build_entity_note_tree(all_notes, entity_id, entity_type) do

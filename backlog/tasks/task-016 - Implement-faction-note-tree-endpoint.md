@@ -4,8 +4,10 @@ title: Implement faction note tree endpoint
 status: To Do
 assignee: []
 created_date: '2025-09-20 15:21'
+updated_date: '2025-09-21 09:00'
 labels: []
 dependencies: []
+ordinal: 6000
 ---
 
 ## Description
