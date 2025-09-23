@@ -118,9 +118,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       conn = delete(conn, ~p"/api/games/#{game}/characters/#{character}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game}/characters/#{character}")
-      end
+      conn = get(conn, ~p"/api/games/#{game}/characters/#{character}")
+      assert json_response(conn, 404)
     end
 
     test "denies deletion for characters in games user cannot access", %{
@@ -134,6 +133,62 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert_error_sent 404, fn ->
         delete(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}")
       end
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/invalid")
+      response = json_response(conn, 404)
+      
+      # Check the exact response format matches Swagger expectations
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "show returns 404 for non-existent character", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/invalid", character: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn = delete(conn, ~p"/api/games/#{game.id}/characters/invalid")
+      assert json_response(conn, 404)
+    end
+
+    test "notes_tree returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/invalid/notes/tree")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/invalid/links")
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/characters/invalid/links", %{
+          "entity_type" => "note",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for invalid character id format", %{conn: conn, game: game} do
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/characters/invalid/links/note/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
     end
   end
 
@@ -698,9 +753,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
     test "notes_tree returns 404 for non-existent character", %{conn: conn, game: game} do
       non_existent_id = Ecto.UUID.generate()
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game.id}/characters/#{non_existent_id}/notes/tree")
-      end
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/#{non_existent_id}/notes/tree")
+      assert json_response(conn, 404)
     end
 
     test "notes_tree requires authentication", %{game: game, character: character} do

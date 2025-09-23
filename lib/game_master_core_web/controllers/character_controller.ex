@@ -39,40 +39,39 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   def show(conn, %{"id" => id}) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, id)
-    render(conn, :show, character: character)
+    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id) do
+      render(conn, :show, character: character)
+    end
   end
 
   def update(conn, %{"id" => id, "character" => character_params}) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Character{} = character} <-
+    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
+         {:ok, %Character{} = character} <-
            Characters.update_character(conn.assigns.current_scope, character, character_params) do
       render(conn, :show, character: character)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
+    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
+         {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def notes_tree(conn, params) do
     character_id = params["character_id"] || params["id"]
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
 
-    notes_tree =
-      Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
+      notes_tree =
+        Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
 
-    render(conn, :notes_tree, character: character, notes_tree: notes_tree)
+      render(conn, :notes_tree, character: character, notes_tree: notes_tree)
+    end
   end
 
   def create_link(conn, %{"character_id" => character_id} = params) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
-
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
@@ -85,7 +84,9 @@ defmodule GameMasterCoreWeb.CharacterController do
       metadata: Map.get(params, "metadata")
     }
 
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            create_character_link(
@@ -107,18 +108,19 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   def list_links(conn, %{"character_id" => character_id}) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
+      links = Characters.links(conn.assigns.current_scope, character_id)
 
-    links = Characters.links(conn.assigns.current_scope, character_id)
-
-    render(conn, :links,
-      character: character,
-      notes: links.notes,
-      factions: links.factions,
-      locations: links.locations,
-      quests: links.quests,
-      characters: links.characters
-    )
+      render(conn, :links,
+        character: character,
+        notes: links.notes,
+        factions: links.factions,
+        locations: links.locations,
+        quests: links.quests,
+        characters: links.characters
+      )
+    end
   end
 
   def delete_link(conn, %{
@@ -126,9 +128,9 @@ defmodule GameMasterCoreWeb.CharacterController do
         "entity_type" => entity_type,
         "entity_id" => entity_id
       }) do
-    character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
-
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            delete_character_link(conn.assigns.current_scope, character.id, entity_type, entity_id) do

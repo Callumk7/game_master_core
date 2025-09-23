@@ -56,6 +56,25 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Fetches a single character for a specific game.
+  Only users who can access the game can access its characters.
+
+  Returns `{:ok, character}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_character_for_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get_by(Character, id: uuid, game_id: scope.game.id) do
+          nil -> {:error, :not_found}
+          character -> {:ok, character}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
   Create a character for a specific game.
   """
   def create_character_for_game(%Scope{} = scope, attrs) do
