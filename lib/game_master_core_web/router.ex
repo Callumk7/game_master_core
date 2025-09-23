@@ -82,7 +82,7 @@ defmodule GameMasterCoreWeb.Router do
       end
 
       get "/locations/tree", LocationController, :tree
-      
+
       resources "/locations", LocationController, except: [:new, :edit] do
         get "/links", LocationController, :list_links
         post "/links", LocationController, :create_link
@@ -90,7 +90,7 @@ defmodule GameMasterCoreWeb.Router do
       end
 
       get "/quests/tree", QuestController, :tree
-      
+
       resources "/quests", QuestController, except: [:new, :edit] do
         get "/links", QuestController, :list_links
         post "/links", QuestController, :create_link

@@ -51,11 +51,11 @@ defmodule GameMasterCore.Notes do
 
   @doc """
   Returns a hierarchical tree of notes for a specific character.
-  
+
   This includes:
   1. Direct child notes (parent_id = character_id, parent_type = "Character") 
   2. Traditional note hierarchies beneath those notes (parent_id = note_id, parent_type = nil)
-  
+
   ## Examples
 
       iex> list_character_notes_tree_for_game(scope, character_id)
@@ -64,8 +64,8 @@ defmodule GameMasterCore.Notes do
   """
   def list_character_notes_tree_for_game(%Scope{} = scope, character_id) do
     # Get all notes in the game
-    all_notes = 
-      from(n in Note, 
+    all_notes =
+      from(n in Note,
         where: n.game_id == ^scope.game.id,
         order_by: [asc: n.name]
       )
@@ -77,19 +77,20 @@ defmodule GameMasterCore.Notes do
 
   defp build_entity_note_tree(all_notes, entity_id, entity_type) do
     # Group all notes by their parent relationship
-    grouped = Enum.group_by(all_notes, fn note ->
-      if note.parent_id && note.parent_type do
-        # Polymorphic parent: {parent_id, parent_type}
-        {note.parent_id, note.parent_type}
-      else
-        # Traditional note parent: {parent_id, "Note"}
-        {note.parent_id, "Note"}
-      end
-    end)
+    grouped =
+      Enum.group_by(all_notes, fn note ->
+        if note.parent_id && note.parent_type do
+          # Polymorphic parent: {parent_id, parent_type}
+          {note.parent_id, note.parent_type}
+        else
+          # Traditional note parent: {parent_id, "Note"}
+          {note.parent_id, "Note"}
+        end
+      end)
 
     # Start with direct children of the entity
     root_notes = Map.get(grouped, {entity_id, entity_type}, [])
-    
+
     # Build the tree recursively
     Enum.map(root_notes, &add_note_children(&1, grouped))
   end
@@ -97,10 +98,10 @@ defmodule GameMasterCore.Notes do
   defp add_note_children(note, grouped) do
     # Find children of this note (traditional note hierarchy)
     children = Map.get(grouped, {note.id, "Note"}, [])
-    
+
     # Recursively add children
     children_with_trees = Enum.map(children, &add_note_children(&1, grouped))
-    
+
     # Add children to the note struct
     Map.put(note, :children, children_with_trees)
   end

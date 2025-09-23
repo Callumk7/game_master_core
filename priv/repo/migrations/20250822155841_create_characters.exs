@@ -5,7 +5,7 @@ defmodule GameMasterCore.Repo.Migrations.CreateCharacters do
     create table(:characters, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
-      add :description, :string
+      add :content, :string
       add :class, :string
       add :level, :integer
       add :image_url, :string

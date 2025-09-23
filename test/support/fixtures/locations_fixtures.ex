@@ -21,7 +21,7 @@ defmodule GameMasterCore.LocationsFixtures do
 
     attrs =
       Enum.into(attrs, %{
-        description: "some description",
+        content: "some content",
         name: "some name",
         type: "city"
       })

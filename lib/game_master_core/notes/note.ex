@@ -81,7 +81,11 @@ defmodule GameMasterCore.Notes.Note do
         changeset
 
       parent_type not in @valid_parent_types ->
-        add_error(changeset, :parent_type, "must be one of: #{Enum.join(@valid_parent_types, ", ")}")
+        add_error(
+          changeset,
+          :parent_type,
+          "must be one of: #{Enum.join(@valid_parent_types, ", ")}"
+        )
 
       true ->
         changeset
@@ -151,13 +155,14 @@ defmodule GameMasterCore.Notes.Note do
   end
 
   defp polymorphic_parent_exists_in_game?(parent_id, parent_type, game_id) do
-    module = case parent_type do
-      "character" -> GameMasterCore.Characters.Character
-      "quest" -> GameMasterCore.Quests.Quest
-      "location" -> GameMasterCore.Locations.Location
-      "faction" -> GameMasterCore.Factions.Faction
-      _ -> nil
-    end
+    module =
+      case parent_type do
+        "character" -> GameMasterCore.Characters.Character
+        "quest" -> GameMasterCore.Quests.Quest
+        "location" -> GameMasterCore.Locations.Location
+        "faction" -> GameMasterCore.Factions.Faction
+        _ -> nil
+      end
 
     case module && GameMasterCore.Repo.get(module, parent_id) do
       nil -> false

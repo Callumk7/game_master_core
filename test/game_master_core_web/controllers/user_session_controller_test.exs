@@ -2,7 +2,6 @@ defmodule GameMasterCoreWeb.UserSessionControllerTest do
   use GameMasterCoreWeb.ConnCase, async: true
 
   import GameMasterCore.AccountsFixtures
-  
 
   setup do
     %{

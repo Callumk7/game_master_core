@@ -5,7 +5,7 @@ defmodule GameMasterCore.Repo.Migrations.CreateLocations do
     create table(:locations, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string, null: false
-      add :description, :string
+      add :content, :string
       add :type, :string
       add :parent_id, references(:locations, type: :binary_id, on_delete: :nilify_all), null: true
       add :user_id, references(:users, type: :binary_id, on_delete: :delete_all)

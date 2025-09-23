@@ -13,7 +13,7 @@ defmodule GameMasterCore.FactionsTest do
     import GameMasterCore.NotesFixtures
     import GameMasterCore.QuestsFixtures
 
-    @invalid_attrs %{name: nil, description: nil}
+    @invalid_attrs %{name: nil, content: nil}
 
     test "list_factions/1 returns all scoped factions" do
       scope = user_scope_fixture()
@@ -38,13 +38,13 @@ defmodule GameMasterCore.FactionsTest do
 
       valid_attrs = %{
         name: "some name",
-        description: "some description",
+        content: "some content",
         game_id: game.id
       }
 
       assert {:ok, %Faction{} = faction} = Factions.create_faction(scope, valid_attrs)
       assert faction.name == "some name"
-      assert faction.description == "some description"
+      assert faction.content == "some description"
       assert faction.game_id == game.id
       assert faction.user_id == scope.user.id
     end
@@ -66,12 +66,12 @@ defmodule GameMasterCore.FactionsTest do
 
       update_attrs = %{
         name: "some updated name",
-        description: "some updated description"
+        content: "some updated content"
       }
 
       assert {:ok, %Faction{} = faction} = Factions.update_faction(scope, faction, update_attrs)
       assert faction.name == "some updated name"
-      assert faction.description == "some updated description"
+      assert faction.content == "some updated description"
     end
 
     test "update_faction/3 with invalid scope doesn't raise but doesn't permit update" do
@@ -167,7 +167,7 @@ defmodule GameMasterCore.FactionsTest do
 
       valid_attrs = %{
         name: "some name",
-        description: "some description",
+        content: "some content",
         game_id: game.id
       }
 

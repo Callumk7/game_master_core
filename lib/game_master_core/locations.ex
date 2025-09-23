@@ -63,8 +63,8 @@ defmodule GameMasterCore.Locations do
 
   """
   def list_locations_tree_for_game(%Scope{} = scope) do
-    locations = 
-      from(l in Location, 
+    locations =
+      from(l in Location,
         where: l.game_id == ^scope.game.id,
         order_by: [asc: l.name]
       )
@@ -76,10 +76,10 @@ defmodule GameMasterCore.Locations do
   defp build_tree(locations) do
     # Group locations by parent_id
     grouped = Enum.group_by(locations, & &1.parent_id)
-    
+
     # Start with root locations (parent_id is nil)
     root_locations = Map.get(grouped, nil, [])
-    
+
     # Build tree recursively
     Enum.map(root_locations, fn location ->
       build_location_node(location, grouped)
@@ -87,7 +87,7 @@ defmodule GameMasterCore.Locations do
   end
 
   defp build_location_node(location, grouped) do
-    children = 
+    children =
       grouped
       |> Map.get(location.id, [])
       |> Enum.map(&build_location_node(&1, grouped))
@@ -95,7 +95,7 @@ defmodule GameMasterCore.Locations do
     %{
       id: location.id,
       name: location.name,
-      description: location.description,
+      content: location.content,
       type: location.type,
       tags: location.tags,
       parent_id: location.parent_id,

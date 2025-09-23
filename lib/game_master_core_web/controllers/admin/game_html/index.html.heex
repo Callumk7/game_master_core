@@ -10,7 +10,7 @@
 
   <.table id="games" rows={@games} row_click={&JS.navigate(~p"/admin/games/#{&1}")}>
     <:col :let={game} label="Name">{game.name}</:col>
-    <:col :let={game} label="Description">{game.description}</:col>
+    <:col :let={game} label="Content">{game.content}</:col>
     <:action :let={game}>
       <div class="sr-only">
         <.link navigate={~p"/admin/games/#{game}"}>Show</.link>

@@ -10,18 +10,18 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
   @create_attrs %{
     name: "some name",
     level: 42,
-    description: "some description",
+    content: "some content",
     class: "some class",
     image_url: "some image_url"
   }
   @update_attrs %{
     name: "some updated name",
     level: 43,
-    description: "some updated description",
+    content: "some updated content",
     class: "some updated class",
     image_url: "some updated image_url"
   }
-  @invalid_attrs %{name: nil, level: nil, description: nil, class: nil, image_url: nil}
+  @invalid_attrs %{name: nil, level: nil, content: nil, class: nil, image_url: nil}
 
   setup :register_and_log_in_user
 
@@ -58,7 +58,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert %{
                "id" => ^id,
                "class" => "some class",
-               "description" => "some description",
+               "content" => "some content",
                "image_url" => "some image_url",
                "level" => 42,
                "name" => "some name"
@@ -96,7 +96,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert %{
                "id" => ^id,
                "class" => "some updated class",
-               "description" => "some updated description",
+               "content" => "some updated content",
                "image_url" => "some updated image_url",
                "level" => 43,
                "name" => "some updated name"
@@ -554,31 +554,33 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       character: character
     } do
       # Create notes attached to character
-      _note1 = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Character Note 1",
-        content: "Content 1",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note1 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Character Note 1",
+          content: "Content 1",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
-      _note2 = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Character Note 2",
-        content: "Content 2",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note2 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Character Note 2",
+          content: "Content 2",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
       response = json_response(conn, 200)
 
       assert response["data"]["character_id"] == character.id
       assert response["data"]["character_name"] == character.name
-      
+
       notes_tree = response["data"]["notes_tree"]
       assert length(notes_tree) == 2
-      
+
       # Verify note structure (should be sorted alphabetically)
       [first_note, second_note] = notes_tree
       assert first_note["name"] == "Character Note 1"
@@ -586,7 +588,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert first_note["parent_id"] == character.id
       assert first_note["parent_type"] == "character"
       assert first_note["children"] == []
-      
+
       assert second_note["name"] == "Character Note 2"
       assert second_note["content"] == "Content 2"
       assert second_note["children"] == []
@@ -599,30 +601,33 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       character: character
     } do
       # Create root note attached to character
-      root_note = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Root Note",
-        content: "Root content",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      root_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Root Note",
+          content: "Root content",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
       # Create child note (traditional note hierarchy)
-      child_note = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Child Note",
-        content: "Child content",
-        parent_id: root_note.id
-        # parent_type is nil for traditional note hierarchy
-      })
+      child_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Child Note",
+          content: "Child content",
+          parent_id: root_note.id
+          # parent_type is nil for traditional note hierarchy
+        })
 
       # Create grandchild note
-      grandchild_note = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Grandchild Note",
-        content: "Grandchild content",
-        parent_id: child_note.id
-      })
+      grandchild_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Grandchild Note",
+          content: "Grandchild content",
+          parent_id: child_note.id
+        })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
       response = json_response(conn, 200)
@@ -665,20 +670,22 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_character = character_fixture(scope, %{game_id: game.id, name: "Other Character"})
 
       # Note for our character
-      _note1 = note_fixture(scope, %{
-        game_id: game.id,
-        name: "My Character Note",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note1 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "My Character Note",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
       # Note for other character
-      _note2 = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Other Character Note",
-        parent_id: other_character.id,
-        parent_type: "character"
-      })
+      _note2 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Other Character Note",
+          parent_id: other_character.id,
+          parent_type: "character"
+        })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
       response = json_response(conn, 200)
@@ -722,26 +729,29 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       character: character
     } do
       # Create notes in non-alphabetical order
-      _note_z = note_fixture(scope, %{
-        game_id: game.id,
-        name: "Z Note",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note_z =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Z Note",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
-      _note_a = note_fixture(scope, %{
-        game_id: game.id,
-        name: "A Note",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note_a =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "A Note",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
-      _note_m = note_fixture(scope, %{
-        game_id: game.id,
-        name: "M Note",
-        parent_id: character.id,
-        parent_type: "character"
-      })
+      _note_m =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "M Note",
+          parent_id: character.id,
+          parent_type: "character"
+        })
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/notes/tree")
       response = json_response(conn, 200)

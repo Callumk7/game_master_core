@@ -571,18 +571,21 @@ defmodule GameMasterCore.QuestsTest do
     test "list_quests_tree_for_game/1 returns flat tree for root quests" do
       scope = game_scope_fixture()
 
-      quest1 = quest_fixture(scope, %{
-        game_id: scope.game.id, 
-        name: "Ancient Prophecy", 
-        content: "Discover prophecy", 
-        parent_id: nil
-      })
-      quest2 = quest_fixture(scope, %{
-        game_id: scope.game.id, 
-        name: "Dragon Hunt", 
-        content: "Hunt dragon", 
-        parent_id: nil
-      })
+      quest1 =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Ancient Prophecy",
+          content: "Discover prophecy",
+          parent_id: nil
+        })
+
+      quest2 =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Dragon Hunt",
+          content: "Hunt dragon",
+          parent_id: nil
+        })
 
       tree = Quests.list_quests_tree_for_game(scope)
 
@@ -602,28 +605,31 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
 
       # Create main quest (root)
-      main_quest = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "The Great Adventure",
-        content: "Embark on adventure",
-        parent_id: nil
-      })
+      main_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "The Great Adventure",
+          content: "Embark on adventure",
+          parent_id: nil
+        })
 
       # Create sub-quest (child of main quest)
-      sub_quest = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Find the Key",
-        content: "Locate ancient key", 
-        parent_id: main_quest.id
-      })
+      sub_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Find the Key",
+          content: "Locate ancient key",
+          parent_id: main_quest.id
+        })
 
       # Create final quest (child of sub-quest)
-      final_quest = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Open the Door",
-        content: "Use key to open door",
-        parent_id: sub_quest.id
-      })
+      final_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Open the Door",
+          content: "Use key to open door",
+          parent_id: sub_quest.id
+        })
 
       tree = Quests.list_quests_tree_for_game(scope)
 
@@ -651,38 +657,41 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
 
       # Create parent quest
-      main_quest = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Main Quest",
-        content: "Main quest content",
-        parent_id: nil
-      })
+      main_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Main Quest",
+          content: "Main quest content",
+          parent_id: nil
+        })
 
       # Create multiple children
-      quest1 = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Zebra Quest",
-        content: "Zebra content",
-        parent_id: main_quest.id
-      })
+      quest1 =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Zebra Quest",
+          content: "Zebra content",
+          parent_id: main_quest.id
+        })
 
-      quest2 = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Alpha Quest",
-        content: "Alpha content",
-        parent_id: main_quest.id
-      })
+      quest2 =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Alpha Quest",
+          content: "Alpha content",
+          parent_id: main_quest.id
+        })
 
       tree = Quests.list_quests_tree_for_game(scope)
 
       [main_node] = tree
       assert length(main_node.children) == 2
-      
+
       # Should be sorted by name
       [child1, child2] = main_node.children
       assert child1.name == "Alpha Quest"
       assert child1.id == quest2.id
-      
+
       assert child2.name == "Zebra Quest"
       assert child2.id == quest1.id
     end
@@ -690,14 +699,15 @@ defmodule GameMasterCore.QuestsTest do
     test "list_quests_tree_for_game/1 includes all quest fields" do
       scope = game_scope_fixture()
 
-      quest = quest_fixture(scope, %{
-        game_id: scope.game.id,
-        name: "Test Quest",
-        content: "Test quest content",
-        content_plain_text: "Test quest content plain",
-        tags: ["test", "example"],
-        parent_id: nil
-      })
+      quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Test Quest",
+          content: "Test quest content",
+          content_plain_text: "Test quest content plain",
+          tags: ["test", "example"],
+          parent_id: nil
+        })
 
       tree = Quests.list_quests_tree_for_game(scope)
 
@@ -716,18 +726,20 @@ defmodule GameMasterCore.QuestsTest do
       scope2 = game_scope_fixture()
 
       # Create quest in game1
-      _quest1 = quest_fixture(scope1, %{
-        game_id: scope1.game.id, 
-        name: "Game 1 Quest", 
-        content: "Game 1 content"
-      })
+      _quest1 =
+        quest_fixture(scope1, %{
+          game_id: scope1.game.id,
+          name: "Game 1 Quest",
+          content: "Game 1 content"
+        })
 
       # Create quest in game2  
-      _quest2 = quest_fixture(scope2, %{
-        game_id: scope2.game.id, 
-        name: "Game 2 Quest", 
-        content: "Game 2 content"
-      })
+      _quest2 =
+        quest_fixture(scope2, %{
+          game_id: scope2.game.id,
+          name: "Game 2 Quest",
+          content: "Game 2 content"
+        })
 
       # Test game1
       tree1 = Quests.list_quests_tree_for_game(scope1)
@@ -746,18 +758,37 @@ defmodule GameMasterCore.QuestsTest do
       scope = game_scope_fixture()
 
       # Create 4-level hierarchy
-      main_quest = quest_fixture(scope, %{
-        game_id: scope.game.id, name: "Main Quest", content: "Main content", parent_id: nil
-      })
-      sub_quest = quest_fixture(scope, %{
-        game_id: scope.game.id, name: "Sub Quest", content: "Sub content", parent_id: main_quest.id
-      })
-      sub_sub_quest = quest_fixture(scope, %{
-        game_id: scope.game.id, name: "Sub Sub Quest", content: "Sub sub content", parent_id: sub_quest.id
-      })
-      _final_quest = quest_fixture(scope, %{
-        game_id: scope.game.id, name: "Final Quest", content: "Final content", parent_id: sub_sub_quest.id
-      })
+      main_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Main Quest",
+          content: "Main content",
+          parent_id: nil
+        })
+
+      sub_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Sub Quest",
+          content: "Sub content",
+          parent_id: main_quest.id
+        })
+
+      sub_sub_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Sub Sub Quest",
+          content: "Sub sub content",
+          parent_id: sub_quest.id
+        })
+
+      _final_quest =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Final Quest",
+          content: "Final content",
+          parent_id: sub_sub_quest.id
+        })
 
       tree = Quests.list_quests_tree_for_game(scope)
 

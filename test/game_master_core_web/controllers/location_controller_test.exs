@@ -11,14 +11,14 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
   @create_attrs %{
     name: "some name",
     type: "city",
-    description: "some description"
+    content: "some content"
   }
   @update_attrs %{
     name: "some updated name",
     type: "settlement",
-    description: "some updated description"
+    content: "some updated content"
   }
-  @invalid_attrs %{name: nil, type: nil, description: nil}
+  @invalid_attrs %{name: nil, type: nil, content: nil}
 
   setup :register_and_log_in_user
 
@@ -54,7 +54,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some description",
+               "content" => "some content",
                "name" => "some name",
                "type" => "city"
              } = json_response(conn, 200)["data"]
@@ -90,7 +90,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some updated description",
+               "content" => "some updated content",
                "name" => "some updated name",
                "type" => "settlement"
              } = json_response(conn, 200)["data"]
@@ -495,30 +495,33 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       scope: scope
     } do
       # Create two root locations
-      location1 = location_fixture(scope, %{
-        game_id: game.id, 
-        name: "Forest", 
-        type: "region",
-        parent_id: nil
-      })
-      location2 = location_fixture(scope, %{
-        game_id: game.id, 
-        name: "Mountains", 
-        type: "region",
-        parent_id: nil
-      })
+      location1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Forest",
+          type: "region",
+          parent_id: nil
+        })
+
+      location2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Mountains",
+          type: "region",
+          parent_id: nil
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/locations/tree")
       response = json_response(conn, 200)
 
       assert length(response["data"]) == 2
-      
+
       # Should be sorted by name
       [first, second] = response["data"]
       assert first["name"] == "Forest"
       assert first["id"] == location1.id
       assert first["children"] == []
-      
+
       assert second["name"] == "Mountains"
       assert second["id"] == location2.id
       assert second["children"] == []
@@ -530,49 +533,53 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       scope: scope
     } do
       # Create continent (root)
-      continent = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Westeros",
-        type: "continent",
-        parent_id: nil
-      })
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Westeros",
+          type: "continent",
+          parent_id: nil
+        })
 
       # Create nation (child of continent)
-      nation = location_fixture(scope, %{
-        game_id: game.id,
-        name: "The North",
-        type: "nation",
-        parent_id: continent.id
-      })
+      nation =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "The North",
+          type: "nation",
+          parent_id: continent.id
+        })
 
       # Create city (child of nation)
-      city = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Winterfell",
-        type: "city",
-        parent_id: nation.id
-      })
+      city =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Winterfell",
+          type: "city",
+          parent_id: nation.id
+        })
 
       # Create another city in the same nation
-      city2 = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Deepwood Motte",
-        type: "city",
-        parent_id: nation.id
-      })
+      city2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Deepwood Motte",
+          type: "city",
+          parent_id: nation.id
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/locations/tree")
       response = json_response(conn, 200)
 
       assert length(response["data"]) == 1
-      
+
       # Check continent level
       [continent_data] = response["data"]
       assert continent_data["name"] == "Westeros"
       assert continent_data["id"] == continent.id
       assert continent_data["type"] == "continent"
       assert continent_data["parent_id"] == nil
-      
+
       # Check nation level
       assert length(continent_data["children"]) == 1
       [nation_data] = continent_data["children"]
@@ -587,7 +594,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       assert city1_data["name"] == "Deepwood Motte"
       assert city1_data["id"] == city2.id
       assert city1_data["children"] == []
-      
+
       assert city2_data["name"] == "Winterfell"
       assert city2_data["id"] == city.id
       assert city2_data["children"] == []
@@ -598,14 +605,15 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       game: game,
       scope: scope
     } do
-      location = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Test Location",
-        description: "A test location",
-        type: "city",
-        tags: ["test", "example"],
-        parent_id: nil
-      })
+      location =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Test Location",
+          content: "A test location",
+          type: "city",
+          tags: ["test", "example"],
+          parent_id: nil
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/locations/tree")
       response = json_response(conn, 200)
@@ -613,7 +621,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       [location_data] = response["data"]
       assert location_data["id"] == location.id
       assert location_data["name"] == "Test Location"
-      assert location_data["description"] == "A test location"
+      assert location_data["content"] == "A test location"
       assert location_data["type"] == "city"
       assert location_data["tags"] == ["test", "example"]
       assert location_data["parent_id"] == nil
@@ -622,18 +630,37 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
     test "handles deep nesting correctly", %{conn: conn, game: game, scope: scope} do
       # Create a 4-level hierarchy
-      continent = location_fixture(scope, %{
-        game_id: game.id, name: "Continent", type: "continent", parent_id: nil
-      })
-      nation = location_fixture(scope, %{
-        game_id: game.id, name: "Nation", type: "nation", parent_id: continent.id
-      })
-      region = location_fixture(scope, %{
-        game_id: game.id, name: "Region", type: "region", parent_id: nation.id
-      })
-      _city = location_fixture(scope, %{
-        game_id: game.id, name: "City", type: "city", parent_id: region.id
-      })
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Continent",
+          type: "continent",
+          parent_id: nil
+        })
+
+      nation =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Nation",
+          type: "nation",
+          parent_id: continent.id
+        })
+
+      region =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Region",
+          type: "region",
+          parent_id: nation.id
+        })
+
+      _city =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "City",
+          type: "city",
+          parent_id: region.id
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/locations/tree")
       response = json_response(conn, 200)
@@ -652,16 +679,23 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
     test "only returns locations for the specified game", %{conn: conn, game: game, scope: scope} do
       # Create location in this game
-      _our_location = location_fixture(scope, %{
-        game_id: game.id, name: "Our Location", type: "city"
-      })
+      _our_location =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Our Location",
+          type: "city"
+        })
 
       # Create another game and location
       other_scope = user_scope_fixture()
       other_game = game_fixture(other_scope)
-      _other_location = location_fixture(other_scope, %{
-        game_id: other_game.id, name: "Other Location", type: "city"
-      })
+
+      _other_location =
+        location_fixture(other_scope, %{
+          game_id: other_game.id,
+          name: "Other Location",
+          type: "city"
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/locations/tree")
       response = json_response(conn, 200)
@@ -686,9 +720,12 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Create a location
-      _location = location_fixture(scope, %{
-        game_id: game.id, name: "Member Location", type: "city"
-      })
+      _location =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Member Location",
+          type: "city"
+        })
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)

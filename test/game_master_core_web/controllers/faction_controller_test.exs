@@ -9,13 +9,13 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
 
   @create_attrs %{
     name: "some name",
-    description: "some description"
+    content: "some content"
   }
   @update_attrs %{
     name: "some updated name",
-    description: "some updated description"
+    content: "some updated content"
   }
-  @invalid_attrs %{name: nil, description: nil}
+  @invalid_attrs %{name: nil, content: nil}
 
   setup :register_and_log_in_user
 
@@ -51,7 +51,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some description",
+               "content" => "some content",
                "name" => "some name"
              } = json_response(conn, 200)["data"]
     end
@@ -86,7 +86,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some updated description",
+               "content" => "some updated content",
                "name" => "some updated name"
              } = json_response(conn, 200)["data"]
     end

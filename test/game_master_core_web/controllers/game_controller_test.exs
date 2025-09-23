@@ -6,15 +6,15 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
   @create_attrs %{
     name: "some name",
-    description: "some description",
+    content: "some content",
     setting: "some setting"
   }
   @update_attrs %{
     name: "some updated name",
-    description: "some updated description",
+    content: "some updated content",
     setting: "some updated setting"
   }
-  @invalid_attrs %{name: nil, description: nil, setting: nil}
+  @invalid_attrs %{name: nil, content: nil, setting: nil}
 
   setup :register_and_log_in_user
 
@@ -39,7 +39,7 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some description",
+               "content" => "some content",
                "name" => "some name",
                "setting" => "some setting"
              } = json_response(conn, 200)["data"]
@@ -62,7 +62,7 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
       assert %{
                "id" => ^id,
-               "description" => "some updated description",
+               "content" => "some updated content",
                "name" => "some updated name",
                "setting" => "some updated setting"
              } = json_response(conn, 200)["data"]

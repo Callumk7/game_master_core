@@ -5,7 +5,7 @@ defmodule GameMasterCore.Repo.Migrations.CreateGames do
     create table(:games, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
-      add :description, :string
+      add :content, :string
       add :setting, :string
       add :owner_id, references(:users, type: :binary_id, on_delete: :delete_all)
 

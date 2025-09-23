@@ -282,7 +282,7 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert character_response["name"] == character.name
       assert character_response["class"] == character.class
       assert character_response["level"] == character.level
-      assert character_response["description"] == character.description
+      assert character_response["content"] == character.content
       assert character_response["image_url"] == character.image_url
       assert character_response["created_at"]
       assert character_response["updated_at"]
@@ -650,30 +650,34 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     } do
       # Create two root quests
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      quest1 = quest_fixture(game_scope, %{
-        game_id: game.id, 
-        name: "Ancient Prophecy", 
-        content: "Discover the ancient prophecy",
-        parent_id: nil
-      })
-      quest2 = quest_fixture(game_scope, %{
-        game_id: game.id, 
-        name: "Dragon Hunt", 
-        content: "Hunt the legendary dragon",
-        parent_id: nil
-      })
+
+      quest1 =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Ancient Prophecy",
+          content: "Discover the ancient prophecy",
+          parent_id: nil
+        })
+
+      quest2 =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Dragon Hunt",
+          content: "Hunt the legendary dragon",
+          parent_id: nil
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/quests/tree")
       response = json_response(conn, 200)
 
       assert length(response["data"]) == 2
-      
+
       # Should be sorted by name
       [first, second] = response["data"]
       assert first["name"] == "Ancient Prophecy"
       assert first["id"] == quest1.id
       assert first["children"] == []
-      
+
       assert second["name"] == "Dragon Hunt"
       assert second["id"] == quest2.id
       assert second["children"] == []
@@ -687,56 +691,60 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
 
       # Create main quest (root)
-      main_quest = quest_fixture(game_scope, %{
-        game_id: game.id,
-        name: "The Great Adventure",
-        content: "Embark on the great adventure",
-        parent_id: nil
-      })
+      main_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "The Great Adventure",
+          content: "Embark on the great adventure",
+          parent_id: nil
+        })
 
       # Create sub-quest (child of main quest)
-      sub_quest = quest_fixture(game_scope, %{
-        game_id: game.id,
-        name: "Find the Key",
-        content: "Locate the ancient key",
-        parent_id: main_quest.id
-      })
+      sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Find the Key",
+          content: "Locate the ancient key",
+          parent_id: main_quest.id
+        })
 
       # Create sub-sub-quest (child of sub-quest)
-      sub_sub_quest = quest_fixture(game_scope, %{
-        game_id: game.id,
-        name: "Talk to Oracle",
-        content: "Speak with the wise oracle",
-        parent_id: sub_quest.id
-      })
+      sub_sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Talk to Oracle",
+          content: "Speak with the wise oracle",
+          parent_id: sub_quest.id
+        })
 
       # Create another sub-quest in the same main quest
-      sub_quest2 = quest_fixture(game_scope, %{
-        game_id: game.id,
-        name: "Gather Supplies",
-        content: "Collect necessary supplies",
-        parent_id: main_quest.id
-      })
+      sub_quest2 =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Gather Supplies",
+          content: "Collect necessary supplies",
+          parent_id: main_quest.id
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/quests/tree")
       response = json_response(conn, 200)
 
       assert length(response["data"]) == 1
-      
+
       # Check main quest level
       [main_quest_data] = response["data"]
       assert main_quest_data["name"] == "The Great Adventure"
       assert main_quest_data["id"] == main_quest.id
       assert main_quest_data["content"] == "Embark on the great adventure"
       assert main_quest_data["parent_id"] == nil
-      
+
       # Check sub-quest level (should be sorted by name)
       assert length(main_quest_data["children"]) == 2
       [sub1_data, sub2_data] = main_quest_data["children"]
       assert sub1_data["name"] == "Find the Key"
       assert sub1_data["id"] == sub_quest.id
       assert sub1_data["parent_id"] == main_quest.id
-      
+
       assert sub2_data["name"] == "Gather Supplies"
       assert sub2_data["id"] == sub_quest2.id
       assert sub2_data["children"] == []
@@ -755,14 +763,16 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       scope: scope
     } do
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      quest = quest_fixture(game_scope, %{
-        game_id: game.id,
-        name: "Test Quest",
-        content: "A test quest content",
-        content_plain_text: "A test quest content",
-        tags: ["test", "example"],
-        parent_id: nil
-      })
+
+      quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Test Quest",
+          content: "A test quest content",
+          content_plain_text: "A test quest content",
+          tags: ["test", "example"],
+          parent_id: nil
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/quests/tree")
       response = json_response(conn, 200)
@@ -781,18 +791,37 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
 
       # Create a 4-level hierarchy
-      main_quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Main Quest", content: "Main quest", parent_id: nil
-      })
-      sub_quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Sub Quest", content: "Sub quest", parent_id: main_quest.id
-      })
-      sub_sub_quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Sub Sub Quest", content: "Sub sub quest", parent_id: sub_quest.id
-      })
-      _final_quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Final Quest", content: "Final quest", parent_id: sub_sub_quest.id
-      })
+      main_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Main Quest",
+          content: "Main quest",
+          parent_id: nil
+        })
+
+      sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Sub Quest",
+          content: "Sub quest",
+          parent_id: main_quest.id
+        })
+
+      sub_sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Sub Sub Quest",
+          content: "Sub sub quest",
+          parent_id: sub_quest.id
+        })
+
+      _final_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Final Quest",
+          content: "Final quest",
+          parent_id: sub_sub_quest.id
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/quests/tree")
       response = json_response(conn, 200)
@@ -811,19 +840,26 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
 
     test "only returns quests for the specified game", %{conn: conn, game: game, scope: scope} do
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      
+
       # Create quest in this game
-      _our_quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Our Quest", content: "Our quest"
-      })
+      _our_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Our Quest",
+          content: "Our quest"
+        })
 
       # Create another game and quest
       other_scope = user_scope_fixture()
       other_game = game_fixture(other_scope)
       other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_scope, other_game)
-      _other_quest = quest_fixture(other_game_scope, %{
-        game_id: other_game.id, name: "Other Quest", content: "Other quest"
-      })
+
+      _other_quest =
+        quest_fixture(other_game_scope, %{
+          game_id: other_game.id,
+          name: "Other Quest",
+          content: "Other quest"
+        })
 
       conn = get(conn, ~p"/api/games/#{game}/quests/tree")
       response = json_response(conn, 200)
@@ -849,9 +885,12 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
 
       # Create a quest
-      _quest = quest_fixture(game_scope, %{
-        game_id: game.id, name: "Member Quest", content: "Member quest"
-      })
+      _quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Member Quest",
+          content: "Member quest"
+        })
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)

@@ -63,7 +63,10 @@ defmodule GameMasterCoreWeb.CharacterController do
   def notes_tree(conn, params) do
     character_id = params["character_id"] || params["id"]
     character = Characters.get_character_for_game!(conn.assigns.current_scope, character_id)
-    notes_tree = Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
+
+    notes_tree =
+      Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
+
     render(conn, :notes_tree, character: character, notes_tree: notes_tree)
   end
 
