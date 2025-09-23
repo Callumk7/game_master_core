@@ -37,8 +37,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: character.id,
       name: character.name,
-      description: character.description,
-      description_plain_text: character.description_plain_text,
+      content: character.content,
+      content_plain_text: character.content_plain_text,
       class: character.class,
       level: character.level,
       image_url: character.image_url,
@@ -55,8 +55,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: faction.id,
       name: faction.name,
-      description: faction.description,
-      description_plain_text: faction.description_plain_text,
+      content: faction.content,
+      content_plain_text: faction.content_plain_text,
       tags: faction.tags,
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
@@ -70,8 +70,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: game.id,
       name: game.name,
-      description: game.description,
-      description_plain_text: game.description_plain_text,
+      content: game.content,
+      content_plain_text: game.content_plain_text,
       setting: game.setting,
       created_at: game.inserted_at,
       updated_at: game.updated_at
@@ -85,8 +85,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: location.id,
       name: location.name,
-      description: location.description,
-      description_plain_text: location.description_plain_text,
+      content: location.content,
+      content_plain_text: location.content_plain_text,
       type: location.type,
       has_parent: location.parent_id != nil,
       tags: location.tags,
@@ -111,7 +111,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     }
   end
 
-  def character_data_with_metadata(%{entity: character, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+  def character_data_with_metadata(%{
+        entity: character,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        metadata: metadata
+      }) do
     character_data(character)
     |> Map.merge(%{
       relationship_type: relationship_type,
@@ -122,7 +129,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     })
   end
 
-  def faction_data_with_metadata(%{entity: faction, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+  def faction_data_with_metadata(%{
+        entity: faction,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        metadata: metadata
+      }) do
     faction_data(faction)
     |> Map.merge(%{
       relationship_type: relationship_type,
@@ -133,7 +147,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     })
   end
 
-  def location_data_with_metadata(%{entity: location, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+  def location_data_with_metadata(%{
+        entity: location,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        metadata: metadata
+      }) do
     location_data(location)
     |> Map.merge(%{
       relationship_type: relationship_type,
@@ -144,7 +165,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     })
   end
 
-  def quest_data_with_metadata(%{entity: quest, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+  def quest_data_with_metadata(%{
+        entity: quest,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        metadata: metadata
+      }) do
     quest_data(quest)
     |> Map.merge(%{
       relationship_type: relationship_type,
@@ -155,7 +183,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     })
   end
 
-  def note_data_with_metadata(%{entity: note, relationship_type: relationship_type, description: description, strength: strength, is_active: is_active, metadata: metadata}) do
+  def note_data_with_metadata(%{
+        entity: note,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        metadata: metadata
+      }) do
     note_data(note)
     |> Map.merge(%{
       relationship_type: relationship_type,

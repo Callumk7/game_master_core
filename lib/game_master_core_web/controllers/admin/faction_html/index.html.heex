@@ -14,7 +14,7 @@
     row_click={&JS.navigate(~p"/admin/games/#{@game.id}/factions/#{&1}")}
   >
     <:col :let={faction} label="Name">{faction.name}</:col>
-    <:col :let={faction} label="Description">{faction.description}</:col>
+    <:col :let={faction} label="Content">{faction.content}</:col>
     <:action :let={faction}>
       <div class="sr-only">
         <.link navigate={~p"/admin/games/#{@game.id}/factions/#{faction}"}>Show</.link>

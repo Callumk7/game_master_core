@@ -2,21 +2,21 @@ defmodule GameMasterCore.Repo.Migrations.ConvertContentDescriptionFieldsToText d
   use Ecto.Migration
 
   def change do
-    # Convert description fields from varchar(255) to text
+    # Convert content fields from varchar(255) to text
     alter table(:games) do
-      modify :description, :text
+      modify :content, :text
     end
 
     alter table(:characters) do
-      modify :description, :text
+      modify :content, :text
     end
 
     alter table(:factions) do
-      modify :description, :text
+      modify :content, :text
     end
 
     alter table(:locations) do
-      modify :description, :text
+      modify :content, :text
     end
 
     # Convert content fields from varchar(255) to text

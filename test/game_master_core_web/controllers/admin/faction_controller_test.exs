@@ -4,9 +4,9 @@ defmodule GameMasterCoreWeb.Admin.FactionControllerTest do
   import GameMasterCore.FactionsFixtures
   import GameMasterCore.GamesFixtures
 
-  @create_attrs %{name: "some name", description: "some description"}
-  @update_attrs %{name: "some updated name", description: "some updated description"}
-  @invalid_attrs %{name: nil, description: nil}
+  @create_attrs %{name: "some name", content: "some content"}
+  @update_attrs %{name: "some updated name", content: "some updated content"}
+  @invalid_attrs %{name: nil, content: nil}
 
   setup :register_and_log_in_user
 

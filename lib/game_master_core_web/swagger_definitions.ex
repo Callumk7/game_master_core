@@ -14,8 +14,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Game ID", required: true, format: :uuid)
         name(:string, "Game name", required: true)
-        description(:string, "Game description")
-        description_plain_text(:string, "Game description as plain text")
+        content(:string, "Game content")
+        content_plain_text(:string, "Game content as plain text")
         setting(:string, "Game setting")
         owner_id(:integer, "Owner user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -25,8 +25,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "123e4567-e89b-12d3-a456-426614174000",
         name: "My Campaign",
-        description: "An epic adventure",
-        description_plain_text: "An epic adventure",
+        content: "An epic adventure",
+        content_plain_text: "An epic adventure",
         setting: "Fantasy",
         owner_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -42,8 +42,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Game name", required: true)
-        description(:string, "Game description")
-        description_plain_text(:string, "Game description as plain text")
+        content(:string, "Game content")
+        content_plain_text(:string, "Game content as plain text")
         setting(:string, "Game setting")
       end
 
@@ -51,8 +51,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         name: "My Campaign",
-        description: "An epic adventure",
-        description_plain_text: "An epic adventure",
+        content: "An epic adventure",
+        content_plain_text: "An epic adventure",
         setting: "Fantasy"
       })
     end
@@ -65,8 +65,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Game name")
-        description(:string, "Game description")
-        description_plain_text(:string, "Game description as plain text")
+        content(:string, "Game content")
+        content_plain_text(:string, "Game content as plain text")
         setting(:string, "Game setting")
       end
 
@@ -159,8 +159,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
-        description(:string, "Character description")
-        description_plain_text(:string, "Character description as plain text")
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -172,8 +172,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
-        description: "A wise and powerful wizard who guides the Fellowship.",
-        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
+        content: "A wise and powerful wizard who guides the Fellowship.",
+        content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -192,8 +192,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        description(:string, "Faction description", required: true)
-        description_plain_text(:string, "Faction description as plain text")
+        content(:string, "Faction content", required: true)
+        content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -202,9 +202,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
-        description:
+        content:
           "A secretive organization that seeks to control the realm from behind the scenes.",
-        description_plain_text:
+        content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
         created_at: "2023-08-20T12:00:00Z",
@@ -221,8 +221,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
-        description(:string, "Location description")
-        description_plain_text(:string, "Location description as plain text")
+        content(:string, "Location content")
+        content_plain_text(:string, "Location content as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -238,8 +238,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
-        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text:
+        content: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        content_plain_text:
           "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         has_parent: true,
@@ -368,7 +368,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
-        parent_type(:string, "Type of parent entity (character, quest, location, faction)", enum: ["character", "quest", "location", "faction"])
+
+        parent_type(:string, "Type of parent entity (character, quest, location, faction)",
+          enum: ["character", "quest", "location", "faction"]
+        )
+
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -401,7 +405,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
-        parent_type(:string, "Type of parent entity (character, quest, location, faction)", enum: ["character", "quest", "location", "faction"])
+
+        parent_type(:string, "Type of parent entity (character, quest, location, faction)",
+          enum: ["character", "quest", "location", "faction"]
+        )
       end
 
       required([:name, :content])
@@ -427,7 +434,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
-        parent_type(:string, "Type of parent entity (character, quest, location, faction)", enum: ["character", "quest", "location", "faction"])
+
+        parent_type(:string, "Type of parent entity (character, quest, location, faction)",
+          enum: ["character", "quest", "location", "faction"]
+        )
       end
 
       example(%{
@@ -498,8 +508,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
-        description(:string, "Character description")
-        description_plain_text(:string, "Character description as plain text")
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -513,8 +523,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "323e4567-e89b-12d3-a456-426614174002",
         name: "Gandalf the Grey",
-        description: "A wise and powerful wizard who guides the Fellowship.",
-        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
+        content: "A wise and powerful wizard who guides the Fellowship.",
+        content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -534,8 +544,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Character name", required: true)
-        description(:string, "Character description")
-        description_plain_text(:string, "Character description as plain text")
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
@@ -546,8 +556,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         name: "Gandalf the Grey",
-        description: "A wise and powerful wizard who guides the Fellowship.",
-        description_plain_text: "A wise and powerful wizard who guides the Fellowship.",
+        content: "A wise and powerful wizard who guides the Fellowship.",
+        content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
@@ -563,8 +573,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Character name")
-        description(:string, "Character description")
-        description_plain_text(:string, "Character description as plain text")
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class")
         level(:integer, "Character level")
         image_url(:string, "Character image URL")
@@ -573,8 +583,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         level: 21,
-        description: "A wise and powerful wizard who guides the Fellowship through many perils.",
-        description_plain_text:
+        content: "A wise and powerful wizard who guides the Fellowship through many perils.",
+        content_plain_text:
           "A wise and powerful wizard who guides the Fellowship through many perils."
       })
     end
@@ -659,7 +669,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
-        parent_type(:string, "Type of parent entity (character, quest, location, faction)", enum: ["character", "quest", "location", "faction"])
+
+        parent_type(:string, "Type of parent entity (character, quest, location, faction)",
+          enum: ["character", "quest", "location", "faction"]
+        )
+
         children(Schema.array(:NoteTreeNode), "Child notes")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -695,8 +709,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        description(:string, "Faction description", required: true)
-        description_plain_text(:string, "Faction description as plain text")
+        content(:string, "Faction content", required: true)
+        content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
@@ -707,9 +721,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "423e4567-e89b-12d3-a456-426614174003",
         name: "The Shadow Council",
-        description:
+        content:
           "A secretive organization that seeks to control the realm from behind the scenes.",
-        description_plain_text:
+        content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -727,8 +741,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Faction name", required: true)
-        description(:string, "Faction description", required: true)
-        description_plain_text(:string, "Faction description as plain text")
+        content(:string, "Faction content", required: true)
+        content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags for this faction")
       end
 
@@ -736,9 +750,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         name: "The Shadow Council",
-        description:
+        content:
           "A secretive organization that seeks to control the realm from behind the scenes.",
-        description_plain_text:
+        content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political"]
       })
@@ -752,15 +766,15 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Faction name")
-        description(:string, "Faction description")
-        description_plain_text(:string, "Faction description as plain text")
+        content(:string, "Faction content")
+        content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags for this faction")
       end
 
       example(%{
-        description:
+        content:
           "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
-        description_plain_text:
+        content_plain_text:
           "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
       })
     end
@@ -876,8 +890,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
-        description(:string, "Location description")
-        description_plain_text(:string, "Location description as plain text")
+        content(:string, "Location content")
+        content_plain_text(:string, "Location content as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -895,8 +909,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
-        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text:
+        content: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        content_plain_text:
           "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
@@ -916,8 +930,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Location name", required: true)
-        description(:string, "Location description")
-        description_plain_text(:string, "Location description as plain text")
+        content(:string, "Location content")
+        content_plain_text(:string, "Location content as plain text")
 
         type(:string, "Location type",
           required: true,
@@ -932,8 +946,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       example(%{
         name: "The Crystal Cave",
-        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
-        description_plain_text:
+        content: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        content_plain_text:
           "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
@@ -949,8 +963,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Location name")
-        description(:string, "Location description")
-        description_plain_text(:string, "Location description as plain text")
+        content(:string, "Location content")
+        content_plain_text(:string, "Location content as plain text")
 
         type(:string, "Location type",
           enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
@@ -961,9 +975,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       example(%{
-        description:
+        content:
           "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes.",
-        description_plain_text:
+        content_plain_text:
           "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
       })
     end
@@ -1283,11 +1297,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
-        description(:string, "Location description")
-        type(:string, "Location type", 
+        content(:string, "Location content")
+
+        type(:string, "Location type",
           required: true,
           enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
         )
+
         tags(Schema.array(:string), "Tags associated with this location")
         parent_id(:string, "Parent location ID", format: :uuid)
         children(Schema.array(:LocationTreeNode), "Child locations")
@@ -1296,7 +1312,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         id: "523e4567-e89b-12d3-a456-426614174004",
         name: "The Crystal Cave",
-        description: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
+        content: "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         tags: ["magical", "hidden", "dangerous"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
@@ -1353,8 +1369,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
-        description(:string, "Character description", required: true)
-        description_plain_text(:string, "Character description as plain text")
+        content(:string, "Character content", required: true)
+        content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
@@ -1373,8 +1389,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        description(:string, "Faction description", required: true)
-        description_plain_text(:string, "Faction description as plain text")
+        content(:string, "Faction content", required: true)
+        content_plain_text(:string, "Faction content as plain text")
         tags(:array, "Faction tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
@@ -1393,8 +1409,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
-        description(:string, "Location description", required: true)
-        description_plain_text(:string, "Location description as plain text")
+        content(:string, "Location content", required: true)
+        content_plain_text(:string, "Location content as plain text")
         tags(:array, "Location tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
@@ -1413,8 +1429,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
-        description(:string, "Quest description", required: true)
-        description_plain_text(:string, "Quest description as plain text")
+        content(:string, "Quest content", required: true)
+        content_plain_text(:string, "Quest content as plain text")
         tags(:array, "Quest tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
@@ -1433,8 +1449,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
-        description(:string, "Note description", required: true)
-        description_plain_text(:string, "Note description as plain text")
+        content(:string, "Note content", required: true)
+        content_plain_text(:string, "Note content as plain text")
         tags(:array, "Note tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)

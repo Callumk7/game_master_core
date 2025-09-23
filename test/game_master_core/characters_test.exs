@@ -13,7 +13,7 @@ defmodule GameMasterCore.CharactersTest do
     import GameMasterCore.NotesFixtures
     import GameMasterCore.QuestsFixtures
 
-    @invalid_attrs %{name: nil, level: nil, description: nil, class: nil, image_url: nil}
+    @invalid_attrs %{name: nil, level: nil, content: nil, class: nil, image_url: nil}
 
     test "list_characters/1 returns all scoped characters" do
       scope = game_scope_fixture()
@@ -42,7 +42,7 @@ defmodule GameMasterCore.CharactersTest do
       valid_attrs = %{
         name: "some name",
         level: 42,
-        description: "some description",
+        content: "some content",
         class: "some class",
         image_url: "some image_url",
         game_id: game.id
@@ -51,7 +51,7 @@ defmodule GameMasterCore.CharactersTest do
       assert {:ok, %Character{} = character} = Characters.create_character(scope, valid_attrs)
       assert character.name == "some name"
       assert character.level == 42
-      assert character.description == "some description"
+      assert character.content == "some content"
       assert character.class == "some class"
       assert character.image_url == "some image_url"
       assert character.user_id == scope.user.id
@@ -72,7 +72,7 @@ defmodule GameMasterCore.CharactersTest do
       update_attrs = %{
         name: "some updated name",
         level: 43,
-        description: "some updated description",
+        content: "some updated content",
         class: "some updated class",
         image_url: "some updated image_url"
       }
@@ -82,7 +82,7 @@ defmodule GameMasterCore.CharactersTest do
 
       assert character.name == "some updated name"
       assert character.level == 43
-      assert character.description == "some updated description"
+      assert character.content == "some updated content"
       assert character.class == "some updated class"
       assert character.image_url == "some updated image_url"
     end
@@ -183,7 +183,7 @@ defmodule GameMasterCore.CharactersTest do
       valid_attrs = %{
         name: "some name",
         level: 42,
-        description: "some description",
+        content: "some content",
         class: "some class",
         image_url: "some image_url",
         game_id: game.id

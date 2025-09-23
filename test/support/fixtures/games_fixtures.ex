@@ -10,7 +10,7 @@ defmodule GameMasterCore.GamesFixtures do
   def game_fixture(scope, attrs \\ %{}) do
     attrs =
       Enum.into(attrs, %{
-        description: "some description",
+        content: "some content",
         name: "some name",
         setting: "some setting"
       })

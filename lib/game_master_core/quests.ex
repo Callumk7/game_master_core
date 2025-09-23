@@ -71,8 +71,8 @@ defmodule GameMasterCore.Quests do
 
   """
   def list_quests_tree_for_game(%Scope{} = scope) do
-    quests = 
-      from(q in Quest, 
+    quests =
+      from(q in Quest,
         where: q.game_id == ^scope.game.id,
         order_by: [asc: q.name]
       )
@@ -84,10 +84,10 @@ defmodule GameMasterCore.Quests do
   defp build_tree(quests) do
     # Group quests by parent_id
     grouped = Enum.group_by(quests, & &1.parent_id)
-    
+
     # Start with root quests (parent_id is nil)
     root_quests = Map.get(grouped, nil, [])
-    
+
     # Build tree recursively
     Enum.map(root_quests, fn quest ->
       build_quest_node(quest, grouped)
@@ -95,7 +95,7 @@ defmodule GameMasterCore.Quests do
   end
 
   defp build_quest_node(quest, grouped) do
-    children = 
+    children =
       grouped
       |> Map.get(quest.id, [])
       |> Enum.map(&build_quest_node(&1, grouped))

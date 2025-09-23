@@ -21,7 +21,7 @@ defmodule GameMasterCore.FactionsFixtures do
 
     attrs =
       Enum.into(attrs, %{
-        description: "some description",
+        content: "some content",
         name: "some name"
       })
       |> Map.put(:game_id, game_id)

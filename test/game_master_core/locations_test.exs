@@ -10,7 +10,7 @@ defmodule GameMasterCore.LocationsTest do
     import GameMasterCore.LocationsFixtures
     import GameMasterCore.GamesFixtures
 
-    @invalid_attrs %{name: nil, type: nil, description: nil}
+    @invalid_attrs %{name: nil, type: nil, content: nil}
     @valid_type "city"
     @valid_updated_type "settlement"
 
@@ -41,14 +41,14 @@ defmodule GameMasterCore.LocationsTest do
       valid_attrs = %{
         name: "some name",
         type: @valid_type,
-        description: "some description",
+        content: "some content",
         game_id: game.id
       }
 
       assert {:ok, %Location{} = location} = Locations.create_location(scope, valid_attrs)
       assert location.name == "some name"
       assert location.type == "city"
-      assert location.description == "some description"
+      assert location.content == "some description"
       assert location.user_id == scope.user.id
     end
 
@@ -66,7 +66,7 @@ defmodule GameMasterCore.LocationsTest do
       update_attrs = %{
         name: "some updated name",
         type: @valid_updated_type,
-        description: "some updated description"
+        content: "some updated content"
       }
 
       assert {:ok, %Location{} = location} =
@@ -74,7 +74,7 @@ defmodule GameMasterCore.LocationsTest do
 
       assert location.name == "some updated name"
       assert location.type == "settlement"
-      assert location.description == "some updated description"
+      assert location.content == "some updated description"
     end
 
     test "update_location/3 performs update when called (authorization handled at controller level)" do
@@ -657,18 +657,21 @@ defmodule GameMasterCore.LocationsTest do
       game = game_fixture(scope)
       scope = %{scope | game: game}
 
-      location1 = location_fixture(scope, %{
-        game_id: game.id, 
-        name: "Forest", 
-        type: "region", 
-        parent_id: nil
-      })
-      location2 = location_fixture(scope, %{
-        game_id: game.id, 
-        name: "Mountains", 
-        type: "region", 
-        parent_id: nil
-      })
+      location1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Forest",
+          type: "region",
+          parent_id: nil
+        })
+
+      location2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Mountains",
+          type: "region",
+          parent_id: nil
+        })
 
       tree = Locations.list_locations_tree_for_game(scope)
 
@@ -690,28 +693,31 @@ defmodule GameMasterCore.LocationsTest do
       scope = %{scope | game: game}
 
       # Create continent (root)
-      continent = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Westeros",
-        type: "continent",
-        parent_id: nil
-      })
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Westeros",
+          type: "continent",
+          parent_id: nil
+        })
 
       # Create nation (child of continent)
-      nation = location_fixture(scope, %{
-        game_id: game.id,
-        name: "The North",
-        type: "nation", 
-        parent_id: continent.id
-      })
+      nation =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "The North",
+          type: "nation",
+          parent_id: continent.id
+        })
 
       # Create city (child of nation)
-      city = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Winterfell",
-        type: "city",
-        parent_id: nation.id
-      })
+      city =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Winterfell",
+          type: "city",
+          parent_id: nation.id
+        })
 
       tree = Locations.list_locations_tree_for_game(scope)
 
@@ -741,38 +747,41 @@ defmodule GameMasterCore.LocationsTest do
       scope = %{scope | game: game}
 
       # Create parent location
-      continent = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Continent",
-        type: "continent",
-        parent_id: nil
-      })
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Continent",
+          type: "continent",
+          parent_id: nil
+        })
 
       # Create multiple children
-      nation1 = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Zebra Nation",
-        type: "nation",
-        parent_id: continent.id
-      })
+      nation1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Zebra Nation",
+          type: "nation",
+          parent_id: continent.id
+        })
 
-      nation2 = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Alpha Nation",
-        type: "nation",
-        parent_id: continent.id
-      })
+      nation2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Alpha Nation",
+          type: "nation",
+          parent_id: continent.id
+        })
 
       tree = Locations.list_locations_tree_for_game(scope)
 
       [continent_node] = tree
       assert length(continent_node.children) == 2
-      
+
       # Should be sorted by name
       [child1, child2] = continent_node.children
       assert child1.name == "Alpha Nation"
       assert child1.id == nation2.id
-      
+
       assert child2.name == "Zebra Nation"
       assert child2.id == nation1.id
     end
@@ -782,21 +791,22 @@ defmodule GameMasterCore.LocationsTest do
       game = game_fixture(scope)
       scope = %{scope | game: game}
 
-      location = location_fixture(scope, %{
-        game_id: game.id,
-        name: "Test Location",
-        description: "A test description",
-        type: "city",
-        tags: ["test", "example"],
-        parent_id: nil
-      })
+      location =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Test Location",
+          description: "A test description",
+          type: "city",
+          tags: ["test", "example"],
+          parent_id: nil
+        })
 
       tree = Locations.list_locations_tree_for_game(scope)
 
       [node] = tree
       assert node.id == location.id
       assert node.name == "Test Location"
-      assert node.description == "A test description"
+      assert node.content == "A test description"
       assert node.type == "city"
       assert node.tags == ["test", "example"]
       assert node.parent_id == nil
@@ -809,18 +819,20 @@ defmodule GameMasterCore.LocationsTest do
       game2 = game_fixture(scope)
 
       # Create location in game1
-      _location1 = location_fixture(scope, %{
-        game_id: game1.id, 
-        name: "Game 1 Location", 
-        type: "city"
-      })
+      _location1 =
+        location_fixture(scope, %{
+          game_id: game1.id,
+          name: "Game 1 Location",
+          type: "city"
+        })
 
       # Create location in game2  
-      _location2 = location_fixture(scope, %{
-        game_id: game2.id, 
-        name: "Game 2 Location", 
-        type: "city"
-      })
+      _location2 =
+        location_fixture(scope, %{
+          game_id: game2.id,
+          name: "Game 2 Location",
+          type: "city"
+        })
 
       # Test game1
       scope1 = %{scope | game: game1}
@@ -843,18 +855,37 @@ defmodule GameMasterCore.LocationsTest do
       scope = %{scope | game: game}
 
       # Create 4-level hierarchy
-      continent = location_fixture(scope, %{
-        game_id: game.id, name: "Continent", type: "continent", parent_id: nil
-      })
-      nation = location_fixture(scope, %{
-        game_id: game.id, name: "Nation", type: "nation", parent_id: continent.id
-      })
-      region = location_fixture(scope, %{
-        game_id: game.id, name: "Region", type: "region", parent_id: nation.id
-      })
-      _city = location_fixture(scope, %{
-        game_id: game.id, name: "City", type: "city", parent_id: region.id
-      })
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Continent",
+          type: "continent",
+          parent_id: nil
+        })
+
+      nation =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Nation",
+          type: "nation",
+          parent_id: continent.id
+        })
+
+      region =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Region",
+          type: "region",
+          parent_id: nation.id
+        })
+
+      _city =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "City",
+          type: "city",
+          parent_id: region.id
+        })
 
       tree = Locations.list_locations_tree_for_game(scope)
 

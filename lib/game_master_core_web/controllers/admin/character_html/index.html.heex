@@ -16,7 +16,7 @@
     <:col :let={character} label="Name">{character.name}</:col>
     <:col :let={character} label="Class">{character.class}</:col>
     <:col :let={character} label="Level">{character.level}</:col>
-    <:col :let={character} label="Description">{character.description}</:col>
+    <:col :let={character} label="Content">{character.content}</:col>
     <:action :let={character}>
       <div class="sr-only">
         <.link navigate={~p"/admin/games/#{@game.id}/characters/#{character}"}>Show</.link>

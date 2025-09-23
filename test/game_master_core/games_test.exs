@@ -9,7 +9,7 @@ defmodule GameMasterCore.GamesTest do
     import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
     import GameMasterCore.GamesFixtures
 
-    @invalid_attrs %{name: nil, description: nil, setting: nil}
+    @invalid_attrs %{name: nil, content: nil, setting: nil}
 
     test "list_games/1 returns all scoped games" do
       scope = user_scope_fixture()
@@ -29,12 +29,12 @@ defmodule GameMasterCore.GamesTest do
     end
 
     test "create_game/2 with valid data creates a game" do
-      valid_attrs = %{name: "some name", description: "some description", setting: "some setting"}
+      valid_attrs = %{name: "some name", content: "some content", setting: "some setting"}
       scope = user_scope_fixture()
 
       assert {:ok, %Game{} = game} = Games.create_game(scope, valid_attrs)
       assert game.name == "some name"
-      assert game.description == "some description"
+      assert game.content == "some content"
       assert game.setting == "some setting"
       assert game.owner_id == scope.user.id
     end
@@ -50,13 +50,13 @@ defmodule GameMasterCore.GamesTest do
 
       update_attrs = %{
         name: "some updated name",
-        description: "some updated description",
+        content: "some updated content",
         setting: "some updated setting"
       }
 
       assert {:ok, %Game{} = game} = Games.update_game(scope, game, update_attrs)
       assert game.name == "some updated name"
-      assert game.description == "some updated description"
+      assert game.content == "some updated content"
       assert game.setting == "some updated setting"
     end
 
