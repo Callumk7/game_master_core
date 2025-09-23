@@ -44,7 +44,7 @@ defmodule GameMasterCore.FactionsTest do
 
       assert {:ok, %Faction{} = faction} = Factions.create_faction(scope, valid_attrs)
       assert faction.name == "some name"
-      assert faction.content == "some description"
+      assert faction.content == "some content"
       assert faction.game_id == game.id
       assert faction.user_id == scope.user.id
     end
@@ -71,7 +71,7 @@ defmodule GameMasterCore.FactionsTest do
 
       assert {:ok, %Faction{} = faction} = Factions.update_faction(scope, faction, update_attrs)
       assert faction.name == "some updated name"
-      assert faction.content == "some updated description"
+      assert faction.content == "some updated content"
     end
 
     test "update_faction/3 with invalid scope doesn't raise but doesn't permit update" do

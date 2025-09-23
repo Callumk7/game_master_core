@@ -48,7 +48,7 @@ defmodule GameMasterCore.LocationsTest do
       assert {:ok, %Location{} = location} = Locations.create_location(scope, valid_attrs)
       assert location.name == "some name"
       assert location.type == "city"
-      assert location.content == "some description"
+      assert location.content == "some content"
       assert location.user_id == scope.user.id
     end
 
@@ -74,7 +74,7 @@ defmodule GameMasterCore.LocationsTest do
 
       assert location.name == "some updated name"
       assert location.type == "settlement"
-      assert location.content == "some updated description"
+      assert location.content == "some updated content"
     end
 
     test "update_location/3 performs update when called (authorization handled at controller level)" do
@@ -795,7 +795,7 @@ defmodule GameMasterCore.LocationsTest do
         location_fixture(scope, %{
           game_id: game.id,
           name: "Test Location",
-          description: "A test description",
+          content: "A test description",
           type: "city",
           tags: ["test", "example"],
           parent_id: nil
@@ -916,7 +916,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: nil
         })
 
-      child =
+      _child =
         location_fixture(scope, %{
           game_id: game.id,
           name: "Child Location",

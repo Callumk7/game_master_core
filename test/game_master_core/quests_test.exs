@@ -816,7 +816,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: nil
         })
 
-      child =
+      _child =
         quest_fixture(scope, %{
           game_id: scope.game.id,
           name: "Child Quest",
