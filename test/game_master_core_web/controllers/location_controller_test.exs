@@ -625,6 +625,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       assert location_data["type"] == "city"
       assert location_data["tags"] == ["test", "example"]
       assert location_data["parent_id"] == nil
+      assert location_data["entity_type"] == "location"
       assert location_data["children"] == []
     end
 

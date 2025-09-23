@@ -10,6 +10,7 @@ defmodule GameMasterCore.LinksTest do
   import GameMasterCore.FactionsFixtures
   import GameMasterCore.LocationsFixtures
   import GameMasterCore.QuestsFixtures
+  import GameMasterCore.GamesFixtures
 
   describe "link/2 and unlink/2 - Character and Note" do
     setup do
@@ -634,6 +635,503 @@ defmodule GameMasterCore.LinksTest do
       assert length(quests) == 1
       linked_quests = Enum.map(quests, & &1.entity)
       assert quest2 in linked_quests
+    end
+  end
+
+  describe "link/3 with metadata - Character and Note" do
+    setup do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      {:ok, scope: scope, character: character, note: note}
+    end
+
+    test "successfully creates link with relationship_type metadata", %{
+      character: character,
+      note: note
+    } do
+      metadata = %{relationship_type: "ally"}
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.relationship_type == "ally"
+    end
+
+    test "successfully creates link with description metadata", %{
+      character: character,
+      note: note
+    } do
+      metadata = %{description: "Long-time allies from the war"}
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.description == "Long-time allies from the war"
+    end
+
+    test "successfully creates link with strength metadata", %{character: character, note: note} do
+      metadata = %{strength: 8}
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.strength == 8
+    end
+
+    test "validates strength is between 1 and 10", %{character: character, note: note} do
+      invalid_metadata_low = %{strength: 0}
+      invalid_metadata_high = %{strength: 11}
+
+      assert {:error, changeset} = Links.link(character, note, invalid_metadata_low)
+      assert %{strength: ["is invalid"]} = errors_on(changeset)
+
+      assert {:error, changeset} = Links.link(character, note, invalid_metadata_high)
+      assert %{strength: ["is invalid"]} = errors_on(changeset)
+    end
+
+    test "successfully creates link with is_active metadata", %{character: character, note: note} do
+      metadata = %{is_active: false}
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.is_active == false
+    end
+
+    test "defaults is_active to true when not provided", %{character: character, note: note} do
+      assert {:ok, link} = Links.link(character, note, %{})
+      assert link.is_active == true
+    end
+
+    test "successfully creates link with JSON metadata", %{character: character, note: note} do
+      json_metadata = %{
+        "since" => "2021-01-01",
+        "notes" => "Met during the siege",
+        "importance" => "high"
+      }
+
+      metadata = %{metadata: json_metadata}
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.metadata == json_metadata
+    end
+
+    test "successfully creates link with all metadata fields", %{character: character, note: note} do
+      metadata = %{
+        relationship_type: "enemy",
+        description: "Ancient rivalry dating back generations",
+        strength: 9,
+        is_active: true,
+        metadata: %{
+          "origin" => "family feud",
+          "intensity" => "high",
+          "public" => false
+        }
+      }
+
+      assert {:ok, link} = Links.link(character, note, metadata)
+      assert link.relationship_type == "enemy"
+      assert link.description == "Ancient rivalry dating back generations"
+      assert link.strength == 9
+      assert link.is_active == true
+      assert link.metadata["origin"] == "family feud"
+      assert link.metadata["intensity"] == "high"
+      assert link.metadata["public"] == false
+    end
+  end
+
+  describe "links_for/1 metadata retrieval" do
+    setup do
+      scope = user_scope_fixture()
+      character = character_fixture(scope)
+      note1 = note_fixture(scope)
+      note2 = note_fixture(scope)
+
+      # Create links with different metadata
+      {:ok, _} =
+        Links.link(character, note1, %{
+          relationship_type: "ally",
+          description: "Trusted companion",
+          strength: 8,
+          is_active: true,
+          metadata: %{"bond_type" => "brotherhood"}
+        })
+
+      {:ok, _} =
+        Links.link(character, note2, %{
+          relationship_type: "mentor",
+          description: "Former teacher",
+          strength: 6,
+          is_active: false,
+          metadata: %{"subject" => "swordsmanship"}
+        })
+
+      {:ok, scope: scope, character: character, note1: note1, note2: note2}
+    end
+
+    test "returns metadata for all linked entities", %{
+      character: character,
+      note1: note1,
+      note2: note2
+    } do
+      links = Links.links_for(character)
+      assert %{notes: notes} = links
+      assert length(notes) == 2
+
+      # Find the specific notes in the results
+      note1_link = Enum.find(notes, fn link -> link.entity.id == note1.id end)
+      note2_link = Enum.find(notes, fn link -> link.entity.id == note2.id end)
+
+      # Verify note1 metadata
+      assert note1_link.relationship_type == "ally"
+      assert note1_link.description == "Trusted companion"
+      assert note1_link.strength == 8
+      assert note1_link.is_active == true
+      assert note1_link.metadata["bond_type"] == "brotherhood"
+
+      # Verify note2 metadata
+      assert note2_link.relationship_type == "mentor"
+      assert note2_link.description == "Former teacher"
+      assert note2_link.strength == 6
+      assert note2_link.is_active == false
+      assert note2_link.metadata["subject"] == "swordsmanship"
+    end
+
+    test "returns metadata from the reverse direction", %{
+      character: character,
+      note1: note1
+    } do
+      links = Links.links_for(note1)
+      assert %{characters: characters} = links
+      assert length(characters) == 1
+
+      character_link = List.first(characters)
+      assert character_link.entity.id == character.id
+      assert character_link.relationship_type == "ally"
+      assert character_link.description == "Trusted companion"
+      assert character_link.strength == 8
+      assert character_link.is_active == true
+      assert character_link.metadata["bond_type"] == "brotherhood"
+    end
+  end
+
+  describe "metadata across different entity types" do
+    setup do
+      scope = game_scope_fixture()
+      character = character_fixture(scope)
+      faction = faction_fixture(scope)
+      location = location_fixture(scope)
+      quest = quest_fixture(scope)
+
+      {:ok,
+       scope: scope,
+       character: character,
+       faction: faction,
+       location: location,
+       quest: quest}
+    end
+
+    test "character-faction link preserves metadata", %{character: character, faction: faction} do
+      metadata = %{
+        relationship_type: "member",
+        description: "Loyal member since childhood",
+        strength: 10,
+        is_active: true,
+        metadata: %{"rank" => "lieutenant", "years_served" => 15}
+      }
+
+      assert {:ok, link} = Links.link(character, faction, metadata)
+      assert link.relationship_type == "member"
+      assert link.strength == 10
+      assert link.metadata["rank"] == "lieutenant"
+
+      # Verify retrieval
+      links = Links.links_for(character)
+      faction_link = List.first(links.factions)
+      assert faction_link.relationship_type == "member"
+      assert faction_link.metadata["years_served"] == 15
+    end
+
+    test "character-location link preserves metadata", %{character: character, location: location} do
+      metadata = %{
+        relationship_type: "resident",
+        description: "Lives in the merchant quarter",
+        strength: 7,
+        metadata: %{"address" => "123 Market Street", "owns_property" => true}
+      }
+
+      assert {:ok, link} = Links.link(character, location, metadata)
+      assert link.relationship_type == "resident"
+
+      links = Links.links_for(location)
+      character_link = List.first(links.characters)
+      assert character_link.metadata["address"] == "123 Market Street"
+      assert character_link.metadata["owns_property"] == true
+    end
+
+    test "quest-character link preserves metadata", %{character: character, quest: quest} do
+      metadata = %{
+        relationship_type: "protagonist",
+        description: "Main hero of the quest",
+        strength: 9,
+        metadata: %{"role" => "leader", "reward_share" => 50}
+      }
+
+      assert {:ok, _link} = Links.link(quest, character, metadata)
+
+      links = Links.links_for(quest)
+      character_link = List.first(links.characters)
+      assert character_link.relationship_type == "protagonist"
+      assert character_link.metadata["role"] == "leader"
+    end
+  end
+
+  describe "self-join links with metadata" do
+    setup do
+      scope = user_scope_fixture()
+      character1 = character_fixture(scope)
+      character2 = character_fixture(scope)
+      {:ok, scope: scope, character1: character1, character2: character2}
+    end
+
+    test "character-character link preserves metadata", %{
+      character1: character1,
+      character2: character2
+    } do
+      metadata = %{
+        relationship_type: "sibling",
+        description: "Twin brothers separated at birth",
+        strength: 10,
+        is_active: true,
+        metadata: %{
+          "birth_order" => "elder",
+          "reunion_date" => "2023-05-15",
+          "secret" => true
+        }
+      }
+
+      assert {:ok, link} = Links.link(character1, character2, metadata)
+      assert link.relationship_type == "sibling"
+      assert link.metadata["birth_order"] == "elder"
+
+      # Test bidirectional retrieval
+      links1 = Links.links_for(character1)
+      character2_link = List.first(links1.characters)
+      assert character2_link.entity.id == character2.id
+      assert character2_link.relationship_type == "sibling"
+      assert character2_link.metadata["secret"] == true
+
+      links2 = Links.links_for(character2)
+      character1_link = List.first(links2.characters)
+      assert character1_link.entity.id == character1.id
+      assert character1_link.relationship_type == "sibling"
+      assert character1_link.metadata["reunion_date"] == "2023-05-15"
+    end
+  end
+
+  describe "complex tree operations accuracy" do
+    setup do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      # Create a complex location hierarchy
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Aetheria",
+          type: "continent",
+          parent_id: nil
+        })
+
+      nation1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Eldoria",
+          type: "nation",
+          parent_id: continent.id
+        })
+
+      nation2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Westmarch",
+          type: "nation",
+          parent_id: continent.id
+        })
+
+      city1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Goldport",
+          type: "city",
+          parent_id: nation1.id
+        })
+
+      city2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Silverfall",
+          type: "city",
+          parent_id: nation1.id
+        })
+
+      city3 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Ironhold",
+          type: "city",
+          parent_id: nation2.id
+        })
+
+      {:ok,
+       scope: scope,
+       continent: continent,
+       nation1: nation1,
+       nation2: nation2,
+       city1: city1,
+       city2: city2,
+       city3: city3}
+    end
+
+    test "location tree maintains proper hierarchical structure", %{
+      scope: scope,
+      continent: continent
+    } do
+      tree = GameMasterCore.Locations.list_locations_tree_for_game(scope)
+
+      assert length(tree) == 1
+      [continent_node] = tree
+      assert continent_node.id == continent.id
+      assert continent_node.name == "Aetheria"
+
+      # Verify nations are properly sorted and nested
+      assert length(continent_node.children) == 2
+      [nation1_node, nation2_node] = continent_node.children
+      assert nation1_node.name == "Eldoria"
+      assert nation2_node.name == "Westmarch"
+
+      # Verify cities under Eldoria
+      assert length(nation1_node.children) == 2
+      [city1_node, city2_node] = nation1_node.children
+      assert city1_node.name == "Goldport"
+      assert city2_node.name == "Silverfall"
+
+      # Verify cities under Westmarch
+      assert length(nation2_node.children) == 1
+      [city3_node] = nation2_node.children
+      assert city3_node.name == "Ironhold"
+
+      # Verify all leaf nodes have empty children
+      assert city1_node.children == []
+      assert city2_node.children == []
+      assert city3_node.children == []
+    end
+
+    test "tree ordering is consistent and alphabetical", %{scope: scope} do
+      tree = GameMasterCore.Locations.list_locations_tree_for_game(scope)
+      [continent_node] = tree
+
+      # Nations should be alphabetically ordered
+      nation_names = Enum.map(continent_node.children, & &1.name)
+      assert nation_names == ["Eldoria", "Westmarch"]
+
+      # Cities under Eldoria should be alphabetically ordered
+      [eldoria_node | _] = continent_node.children
+      city_names = Enum.map(eldoria_node.children, & &1.name)
+      assert city_names == ["Goldport", "Silverfall"]
+    end
+  end
+
+  describe "cross-entity link accuracy verification" do
+    setup do
+      scope = game_scope_fixture()
+      character = character_fixture(scope)
+      note = note_fixture(scope)
+      faction = faction_fixture(scope)
+      location = location_fixture(scope)
+      quest = quest_fixture(scope)
+
+      # Create a complex web of relationships
+      {:ok, _} = Links.link(character, note, %{relationship_type: "chronicler"})
+      {:ok, _} = Links.link(character, faction, %{relationship_type: "member"})
+      {:ok, _} = Links.link(character, location, %{relationship_type: "resident"})
+      {:ok, _} = Links.link(character, quest, %{relationship_type: "hero"})
+      {:ok, _} = Links.link(note, faction, %{relationship_type: "documentation"})
+      {:ok, _} = Links.link(quest, location, %{relationship_type: "takes_place_in"})
+
+      {:ok,
+       scope: scope,
+       character: character,
+       note: note,
+       faction: faction,
+       location: location,
+       quest: quest}
+    end
+
+    test "character links return all expected entity types", %{
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    } do
+      links = Links.links_for(character)
+
+      # Verify all expected links exist
+      assert length(links.notes) == 1
+      assert length(links.factions) == 1
+      assert length(links.locations) == 1
+      assert length(links.quests) == 1
+      assert length(links.characters) == 0
+
+      # Verify correct entities are linked
+      assert List.first(links.notes).entity.id == note.id
+      assert List.first(links.factions).entity.id == faction.id
+      assert List.first(links.locations).entity.id == location.id
+      assert List.first(links.quests).entity.id == quest.id
+
+      # Verify relationship types are preserved
+      assert List.first(links.notes).relationship_type == "chronicler"
+      assert List.first(links.factions).relationship_type == "member"
+      assert List.first(links.locations).relationship_type == "resident"
+      assert List.first(links.quests).relationship_type == "hero"
+    end
+
+    test "bidirectional link consistency", %{
+      character: character,
+      note: note,
+      faction: faction
+    } do
+      # Check character -> note
+      character_links = Links.links_for(character)
+      note_link = List.first(character_links.notes)
+      assert note_link.entity.id == note.id
+      assert note_link.relationship_type == "chronicler"
+
+      # Check note -> character (should have same relationship data)
+      note_links = Links.links_for(note)
+      character_link = List.first(note_links.characters)
+      assert character_link.entity.id == character.id
+      assert character_link.relationship_type == "chronicler"
+
+      # Check note -> faction
+      faction_link = List.first(note_links.factions)
+      assert faction_link.entity.id == faction.id
+      assert faction_link.relationship_type == "documentation"
+    end
+
+    test "link isolation - removing one link doesn't affect others", %{
+      character: character,
+      note: note,
+      faction: faction
+    } do
+      # Remove character-note link
+      assert {:ok, _} = Links.unlink(character, note)
+
+      # Verify character-note link is gone
+      refute Links.linked?(character, note)
+
+      # Verify other links remain intact
+      assert Links.linked?(character, faction)
+      assert Links.linked?(note, faction)
+
+      character_links = Links.links_for(character)
+      assert length(character_links.notes) == 0
+      assert length(character_links.factions) == 1
     end
   end
 end

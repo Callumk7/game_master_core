@@ -107,6 +107,7 @@ defmodule GameMasterCore.Quests do
       content_plain_text: quest.content_plain_text,
       tags: quest.tags,
       parent_id: quest.parent_id,
+      entity_type: "quest",
       children: children
     }
   end

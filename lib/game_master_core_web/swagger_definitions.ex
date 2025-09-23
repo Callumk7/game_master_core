@@ -674,6 +674,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           enum: ["character", "quest", "location", "faction"]
         )
 
+        entity_type(:string, "Entity type for URL building", required: true, enum: ["note"])
         children(Schema.array(:NoteTreeNode), "Child notes")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
@@ -687,11 +688,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags: ["backstory", "important"],
         parent_id: "523e4567-e89b-12d3-a456-426614174004",
         parent_type: "Character",
+        entity_type: "note",
         children: [
           %{
             id: "823e4567-e89b-12d3-a456-426614174007",
             name: "Childhood Memories",
             content: "Early life details...",
+            entity_type: "note",
             children: []
           }
         ],
@@ -1306,6 +1309,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         tags(Schema.array(:string), "Tags associated with this location")
         parent_id(:string, "Parent location ID", format: :uuid)
+        entity_type(:string, "Entity type for URL building", required: true, enum: ["location"])
         children(Schema.array(:LocationTreeNode), "Child locations")
       end
 
@@ -1316,6 +1320,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         type: "building",
         tags: ["magical", "hidden", "dangerous"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        entity_type: "location",
         children: []
       })
     end
@@ -1333,6 +1338,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID", format: :uuid)
+        entity_type(:string, "Entity type for URL building", required: true, enum: ["quest"])
         children(Schema.array(:QuestTreeNode), "Child quests")
       end
 
@@ -1343,6 +1349,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        entity_type: "quest",
         children: []
       })
     end

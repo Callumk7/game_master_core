@@ -99,6 +99,7 @@ defmodule GameMasterCore.Locations do
       type: location.type,
       tags: location.tags,
       parent_id: location.parent_id,
+      entity_type: "location",
       children: children
     }
   end

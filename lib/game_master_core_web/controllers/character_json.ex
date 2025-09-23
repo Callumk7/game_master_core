@@ -57,5 +57,6 @@ defmodule GameMasterCoreWeb.CharacterJSON do
   defp note_tree_data(note) do
     note_data(note)
     |> Map.put(:children, for(child <- Map.get(note, :children, []), do: note_tree_data(child)))
+    |> Map.put(:entity_type, Map.get(note, :entity_type, "note"))
   end
 end
