@@ -1228,7 +1228,7 @@ defmodule GameMasterCore.NotesTest do
         })
 
       # Create child note under the parent note
-      child_note =
+      _child_note =
         note_fixture(scope, %{
           game_id: game.id,
           name: "Child Note",

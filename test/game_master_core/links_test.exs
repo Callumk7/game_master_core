@@ -817,11 +817,7 @@ defmodule GameMasterCore.LinksTest do
       quest = quest_fixture(scope)
 
       {:ok,
-       scope: scope,
-       character: character,
-       faction: faction,
-       location: location,
-       quest: quest}
+       scope: scope, character: character, faction: faction, location: location, quest: quest}
     end
 
     test "character-faction link preserves metadata", %{character: character, faction: faction} do
