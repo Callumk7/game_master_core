@@ -810,6 +810,7 @@ defmodule GameMasterCore.LocationsTest do
       assert node.type == "city"
       assert node.tags == ["test", "example"]
       assert node.parent_id == nil
+      assert node.entity_type == "location"
       assert node.children == []
     end
 
@@ -899,6 +900,37 @@ defmodule GameMasterCore.LocationsTest do
       assert region_node.name == "Region"
       assert city_node.name == "City"
       assert city_node.children == []
+    end
+
+    test "list_locations_tree_for_game/1 includes entity_type field for all nodes" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = %{scope | game: game}
+
+      # Create parent and child locations
+      parent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Parent Location",
+          type: "continent",
+          parent_id: nil
+        })
+
+      child =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Child Location",
+          type: "nation",
+          parent_id: parent.id
+        })
+
+      tree = Locations.list_locations_tree_for_game(scope)
+      [parent_node] = tree
+      [child_node] = parent_node.children
+
+      # Verify entity_type field is present on all nodes
+      assert parent_node.entity_type == "location"
+      assert child_node.entity_type == "location"
     end
   end
 end

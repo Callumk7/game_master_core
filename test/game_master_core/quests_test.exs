@@ -803,5 +803,34 @@ defmodule GameMasterCore.QuestsTest do
       assert final_node.name == "Final Quest"
       assert final_node.children == []
     end
+
+    test "list_quests_tree_for_game/1 includes entity_type field for all nodes" do
+      scope = game_scope_fixture()
+
+      # Create parent and child quests
+      parent =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Parent Quest",
+          content: "Parent content",
+          parent_id: nil
+        })
+
+      child =
+        quest_fixture(scope, %{
+          game_id: scope.game.id,
+          name: "Child Quest",
+          content: "Child content",
+          parent_id: parent.id
+        })
+
+      tree = Quests.list_quests_tree_for_game(scope)
+      [parent_node] = tree
+      [child_node] = parent_node.children
+
+      # Verify entity_type field is present on all nodes
+      assert parent_node.entity_type == "quest"
+      assert child_node.entity_type == "quest"
+    end
   end
 end

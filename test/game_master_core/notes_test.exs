@@ -1211,5 +1211,37 @@ defmodule GameMasterCore.NotesTest do
       assert length(grandchildren) == 1
       assert hd(grandchildren).name == "Grandchild 1.1.1"
     end
+
+    test "list_character_notes_tree_for_game/2 includes entity_type field for all nodes" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      character = character_fixture(scope, %{game_id: game.id})
+
+      # Create parent note attached to character
+      parent_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Parent Note",
+          parent_id: character.id,
+          parent_type: "character"
+        })
+
+      # Create child note under the parent note
+      child_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Child Note",
+          parent_id: parent_note.id
+        })
+
+      tree = Notes.list_character_notes_tree_for_game(scope, character.id)
+      [parent_node] = tree
+      [child_node] = Map.get(parent_node, :children)
+
+      # Verify entity_type field is present on all nodes
+      assert parent_node.entity_type == "note"
+      assert child_node.entity_type == "note"
+    end
   end
 end

@@ -102,8 +102,10 @@ defmodule GameMasterCore.Notes do
     # Recursively add children
     children_with_trees = Enum.map(children, &add_note_children(&1, grouped))
 
-    # Add children to the note struct
-    Map.put(note, :children, children_with_trees)
+    # Add children and entity_type to the note struct
+    note
+    |> Map.put(:children, children_with_trees)
+    |> Map.put(:entity_type, "note")
   end
 
   @doc """
