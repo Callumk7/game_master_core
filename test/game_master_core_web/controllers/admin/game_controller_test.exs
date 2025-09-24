@@ -73,9 +73,87 @@ defmodule GameMasterCoreWeb.Admin.GameControllerTest do
       conn = delete(conn, ~p"/admin/games/#{game}")
       assert redirected_to(conn) == ~p"/admin/games"
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/admin/games/#{game}")
-      end
+      conn = get(conn, ~p"/admin/games/#{game}")
+      assert html_response(conn, 404)
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/admin/games/invalid")
+      assert html_response(conn, 404)
+    end
+
+    test "show returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/admin/games/#{non_existent_id}")
+      assert html_response(conn, 404)
+    end
+
+    test "edit returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/admin/games/invalid/edit")
+      assert html_response(conn, 404)
+    end
+
+    test "edit returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/admin/games/#{non_existent_id}/edit")
+      assert html_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid game id format", %{conn: conn} do
+      conn = put(conn, ~p"/admin/games/invalid", game: %{name: "test"})
+      assert html_response(conn, 404)
+    end
+
+    test "update returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = put(conn, ~p"/admin/games/#{non_existent_id}", game: %{name: "test"})
+      assert html_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid game id format", %{conn: conn} do
+      conn = delete(conn, ~p"/admin/games/invalid")
+      assert html_response(conn, 404)
+    end
+
+    test "delete returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/admin/games/#{non_existent_id}")
+      assert html_response(conn, 404)
+    end
+
+    test "list_members returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/admin/games/invalid/members")
+      assert html_response(conn, 404)
+    end
+
+    test "list_members returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/admin/games/#{non_existent_id}/members")
+      assert html_response(conn, 404)
+    end
+
+    test "add_member returns 404 for invalid game id format", %{conn: conn} do
+      conn = post(conn, ~p"/admin/games/invalid/members", %{"user_id" => "123", "role" => "member"})
+      assert html_response(conn, 404)
+    end
+
+    test "add_member returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = post(conn, ~p"/admin/games/#{non_existent_id}/members", %{"user_id" => "123", "role" => "member"})
+      assert html_response(conn, 404)
+    end
+
+    test "remove_member returns 404 for invalid game id format", %{conn: conn} do
+      conn = delete(conn, ~p"/admin/games/invalid/members/123")
+      assert html_response(conn, 404)
+    end
+
+    test "remove_member returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/admin/games/#{non_existent_id}/members/123")
+      assert html_response(conn, 404)
     end
   end
 

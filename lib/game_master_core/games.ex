@@ -83,6 +83,33 @@ defmodule GameMasterCore.Games do
   end
 
   @doc """
+  Fetches a single game that the user has access to.
+
+  Returns `{:ok, game}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        user_id = scope.user.id
+
+        query =
+          from(g in Game,
+            left_join: m in GameMembership,
+            on: g.id == m.game_id and m.user_id == ^user_id,
+            where: g.id == ^uuid and (g.owner_id == ^user_id or not is_nil(m.id))
+          )
+
+        case Repo.one(query) do
+          nil -> {:error, :not_found}
+          game -> {:ok, game}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
   Creates a game.
 
   ## Examples

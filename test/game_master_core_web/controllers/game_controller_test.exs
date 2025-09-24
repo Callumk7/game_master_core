@@ -81,9 +81,90 @@ defmodule GameMasterCoreWeb.GameControllerTest do
       conn = delete(conn, ~p"/api/games/#{game}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game}")
-      end
+      conn = get(conn, ~p"/api/games/#{game}")
+      assert json_response(conn, 404)
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/api/games/invalid")
+      response = json_response(conn, 404)
+
+      # Check the exact response format matches Swagger expectations
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "show returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid game id format", %{conn: conn} do
+      conn = put(conn, ~p"/api/games/invalid", game: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = put(conn, ~p"/api/games/#{non_existent_id}", game: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid game id format", %{conn: conn} do
+      conn = delete(conn, ~p"/api/games/invalid")
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "add_member returns 404 for invalid game id format", %{conn: conn} do
+      conn = post(conn, ~p"/api/games/invalid/members", %{"user_id" => "123", "role" => "member"})
+      assert json_response(conn, 404)
+    end
+
+    test "add_member returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = post(conn, ~p"/api/games/#{non_existent_id}/members", %{"user_id" => "123", "role" => "member"})
+      assert json_response(conn, 404)
+    end
+
+    test "remove_member returns 404 for invalid game id format", %{conn: conn} do
+      conn = delete(conn, ~p"/api/games/invalid/members/123")
+      assert json_response(conn, 404)
+    end
+
+    test "remove_member returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{non_existent_id}/members/123")
+      assert json_response(conn, 404)
+    end
+
+    test "list_members returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/api/games/invalid/members")
+      assert json_response(conn, 404)
+    end
+
+    test "list_members returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{non_existent_id}/members")
+      assert json_response(conn, 404)
+    end
+
+    test "list_entities returns 404 for invalid game id format", %{conn: conn} do
+      conn = get(conn, ~p"/api/games/invalid/links")
+      assert json_response(conn, 404)
+    end
+
+    test "list_entities returns 404 for non-existent game", %{conn: conn} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{non_existent_id}/links")
+      assert json_response(conn, 404)
     end
   end
 
