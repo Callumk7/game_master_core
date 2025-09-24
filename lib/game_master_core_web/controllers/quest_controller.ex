@@ -40,30 +40,27 @@ defmodule GameMasterCoreWeb.QuestController do
   end
 
   def show(conn, %{"id" => id}) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, id)
-    render(conn, :show, quest: quest)
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id) do
+      render(conn, :show, quest: quest)
+    end
   end
 
   def update(conn, %{"id" => id, "quest" => quest_params}) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Quest{} = quest} <-
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id),
+         {:ok, %Quest{} = quest} <-
            Quests.update_quest(conn.assigns.current_scope, quest, quest_params) do
       render(conn, :show, quest: quest)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Quest{}} <- Quests.delete_quest(conn.assigns.current_scope, quest) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id),
+         {:ok, %Quest{}} <- Quests.delete_quest(conn.assigns.current_scope, quest) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def create_link(conn, %{"quest_id" => quest_id} = params) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
-
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
@@ -76,7 +73,8 @@ defmodule GameMasterCoreWeb.QuestController do
       metadata: Map.get(params, "metadata")
     }
 
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            create_quest_link(
@@ -98,18 +96,18 @@ defmodule GameMasterCoreWeb.QuestController do
   end
 
   def list_links(conn, %{"quest_id" => quest_id}) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id) do
+      links = Quests.links(conn.assigns.current_scope, quest.id)
 
-    links = Quests.links(conn.assigns.current_scope, quest.id)
-
-    render(conn, :links,
-      quest: quest,
-      characters: links.characters,
-      factions: links.factions,
-      notes: links.notes,
-      locations: links.locations,
-      quests: links.quests
-    )
+      render(conn, :links,
+        quest: quest,
+        characters: links.characters,
+        factions: links.factions,
+        notes: links.notes,
+        locations: links.locations,
+        quests: links.quests
+      )
+    end
   end
 
   def delete_link(conn, %{
@@ -117,9 +115,8 @@ defmodule GameMasterCoreWeb.QuestController do
         "entity_type" => entity_type,
         "entity_id" => entity_id
       }) do
-    quest = Quests.get_quest_for_game!(conn.assigns.current_scope, quest_id)
-
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            delete_quest_link(conn.assigns.current_scope, quest.id, entity_type, entity_id) do

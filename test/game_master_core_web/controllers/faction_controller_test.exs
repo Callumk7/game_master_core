@@ -108,9 +108,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       conn = delete(conn, ~p"/api/games/#{game}/factions/#{faction}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game}/factions/#{faction}")
-      end
+      conn = get(conn, ~p"/api/games/#{game}/factions/#{faction}")
+      assert json_response(conn, 404)
     end
 
     test "denies deletion for factions in games user cannot access", %{
@@ -483,6 +482,102 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert [faction_response] = response["data"]["links"]["factions"]
       assert faction_response["id"] == other_faction.id
       assert faction_response["name"] == other_faction.name
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/invalid")
+      response = json_response(conn, 404)
+
+      # Check the exact response format matches Swagger expectations
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "show returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn = put(conn, ~p"/api/games/#{game.id}/factions/invalid", faction: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}", faction: %{name: "test"})
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn = delete(conn, ~p"/api/games/#{game.id}/factions/invalid")
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/invalid/links")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}/links")
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/factions/invalid/links", %{
+          "entity_type" => "note",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}/links", %{
+          "entity_type" => "note",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/factions/invalid/links/note/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/factions/#{non_existent_id}/links/note/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
     end
   end
 

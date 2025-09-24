@@ -49,6 +49,25 @@ defmodule GameMasterCore.Quests do
   end
 
   @doc """
+  Fetches a single quest for a specific game.
+  Only users who can access the game can access its quests.
+
+  Returns `{:ok, quest}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_quest_for_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get_by(Quest, id: uuid, game_id: scope.game.id) do
+          nil -> {:error, :not_found}
+          quest -> {:ok, quest}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
   Create a quest for a specific game defined in the scope.
   """
   def create_quest_for_game(%Scope{} = scope, attrs) do

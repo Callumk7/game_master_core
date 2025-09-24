@@ -110,9 +110,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       conn = delete(conn, ~p"/api/games/#{game.id}/notes/#{note.id}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game.id}/notes/#{note.id}")
-      end
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{note.id}")
+      assert json_response(conn, 404)
     end
 
     test "denies deletion for notes in games user cannot access", %{conn: conn, scope: _scope} do
@@ -625,6 +624,99 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       conn = put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}", note: update_attrs_no_parent)
       assert %{"parent_id" => parent_id} = json_response(conn, 200)["data"]
       assert parent_id == nil
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/invalid")
+      response = json_response(conn, 404)
+
+      # Check the exact response format matches Swagger expectations
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "show returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/invalid", note: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = put(conn, ~p"/api/games/#{game.id}/notes/#{non_existent_id}", note: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn = delete(conn, ~p"/api/games/#{game.id}/notes/invalid")
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{game.id}/notes/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/invalid/links")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{non_existent_id}/links")
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/notes/invalid/links", %{
+          "entity_type" => "character",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/notes/#{non_existent_id}/links", %{
+          "entity_type" => "character",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for invalid note id format", %{conn: conn, game: game} do
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/notes/invalid/links/character/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for non-existent note", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/notes/#{non_existent_id}/links/character/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
     end
   end
 

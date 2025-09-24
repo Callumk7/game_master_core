@@ -140,7 +140,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
     test "show returns 404 for invalid character id format", %{conn: conn, game: game} do
       conn = get(conn, ~p"/api/games/#{game.id}/characters/invalid")
       response = json_response(conn, 404)
-      
+
       # Check the exact response format matches Swagger expectations
       assert %{"errors" => %{"detail" => "Not Found"}} = response
     end

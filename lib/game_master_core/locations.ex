@@ -43,6 +43,25 @@ defmodule GameMasterCore.Locations do
     Repo.get_by!(Location, id: id, game_id: scope.game.id)
   end
 
+  @doc """
+  Fetches a single location for a specific game.
+  Only users who can access the game can access its locations.
+
+  Returns `{:ok, location}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_location_for_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get_by(Location, id: uuid, game_id: scope.game.id) do
+          nil -> {:error, :not_found}
+          location -> {:ok, location}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
   def create_location_for_game(%Scope{} = scope, attrs) do
     with {:ok, location = %Location{}} <-
            %Location{}
