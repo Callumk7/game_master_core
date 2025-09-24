@@ -119,6 +119,25 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Fetches a single note for a specific game.
+  Only users who can access the game can access its notes.
+
+  Returns `{:ok, note}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_note_for_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get_by(Note, id: uuid, game_id: scope.game.id) do
+          nil -> {:error, :not_found}
+          note -> {:ok, note}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
   Creates a note for a specific game.
 
   ## Examples

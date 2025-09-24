@@ -40,30 +40,27 @@ defmodule GameMasterCoreWeb.LocationController do
   end
 
   def show(conn, %{"id" => id}) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
-    render(conn, :show, location: location)
+    with {:ok, location} <- Locations.fetch_location_for_game(conn.assigns.current_scope, id) do
+      render(conn, :show, location: location)
+    end
   end
 
   def update(conn, %{"id" => id, "location" => location_params}) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Location{} = location} <-
+    with {:ok, location} <- Locations.fetch_location_for_game(conn.assigns.current_scope, id),
+         {:ok, %Location{} = location} <-
            Locations.update_location(conn.assigns.current_scope, location, location_params) do
       render(conn, :show, location: location)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
+    with {:ok, location} <- Locations.fetch_location_for_game(conn.assigns.current_scope, id),
+         {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def create_link(conn, %{"location_id" => location_id} = params) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
-
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
@@ -76,7 +73,9 @@ defmodule GameMasterCoreWeb.LocationController do
       metadata: Map.get(params, "metadata")
     }
 
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            create_location_link(
@@ -98,18 +97,19 @@ defmodule GameMasterCoreWeb.LocationController do
   end
 
   def list_links(conn, %{"location_id" => location_id}) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id) do
+      links = Locations.links(conn.assigns.current_scope, location.id)
 
-    links = Locations.links(conn.assigns.current_scope, location.id)
-
-    render(conn, :links,
-      location: location,
-      notes: links.notes,
-      factions: links.factions,
-      characters: links.characters,
-      quests: links.quests,
-      locations: links.locations
-    )
+      render(conn, :links,
+        location: location,
+        notes: links.notes,
+        factions: links.factions,
+        characters: links.characters,
+        quests: links.quests,
+        locations: links.locations
+      )
+    end
   end
 
   def delete_link(conn, %{
@@ -117,9 +117,9 @@ defmodule GameMasterCoreWeb.LocationController do
         "entity_type" => entity_type,
         "entity_id" => entity_id
       }) do
-    location = Locations.get_location_for_game!(conn.assigns.current_scope, location_id)
-
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            delete_location_link(conn.assigns.current_scope, location.id, entity_type, entity_id) do

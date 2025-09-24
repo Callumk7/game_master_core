@@ -35,30 +35,27 @@ defmodule GameMasterCoreWeb.FactionController do
   end
 
   def show(conn, %{"id" => id}) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, id)
-    render(conn, :show, faction: faction)
+    with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id) do
+      render(conn, :show, faction: faction)
+    end
   end
 
   def update(conn, %{"id" => id, "faction" => faction_params}) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Faction{} = faction} <-
+    with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id),
+         {:ok, %Faction{} = faction} <-
            Factions.update_faction(conn.assigns.current_scope, faction, faction_params) do
       render(conn, :show, faction: faction)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, id)
-
-    with {:ok, %Faction{}} <- Factions.delete_faction(conn.assigns.current_scope, faction) do
+    with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id),
+         {:ok, %Faction{}} <- Factions.delete_faction(conn.assigns.current_scope, faction) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def create_link(conn, %{"faction_id" => faction_id} = params) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, faction_id)
-
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
@@ -71,7 +68,9 @@ defmodule GameMasterCoreWeb.FactionController do
       metadata: Map.get(params, "metadata")
     }
 
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            create_faction_link(
@@ -93,22 +92,22 @@ defmodule GameMasterCoreWeb.FactionController do
   end
 
   def list_links(conn, %{"faction_id" => faction_id}) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, faction_id)
+    with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id) do
+      notes = Factions.linked_notes(conn.assigns.current_scope, faction_id)
+      characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
+      quests = Factions.linked_quests(conn.assigns.current_scope, faction_id)
+      locations = Factions.linked_locations(conn.assigns.current_scope, faction_id)
+      factions = Factions.linked_factions(conn.assigns.current_scope, faction_id)
 
-    notes = Factions.linked_notes(conn.assigns.current_scope, faction_id)
-    characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
-    quests = Factions.linked_quests(conn.assigns.current_scope, faction_id)
-    locations = Factions.linked_locations(conn.assigns.current_scope, faction_id)
-    factions = Factions.linked_factions(conn.assigns.current_scope, faction_id)
-
-    render(conn, :links,
-      faction: faction,
-      notes: notes,
-      characters: characters,
-      locations: locations,
-      quests: quests,
-      factions: factions
-    )
+      render(conn, :links,
+        faction: faction,
+        notes: notes,
+        characters: characters,
+        locations: locations,
+        quests: quests,
+        factions: factions
+      )
+    end
   end
 
   def delete_link(conn, %{
@@ -116,9 +115,9 @@ defmodule GameMasterCoreWeb.FactionController do
         "entity_type" => entity_type,
         "entity_id" => entity_id
       }) do
-    faction = Factions.get_faction_for_game!(conn.assigns.current_scope, faction_id)
-
-    with {:ok, entity_type} <- validate_entity_type(entity_type),
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
          {:ok, entity_id} <- validate_entity_id(entity_id),
          {:ok, _link} <-
            delete_faction_link(conn.assigns.current_scope, faction.id, entity_type, entity_id) do

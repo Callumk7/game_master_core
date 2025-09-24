@@ -234,9 +234,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       conn = delete(conn, ~p"/api/games/#{game}/quests/#{quest}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{game}/quests/#{quest}")
-      end
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{quest}")
+      assert json_response(conn, 404)
     end
 
     test "denies deletion for quests in games user cannot access", %{
@@ -901,6 +900,102 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert length(response["data"]) == 1
       [quest_data] = response["data"]
       assert quest_data["name"] == "Member Quest"
+    end
+  end
+
+  describe "error handling" do
+    test "show returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/quests/invalid")
+      response = json_response(conn, 404)
+
+      # Check the exact response format matches Swagger expectations
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "show returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/quests/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn = put(conn, ~p"/api/games/#{game.id}/quests/invalid", quest: %{name: "test"})
+      assert json_response(conn, 404)
+    end
+
+    test "update returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/quests/#{non_existent_id}", quest: %{name: "test"})
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn = delete(conn, ~p"/api/games/#{game.id}/quests/invalid")
+      assert json_response(conn, 404)
+    end
+
+    test "delete returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = delete(conn, ~p"/api/games/#{game.id}/quests/#{non_existent_id}")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/quests/invalid/links")
+      assert json_response(conn, 404)
+    end
+
+    test "list_links returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/quests/#{non_existent_id}/links")
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/quests/invalid/links", %{
+          "entity_type" => "character",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "create_link returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/quests/#{non_existent_id}/links", %{
+          "entity_type" => "character",
+          "entity_id" => Ecto.UUID.generate()
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for invalid quest id format", %{conn: conn, game: game} do
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/quests/invalid/links/character/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
+    end
+
+    test "delete_link returns 404 for non-existent quest", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{game.id}/quests/#{non_existent_id}/links/character/#{Ecto.UUID.generate()}"
+        )
+
+      assert json_response(conn, 404)
     end
   end
 

@@ -62,6 +62,25 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
+  Fetches a single faction for a specific game.
+  Only users who can access the game can access its factions.
+
+  Returns `{:ok, faction}` if found, `{:error, :not_found}` if not found.
+  """
+  def fetch_faction_for_game(%Scope{} = scope, id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} ->
+        case Repo.get_by(Faction, id: uuid, game_id: scope.game.id) do
+          nil -> {:error, :not_found}
+          faction -> {:ok, faction}
+        end
+
+      :error ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
   Creates a faction for a specific game.
   """
   def create_faction_for_game(%Scope{} = scope, attrs) do
