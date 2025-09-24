@@ -165,6 +165,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags associated with this character")
+        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
+        faction_role(:string, "Role within the faction")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -178,6 +180,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
         tags: ["npc", "ally", "wizard"],
+        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
+        faction_role: "Elder Council Member",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -514,6 +518,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags associated with this character")
+        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
+        faction_role(:string, "Role within the faction")
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -529,6 +535,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
         tags: ["npc", "ally", "wizard"],
+        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
+        faction_role: "Elder Council Member",
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -550,6 +558,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags for this character")
+        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
+        faction_role(:string, "Role within the faction")
       end
 
       required([:name, :class, :level])
@@ -561,7 +571,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
-        tags: ["npc", "ally", "wizard"]
+        tags: ["npc", "ally", "wizard"],
+        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
+        faction_role: "Elder Council Member"
       })
     end
   end
@@ -579,13 +591,16 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level(:integer, "Character level")
         image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags for this character")
+        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
+        faction_role(:string, "Role within the faction")
       end
 
       example(%{
         level: 21,
         content: "A wise and powerful wizard who guides the Fellowship through many perils.",
         content_plain_text:
-          "A wise and powerful wizard who guides the Fellowship through many perils."
+          "A wise and powerful wizard who guides the Fellowship through many perils.",
+        faction_role: "Elder Council Leader"
       })
     end
   end
@@ -1379,6 +1394,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Character content", required: true)
         content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
+
+        member_of_faction_id(:string, "ID of faction this character belongs to",
+          format: :uuid,
+          required: false
+        )
+
+        faction_role(:string, "Role within the faction", required: false)
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)

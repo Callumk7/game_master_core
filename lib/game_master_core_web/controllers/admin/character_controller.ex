@@ -81,7 +81,7 @@ defmodule GameMasterCoreWeb.Admin.CharacterController do
           conn
           |> assign(:game, game)
           |> assign(:current_scope, Scope.put_game(current_scope, game))
-          
+
         {:error, :not_found} ->
           conn
           |> GameMasterCoreWeb.FallbackController.call({:error, :not_found})

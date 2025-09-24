@@ -4,7 +4,7 @@ defmodule GameMasterCoreWeb.Admin.GameController do
 
   alias GameMasterCore.Games
   alias GameMasterCore.Games.Game
-  
+
   action_fallback GameMasterCoreWeb.FallbackController
 
   def index(conn, _params) do

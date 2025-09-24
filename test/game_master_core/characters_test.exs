@@ -198,6 +198,193 @@ defmodule GameMasterCore.CharactersTest do
     end
   end
 
+  describe "character faction membership" do
+    alias GameMasterCore.Characters.Character
+    import GameMasterCore.AccountsFixtures
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.GamesFixtures
+
+    test "create_character/2 with faction membership creates character with faction fields" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      valid_attrs = %{
+        name: "Faction Member",
+        level: 5,
+        content: "A member of the faction",
+        class: "Fighter",
+        member_of_faction_id: faction.id,
+        faction_role: "Member",
+        game_id: game.id
+      }
+
+      assert {:ok, %Character{} = character} = Characters.create_character(scope, valid_attrs)
+      assert character.member_of_faction_id == faction.id
+      assert character.faction_role == "Member"
+      assert character.name == "Faction Member"
+    end
+
+    test "create_character/2 with faction_role but no member_of_faction_id succeeds (role can exist without faction)" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+
+      valid_attrs = %{
+        name: "Character with Role Only",
+        level: 5,
+        content: "Has a role but no specific faction",
+        class: "Fighter",
+        faction_role: "Member",
+        game_id: game.id
+      }
+
+      assert {:ok, %Character{} = character} =
+               Characters.create_character(scope, valid_attrs)
+
+      assert character.faction_role == "Member"
+      assert character.member_of_faction_id == nil
+    end
+
+    test "create_character/2 with member_of_faction_id but no faction_role fails validation" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      invalid_attrs = %{
+        name: "Invalid Character",
+        level: 5,
+        content: "Invalid faction setup",
+        class: "Fighter",
+        member_of_faction_id: faction.id,
+        game_id: game.id
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Characters.create_character(scope, invalid_attrs)
+
+      assert changeset.errors[:faction_role] ==
+               {"must be specified when character is a member of a faction", []}
+    end
+
+    test "update_character/3 can add faction membership" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      character = character_fixture(scope, %{game_id: game.id})
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      update_attrs = %{
+        member_of_faction_id: faction.id,
+        faction_role: "Recruit"
+      }
+
+      assert {:ok, %Character{} = updated_character} =
+               Characters.update_character(scope, character, update_attrs)
+
+      assert updated_character.member_of_faction_id == faction.id
+      assert updated_character.faction_role == "Recruit"
+    end
+
+    test "update_character/3 can remove faction membership" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      character =
+        character_fixture(scope, %{
+          game_id: game.id,
+          member_of_faction_id: faction.id,
+          faction_role: "Member"
+        })
+
+      update_attrs = %{
+        member_of_faction_id: nil,
+        faction_role: nil
+      }
+
+      assert {:ok, %Character{} = updated_character} =
+               Characters.update_character(scope, character, update_attrs)
+
+      assert updated_character.member_of_faction_id == nil
+      assert updated_character.faction_role == nil
+    end
+
+    test "update_character/3 enforces faction_role validation when member_of_faction_id is present" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      character = character_fixture(scope, %{game_id: game.id})
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      invalid_update_attrs = %{
+        member_of_faction_id: faction.id,
+        faction_role: nil
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Characters.update_character(scope, character, invalid_update_attrs)
+
+      assert changeset.errors[:faction_role] ==
+               {"must be specified when character is a member of a faction", []}
+    end
+
+    test "update_character/3 enforces faction_role validation when member_of_faction_id is present and faction_role is blank string" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      character = character_fixture(scope, %{game_id: game.id})
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      invalid_update_attrs = %{
+        member_of_faction_id: faction.id,
+        faction_role: "   "
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Characters.update_character(scope, character, invalid_update_attrs)
+
+      assert changeset.errors[:faction_role] ==
+               {"must be specified when character is a member of a faction", []}
+    end
+
+    test "character can be created without faction membership" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+
+      valid_attrs = %{
+        name: "Independent Character",
+        level: 3,
+        content: "No faction affiliations",
+        class: "Rogue",
+        game_id: game.id
+      }
+
+      assert {:ok, %Character{} = character} = Characters.create_character(scope, valid_attrs)
+      assert character.member_of_faction_id == nil
+      assert character.faction_role == nil
+      assert character.name == "Independent Character"
+    end
+
+    test "character creation with invalid faction_id fails with foreign key constraint" do
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      invalid_faction_id = Ecto.UUID.generate()
+
+      invalid_attrs = %{
+        name: "Invalid Faction Character",
+        level: 5,
+        content: "Member of non-existent faction",
+        class: "Fighter",
+        member_of_faction_id: invalid_faction_id,
+        faction_role: "Member",
+        game_id: game.id
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Characters.create_character(scope, invalid_attrs)
+
+      assert changeset.errors[:member_of_faction_id] != nil
+    end
+  end
+
   describe "character - note links" do
     import GameMasterCore.AccountsFixtures
     import GameMasterCore.CharactersFixtures

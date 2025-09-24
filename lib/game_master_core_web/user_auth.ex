@@ -351,7 +351,7 @@ defmodule GameMasterCoreWeb.UserAuth do
       case Games.fetch_game(current_scope, game_id) do
         {:ok, game} ->
           assign(conn, :current_scope, Scope.put_game(current_scope, game))
-        
+
         {:error, :not_found} ->
           conn
           |> GameMasterCoreWeb.FallbackController.call({:error, :not_found})
