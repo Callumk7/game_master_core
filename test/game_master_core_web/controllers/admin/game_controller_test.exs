@@ -135,13 +135,21 @@ defmodule GameMasterCoreWeb.Admin.GameControllerTest do
     end
 
     test "add_member returns 404 for invalid game id format", %{conn: conn} do
-      conn = post(conn, ~p"/admin/games/invalid/members", %{"user_id" => "123", "role" => "member"})
+      conn =
+        post(conn, ~p"/admin/games/invalid/members", %{"user_id" => "123", "role" => "member"})
+
       assert html_response(conn, 404)
     end
 
     test "add_member returns 404 for non-existent game", %{conn: conn} do
       non_existent_id = Ecto.UUID.generate()
-      conn = post(conn, ~p"/admin/games/#{non_existent_id}/members", %{"user_id" => "123", "role" => "member"})
+
+      conn =
+        post(conn, ~p"/admin/games/#{non_existent_id}/members", %{
+          "user_id" => "123",
+          "role" => "member"
+        })
+
       assert html_response(conn, 404)
     end
 

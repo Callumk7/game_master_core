@@ -130,7 +130,13 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
     test "add_member returns 404 for non-existent game", %{conn: conn} do
       non_existent_id = Ecto.UUID.generate()
-      conn = post(conn, ~p"/api/games/#{non_existent_id}/members", %{"user_id" => "123", "role" => "member"})
+
+      conn =
+        post(conn, ~p"/api/games/#{non_existent_id}/members", %{
+          "user_id" => "123",
+          "role" => "member"
+        })
+
       assert json_response(conn, 404)
     end
 

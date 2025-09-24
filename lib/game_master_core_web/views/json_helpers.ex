@@ -43,6 +43,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       level: character.level,
       image_url: character.image_url,
       tags: character.tags,
+      member_of_faction_id: character.member_of_faction_id,
+      faction_role: character.faction_role,
       created_at: character.inserted_at,
       updated_at: character.updated_at
     }
