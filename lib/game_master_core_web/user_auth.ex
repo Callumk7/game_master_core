@@ -348,8 +348,15 @@ defmodule GameMasterCoreWeb.UserAuth do
     current_scope = conn.assigns.current_scope
 
     if game_id = conn.params["game_id"] do
-      game = Games.get_game!(current_scope, game_id)
-      assign(conn, :current_scope, Scope.put_game(current_scope, game))
+      case Games.fetch_game(current_scope, game_id) do
+        {:ok, game} ->
+          assign(conn, :current_scope, Scope.put_game(current_scope, game))
+        
+        {:error, :not_found} ->
+          conn
+          |> GameMasterCoreWeb.FallbackController.call({:error, :not_found})
+          |> halt()
+      end
     else
       conn
     end
