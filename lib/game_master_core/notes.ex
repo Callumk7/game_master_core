@@ -578,4 +578,43 @@ defmodule GameMasterCore.Notes do
     |> Enum.uniq()
     |> Enum.sort()
   end
+
+  ## Pinning Management
+
+  @doc """
+  Pins a note for a specific game.
+  Only users who can access the game can pin its notes.
+  """
+  def pin_note(%Scope{} = scope, %Note{} = note) do
+    with {:ok, %Note{} = note} <-
+           note
+           |> Note.changeset(%{pinned: true}, scope, note.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, note})
+      {:ok, note}
+    end
+  end
+
+  @doc """
+  Unpins a note for a specific game.
+  Only users who can access the game can unpin its notes.
+  """
+  def unpin_note(%Scope{} = scope, %Note{} = note) do
+    with {:ok, %Note{} = note} <-
+           note
+           |> Note.changeset(%{pinned: false}, scope, note.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, note})
+      {:ok, note}
+    end
+  end
+
+  @doc """
+  Lists all pinned notes for a specific game.
+  Only users who can access the game can see its pinned notes.
+  """
+  def list_pinned_notes_for_game(%Scope{} = scope) do
+    from(n in Note, where: n.game_id == ^scope.game.id and n.pinned == true)
+    |> Repo.all()
+  end
 end

@@ -531,4 +531,43 @@ defmodule GameMasterCore.Quests do
     |> Enum.uniq()
     |> Enum.sort()
   end
+
+  ## Pinning Management
+
+  @doc """
+  Pins a quest for a specific game.
+  Only users who can access the game can pin its quests.
+  """
+  def pin_quest(%Scope{} = scope, %Quest{} = quest) do
+    with {:ok, %Quest{} = quest} <-
+           quest
+           |> Quest.changeset(%{pinned: true}, scope, quest.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, quest})
+      {:ok, quest}
+    end
+  end
+
+  @doc """
+  Unpins a quest for a specific game.
+  Only users who can access the game can unpin its quests.
+  """
+  def unpin_quest(%Scope{} = scope, %Quest{} = quest) do
+    with {:ok, %Quest{} = quest} <-
+           quest
+           |> Quest.changeset(%{pinned: false}, scope, quest.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, quest})
+      {:ok, quest}
+    end
+  end
+
+  @doc """
+  Lists all pinned quests for a specific game.
+  Only users who can access the game can see its pinned quests.
+  """
+  def list_pinned_quests_for_game(%Scope{} = scope) do
+    from(q in Quest, where: q.game_id == ^scope.game.id and q.pinned == true)
+    |> Repo.all()
+  end
 end

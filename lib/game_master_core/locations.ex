@@ -621,4 +621,43 @@ defmodule GameMasterCore.Locations do
     |> Enum.uniq()
     |> Enum.sort()
   end
+
+  ## Pinning Management
+
+  @doc """
+  Pins a location for a specific game.
+  Only users who can access the game can pin its locations.
+  """
+  def pin_location(%Scope{} = scope, %Location{} = location) do
+    with {:ok, %Location{} = location} <-
+           location
+           |> Location.changeset(%{pinned: true}, scope, location.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, location})
+      {:ok, location}
+    end
+  end
+
+  @doc """
+  Unpins a location for a specific game.
+  Only users who can access the game can unpin its locations.
+  """
+  def unpin_location(%Scope{} = scope, %Location{} = location) do
+    with {:ok, %Location{} = location} <-
+           location
+           |> Location.changeset(%{pinned: false}, scope, location.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, location})
+      {:ok, location}
+    end
+  end
+
+  @doc """
+  Lists all pinned locations for a specific game.
+  Only users who can access the game can see its pinned locations.
+  """
+  def list_pinned_locations_for_game(%Scope{} = scope) do
+    from(l in Location, where: l.game_id == ^scope.game.id and l.pinned == true)
+    |> Repo.all()
+  end
 end

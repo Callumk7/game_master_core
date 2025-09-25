@@ -26,7 +26,7 @@ defmodule GameMasterCore.QuestsFixtures do
       })
       |> Map.put(:game_id, game_id)
 
-    {:ok, quest} = GameMasterCore.Quests.create_quest(scope, attrs)
+    {:ok, quest} = GameMasterCore.Quests.create_quest_for_game(scope, attrs)
     quest
   end
 end

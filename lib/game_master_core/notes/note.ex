@@ -14,6 +14,7 @@ defmodule GameMasterCore.Notes.Note do
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
     field :parent_type, :string
+    field :pinned, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -35,7 +36,15 @@ defmodule GameMasterCore.Notes.Note do
   @doc false
   def changeset(note, attrs, user_scope, game_id) do
     note
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :parent_type])
+    |> cast(attrs, [
+      :name,
+      :content,
+      :content_plain_text,
+      :tags,
+      :parent_id,
+      :parent_type,
+      :pinned
+    ])
     |> validate_required([:name, :content])
     |> validate_tags()
     |> validate_parent_type()

@@ -171,4 +171,20 @@ defmodule GameMasterCoreWeb.QuestController do
   defp delete_quest_link(_scope, _quest_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :quest, entity_type}}
   end
+
+  # Pinning endpoints
+
+  def pin(conn, %{"quest_id" => quest_id}) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, updated_quest} <- Quests.pin_quest(conn.assigns.current_scope, quest) do
+      render(conn, :show, quest: updated_quest)
+    end
+  end
+
+  def unpin(conn, %{"quest_id" => quest_id}) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, updated_quest} <- Quests.unpin_quest(conn.assigns.current_scope, quest) do
+      render(conn, :show, quest: updated_quest)
+    end
+  end
 end

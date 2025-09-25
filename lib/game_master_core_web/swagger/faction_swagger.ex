@@ -162,6 +162,30 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :members do
+        get("/api/games/{game_id}/factions/{faction_id}/members")
+        summary("Get faction members")
+
+        description(
+          "Get all characters that are members of a faction (using member_of_faction_id)"
+        )
+
+        operation_id("getFactionMembers")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:FactionMembersResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
       swagger_path :delete_link do
         PhoenixSwagger.Path.delete(
           "/api/games/{game_id}/factions/{faction_id}/links/{entity_type}/{entity_id}"

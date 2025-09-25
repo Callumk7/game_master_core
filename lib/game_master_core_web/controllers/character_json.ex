@@ -59,4 +59,17 @@ defmodule GameMasterCoreWeb.CharacterJSON do
     |> Map.put(:children, for(child <- Map.get(note, :children, []), do: note_tree_data(child)))
     |> Map.put(:entity_type, Map.get(note, :entity_type, "note"))
   end
+
+  @doc """
+  Renders primary faction data for a character.
+  """
+  def primary_faction(%{primary_faction_data: primary_faction_data}) do
+    %{
+      data: %{
+        character_id: primary_faction_data.character_id,
+        faction: faction_data(primary_faction_data.faction),
+        role: primary_faction_data.role
+      }
+    }
+  end
 end
