@@ -5,6 +5,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   import GameMasterCore.GamesFixtures
   import GameMasterCore.AccountsFixtures
   import GameMasterCore.NotesFixtures
+  import GameMasterCore.CharactersFixtures
   alias GameMasterCore.Factions.Faction
 
   @create_attrs %{
@@ -482,6 +483,111 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert [faction_response] = response["data"]["links"]["factions"]
       assert faction_response["id"] == other_faction.id
       assert faction_response["name"] == other_faction.name
+    end
+  end
+
+  describe "faction members" do
+    setup [:create_faction]
+
+    test "members returns characters that are members of the faction", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      # Create characters with different faction membership statuses
+      _member_character1 =
+        character_fixture(scope, %{
+          game_id: game.id,
+          name: "Faction Member 1",
+          member_of_faction_id: faction.id,
+          faction_role: "Leader"
+        })
+
+      _member_character2 =
+        character_fixture(scope, %{
+          game_id: game.id,
+          name: "Faction Member 2",
+          member_of_faction_id: faction.id,
+          faction_role: "Member"
+        })
+
+      # Character without faction membership
+      _independent_character =
+        character_fixture(scope, %{
+          game_id: game.id,
+          name: "Independent Character"
+        })
+
+      # Character belonging to different faction
+      other_faction = faction_fixture(scope, %{game_id: game.id})
+
+      _other_faction_member =
+        character_fixture(scope, %{
+          game_id: game.id,
+          name: "Other Faction Member",
+          member_of_faction_id: other_faction.id,
+          faction_role: "Scout"
+        })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/members")
+      response = json_response(conn, 200)
+
+      assert response["data"]["faction_id"] == faction.id
+      assert response["data"]["faction_name"] == faction.name
+      assert length(response["data"]["members"]) == 2
+
+      member_names = Enum.map(response["data"]["members"], & &1["name"])
+      assert "Faction Member 1" in member_names
+      assert "Faction Member 2" in member_names
+      refute "Independent Character" in member_names
+      refute "Other Faction Member" in member_names
+
+      # Verify faction membership fields are included
+      leader = Enum.find(response["data"]["members"], &(&1["name"] == "Faction Member 1"))
+      assert leader["member_of_faction_id"] == faction.id
+      assert leader["faction_role"] == "Leader"
+
+      member = Enum.find(response["data"]["members"], &(&1["name"] == "Faction Member 2"))
+      assert member["member_of_faction_id"] == faction.id
+      assert member["faction_role"] == "Member"
+    end
+
+    test "members returns empty list for faction with no members", %{
+      conn: conn,
+      game: game,
+      faction: faction
+    } do
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/members")
+      response = json_response(conn, 200)
+
+      assert response["data"]["faction_id"] == faction.id
+      assert response["data"]["faction_name"] == faction.name
+      assert response["data"]["members"] == []
+    end
+
+    test "members returns 404 for non-existent faction", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}/members")
+      assert json_response(conn, 404)
+    end
+
+    test "members returns 404 for invalid faction id format", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/invalid/members")
+      assert json_response(conn, 404)
+    end
+
+    test "members denies access for factions in games user cannot access", %{
+      conn: conn,
+      scope: _scope
+    } do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_faction = faction_fixture(other_user_scope, %{game_id: other_game.id})
+
+      assert_error_sent 404, fn ->
+        get(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/members")
+      end
     end
   end
 

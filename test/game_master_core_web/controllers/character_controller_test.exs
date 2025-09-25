@@ -899,4 +899,64 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
 
     %{character: character}
   end
+
+  describe "pin character" do
+    setup [:create_character]
+
+    test "pins character successfully", %{conn: conn, game: game, character: character} do
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/pin")
+      response = json_response(conn, 200)
+
+      assert response["data"]["pinned"] == true
+      assert response["data"]["id"] == character.id
+    end
+
+    test "returns 404 for non-existent character", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{non_existent_id}/pin")
+      assert response(conn, 404)
+    end
+
+    test "denies pinning character for games user cannot access", %{conn: conn, scope: _scope} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_character = character_fixture(other_user_scope, %{game_id: other_game.id})
+
+      conn = put(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/pin")
+      assert response(conn, 404)
+    end
+  end
+
+  describe "unpin character" do
+    setup [:create_character]
+
+    test "unpins character successfully", %{conn: conn, game: game, character: character} do
+      # First pin the character
+      put(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/pin")
+
+      # Then unpin it
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/unpin")
+      response = json_response(conn, 200)
+
+      assert response["data"]["pinned"] == false
+      assert response["data"]["id"] == character.id
+    end
+
+    test "returns 404 for non-existent character", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{non_existent_id}/unpin")
+      assert response(conn, 404)
+    end
+
+    test "denies unpinning character for games user cannot access", %{conn: conn, scope: _scope} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_character = character_fixture(other_user_scope, %{game_id: other_game.id})
+
+      conn = put(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/unpin")
+      assert response(conn, 404)
+    end
+  end
 end

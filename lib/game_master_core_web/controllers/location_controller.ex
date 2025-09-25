@@ -176,4 +176,22 @@ defmodule GameMasterCoreWeb.LocationController do
   defp delete_location_link(_scope, _location_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :location, entity_type}}
   end
+
+  # Pinning endpoints
+
+  def pin(conn, %{"location_id" => location_id}) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, updated_location} <- Locations.pin_location(conn.assigns.current_scope, location) do
+      render(conn, :show, location: updated_location)
+    end
+  end
+
+  def unpin(conn, %{"location_id" => location_id}) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, updated_location} <- Locations.unpin_location(conn.assigns.current_scope, location) do
+      render(conn, :show, location: updated_location)
+    end
+  end
 end

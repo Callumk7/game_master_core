@@ -7,6 +7,7 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Characters.Character
+  alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Notes
   alias GameMasterCore.Links
@@ -585,6 +586,170 @@ defmodule GameMasterCore.Characters do
       {:ok, location}
     rescue
       Ecto.NoResultsError -> {:error, :location_not_found}
+    end
+  end
+
+  ## Pinning Management
+
+  @doc """
+  Pins a character for a specific game.
+  Only users who can access the game can pin its characters.
+  """
+  def pin_character(%Scope{} = scope, %Character{} = character) do
+    with {:ok, %Character{} = character} <-
+           character
+           |> Character.changeset(%{pinned: true}, scope, character.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, character})
+      {:ok, character}
+    end
+  end
+
+  @doc """
+  Unpins a character for a specific game.
+  Only users who can access the game can unpin its characters.
+  """
+  def unpin_character(%Scope{} = scope, %Character{} = character) do
+    with {:ok, %Character{} = character} <-
+           character
+           |> Character.changeset(%{pinned: false}, scope, character.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, character})
+      {:ok, character}
+    end
+  end
+
+  @doc """
+  Lists all pinned characters for a specific game.
+  Only users who can access the game can see its pinned characters.
+  """
+  def list_pinned_characters_for_game(%Scope{} = scope) do
+    from(c in Character, where: c.game_id == ^scope.game.id and c.pinned == true)
+    |> Repo.all()
+  end
+
+  ## Primary Faction Management
+
+  @doc """
+  Gets the primary faction for a character, including faction details.
+  Returns {:ok, primary_faction_data} or {:error, :no_primary_faction}
+  """
+  def get_primary_faction(%Scope{} = scope, %Character{} = character) do
+    if character.member_of_faction_id do
+      case Factions.fetch_faction_for_game(scope, character.member_of_faction_id) do
+        {:ok, faction} ->
+          {:ok,
+           %{
+             faction: faction,
+             role: character.faction_role,
+             character_id: character.id
+           }}
+
+        {:error, :not_found} ->
+          {:error, :no_primary_faction}
+      end
+    else
+      {:error, :no_primary_faction}
+    end
+  end
+
+  @doc """
+  Sets a character's primary faction and creates/updates the corresponding
+  CharacterFaction relationship record for consistency.
+  """
+  def set_primary_faction(%Scope{} = scope, %Character{} = character, faction_id, role) do
+    Repo.transaction(fn ->
+      # First validate that the faction exists in the same game
+      case Factions.fetch_faction_for_game(scope, faction_id) do
+        {:error, :not_found} ->
+          Repo.rollback({:error, :faction_not_found})
+
+        {:ok, _faction} ->
+          # Update the character's primary faction fields
+          changeset =
+            Character.changeset(
+              character,
+              %{
+                member_of_faction_id: faction_id,
+                faction_role: role
+              },
+              scope,
+              character.game_id
+            )
+
+          case Repo.update(changeset) do
+            {:ok, updated_character} ->
+              # Create or update the CharacterFaction relationship record
+              create_or_update_character_faction_link(character.id, faction_id, role)
+
+              broadcast(scope, {:updated, updated_character})
+              updated_character
+
+            {:error, changeset} ->
+              Repo.rollback({:error, changeset})
+          end
+      end
+    end)
+  end
+
+  @doc """
+  Removes a character's primary faction while preserving the CharacterFaction
+  relationship record (as per the original plan).
+  """
+  def remove_primary_faction(%Scope{} = scope, %Character{} = character) do
+    changeset =
+      Character.changeset(
+        character,
+        %{
+          member_of_faction_id: nil,
+          faction_role: nil
+        },
+        scope,
+        character.game_id
+      )
+
+    case Repo.update(changeset) do
+      {:ok, updated_character} ->
+        # Note: We preserve the CharacterFaction record as designed
+        # This maintains the relationship history even when primary status is removed
+        broadcast(scope, {:updated, updated_character})
+        {:ok, updated_character}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  # Private helper to create or update CharacterFaction link
+  defp create_or_update_character_faction_link(character_id, faction_id, role) do
+    # Check if a CharacterFaction record already exists
+    existing =
+      from(cf in CharacterFaction,
+        where: cf.character_id == ^character_id and cf.faction_id == ^faction_id
+      )
+      |> Repo.one()
+
+    case existing do
+      nil ->
+        # Create new CharacterFaction record
+        %CharacterFaction{}
+        |> CharacterFaction.changeset(%{
+          character_id: character_id,
+          faction_id: faction_id,
+          # Use the role as relationship_type for consistency
+          relationship_type: role,
+          is_active: true
+        })
+        |> Repo.insert()
+
+      existing_record ->
+        # Update existing record to ensure it's active and has current role info
+        existing_record
+        |> CharacterFaction.changeset(%{
+          relationship_type: role,
+          is_active: true
+        })
+        |> Repo.update()
     end
   end
 end

@@ -110,6 +110,13 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
+  def members(conn, %{"faction_id" => faction_id}) do
+    with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id) do
+      members = Factions.list_faction_members(conn.assigns.current_scope, faction_id)
+      render(conn, :members, faction: faction, members: members)
+    end
+  end
+
   def delete_link(conn, %{
         "faction_id" => faction_id,
         "entity_type" => entity_type,
@@ -173,5 +180,23 @@ defmodule GameMasterCoreWeb.FactionController do
 
   defp delete_faction_link(_scope, _faction_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :faction, entity_type}}
+  end
+
+  # Pinning endpoints
+
+  def pin(conn, %{"faction_id" => faction_id}) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, updated_faction} <- Factions.pin_faction(conn.assigns.current_scope, faction) do
+      render(conn, :show, faction: updated_faction)
+    end
+  end
+
+  def unpin(conn, %{"faction_id" => faction_id}) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, updated_faction} <- Factions.unpin_faction(conn.assigns.current_scope, faction) do
+      render(conn, :show, faction: updated_faction)
+    end
   end
 end

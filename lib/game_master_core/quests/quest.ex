@@ -13,6 +13,7 @@ defmodule GameMasterCore.Quests.Quest do
     field :content, :string
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
+    field :pinned, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -34,7 +35,7 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned])
     |> validate_required([:name, :content])
     |> validate_tags()
     |> validate_parent_quest(game_id)

@@ -40,4 +40,17 @@ defmodule GameMasterCoreWeb.FactionJSON do
       }
     }
   end
+
+  @doc """
+  Renders faction members
+  """
+  def members(%{faction: faction, members: members}) do
+    %{
+      data: %{
+        faction_id: faction.id,
+        faction_name: faction.name,
+        members: for(member <- members, do: character_data(member))
+      }
+    }
+  end
 end

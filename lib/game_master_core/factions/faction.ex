@@ -13,6 +13,7 @@ defmodule GameMasterCore.Factions.Faction do
     field :content, :string
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
+    field :pinned, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -31,7 +32,7 @@ defmodule GameMasterCore.Factions.Faction do
   @doc false
   def changeset(faction, attrs, user_scope, game_id) do
     faction
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :pinned])
     |> validate_required([:name, :content])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)

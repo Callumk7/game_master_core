@@ -187,4 +187,63 @@ defmodule GameMasterCoreWeb.CharacterController do
   defp delete_character_link(_scope, _character_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :character, entity_type}}
   end
+
+  # Primary faction endpoints
+
+  def get_primary_faction(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
+      case Characters.get_primary_faction(conn.assigns.current_scope, character) do
+        {:ok, primary_faction_data} ->
+          render(conn, :primary_faction, primary_faction_data: primary_faction_data)
+
+        {:error, :no_primary_faction} ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "No primary faction set for this character"})
+      end
+    end
+  end
+
+  def set_primary_faction(conn, %{
+        "character_id" => character_id,
+        "faction_id" => faction_id,
+        "role" => role
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.set_primary_faction(conn.assigns.current_scope, character, faction_id, role) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  def remove_primary_faction(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.remove_primary_faction(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  # Pinning endpoints
+
+  def pin(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.pin_character(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  def unpin(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.unpin_character(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
+    end
+  end
 end

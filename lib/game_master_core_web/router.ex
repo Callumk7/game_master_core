@@ -61,11 +61,14 @@ defmodule GameMasterCoreWeb.Router do
       delete "/members/:user_id", GameController, :remove_member
 
       get "/links", GameController, :list_entities
+      get "/pinned", PinnedController, :index
 
       resources "/notes", NoteController, except: [:new, :edit] do
         get "/links", NoteController, :list_links
         post "/links", NoteController, :create_link
         delete "/links/:entity_type/:entity_id", NoteController, :delete_link
+        put "/pin", NoteController, :pin
+        put "/unpin", NoteController, :unpin
       end
 
       resources "/characters", CharacterController, except: [:new, :edit] do
@@ -73,12 +76,20 @@ defmodule GameMasterCoreWeb.Router do
         get "/links", CharacterController, :list_links
         post "/links", CharacterController, :create_link
         delete "/links/:entity_type/:entity_id", CharacterController, :delete_link
+        get "/primary-faction", CharacterController, :get_primary_faction
+        post "/primary-faction", CharacterController, :set_primary_faction
+        delete "/primary-faction", CharacterController, :remove_primary_faction
+        put "/pin", CharacterController, :pin
+        put "/unpin", CharacterController, :unpin
       end
 
       resources "/factions", FactionController, except: [:new, :edit] do
         get "/links", FactionController, :list_links
         post "/links", FactionController, :create_link
         delete "/links/:entity_type/:entity_id", FactionController, :delete_link
+        get "/members", FactionController, :members
+        put "/pin", FactionController, :pin
+        put "/unpin", FactionController, :unpin
       end
 
       get "/locations/tree", LocationController, :tree
@@ -87,6 +98,8 @@ defmodule GameMasterCoreWeb.Router do
         get "/links", LocationController, :list_links
         post "/links", LocationController, :create_link
         delete "/links/:entity_type/:entity_id", LocationController, :delete_link
+        put "/pin", LocationController, :pin
+        put "/unpin", LocationController, :unpin
       end
 
       get "/quests/tree", QuestController, :tree
@@ -95,6 +108,8 @@ defmodule GameMasterCoreWeb.Router do
         get "/links", QuestController, :list_links
         post "/links", QuestController, :create_link
         delete "/links/:entity_type/:entity_id", QuestController, :delete_link
+        put "/pin", QuestController, :pin
+        put "/unpin", QuestController, :unpin
       end
     end
   end

@@ -9,6 +9,7 @@ defmodule GameMasterCore.Factions do
   alias GameMasterCore.Repo
 
   alias GameMasterCore.Factions.Faction
+  alias GameMasterCore.Characters.Character
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Links
 
@@ -445,6 +446,34 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
+  Returns all characters that are members of a specific faction.
+
+  This queries characters where member_of_faction_id matches the given faction_id.
+
+  ## Examples
+
+      iex> list_faction_members(scope, faction_id)
+      [%Character{}, %Character{}]
+
+      iex> list_faction_members(scope, non_existent_faction_id)
+      []
+
+  """
+  def list_faction_members(%Scope{} = scope, faction_id) do
+    # First verify the faction exists and is accessible in this game
+    case fetch_faction_for_game(scope, faction_id) do
+      {:ok, _faction} ->
+        from(c in Character,
+          where: c.game_id == ^scope.game.id and c.member_of_faction_id == ^faction_id
+        )
+        |> Repo.all()
+
+      {:error, :not_found} ->
+        []
+    end
+  end
+
+  @doc """
   Returns all unique tags used across all factions for a user.
 
   ## Examples
@@ -482,5 +511,44 @@ defmodule GameMasterCore.Factions do
     |> List.flatten()
     |> Enum.uniq()
     |> Enum.sort()
+  end
+
+  ## Pinning Management
+
+  @doc """
+  Pins a faction for a specific game.
+  Only users who can access the game can pin its factions.
+  """
+  def pin_faction(%Scope{} = scope, %Faction{} = faction) do
+    with {:ok, %Faction{} = faction} <-
+           faction
+           |> Faction.changeset(%{pinned: true}, scope, faction.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Unpins a faction for a specific game.
+  Only users who can access the game can unpin its factions.
+  """
+  def unpin_faction(%Scope{} = scope, %Faction{} = faction) do
+    with {:ok, %Faction{} = faction} <-
+           faction
+           |> Faction.changeset(%{pinned: false}, scope, faction.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Lists all pinned factions for a specific game.
+  Only users who can access the game can see its pinned factions.
+  """
+  def list_pinned_factions_for_game(%Scope{} = scope) do
+    from(f in Faction, where: f.game_id == ^scope.game.id and f.pinned == true)
+    |> Repo.all()
   end
 end

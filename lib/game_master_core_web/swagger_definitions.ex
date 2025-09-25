@@ -377,6 +377,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           enum: ["character", "quest", "location", "faction"]
         )
 
+        pinned(:boolean, "Whether this note is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Author user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -390,6 +391,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text:
           "The dragon is hiding in the crystal cave beyond the misty mountains.",
         tags: ["important", "dragon", "quest"],
+        pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -520,6 +522,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags(Schema.array(:string), "Tags associated with this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
+        pinned(:boolean, "Whether this character is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -537,6 +540,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
+        pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -730,6 +734,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Faction content", required: true)
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
+        pinned(:boolean, "Whether this faction is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -744,6 +749,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
+        pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -852,6 +858,34 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def faction_members_data_schema do
+    swagger_schema do
+      title("Faction Members Data")
+      description("Characters that are members of a faction")
+
+      properties do
+        faction_id(:string, "Faction ID", required: true, format: :uuid)
+        faction_name(:string, "Faction name", required: true)
+        members(Schema.array(:Character), "Faction member characters")
+      end
+
+      example(%{
+        faction_id: "423e4567-e89b-12d3-a456-426614174003",
+        faction_name: "The White Council",
+        members: [
+          %{
+            id: "123e4567-e89b-12d3-a456-426614174000",
+            name: "Gandalf the Grey",
+            class: "Wizard",
+            level: 20,
+            member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
+            faction_role: "Elder Council Member"
+          }
+        ]
+      })
+    end
+  end
+
   def link_request_schema do
     swagger_schema do
       title("Link Request")
@@ -918,6 +952,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         parent_id(:string, "Parent location ID", format: :uuid)
         tags(Schema.array(:string), "Tags associated with this location")
+        pinned(:boolean, "Whether this location is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -933,6 +968,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         tags: ["magical", "hidden", "dangerous"],
+        pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -1067,6 +1103,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
+        pinned(:boolean, "Whether this quest is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -1080,6 +1117,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
         tags: ["main", "treasure", "exploration"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -1490,6 +1528,105 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def set_primary_faction_request_schema do
+    swagger_schema do
+      title("Set Primary Faction Request")
+      description("Parameters for setting a character's primary faction")
+
+      properties do
+        faction_id(:string, "Faction ID", required: true, format: :uuid)
+        role(:string, "Character's role in the faction", required: true)
+      end
+
+      required([:faction_id, :role])
+
+      example(%{
+        faction_id: "423e4567-e89b-12d3-a456-426614174003",
+        role: "Captain"
+      })
+    end
+  end
+
+  def character_primary_faction_data_schema do
+    swagger_schema do
+      title("Character Primary Faction Data")
+      description("Primary faction information for a character")
+
+      properties do
+        character_id(:string, "Character ID", required: true, format: :uuid)
+        faction(Schema.ref(:Faction), "Faction details", required: true)
+        role(:string, "Character's role in the faction", required: true)
+      end
+
+      example(%{
+        character_id: "323e4567-e89b-12d3-a456-426614174002",
+        faction: %{
+          id: "423e4567-e89b-12d3-a456-426614174003",
+          name: "The Grey Council",
+          content: "A council of wise beings...",
+          content_plain_text: "A council of wise beings...",
+          tags: ["council", "wisdom"]
+        },
+        role: "Elder Council Member"
+      })
+    end
+  end
+
+  def pinned_entities_schema do
+    swagger_schema do
+      title("Pinned Entities")
+      description("Collection of pinned entities grouped by type")
+
+      properties do
+        characters(Schema.array(:Character), "Pinned characters")
+        notes(Schema.array(:Note), "Pinned notes")
+        factions(Schema.array(:Faction), "Pinned factions")
+        locations(Schema.array(:Location), "Pinned locations")
+        quests(Schema.array(:Quest), "Pinned quests")
+      end
+    end
+  end
+
+  def pinned_entities_data_schema do
+    swagger_schema do
+      title("Pinned Entities Data")
+      description("All pinned entities for a game")
+
+      properties do
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        total_count(:integer, "Total number of pinned entities", required: true)
+
+        pinned_entities(Schema.ref(:PinnedEntities), "Pinned entities grouped by type",
+          required: true
+        )
+      end
+
+      example(%{
+        game_id: "123e4567-e89b-12d3-a456-426614174000",
+        total_count: 3,
+        pinned_entities: %{
+          characters: [
+            %{
+              id: "456e7890-e89b-12d3-a456-426614174001",
+              name: "Hero Character",
+              pinned: true
+            }
+          ],
+          notes: [
+            %{
+              id: "789e1234-e89b-12d3-a456-426614174002",
+              name: "Important Note",
+              pinned: true
+            }
+          ],
+          factions: [],
+          locations: [],
+          quests: []
+        }
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -1589,6 +1726,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Faction Links Response",
           "Response containing faction links"
         ),
+      FactionMembersData: faction_members_data_schema(),
+      FactionMembersResponse:
+        response_schema(
+          Schema.ref(:FactionMembersData),
+          "Faction Members Response",
+          "Response containing faction members"
+        ),
       LinkRequest: link_request_schema(),
       Location: location_schema(),
       LocationCreateParams: location_create_params_schema(),
@@ -1671,7 +1815,24 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       LinkedFaction: linked_faction_schema(),
       LinkedLocation: linked_location_schema(),
       LinkedQuest: linked_quest_schema(),
-      LinkedNote: linked_note_schema()
+      LinkedNote: linked_note_schema(),
+      # Primary faction schemas
+      SetPrimaryFactionRequest: set_primary_faction_request_schema(),
+      CharacterPrimaryFactionData: character_primary_faction_data_schema(),
+      CharacterPrimaryFactionResponse:
+        response_schema(
+          Schema.ref(:CharacterPrimaryFactionData),
+          "Character Primary Faction Response",
+          "Response containing character's primary faction data"
+        ),
+      # Pinned entities schemas
+      PinnedEntitiesData: pinned_entities_data_schema(),
+      PinnedEntitiesResponse:
+        response_schema(
+          Schema.ref(:PinnedEntitiesData),
+          "Pinned Entities Response",
+          "Response containing all pinned entities for a game"
+        )
     }
   end
 end

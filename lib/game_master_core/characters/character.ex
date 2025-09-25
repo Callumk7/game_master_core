@@ -18,6 +18,7 @@ defmodule GameMasterCore.Characters.Character do
     field :image_url, :string
     field :tags, {:array, :string}, default: []
     field :faction_role, :string
+    field :pinned, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -46,7 +47,8 @@ defmodule GameMasterCore.Characters.Character do
       :image_url,
       :tags,
       :member_of_faction_id,
-      :faction_role
+      :faction_role,
+      :pinned
     ])
     |> validate_required([:name, :class, :level])
     |> validate_tags()

@@ -212,6 +212,125 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
       end
+
+      swagger_path :get_primary_faction do
+        get("/api/games/{game_id}/characters/{character_id}/primary-faction")
+        summary("Get character's primary faction")
+        description("Get the primary faction details for a character")
+        operation_id("getCharacterPrimaryFaction")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:CharacterPrimaryFactionResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :set_primary_faction do
+        post("/api/games/{game_id}/characters/{character_id}/primary-faction")
+        summary("Set character's primary faction")
+
+        description(
+          "Set or update a character's primary faction and role, automatically syncing with CharacterFaction relationship"
+        )
+
+        operation_id("setCharacterPrimaryFaction")
+        tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+
+          body(:body, Schema.ref(:SetPrimaryFactionRequest), "Primary faction data",
+            required: true
+          )
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:CharacterResponse))
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:Error))
+      end
+
+      swagger_path :remove_primary_faction do
+        PhoenixSwagger.Path.delete(
+          "/api/games/{game_id}/characters/{character_id}/primary-faction"
+        )
+
+        summary("Remove character's primary faction")
+
+        description(
+          "Remove a character's primary faction while preserving the CharacterFaction relationship record"
+        )
+
+        operation_id("removeCharacterPrimaryFaction")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:CharacterResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :pin do
+        PhoenixSwagger.Path.put("/api/games/{game_id}/characters/{character_id}/pin")
+        summary("Pin character")
+        description("Pin a character for quick access")
+        operation_id("pinCharacter")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:CharacterResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :unpin do
+        PhoenixSwagger.Path.put("/api/games/{game_id}/characters/{character_id}/unpin")
+        summary("Unpin character")
+        description("Unpin a character")
+        operation_id("unpinCharacter")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:CharacterResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
     end
   end
 end

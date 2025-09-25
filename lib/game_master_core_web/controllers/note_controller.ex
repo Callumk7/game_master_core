@@ -164,4 +164,20 @@ defmodule GameMasterCoreWeb.NoteController do
   defp delete_note_link(_scope, _note_id, entity_type, _entity_id) do
     {:error, {:unsupported_link_type, :note, entity_type}}
   end
+
+  # Pinning endpoints
+
+  def pin(conn, %{"note_id" => note_id}) do
+    with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, updated_note} <- Notes.pin_note(conn.assigns.current_scope, note) do
+      render(conn, :show, note: updated_note)
+    end
+  end
+
+  def unpin(conn, %{"note_id" => note_id}) do
+    with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, updated_note} <- Notes.unpin_note(conn.assigns.current_scope, note) do
+      render(conn, :show, note: updated_note)
+    end
+  end
 end
