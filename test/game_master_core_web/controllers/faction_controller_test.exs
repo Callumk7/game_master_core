@@ -37,9 +37,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/factions")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/factions")
+      assert conn.status == 404
     end
   end
 
@@ -61,9 +60,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        post(conn, ~p"/api/games/#{other_game.id}/factions", faction: @create_attrs)
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/factions", faction: @create_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game} do
@@ -121,9 +119,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       other_game = game_fixture(other_user_scope)
       other_faction = faction_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        delete(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}")
-      end
+      conn = delete(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}")
+      assert conn.status == 404
     end
   end
 
@@ -417,27 +414,24 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       other_game = game_fixture(other_user_scope)
       other_faction = faction_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links")
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
 
-        post(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links", %{
-          "entity_type" => "note",
-          "entity_id" => dummy_uuid
-        })
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => dummy_uuid
+      })
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
 
-        delete(
-          conn,
-          ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links/note/#{dummy_uuid}"
-        )
-      end
+      conn = delete(
+        conn,
+        ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links/note/#{dummy_uuid}"
+      )
+      assert conn.status == 404
     end
 
     test "create_link successfully creates faction-faction link", %{
@@ -585,9 +579,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       other_game = game_fixture(other_user_scope)
       other_faction = faction_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/members")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/members")
+      assert conn.status == 404
     end
   end
 
