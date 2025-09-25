@@ -39,9 +39,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/quests")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/quests")
+      assert conn.status == 404
     end
   end
 
@@ -89,9 +88,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        post(conn, ~p"/api/games/#{other_game.id}/quests", quest: @create_attrs)
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/quests", quest: @create_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, scope: _scope, game: game} do
@@ -247,9 +245,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_user_scope, other_game)
       other_quest = quest_fixture(other_game_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        delete(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}")
-      end
+      conn = delete(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}")
+      assert conn.status == 404
     end
   end
 
@@ -610,27 +607,22 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_user_scope, other_game)
       other_quest = quest_fixture(other_game_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links")
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
+      conn = post(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => dummy_uuid
+      })
+      assert conn.status == 404
 
-        post(conn, ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links", %{
-          "entity_type" => "character",
-          "entity_id" => dummy_uuid
-        })
-      end
-
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
-
-        delete(
-          conn,
-          ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/character/#{dummy_uuid}"
-        )
-      end
+      dummy_uuid = Ecto.UUID.generate()
+      conn = delete(
+        conn,
+        ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/character/#{dummy_uuid}"
+      )
+      assert conn.status == 404
     end
   end
 
@@ -873,9 +865,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/quests/tree")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/quests/tree")
+      assert conn.status == 404
     end
 
     test "allows game members to access quest tree", %{conn: _conn, game: game, scope: scope} do

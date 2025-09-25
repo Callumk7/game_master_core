@@ -39,9 +39,8 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/locations")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/locations")
+      assert conn.status == 404
     end
   end
 
@@ -64,9 +63,8 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        post(conn, ~p"/api/games/#{other_game.id}/locations", location: @create_attrs)
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/locations", location: @create_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game} do
@@ -106,11 +104,10 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_game = game_fixture(other_user_scope)
       other_location = location_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        put(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}",
-          location: @update_attrs
-        )
-      end
+      conn = put(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}",
+        location: @update_attrs
+      )
+      assert conn.status == 404
     end
   end
 
@@ -133,9 +130,8 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_game = game_fixture(other_user_scope)
       other_location = location_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        delete(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}")
-      end
+      conn = delete(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}")
+      assert conn.status == 404
     end
   end
 
@@ -456,27 +452,24 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_game = game_fixture(other_user_scope)
       other_location = location_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links")
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
 
-        post(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links", %{
-          "entity_type" => "note",
-          "entity_id" => dummy_uuid
-        })
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => dummy_uuid
+      })
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
 
-        delete(
-          conn,
-          ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links/note/#{dummy_uuid}"
-        )
-      end
+      conn = delete(
+        conn,
+        ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links/note/#{dummy_uuid}"
+      )
+      assert conn.status == 404
     end
   end
 
@@ -710,9 +703,8 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/locations/tree")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/locations/tree")
+      assert conn.status == 404
     end
 
     test "allows game members to access location tree", %{conn: _conn, game: game, scope: scope} do

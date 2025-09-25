@@ -439,10 +439,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
-        parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
+        parent_id(:string, "Parent ID (note or other entity)", format: :uuid, nullable: true)
 
         parent_type(:string, "Type of parent entity (character, quest, location, faction)",
-          enum: ["character", "quest", "location", "faction"]
+          enum: ["character", "quest", "location", "faction"],
+          nullable: true
         )
       end
 

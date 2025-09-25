@@ -36,9 +36,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/notes")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/notes")
+      assert conn.status == 404
     end
   end
 
@@ -60,9 +59,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        post(conn, ~p"/api/games/#{other_game.id}/notes", note: @create_attrs)
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/notes", note: @create_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game} do
@@ -92,9 +90,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_game = game_fixture(other_user_scope)
       other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        put(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}", note: @update_attrs)
-      end
+      conn = put(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}", note: @update_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game, note: note} do
@@ -119,9 +116,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_game = game_fixture(other_user_scope)
       other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        delete(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}")
-      end
+      conn = delete(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}")
+      assert conn.status == 404
     end
   end
 
@@ -417,27 +413,22 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_game = game_fixture(other_user_scope)
       other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links")
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
+      conn = post(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => dummy_uuid
+      })
+      assert conn.status == 404
 
-        post(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links", %{
-          "entity_type" => "character",
-          "entity_id" => dummy_uuid
-        })
-      end
-
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
-
-        delete(
-          conn,
-          ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links/character/#{dummy_uuid}"
-        )
-      end
+      dummy_uuid = Ecto.UUID.generate()
+      conn = delete(
+        conn,
+        ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links/character/#{dummy_uuid}"
+      )
+      assert conn.status == 404
     end
 
     test "create_link successfully creates note-note link", %{

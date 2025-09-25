@@ -43,9 +43,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/characters")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/characters")
+      assert conn.status == 404
     end
   end
 
@@ -70,9 +69,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
-      assert_error_sent 404, fn ->
-        post(conn, ~p"/api/games/#{other_game.id}/characters", character: @create_attrs)
-      end
+      conn = post(conn, ~p"/api/games/#{other_game.id}/characters", character: @create_attrs)
+      assert conn.status == 404
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game} do
@@ -206,9 +204,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_game = game_fixture(other_user_scope)
       other_character = character_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        delete(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}")
-      end
+      conn = delete(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}")
+      assert conn.status == 404
     end
   end
 
@@ -564,27 +561,22 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_game = game_fixture(other_user_scope)
       other_character = character_fixture(other_user_scope, %{game_id: other_game.id})
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links")
+      assert conn.status == 404
 
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
+      dummy_uuid = Ecto.UUID.generate()
+      conn = post(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => dummy_uuid
+      })
+      assert conn.status == 404
 
-        post(conn, ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links", %{
-          "entity_type" => "note",
-          "entity_id" => dummy_uuid
-        })
-      end
-
-      assert_error_sent 404, fn ->
-        dummy_uuid = Ecto.UUID.generate()
-
-        delete(
-          conn,
-          ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links/note/#{dummy_uuid}"
-        )
-      end
+      dummy_uuid = Ecto.UUID.generate()
+      conn = delete(
+        conn,
+        ~p"/api/games/#{other_game.id}/characters/#{other_character.id}/links/note/#{dummy_uuid}"
+      )
+      assert conn.status == 404
     end
 
     test "create_link successfully creates character-character link", %{
@@ -847,9 +839,8 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       other_scope = user_scope_fixture()
       other_game = game_fixture(other_scope)
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/games/#{other_game.id}/characters/#{character.id}/notes/tree")
-      end
+      conn = get(conn, ~p"/api/games/#{other_game.id}/characters/#{character.id}/notes/tree")
+      assert conn.status == 404
     end
 
     test "notes_tree orders notes alphabetically at each level", %{
