@@ -419,18 +419,22 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
 
       dummy_uuid = Ecto.UUID.generate()
 
-      conn = post(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links", %{
-        "entity_type" => "note",
-        "entity_id" => dummy_uuid
-      })
+      conn =
+        post(conn, ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links", %{
+          "entity_type" => "note",
+          "entity_id" => dummy_uuid
+        })
+
       assert conn.status == 404
 
       dummy_uuid = Ecto.UUID.generate()
 
-      conn = delete(
-        conn,
-        ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links/note/#{dummy_uuid}"
-      )
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links/note/#{dummy_uuid}"
+        )
+
       assert conn.status == 404
     end
 

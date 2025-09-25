@@ -90,7 +90,9 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       other_game = game_fixture(other_user_scope)
       other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
 
-      conn = put(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}", note: @update_attrs)
+      conn =
+        put(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}", note: @update_attrs)
+
       assert conn.status == 404
     end
 
@@ -417,17 +419,23 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       assert conn.status == 404
 
       dummy_uuid = Ecto.UUID.generate()
-      conn = post(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links", %{
-        "entity_type" => "character",
-        "entity_id" => dummy_uuid
-      })
+
+      conn =
+        post(conn, ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links", %{
+          "entity_type" => "character",
+          "entity_id" => dummy_uuid
+        })
+
       assert conn.status == 404
 
       dummy_uuid = Ecto.UUID.generate()
-      conn = delete(
-        conn,
-        ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links/character/#{dummy_uuid}"
-      )
+
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{other_game.id}/notes/#{other_note.id}/links/character/#{dummy_uuid}"
+        )
+
       assert conn.status == 404
     end
 
