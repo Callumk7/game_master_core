@@ -104,9 +104,11 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       other_game = game_fixture(other_user_scope)
       other_location = location_fixture(other_user_scope, %{game_id: other_game.id})
 
-      conn = put(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}",
-        location: @update_attrs
-      )
+      conn =
+        put(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}",
+          location: @update_attrs
+        )
+
       assert conn.status == 404
     end
   end
@@ -457,18 +459,22 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
       dummy_uuid = Ecto.UUID.generate()
 
-      conn = post(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links", %{
-        "entity_type" => "note",
-        "entity_id" => dummy_uuid
-      })
+      conn =
+        post(conn, ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links", %{
+          "entity_type" => "note",
+          "entity_id" => dummy_uuid
+        })
+
       assert conn.status == 404
 
       dummy_uuid = Ecto.UUID.generate()
 
-      conn = delete(
-        conn,
-        ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links/note/#{dummy_uuid}"
-      )
+      conn =
+        delete(
+          conn,
+          ~p"/api/games/#{other_game.id}/locations/#{other_location.id}/links/note/#{dummy_uuid}"
+        )
+
       assert conn.status == 404
     end
   end
