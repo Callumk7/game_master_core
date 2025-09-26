@@ -440,10 +440,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid, nullable: true)
-
         parent_type(:string, "Type of parent entity (character, quest, location, faction)",
-          enum: ["character", "quest", "location", "faction"],
-          nullable: true
+          enum: ["character", "quest", "location", "faction"]
         )
       end
 
@@ -1827,6 +1825,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing character's primary faction data"
         ),
       # Pinned entities schemas
+      PinnedEntities: pinned_entities_schema(),
       PinnedEntitiesData: pinned_entities_data_schema(),
       PinnedEntitiesResponse:
         response_schema(
