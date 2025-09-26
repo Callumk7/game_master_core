@@ -180,13 +180,25 @@ defmodule GameMasterCoreWeb.Router do
   end
 
   def swagger_info do
+    host = 
+      case Mix.env() do
+        :prod -> System.get_env("PHX_HOST", "gamemastercore-production.up.railway.app")
+        _ -> "localhost:4000"
+      end
+    
+    schemes = 
+      case Mix.env() do
+        :prod -> ["https"]
+        _ -> ["http"]
+      end
+
     %{
       info: %{
         version: "1.0",
         title: "Game Master API"
       },
-      host: "localhost:4000",
-      schemes: ["http"],
+      host: host,
+      schemes: schemes,
       securityDefinitions: %{
         Bearer: %{
           type: "apiKey",
