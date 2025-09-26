@@ -1,0 +1,24 @@
+[phases.setup]
+nixPkgs = ["...", "postgresql"]
+
+[phases.install]
+cmds = [
+    "mix local.hex --force",
+    "mix local.rebar --force",
+    "mix deps.get --only prod"
+]
+
+[phases.build]
+cmds = [
+    "mix assets.setup",
+    "mix assets.deploy",
+    "mix compile",
+    "mix phx.gen.release",
+    "mix release"
+]
+
+[start]
+cmd = "_build/prod/rel/game_master_core/bin/server"
+
+[variables]
+MIX_ENV = "prod"
