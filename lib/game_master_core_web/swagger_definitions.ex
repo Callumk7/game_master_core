@@ -443,10 +443,12 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         parent_type(:string, "Type of parent entity (character, quest, location, faction)",
           enum: ["character", "quest", "location", "faction"]
         )
+        pinned(:boolean, "Whether this note is pinned")
       end
 
       example(%{
-        name: "Updated Quest Notes"
+        name: "Updated Quest Notes",
+        pinned: true
       })
     end
   end
@@ -596,6 +598,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags(Schema.array(:string), "Tags for this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
+        pinned(:boolean, "Whether this character is pinned")
       end
 
       example(%{
@@ -603,7 +606,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "A wise and powerful wizard who guides the Fellowship through many perils.",
         content_plain_text:
           "A wise and powerful wizard who guides the Fellowship through many perils.",
-        faction_role: "Elder Council Leader"
+        faction_role: "Elder Council Leader",
+        pinned: true
       })
     end
   end
@@ -792,13 +796,15 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags for this faction")
+        pinned(:boolean, "Whether this faction is pinned")
       end
 
       example(%{
         content:
           "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
         content_plain_text:
-          "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence."
+          "A secretive organization that seeks to control the entire realm from behind the scenes, now with expanded influence.",
+        pinned: false
       })
     end
   end
@@ -1025,13 +1031,15 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         parent_id(:string, "Parent location ID", format: :uuid)
         tags(Schema.array(:string), "Tags for this location")
+        pinned(:boolean, "Whether this location is pinned")
       end
 
       example(%{
         content:
           "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes.",
         content_plain_text:
-          "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes."
+          "A mysterious cave hidden deep in the mountains, known for its brilliant glowing crystals and ancient runes.",
+        pinned: true
       })
     end
   end
@@ -1161,6 +1169,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
+        pinned(:boolean, "Whether this quest is pinned")
       end
 
       example(%{
@@ -1168,7 +1177,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
         content_plain_text:
           "Find the lost treasure hidden deep within the ancient ruins beneath the Crystal Cave. Beware of the guardian spirits.",
-        parent_id: "723e4567-e89b-12d3-a456-426614174006"
+        parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        pinned: false
       })
     end
   end
