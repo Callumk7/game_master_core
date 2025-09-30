@@ -61,6 +61,7 @@ defmodule GameMasterCoreWeb.Router do
       delete "/members/:user_id", GameController, :remove_member
 
       get "/links", GameController, :list_entities
+      get "/tree", GameController, :tree
       get "/pinned", PinnedController, :index
 
       resources "/notes", NoteController, except: [:new, :edit] do

@@ -1670,6 +1670,79 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def entity_tree_node_schema do
+    swagger_schema do
+      title("Entity Tree Node")
+      description("A single node in the entity relationship tree")
+
+      properties do
+        id(:string, "Entity ID", required: true, format: :uuid)
+        name(:string, "Entity name", required: true)
+        type(:string, "Entity type", required: true, enum: ["character", "faction", "location", "quest", "note"])
+        relationship_type(:string, "Type of relationship to parent", required: false)
+        description(:string, "Relationship description", required: false)
+        strength(:integer, "Relationship strength (1-5)", required: false, minimum: 1, maximum: 5)
+        is_active(:boolean, "Whether relationship is active", required: false)
+        metadata(Schema.ref(:Map), "Additional relationship metadata", required: false)
+        children(Schema.array(:EntityTreeNode), "Child entities", required: true)
+      end
+
+      example(%{
+        id: "123e4567-e89b-12d3-a456-426614174000",
+        name: "Main Character",
+        type: "character",
+        relationship_type: "friend",
+        description: "Close friend and ally",
+        strength: 4,
+        is_active: true,
+        metadata: %{notes: "Met during quest"},
+        children: [
+          %{
+            id: "456e7890-e89b-12d3-a456-426614174001",
+            name: "Character's Faction",
+            type: "faction",
+            relationship_type: "member",
+            description: "Active member",
+            strength: 3,
+            is_active: true,
+            metadata: %{},
+            children: []
+          }
+        ]
+      })
+    end
+  end
+
+  def entity_tree_data_schema do
+    swagger_schema do
+      title("Entity Tree Data")
+      description("Entity relationship tree data grouped by entity types or single tree")
+
+      properties do
+        characters(Schema.array(:EntityTreeNode), "Character trees", required: false)
+        factions(Schema.array(:EntityTreeNode), "Faction trees", required: false)
+        locations(Schema.array(:EntityTreeNode), "Location trees", required: false)
+        quests(Schema.array(:EntityTreeNode), "Quest trees", required: false)
+        notes(Schema.array(:EntityTreeNode), "Note trees", required: false)
+      end
+
+      example(%{
+        characters: [
+          %{
+            id: "123e4567-e89b-12d3-a456-426614174000",
+            name: "Main Character",
+            type: "character",
+            children: []
+          }
+        ],
+        factions: [],
+        locations: [],
+        quests: [],
+        notes: []
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -1877,6 +1950,15 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:PinnedEntitiesData),
           "Pinned Entities Response",
           "Response containing all pinned entities for a game"
+        ),
+      # Entity tree schemas
+      EntityTreeNode: entity_tree_node_schema(),
+      EntityTreeData: entity_tree_data_schema(),
+      EntityTreeResponse:
+        response_schema(
+          Schema.ref(:EntityTreeData),
+          "Entity Tree Response",
+          "Response containing hierarchical tree of entity relationships"
         )
     }
   end

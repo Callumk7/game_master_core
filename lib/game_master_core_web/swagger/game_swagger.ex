@@ -171,6 +171,27 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
       end
+
+      swagger_path :tree do
+        get("/api/games/{game_id}/tree")
+        summary("Get entity tree")
+        description("Get comprehensive hierarchical tree of entity relationships within a game")
+        operation_id("getGameEntityTree")
+        tag("GameMaster")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          depth(:query, :integer, "Maximum depth to traverse (default: 3, max: 10)", required: false)
+          start_entity_type(:query, :string, "Entity type to start from (character, faction, location, quest, note)", required: false)
+          start_entity_id(:query, :string, "Entity ID to start from (requires start_entity_type)", required: false, format: :uuid)
+        end
+
+        response(200, "Success", Schema.ref(:EntityTreeResponse))
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
     end
   end
 end
