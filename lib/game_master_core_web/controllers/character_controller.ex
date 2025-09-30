@@ -138,6 +138,47 @@ defmodule GameMasterCoreWeb.CharacterController do
     end
   end
 
+  def update_link(
+        conn,
+        %{
+          "character_id" => character_id,
+          "entity_type" => entity_type,
+          "entity_id" => entity_id
+        } = params
+      ) do
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, updated_link} <-
+           update_character_link(
+             conn.assigns.current_scope,
+             character.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        message: "Link updated successfully",
+        character_id: character.id,
+        entity_type: entity_type,
+        entity_id: entity_id,
+        updated_at: updated_link.updated_at
+      })
+    end
+  end
+
   # Private helpers for link management
 
   defp create_character_link(scope, character_id, :note, note_id, metadata_attrs) do
@@ -185,6 +226,30 @@ defmodule GameMasterCoreWeb.CharacterController do
   end
 
   defp delete_character_link(_scope, _character_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :character, entity_type}}
+  end
+
+  defp update_character_link(scope, character_id, :note, note_id, metadata_attrs) do
+    Characters.update_link_note(scope, character_id, note_id, metadata_attrs)
+  end
+
+  defp update_character_link(scope, character_id, :faction, faction_id, metadata_attrs) do
+    Characters.update_link_faction(scope, character_id, faction_id, metadata_attrs)
+  end
+
+  defp update_character_link(scope, character_id, :location, location_id, metadata_attrs) do
+    Characters.update_link_location(scope, character_id, location_id, metadata_attrs)
+  end
+
+  defp update_character_link(scope, character_id, :quest, quest_id, metadata_attrs) do
+    Characters.update_link_quest(scope, character_id, quest_id, metadata_attrs)
+  end
+
+  defp update_character_link(scope, character_id, :character, other_character_id, metadata_attrs) do
+    Characters.update_link_character(scope, character_id, other_character_id, metadata_attrs)
+  end
+
+  defp update_character_link(_scope, _character_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :character, entity_type}}
   end
 

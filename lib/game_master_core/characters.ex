@@ -326,6 +326,56 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Updates a link between a character and a note.
+  """
+  def update_link_note(%Scope{} = scope, character_id, note_id, metadata_attrs) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(character, note, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a character and a faction.
+  """
+  def update_link_faction(%Scope{} = scope, character_id, faction_id, metadata_attrs) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.update_link(character, faction, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a character and a location.
+  """
+  def update_link_location(%Scope{} = scope, character_id, location_id, metadata_attrs) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.update_link(character, location, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a character and a quest.
+  """
+  def update_link_quest(%Scope{} = scope, character_id, quest_id, metadata_attrs) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, quest} <- get_scoped_quest(scope, quest_id) do
+      Links.update_link(character, quest, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a character and another character.
+  """
+  def update_link_character(%Scope{} = scope, character_id_1, character_id_2, metadata_attrs) do
+    with {:ok, character_1} <- get_scoped_character(scope, character_id_1),
+         {:ok, character_2} <- get_scoped_character(scope, character_id_2) do
+      Links.update_link(character_1, character_2, metadata_attrs)
+    end
+  end
+
+  @doc """
   Checks if a character is linked to a note.
 
   ## Examples

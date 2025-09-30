@@ -66,6 +66,7 @@ defmodule GameMasterCoreWeb.Router do
       resources "/notes", NoteController, except: [:new, :edit] do
         get "/links", NoteController, :list_links
         post "/links", NoteController, :create_link
+        put "/links/:entity_type/:entity_id", NoteController, :update_link
         delete "/links/:entity_type/:entity_id", NoteController, :delete_link
         put "/pin", NoteController, :pin
         put "/unpin", NoteController, :unpin
@@ -75,6 +76,7 @@ defmodule GameMasterCoreWeb.Router do
         get "/notes/tree", CharacterController, :notes_tree
         get "/links", CharacterController, :list_links
         post "/links", CharacterController, :create_link
+        put "/links/:entity_type/:entity_id", CharacterController, :update_link
         delete "/links/:entity_type/:entity_id", CharacterController, :delete_link
         get "/primary-faction", CharacterController, :get_primary_faction
         post "/primary-faction", CharacterController, :set_primary_faction
@@ -86,6 +88,7 @@ defmodule GameMasterCoreWeb.Router do
       resources "/factions", FactionController, except: [:new, :edit] do
         get "/links", FactionController, :list_links
         post "/links", FactionController, :create_link
+        put "/links/:entity_type/:entity_id", FactionController, :update_link
         delete "/links/:entity_type/:entity_id", FactionController, :delete_link
         get "/members", FactionController, :members
         put "/pin", FactionController, :pin
@@ -97,6 +100,7 @@ defmodule GameMasterCoreWeb.Router do
       resources "/locations", LocationController, except: [:new, :edit] do
         get "/links", LocationController, :list_links
         post "/links", LocationController, :create_link
+        put "/links/:entity_type/:entity_id", LocationController, :update_link
         delete "/links/:entity_type/:entity_id", LocationController, :delete_link
         put "/pin", LocationController, :pin
         put "/unpin", LocationController, :unpin
@@ -107,6 +111,7 @@ defmodule GameMasterCoreWeb.Router do
       resources "/quests", QuestController, except: [:new, :edit] do
         get "/links", QuestController, :list_links
         post "/links", QuestController, :create_link
+        put "/links/:entity_type/:entity_id", QuestController, :update_link
         delete "/links/:entity_type/:entity_id", QuestController, :delete_link
         put "/pin", QuestController, :pin
         put "/unpin", QuestController, :unpin
@@ -180,13 +185,13 @@ defmodule GameMasterCoreWeb.Router do
   end
 
   def swagger_info do
-    host = 
+    host =
       case Mix.env() do
         :prod -> System.get_env("PHX_HOST", "gamemastercore-production.up.railway.app")
         _ -> "localhost:4000"
       end
-    
-    schemes = 
+
+    schemes =
       case Mix.env() do
         :prod -> ["https"]
         _ -> ["http"]

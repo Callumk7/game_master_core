@@ -331,6 +331,48 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
       end
+
+      swagger_path :update_link do
+        put("/api/games/{game_id}/characters/{character_id}/links/{entity_type}/{entity_id}")
+        summary("Update a character link")
+        description("Update link metadata between a character and another entity")
+        operation_id("updateCharacterLink")
+        tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          character_id(:path, :string, "Character ID", required: true, format: :uuid)
+
+          entity_type(:path, :string, "Entity type",
+            required: true,
+            enum: ["note", "faction", "location", "quest", "character"]
+          )
+
+          entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
+          body(:body, Schema.ref(:LinkUpdateRequest), "Link update data", required: true)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", %{
+          "type" => "object",
+          "properties" => %{
+            "message" => %{"type" => "string"},
+            "character_id" => %{"type" => "string", "format" => "uuid"},
+            "entity_type" => %{"type" => "string"},
+            "entity_id" => %{"type" => "string", "format" => "uuid"},
+            "updated_at" => %{"type" => "string", "format" => "date-time"}
+          }
+        })
+
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:Error))
+      end
     end
   end
 end

@@ -342,6 +342,56 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
+  Updates a link between a faction and a note.
+  """
+  def update_link_note(%Scope{} = scope, faction_id, note_id, metadata_attrs) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(faction, note, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a faction and a character.
+  """
+  def update_link_character(%Scope{} = scope, faction_id, character_id, metadata_attrs) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.update_link(faction, character, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a faction and a location.
+  """
+  def update_link_location(%Scope{} = scope, faction_id, location_id, metadata_attrs) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, location} <- get_scoped_location(scope, location_id) do
+      Links.update_link(faction, location, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a faction and a quest.
+  """
+  def update_link_quest(%Scope{} = scope, faction_id, quest_id, metadata_attrs) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, quest} <- get_scoped_quest(scope, quest_id) do
+      Links.update_link(faction, quest, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a faction and another faction.
+  """
+  def update_link_faction(%Scope{} = scope, faction_id_1, faction_id_2, metadata_attrs) do
+    with {:ok, faction_1} <- get_scoped_faction(scope, faction_id_1),
+         {:ok, faction_2} <- get_scoped_faction(scope, faction_id_2) do
+      Links.update_link(faction_1, faction_2, metadata_attrs)
+    end
+  end
+
+  @doc """
   Returns all notes linked to a character.
 
   ## Examples

@@ -115,6 +115,46 @@ defmodule GameMasterCoreWeb.NoteController do
     end
   end
 
+  def update_link(
+        conn,
+        %{
+          "note_id" => note_id,
+          "entity_type" => entity_type,
+          "entity_id" => entity_id
+        } = params
+      ) do
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
+    with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, updated_link} <-
+           update_note_link(
+             conn.assigns.current_scope,
+             note.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        message: "Link updated successfully",
+        note_id: note.id,
+        entity_type: entity_type,
+        entity_id: entity_id,
+        updated_at: updated_link.updated_at
+      })
+    end
+  end
+
   # Private helpers for link management
 
   defp create_note_link(scope, note_id, :character, character_id, metadata_attrs) do
@@ -162,6 +202,30 @@ defmodule GameMasterCoreWeb.NoteController do
   end
 
   defp delete_note_link(_scope, _note_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :note, entity_type}}
+  end
+
+  defp update_note_link(scope, note_id, :character, character_id, metadata_attrs) do
+    Notes.update_link_character(scope, note_id, character_id, metadata_attrs)
+  end
+
+  defp update_note_link(scope, note_id, :faction, faction_id, metadata_attrs) do
+    Notes.update_link_faction(scope, note_id, faction_id, metadata_attrs)
+  end
+
+  defp update_note_link(scope, note_id, :location, location_id, metadata_attrs) do
+    Notes.update_link_location(scope, note_id, location_id, metadata_attrs)
+  end
+
+  defp update_note_link(scope, note_id, :quest, quest_id, metadata_attrs) do
+    Notes.update_link_quest(scope, note_id, quest_id, metadata_attrs)
+  end
+
+  defp update_note_link(scope, note_id, :note, other_note_id, metadata_attrs) do
+    Notes.update_link_note(scope, note_id, other_note_id, metadata_attrs)
+  end
+
+  defp update_note_link(_scope, _note_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :note, entity_type}}
   end
 

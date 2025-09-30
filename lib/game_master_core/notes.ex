@@ -381,6 +381,56 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Updates a link between a character and a note.
+  """
+  def update_link_character(%Scope{} = scope, note_id, character_id, metadata_attrs) do
+    with {:ok, character} <- get_scoped_character(scope, character_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(note, character, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a faction and a note.
+  """
+  def update_link_faction(%Scope{} = scope, note_id, faction_id, metadata_attrs) do
+    with {:ok, faction} <- get_scoped_faction(scope, faction_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(note, faction, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a quest and a note.
+  """
+  def update_link_quest(%Scope{} = scope, note_id, quest_id, metadata_attrs) do
+    with {:ok, quest} <- get_scoped_quest(scope, quest_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(note, quest, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a location and a note.
+  """
+  def update_link_location(%Scope{} = scope, note_id, location_id, metadata_attrs) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(note, location, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a note and another note.
+  """
+  def update_link_note(%Scope{} = scope, note_id_1, note_id_2, metadata_attrs) do
+    with {:ok, note_1} <- get_scoped_note(scope, note_id_1),
+         {:ok, note_2} <- get_scoped_note(scope, note_id_2) do
+      Links.update_link(note_1, note_2, metadata_attrs)
+    end
+  end
+
+  @doc """
   Checks if a character is linked to a note.
   """
   def character_linked?(%Scope{} = scope, note_id, character_id) do

@@ -996,6 +996,148 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
     end
   end
 
+  describe "update_link" do
+    setup [:create_quest]
+
+    test "update_link successfully updates quest-note link metadata", %{
+      conn: conn,
+      game: game,
+      quest: quest,
+      scope: scope
+    } do
+      note = note_fixture(scope, %{game_id: game.id})
+
+      # First create a link
+      post(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => note.id,
+        "relationship_type" => "journal",
+        "description" => "Initial quest notes",
+        "strength" => 5
+      })
+
+      # Then update the link
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/note/#{note.id}", %{
+          "relationship_type" => "clue",
+          "description" => "Updated to important clue",
+          "strength" => 8
+        })
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["quest_id"] == quest.id
+      assert response["entity_type"] == "note"
+      assert response["entity_id"] == note.id
+      assert response["updated_at"]
+    end
+
+    test "update_link successfully updates quest-character link metadata", %{
+      conn: conn,
+      game: game,
+      quest: quest,
+      scope: scope
+    } do
+      character = character_fixture(scope, %{game_id: game.id})
+
+      # First create a link
+      post(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => character.id,
+        "relationship_type" => "participant",
+        "strength" => 7
+      })
+
+      # Then update the link
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/character/#{character.id}", %{
+          "relationship_type" => "leader",
+          "description" => "Now leads the quest",
+          "strength" => 10
+        })
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["quest_id"] == quest.id
+      assert response["entity_type"] == "character"
+      assert response["entity_id"] == character.id
+    end
+
+    test "update_link with non-existent link returns error", %{
+      conn: conn,
+      game: game,
+      quest: quest,
+      scope: scope
+    } do
+      note = note_fixture(scope, %{game_id: game.id})
+
+      # Try to update a link that doesn't exist
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/note/#{note.id}", %{
+          "relationship_type" => "clue",
+          "description" => "Should fail",
+          "strength" => 8
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "update_link with invalid entity_type returns error", %{
+      conn: conn,
+      game: game,
+      quest: quest
+    } do
+      dummy_uuid = Ecto.UUID.generate()
+
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{game.id}/quests/#{quest.id}/links/invalid_type/#{dummy_uuid}",
+          %{
+            "relationship_type" => "ally"
+          }
+        )
+
+      response = json_response(conn, 400)
+
+      assert response["error"] ==
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
+    end
+
+    test "update_link with invalid entity_id returns error", %{
+      conn: conn,
+      game: game,
+      quest: quest
+    } do
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/quests/#{quest.id}/links/note/invalid_id", %{
+          "relationship_type" => "ally"
+        })
+
+      response = json_response(conn, 400)
+      assert response["error"] == "Invalid entity ID format"
+    end
+
+    test "denies access to update_link for games user cannot access", %{conn: conn, scope: _scope} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_user_scope, other_game)
+      other_quest = quest_fixture(other_game_scope, %{game_id: other_game.id})
+      other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
+
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{other_game.id}/quests/#{other_quest.id}/links/note/#{other_note.id}",
+          %{
+            "relationship_type" => "ally"
+          }
+        )
+
+      assert response(conn, 404)
+    end
+  end
+
   defp create_quest(%{scope: scope, game: game}) do
     # Use the game scope for quest creation since quests require game context
     game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)

@@ -412,6 +412,56 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Updates a link between a location and a note.
+  """
+  def update_link_note(%Scope{} = scope, location_id, note_id, metadata_attrs) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, note} <- get_scoped_note(scope, note_id) do
+      Links.update_link(location, note, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a location and a character.
+  """
+  def update_link_character(%Scope{} = scope, location_id, character_id, metadata_attrs) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, character} <- get_scoped_character(scope, character_id) do
+      Links.update_link(location, character, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a location and a faction.
+  """
+  def update_link_faction(%Scope{} = scope, location_id, faction_id, metadata_attrs) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, faction} <- get_scoped_faction(scope, faction_id) do
+      Links.update_link(location, faction, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a location and a quest.
+  """
+  def update_link_quest(%Scope{} = scope, location_id, quest_id, metadata_attrs) do
+    with {:ok, location} <- get_scoped_location(scope, location_id),
+         {:ok, quest} <- get_scoped_quest(scope, quest_id) do
+      Links.update_link(location, quest, metadata_attrs)
+    end
+  end
+
+  @doc """
+  Updates a link between a location and another location.
+  """
+  def update_link_location(%Scope{} = scope, location_id_1, location_id_2, metadata_attrs) do
+    with {:ok, location_1} <- get_scoped_location(scope, location_id_1),
+         {:ok, location_2} <- get_scoped_location(scope, location_id_2) do
+      Links.update_link(location_1, location_2, metadata_attrs)
+    end
+  end
+
+  @doc """
   Checks if a character is linked to a location.
   """
   def character_linked?(%Scope{} = scope, location_id, character_id) do

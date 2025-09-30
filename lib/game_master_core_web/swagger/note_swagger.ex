@@ -157,6 +157,45 @@ defmodule GameMasterCoreWeb.Swagger.NoteSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :update_link do
+        put("/api/games/{game_id}/notes/{note_id}/links/{entity_type}/{entity_id}")
+        summary("Update a link")
+        description("Update link metadata between a note and another entity")
+        operation_id("updateNoteLink")
+        tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          note_id(:path, :string, "Note ID", required: true, format: :uuid)
+
+          entity_type(:path, :string, "Entity type",
+            required: true,
+            enum: ["character", "faction", "location", "quest", "note"]
+          )
+
+          entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
+          body(:body, Schema.ref(:LinkUpdateRequest), "Link update data", required: true)
+        end
+
+        response(200, "Success", %{
+          "type" => "object",
+          "properties" => %{
+            "message" => %{"type" => "string"},
+            "note_id" => %{"type" => "string", "format" => "uuid"},
+            "entity_type" => %{"type" => "string"},
+            "entity_id" => %{"type" => "string", "format" => "uuid"},
+            "updated_at" => %{"type" => "string", "format" => "date-time"}
+          }
+        })
+
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:Error))
+      end
+
       swagger_path :delete_link do
         PhoenixSwagger.Path.delete(
           "/api/games/{game_id}/notes/{note_id}/links/{entity_type}/{entity_id}"
