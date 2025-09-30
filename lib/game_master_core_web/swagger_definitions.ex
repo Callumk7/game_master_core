@@ -1683,7 +1683,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         description(:string, "Relationship description", required: false)
         strength(:integer, "Relationship strength (1-5)", required: false, minimum: 1, maximum: 5)
         is_active(:boolean, "Whether relationship is active", required: false)
-        metadata(Schema.ref(:Map), "Additional relationship metadata", required: false)
+        metadata(:object, "Additional relationship metadata", required: false)
         children(Schema.array(:EntityTreeNode), "Child entities", required: true)
       end
 
