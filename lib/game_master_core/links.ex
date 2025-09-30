@@ -199,6 +199,93 @@ defmodule GameMasterCore.Links do
   end
 
   @doc """
+  Updates an existing link between two entities.
+  Returns {:ok, link} on success, {:error, reason} on failure.
+  """
+  def update_link(entity1, entity2, metadata_attrs) do
+    case {entity1, entity2} do
+      {%Character{} = character, %Note{} = note} ->
+        update_character_note_link(character, note, metadata_attrs)
+
+      {%Note{} = note, %Character{} = character} ->
+        update_character_note_link(character, note, metadata_attrs)
+
+      {%Note{} = note, %Faction{} = faction} ->
+        update_faction_note_link(faction, note, metadata_attrs)
+
+      {%Faction{} = faction, %Note{} = note} ->
+        update_faction_note_link(faction, note, metadata_attrs)
+
+      {%Character{} = character, %Faction{} = faction} ->
+        update_character_faction_link(character, faction, metadata_attrs)
+
+      {%Faction{} = faction, %Character{} = character} ->
+        update_character_faction_link(character, faction, metadata_attrs)
+
+      {%Location{} = location, %Note{} = note} ->
+        update_location_note_link(location, note, metadata_attrs)
+
+      {%Location{} = location, %Character{} = character} ->
+        update_character_location_link(character, location, metadata_attrs)
+
+      {%Location{} = location, %Faction{} = faction} ->
+        update_faction_location_link(faction, location, metadata_attrs)
+
+      {%Note{} = note, %Location{} = location} ->
+        update_location_note_link(location, note, metadata_attrs)
+
+      {%Character{} = character, %Location{} = location} ->
+        update_character_location_link(character, location, metadata_attrs)
+
+      {%Faction{} = faction, %Location{} = location} ->
+        update_faction_location_link(faction, location, metadata_attrs)
+
+      {%Quest{} = quest, %Character{} = character} ->
+        update_quest_character_link(quest, character, metadata_attrs)
+
+      {%Character{} = character, %Quest{} = quest} ->
+        update_quest_character_link(quest, character, metadata_attrs)
+
+      {%Quest{} = quest, %Faction{} = faction} ->
+        update_quest_faction_link(quest, faction, metadata_attrs)
+
+      {%Faction{} = faction, %Quest{} = quest} ->
+        update_quest_faction_link(quest, faction, metadata_attrs)
+
+      {%Quest{} = quest, %Location{} = location} ->
+        update_quest_location_link(quest, location, metadata_attrs)
+
+      {%Location{} = location, %Quest{} = quest} ->
+        update_quest_location_link(quest, location, metadata_attrs)
+
+      {%Quest{} = quest, %Note{} = note} ->
+        update_quest_note_link(quest, note, metadata_attrs)
+
+      {%Note{} = note, %Quest{} = quest} ->
+        update_quest_note_link(quest, note, metadata_attrs)
+
+      # Self-join relationships
+      {%Character{} = character1, %Character{} = character2} ->
+        update_character_character_link(character1, character2, metadata_attrs)
+
+      {%Faction{} = faction1, %Faction{} = faction2} ->
+        update_faction_faction_link(faction1, faction2, metadata_attrs)
+
+      {%Location{} = location1, %Location{} = location2} ->
+        update_location_location_link(location1, location2, metadata_attrs)
+
+      {%Quest{} = quest1, %Quest{} = quest2} ->
+        update_quest_quest_link(quest1, quest2, metadata_attrs)
+
+      {%Note{} = note1, %Note{} = note2} ->
+        update_note_note_link(note1, note2, metadata_attrs)
+
+      _ ->
+        {:error, :unsupported_link_type}
+    end
+  end
+
+  @doc """
   Checks if two entities are linked.
   Returns boolean.
   """
@@ -1249,5 +1336,265 @@ defmodule GameMasterCore.Links do
       }
     )
     |> Repo.all()
+  end
+
+  # Private update functions for Character <-> Note links
+
+  defp update_character_note_link(character, note, metadata_attrs) do
+    case Repo.get_by(CharacterNote, character_id: character.id, note_id: note.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> CharacterNote.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Faction <-> Note links
+
+  defp update_faction_note_link(faction, note, metadata_attrs) do
+    case Repo.get_by(FactionNote, faction_id: faction.id, note_id: note.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> FactionNote.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Character <-> Faction links
+
+  defp update_character_faction_link(character, faction, metadata_attrs) do
+    case Repo.get_by(CharacterFaction, character_id: character.id, faction_id: faction.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> CharacterFaction.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Location <-> Note links
+
+  defp update_location_note_link(location, note, metadata_attrs) do
+    case Repo.get_by(LocationNote, location_id: location.id, note_id: note.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> LocationNote.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Character <-> Location links
+
+  defp update_character_location_link(character, location, metadata_attrs) do
+    case Repo.get_by(CharacterLocation, character_id: character.id, location_id: location.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> CharacterLocation.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Faction <-> Location links
+
+  defp update_faction_location_link(faction, location, metadata_attrs) do
+    case Repo.get_by(FactionLocation, faction_id: faction.id, location_id: location.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> FactionLocation.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Quest <-> Character links
+
+  defp update_quest_character_link(quest, character, metadata_attrs) do
+    case Repo.get_by(QuestCharacter, quest_id: quest.id, character_id: character.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> QuestCharacter.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Quest <-> Faction links
+
+  defp update_quest_faction_link(quest, faction, metadata_attrs) do
+    case Repo.get_by(QuestFaction, quest_id: quest.id, faction_id: faction.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> QuestFaction.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Quest <-> Location links
+
+  defp update_quest_location_link(quest, location, metadata_attrs) do
+    case Repo.get_by(QuestLocation, quest_id: quest.id, location_id: location.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> QuestLocation.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Quest <-> Note links
+
+  defp update_quest_note_link(quest, note, metadata_attrs) do
+    case Repo.get_by(QuestNote, quest_id: quest.id, note_id: note.id) do
+      nil ->
+        {:error, :not_found}
+
+      link ->
+        link
+        |> QuestNote.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Character <-> Character links
+
+  defp update_character_character_link(character1, character2, metadata_attrs) do
+    # Check both directions since this is bidirectional
+    case Repo.get_by(CharacterCharacter,
+           character_1_id: character1.id,
+           character_2_id: character2.id
+         ) do
+      nil ->
+        case Repo.get_by(CharacterCharacter,
+               character_1_id: character2.id,
+               character_2_id: character1.id
+             ) do
+          nil ->
+            {:error, :not_found}
+
+          link ->
+            link
+            |> CharacterCharacter.changeset(metadata_attrs)
+            |> Repo.update()
+        end
+
+      link ->
+        link
+        |> CharacterCharacter.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Faction <-> Faction links
+
+  defp update_faction_faction_link(faction1, faction2, metadata_attrs) do
+    case Repo.get_by(FactionFaction, faction_1_id: faction1.id, faction_2_id: faction2.id) do
+      nil ->
+        case Repo.get_by(FactionFaction, faction_1_id: faction2.id, faction_2_id: faction1.id) do
+          nil ->
+            {:error, :not_found}
+
+          link ->
+            link
+            |> FactionFaction.changeset(metadata_attrs)
+            |> Repo.update()
+        end
+
+      link ->
+        link
+        |> FactionFaction.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Location <-> Location links
+
+  defp update_location_location_link(location1, location2, metadata_attrs) do
+    case Repo.get_by(LocationLocation, location_1_id: location1.id, location_2_id: location2.id) do
+      nil ->
+        case Repo.get_by(LocationLocation,
+               location_1_id: location2.id,
+               location_2_id: location1.id
+             ) do
+          nil ->
+            {:error, :not_found}
+
+          link ->
+            link
+            |> LocationLocation.changeset(metadata_attrs)
+            |> Repo.update()
+        end
+
+      link ->
+        link
+        |> LocationLocation.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Quest <-> Quest links
+
+  defp update_quest_quest_link(quest1, quest2, metadata_attrs) do
+    case Repo.get_by(QuestQuest, quest_1_id: quest1.id, quest_2_id: quest2.id) do
+      nil ->
+        case Repo.get_by(QuestQuest, quest_1_id: quest2.id, quest_2_id: quest1.id) do
+          nil ->
+            {:error, :not_found}
+
+          link ->
+            link
+            |> QuestQuest.changeset(metadata_attrs)
+            |> Repo.update()
+        end
+
+      link ->
+        link
+        |> QuestQuest.changeset(metadata_attrs)
+        |> Repo.update()
+    end
+  end
+
+  # Private update functions for Note <-> Note links
+
+  defp update_note_note_link(note1, note2, metadata_attrs) do
+    case Repo.get_by(NoteNote, note_1_id: note1.id, note_2_id: note2.id) do
+      nil ->
+        case Repo.get_by(NoteNote, note_1_id: note2.id, note_2_id: note1.id) do
+          nil ->
+            {:error, :not_found}
+
+          link ->
+            link
+            |> NoteNote.changeset(metadata_attrs)
+            |> Repo.update()
+        end
+
+      link ->
+        link
+        |> NoteNote.changeset(metadata_attrs)
+        |> Repo.update()
+    end
   end
 end

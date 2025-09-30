@@ -132,6 +132,47 @@ defmodule GameMasterCoreWeb.FactionController do
     end
   end
 
+  def update_link(
+        conn,
+        %{
+          "faction_id" => faction_id,
+          "entity_type" => entity_type,
+          "entity_id" => entity_id
+        } = params
+      ) do
+    # Extract metadata fields
+    metadata_attrs = %{
+      relationship_type: Map.get(params, "relationship_type"),
+      description: Map.get(params, "description"),
+      strength: Map.get(params, "strength"),
+      is_active: Map.get(params, "is_active"),
+      metadata: Map.get(params, "metadata")
+    }
+
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, updated_link} <-
+           update_faction_link(
+             conn.assigns.current_scope,
+             faction.id,
+             entity_type,
+             entity_id,
+             metadata_attrs
+           ) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        message: "Link updated successfully",
+        faction_id: faction.id,
+        entity_type: entity_type,
+        entity_id: entity_id,
+        updated_at: updated_link.updated_at
+      })
+    end
+  end
+
   # Private helpers for link management
 
   defp create_faction_link(scope, faction_id, :note, note_id, metadata_attrs) do
@@ -179,6 +220,30 @@ defmodule GameMasterCoreWeb.FactionController do
   end
 
   defp delete_faction_link(_scope, _faction_id, entity_type, _entity_id) do
+    {:error, {:unsupported_link_type, :faction, entity_type}}
+  end
+
+  defp update_faction_link(scope, faction_id, :note, note_id, metadata_attrs) do
+    Factions.update_link_note(scope, faction_id, note_id, metadata_attrs)
+  end
+
+  defp update_faction_link(scope, faction_id, :character, character_id, metadata_attrs) do
+    Factions.update_link_character(scope, faction_id, character_id, metadata_attrs)
+  end
+
+  defp update_faction_link(scope, faction_id, :location, location_id, metadata_attrs) do
+    Factions.update_link_location(scope, faction_id, location_id, metadata_attrs)
+  end
+
+  defp update_faction_link(scope, faction_id, :quest, quest_id, metadata_attrs) do
+    Factions.update_link_quest(scope, faction_id, quest_id, metadata_attrs)
+  end
+
+  defp update_faction_link(scope, faction_id, :faction, other_faction_id, metadata_attrs) do
+    Factions.update_link_faction(scope, faction_id, other_faction_id, metadata_attrs)
+  end
+
+  defp update_faction_link(_scope, _faction_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :faction, entity_type}}
   end
 

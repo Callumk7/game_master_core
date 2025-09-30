@@ -207,6 +207,91 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
       assert response["entity_id"] == character.id
     end
 
+    test "update_link successfully updates note-character link metadata", %{
+      conn: conn,
+      game: game,
+      note: note,
+      scope: scope
+    } do
+      character = character_fixture(scope, %{game_id: game.id})
+
+      # First create a link
+      post(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => character.id,
+        "relationship_type" => "ally",
+        "description" => "Initial relationship",
+        "strength" => 5
+      })
+
+      # Then update the link
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/character/#{character.id}", %{
+          "relationship_type" => "enemy",
+          "description" => "Updated relationship",
+          "strength" => 8,
+          "is_active" => false
+        })
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["note_id"] == note.id
+      assert response["entity_type"] == "character"
+      assert response["entity_id"] == character.id
+      assert response["updated_at"]
+    end
+
+    test "update_link with non-existent link returns error", %{
+      conn: conn,
+      game: game,
+      note: note,
+      scope: scope
+    } do
+      character = character_fixture(scope, %{game_id: game.id})
+
+      # Try to update a link that doesn't exist
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/character/#{character.id}", %{
+          "relationship_type" => "enemy",
+          "description" => "Should fail",
+          "strength" => 8
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "update_link with invalid entity_type returns error", %{
+      conn: conn,
+      game: game,
+      note: note
+    } do
+      dummy_uuid = Ecto.UUID.generate()
+
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/invalid_type/#{dummy_uuid}", %{
+          "relationship_type" => "ally"
+        })
+
+      response = json_response(conn, 400)
+
+      assert response["error"] ==
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
+    end
+
+    test "update_link with invalid entity_id returns error", %{
+      conn: conn,
+      game: game,
+      note: note
+    } do
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/notes/#{note.id}/links/character/invalid_id", %{
+          "relationship_type" => "ally"
+        })
+
+      response = json_response(conn, 400)
+      assert response["error"] == "Invalid entity ID format"
+    end
+
     test "create_link with missing entity_type returns error", %{
       conn: conn,
       game: game,

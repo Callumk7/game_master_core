@@ -684,6 +684,151 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
     end
   end
 
+  describe "update_link" do
+    setup [:create_faction]
+
+    test "update_link successfully updates faction-note link metadata", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      note = note_fixture(scope, %{game_id: game.id})
+
+      # First create a link
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "note",
+        "entity_id" => note.id,
+        "relationship_type" => "documented",
+        "description" => "Initial documentation",
+        "strength" => 5
+      })
+
+      # Then update the link
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links/note/#{note.id}", %{
+          "relationship_type" => "secret",
+          "description" => "Updated to secret information",
+          "strength" => 8
+        })
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["faction_id"] == faction.id
+      assert response["entity_type"] == "note"
+      assert response["entity_id"] == note.id
+      assert response["updated_at"]
+    end
+
+    test "update_link successfully updates faction-character link metadata", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      character = character_fixture(scope, %{game_id: game.id})
+
+      # First create a link
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "character",
+        "entity_id" => character.id,
+        "relationship_type" => "member",
+        "strength" => 7
+      })
+
+      # Then update the link
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{game.id}/factions/#{faction.id}/links/character/#{character.id}",
+          %{
+            "relationship_type" => "leader",
+            "description" => "Promoted to leader",
+            "strength" => 10
+          }
+        )
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["faction_id"] == faction.id
+      assert response["entity_type"] == "character"
+      assert response["entity_id"] == character.id
+    end
+
+    test "update_link with non-existent link returns error", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      note = note_fixture(scope, %{game_id: game.id})
+
+      # Try to update a link that doesn't exist
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links/note/#{note.id}", %{
+          "relationship_type" => "secret",
+          "description" => "Should fail",
+          "strength" => 8
+        })
+
+      assert json_response(conn, 404)
+    end
+
+    test "update_link with invalid entity_type returns error", %{
+      conn: conn,
+      game: game,
+      faction: faction
+    } do
+      dummy_uuid = Ecto.UUID.generate()
+
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{game.id}/factions/#{faction.id}/links/invalid_type/#{dummy_uuid}",
+          %{
+            "relationship_type" => "ally"
+          }
+        )
+
+      response = json_response(conn, 400)
+
+      assert response["error"] ==
+               "Invalid entity type. Supported types: note, character, faction, location, quest"
+    end
+
+    test "update_link with invalid entity_id returns error", %{
+      conn: conn,
+      game: game,
+      faction: faction
+    } do
+      conn =
+        put(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links/note/invalid_id", %{
+          "relationship_type" => "ally"
+        })
+
+      response = json_response(conn, 400)
+      assert response["error"] == "Invalid entity ID format"
+    end
+
+    test "denies access to update_link for games user cannot access", %{conn: conn, scope: _scope} do
+      other_user_scope = user_scope_fixture()
+      other_game = game_fixture(other_user_scope)
+      other_faction = faction_fixture(other_user_scope, %{game_id: other_game.id})
+      other_note = note_fixture(other_user_scope, %{game_id: other_game.id})
+
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{other_game.id}/factions/#{other_faction.id}/links/note/#{other_note.id}",
+          %{
+            "relationship_type" => "ally"
+          }
+        )
+
+      assert response(conn, 404)
+    end
+  end
+
   defp create_faction(%{scope: scope, game: game}) do
     faction = faction_fixture(scope, %{game_id: game.id})
 

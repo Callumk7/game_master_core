@@ -440,9 +440,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid, nullable: true)
+
         parent_type(:string, "Type of parent entity (character, quest, location, faction)",
           enum: ["character", "quest", "location", "faction"]
         )
+
         pinned(:boolean, "Whether this note is pinned")
       end
 
@@ -934,6 +936,38 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         metadata: %{
           "since" => "2021-01-01",
           "notes" => "Met during the siege"
+        }
+      })
+    end
+  end
+
+  def link_update_request_schema do
+    swagger_schema do
+      title("Link Update Request")
+      description("Request to update link metadata between entities")
+
+      properties do
+        relationship_type(:string, "Type of relationship between entities", required: false)
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active", required: false)
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      example(%{
+        relationship_type: "enemy",
+        description: "Former allies turned enemies",
+        strength: 9,
+        is_active: false,
+        metadata: %{
+          "changed_on" => "2021-06-15",
+          "reason" => "Betrayal during the council meeting"
         }
       })
     end
@@ -1743,6 +1777,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing faction members"
         ),
       LinkRequest: link_request_schema(),
+      LinkUpdateRequest: link_update_request_schema(),
       Location: location_schema(),
       LocationCreateParams: location_create_params_schema(),
       LocationUpdateParams: location_update_params_schema(),
