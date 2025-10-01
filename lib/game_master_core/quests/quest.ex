@@ -36,7 +36,7 @@ defmodule GameMasterCore.Quests.Quest do
   def changeset(quest, attrs, game_scope, game_id) do
     quest
     |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned])
-    |> validate_required([:name, :content])
+    |> validate_required([:name])
     |> validate_tags()
     |> validate_parent_quest(game_id)
     |> put_change(:user_id, game_scope.user.id)
