@@ -182,9 +182,22 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
-          depth(:query, :integer, "Maximum depth to traverse (default: 3, max: 10)", required: false)
-          start_entity_type(:query, :string, "Entity type to start from (character, faction, location, quest, note)", required: false)
-          start_entity_id(:query, :string, "Entity ID to start from (requires start_entity_type)", required: false, format: :uuid)
+
+          depth(:query, :integer, "Maximum depth to traverse (default: 3, max: 10)",
+            required: false
+          )
+
+          start_entity_type(
+            :query,
+            :string,
+            "Entity type to start from (character, faction, location, quest, note)",
+            required: false
+          )
+
+          start_entity_id(:query, :string, "Entity ID to start from (requires start_entity_type)",
+            required: false,
+            format: :uuid
+          )
         end
 
         response(200, "Success", Schema.ref(:EntityTreeResponse))

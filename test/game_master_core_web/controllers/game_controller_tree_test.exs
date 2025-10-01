@@ -24,49 +24,52 @@ defmodule GameMasterCoreWeb.GameControllerTreeTest do
 
     test "returns empty tree for game with no entities", %{conn: conn, game: game} do
       conn = get(conn, ~p"/api/games/#{game.id}/tree")
-      
+
       assert %{
-        "data" => %{
-          "characters" => [],
-          "factions" => [],
-          "locations" => [],
-          "quests" => [],
-          "notes" => []
-        }
-      } = json_response(conn, 200)
+               "data" => %{
+                 "characters" => [],
+                 "factions" => [],
+                 "locations" => [],
+                 "quests" => [],
+                 "notes" => []
+               }
+             } = json_response(conn, 200)
     end
 
     test "returns tree with entities and relationships", %{conn: conn, game: game, scope: scope} do
       # Create entities
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Test Character",
-        class: "Warrior",
-        level: 1,
-        content: "A test character"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Test Character",
+          class: "Warrior",
+          level: 1,
+          content: "A test character"
+        })
 
-      {:ok, faction} = Factions.create_faction_for_game(scope, %{
-        name: "Test Faction",
-        content: "A test faction"
-      })
+      {:ok, faction} =
+        Factions.create_faction_for_game(scope, %{
+          name: "Test Faction",
+          content: "A test faction"
+        })
 
       # Create link
-      {:ok, _link} = Links.link(character, faction, %{
-        relationship_type: "member",
-        description: "Character is a member",
-        strength: 8
-      })
+      {:ok, _link} =
+        Links.link(character, faction, %{
+          relationship_type: "member",
+          description: "Character is a member",
+          strength: 8
+        })
 
       conn = get(conn, ~p"/api/games/#{game.id}/tree")
       response = json_response(conn, 200)
-      
+
       assert %{"data" => data} = response
       assert %{"characters" => [char_data]} = data
-      
+
       assert char_data["id"] == character.id
       assert char_data["name"] == "Test Character"
       assert char_data["type"] == "character"
-      
+
       # Check linked faction
       assert [faction_data] = char_data["children"]
       assert faction_data["id"] == faction.id
@@ -79,19 +82,26 @@ defmodule GameMasterCoreWeb.GameControllerTreeTest do
 
     test "respects depth parameter", %{conn: conn, game: game, scope: scope} do
       # Create entities
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Character", class: "Warrior", level: 1, content: "Test"
-      })
-      {:ok, faction} = Factions.create_faction_for_game(scope, %{
-        name: "Faction", content: "Test"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Character",
+          class: "Warrior",
+          level: 1,
+          content: "Test"
+        })
+
+      {:ok, faction} =
+        Factions.create_faction_for_game(scope, %{
+          name: "Faction",
+          content: "Test"
+        })
 
       {:ok, _} = Links.link(character, faction)
 
       # Test depth=1
       conn = get(conn, ~p"/api/games/#{game.id}/tree?depth=1")
       response = json_response(conn, 200)
-      
+
       char_data = hd(response["data"]["characters"])
       assert length(char_data["children"]) == 1
       faction_data = hd(char_data["children"])
@@ -100,22 +110,22 @@ defmodule GameMasterCoreWeb.GameControllerTreeTest do
 
     test "returns error for invalid depth", %{conn: conn, game: game} do
       conn = get(conn, ~p"/api/games/#{game.id}/tree?depth=invalid")
-      
-      assert %{"error" => "Invalid depth parameter. Must be an integer between 1 and 10."} = 
-        json_response(conn, 400)
+
+      assert %{"error" => "Invalid depth parameter. Must be an integer between 1 and 10."} =
+               json_response(conn, 400)
     end
 
     test "returns error for depth out of range", %{conn: conn, game: game} do
       conn = get(conn, ~p"/api/games/#{game.id}/tree?depth=15")
-      
-      assert %{"error" => "Invalid depth parameter. Must be an integer between 1 and 10."} = 
-        json_response(conn, 400)
+
+      assert %{"error" => "Invalid depth parameter. Must be an integer between 1 and 10."} =
+               json_response(conn, 400)
     end
 
     test "returns 404 for non-existent game", %{conn: conn} do
       fake_id = Ecto.UUID.generate()
       conn = get(conn, ~p"/api/games/#{fake_id}/tree")
-      
+
       assert json_response(conn, 404)
     end
   end

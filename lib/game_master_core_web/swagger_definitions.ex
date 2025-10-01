@@ -526,6 +526,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
         pinned(:boolean, "Whether this character is pinned", required: true)
+        race(:string, "Character race")
+        alive(:boolean, "Whether this character is alive", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:integer, "Creator user ID", required: true)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -544,6 +546,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
         pinned: false,
+        race: "Maiar",
+        alive: true,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: 1,
         created_at: "2023-08-20T12:00:00Z",
@@ -567,6 +571,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags(Schema.array(:string), "Tags for this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
+        race(:string, "Character race")
+        alive(:boolean, "Whether this character is alive")
       end
 
       required([:name, :class, :level])
@@ -580,7 +586,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         image_url: "https://example.com/gandalf.jpg",
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
-        faction_role: "Elder Council Member"
+        faction_role: "Elder Council Member",
+        race: "Maiar",
+        alive: true
       })
     end
   end
@@ -601,6 +609,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
         pinned(:boolean, "Whether this character is pinned")
+        race(:string, "Character race")
+        alive(:boolean, "Whether this character is alive")
       end
 
       example(%{
@@ -609,7 +619,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text:
           "A wise and powerful wizard who guides the Fellowship through many perils.",
         faction_role: "Elder Council Leader",
-        pinned: true
+        pinned: true,
+        race: "Maiar",
+        alive: false
       })
     end
   end
@@ -1678,7 +1690,12 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Entity ID", required: true, format: :uuid)
         name(:string, "Entity name", required: true)
-        type(:string, "Entity type", required: true, enum: ["character", "faction", "location", "quest", "note"])
+
+        type(:string, "Entity type",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
         relationship_type(:string, "Type of relationship to parent", required: false)
         description(:string, "Relationship description", required: false)
         strength(:integer, "Relationship strength (1-5)", required: false, minimum: 1, maximum: 5)

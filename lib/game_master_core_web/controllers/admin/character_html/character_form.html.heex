@@ -4,6 +4,8 @@
   <.input field={f[:class]} type="text" label="Class" />
   <.input field={f[:level]} type="number" label="Level" />
   <.input field={f[:image_url]} type="text" label="Image url" />
+  <.input field={f[:race]} type="text" label="Race" />
+  <.input field={f[:alive]} type="checkbox" label="Alive" />
   <footer>
     <.button variant="primary">Save Character</.button>
     <.button :if={@return_to} href={@return_to}>Cancel</.button>

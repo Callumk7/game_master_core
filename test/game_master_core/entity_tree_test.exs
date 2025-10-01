@@ -21,21 +21,22 @@ defmodule GameMasterCore.EntityTreeTest do
       tree = EntityTree.build_entity_tree(scope)
 
       assert %{
-        characters: [],
-        factions: [],
-        locations: [],
-        quests: [],
-        notes: []
-      } = tree
+               characters: [],
+               factions: [],
+               locations: [],
+               quests: [],
+               notes: []
+             } = tree
     end
 
     test "builds tree with single character", %{scope: scope} do
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Test Character",
-        class: "Warrior",
-        level: 1,
-        content: "A test character"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Test Character",
+          class: "Warrior",
+          level: 1,
+          content: "A test character"
+        })
 
       tree = EntityTree.build_entity_tree(scope)
 
@@ -48,31 +49,34 @@ defmodule GameMasterCore.EntityTreeTest do
 
     test "builds tree with linked entities", %{scope: scope} do
       # Create entities
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Test Character",
-        class: "Warrior", 
-        level: 1,
-        content: "A test character"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Test Character",
+          class: "Warrior",
+          level: 1,
+          content: "A test character"
+        })
 
-      {:ok, faction} = Factions.create_faction_for_game(scope, %{
-        name: "Test Faction",
-        content: "A test faction"
-      })
+      {:ok, faction} =
+        Factions.create_faction_for_game(scope, %{
+          name: "Test Faction",
+          content: "A test faction"
+        })
 
       # Create link between character and faction
-      {:ok, _link} = Links.link(character, faction, %{
-        relationship_type: "member",
-        description: "Character is a member",
-        strength: 8
-      })
+      {:ok, _link} =
+        Links.link(character, faction, %{
+          relationship_type: "member",
+          description: "Character is a member",
+          strength: 8
+        })
 
       tree = EntityTree.build_entity_tree(scope)
 
       # Find the character in the tree
       char_node = Enum.find(tree.characters, &(&1.id == character.id))
       assert char_node != nil
-      
+
       # Check that faction is linked as a child
       faction_child = Enum.find(char_node.children, &(&1.id == faction.id))
       assert faction_child != nil
@@ -83,15 +87,26 @@ defmodule GameMasterCore.EntityTreeTest do
 
     test "respects depth limit", %{scope: scope} do
       # Create a chain: character -> faction -> location
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Character", class: "Warrior", level: 1, content: "Test"
-      })
-      {:ok, faction} = Factions.create_faction_for_game(scope, %{
-        name: "Faction", content: "Test"
-      })
-      {:ok, location} = Locations.create_location_for_game(scope, %{
-        name: "Location", type: "city", content: "Test"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Character",
+          class: "Warrior",
+          level: 1,
+          content: "Test"
+        })
+
+      {:ok, faction} =
+        Factions.create_faction_for_game(scope, %{
+          name: "Faction",
+          content: "Test"
+        })
+
+      {:ok, location} =
+        Locations.create_location_for_game(scope, %{
+          name: "Location",
+          type: "city",
+          content: "Test"
+        })
 
       {:ok, _} = Links.link(character, faction)
       {:ok, _} = Links.link(faction, location)
@@ -118,17 +133,24 @@ defmodule GameMasterCore.EntityTreeTest do
     end
 
     test "builds tree from specific starting entity", %{scope: scope} do
-      {:ok, character} = Characters.create_character_for_game(scope, %{
-        name: "Character", class: "Warrior", level: 1, content: "Test"
-      })
-      {:ok, faction} = Factions.create_faction_for_game(scope, %{
-        name: "Faction", content: "Test"
-      })
+      {:ok, character} =
+        Characters.create_character_for_game(scope, %{
+          name: "Character",
+          class: "Warrior",
+          level: 1,
+          content: "Test"
+        })
+
+      {:ok, faction} =
+        Factions.create_faction_for_game(scope, %{
+          name: "Faction",
+          content: "Test"
+        })
 
       {:ok, _} = Links.link(character, faction)
 
       {:ok, tree} = EntityTree.build_tree_from_entity(scope, "character", character.id, 3)
-      
+
       assert tree.id == character.id
       assert tree.name == "Character"
       assert tree.type == "character"

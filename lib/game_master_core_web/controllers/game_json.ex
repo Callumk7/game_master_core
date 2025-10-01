@@ -73,7 +73,8 @@ defmodule GameMasterCoreWeb.GameJSON do
 
     # Add relationship metadata if present
     metadata_fields = [:relationship_type, :description, :strength, :is_active, :metadata]
-    relationship_data = 
+
+    relationship_data =
       metadata_fields
       |> Enum.reduce(%{}, fn field, acc ->
         case Map.get(node, field) do
@@ -83,10 +84,11 @@ defmodule GameMasterCoreWeb.GameJSON do
       end)
 
     # Add children
-    children = 
+    children =
       case Map.get(node, :children, []) do
         children when is_list(children) ->
           Enum.map(children, &format_tree_node/1)
+
         _ ->
           []
       end
