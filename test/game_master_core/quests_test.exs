@@ -47,6 +47,30 @@ defmodule GameMasterCore.QuestsTest do
       assert {:error, %Ecto.Changeset{}} = Quests.create_quest(scope, @invalid_attrs)
     end
 
+    test "create_quest/2 with invalid status returns error changeset" do
+      scope = game_scope_fixture()
+      invalid_status_attrs = %{name: "some name", content: "some content", status: "invalid_status"}
+      
+      assert {:error, %Ecto.Changeset{} = changeset} = Quests.create_quest(scope, invalid_status_attrs)
+      assert %{status: ["is invalid"]} = errors_on(changeset)
+    end
+
+    test "create_quest/2 with valid status creates quest with correct status" do
+      scope = game_scope_fixture()
+      valid_status_attrs = %{name: "some name", content: "some content", status: "active"}
+      
+      assert {:ok, %Quest{} = quest} = Quests.create_quest(scope, valid_status_attrs)
+      assert quest.status == "active"
+    end
+
+    test "create_quest/2 without status uses default 'preparing'" do
+      scope = game_scope_fixture()
+      attrs_without_status = %{name: "some name", content: "some content"}
+      
+      assert {:ok, %Quest{} = quest} = Quests.create_quest(scope, attrs_without_status)
+      assert quest.status == "preparing"
+    end
+
     test "update_quest/3 with valid data updates the quest" do
       scope = game_scope_fixture()
       quest = quest_fixture(scope)
@@ -70,6 +94,28 @@ defmodule GameMasterCore.QuestsTest do
       quest = quest_fixture(scope)
       assert {:error, %Ecto.Changeset{}} = Quests.update_quest(scope, quest, @invalid_attrs)
       assert quest == Quests.get_quest!(scope, quest.id)
+    end
+
+    test "update_quest/3 with invalid status returns error changeset" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+      invalid_status_attrs = %{status: "invalid_status"}
+      
+      assert {:error, %Ecto.Changeset{} = changeset} = Quests.update_quest(scope, quest, invalid_status_attrs)
+      assert %{status: ["is invalid"]} = errors_on(changeset)
+    end
+
+    test "update_quest/3 with valid status updates the quest status" do
+      scope = game_scope_fixture()
+      quest = quest_fixture(scope)
+      
+      # Test updating to each valid status
+      valid_statuses = ["preparing", "ready", "active", "paused", "completed", "cancelled"]
+      
+      Enum.each(valid_statuses, fn status ->
+        assert {:ok, %Quest{} = updated_quest} = Quests.update_quest(scope, quest, %{status: status})
+        assert updated_quest.status == status
+      end)
     end
 
     test "delete_quest/2 deletes the quest" do

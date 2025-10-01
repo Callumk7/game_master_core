@@ -133,6 +133,35 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
                "parent quest does not exist or does not belong to the same game"
              ]
     end
+
+    test "renders errors when status is invalid", %{conn: conn, scope: _scope, game: game} do
+      invalid_status_attrs = Map.put(@create_attrs, :status, "invalid_status")
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: invalid_status_attrs)
+      
+      response = json_response(conn, 422)
+      assert response["errors"]["status"] == ["is invalid"]
+    end
+
+    test "creates quest with valid status", %{conn: conn, scope: _scope, game: game} do
+      valid_status_attrs = Map.put(@create_attrs, :status, "active")
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: valid_status_attrs)
+      
+      assert %{"id" => id, "status" => "active"} = json_response(conn, 201)["data"]
+      
+      # Verify it's stored correctly
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+      assert %{"status" => "active"} = json_response(conn, 200)["data"]
+    end
+
+    test "creates quest with default status when not provided", %{conn: conn, scope: _scope, game: game} do
+      conn = post(conn, ~p"/api/games/#{game}/quests", quest: @create_attrs)
+      
+      assert %{"id" => id, "status" => "preparing"} = json_response(conn, 201)["data"]
+      
+      # Verify it's stored correctly
+      conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+      assert %{"status" => "preparing"} = json_response(conn, 200)["data"]
+    end
   end
 
   describe "update quest" do
@@ -222,6 +251,40 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       response = json_response(conn, 422)
 
       assert response["errors"]["parent_id"] == ["would create a circular reference"]
+    end
+
+    test "renders errors when status is invalid", %{
+      conn: conn,
+      quest: %Quest{id: id} = _quest,
+      scope: _scope,
+      game: game
+    } do
+      invalid_status_attrs = %{status: "invalid_status"}
+      conn = put(conn, ~p"/api/games/#{game}/quests/#{id}", quest: invalid_status_attrs)
+      
+      response = json_response(conn, 422)
+      assert response["errors"]["status"] == ["is invalid"]
+    end
+
+    test "updates quest with valid status", %{
+      conn: conn,
+      quest: %Quest{id: id} = _quest,
+      scope: _scope,
+      game: game
+    } do
+      # Test each valid status
+      valid_statuses = ["preparing", "ready", "active", "paused", "completed", "cancelled"]
+      
+      Enum.each(valid_statuses, fn status ->
+        valid_status_attrs = %{status: status}
+        conn = put(conn, ~p"/api/games/#{game}/quests/#{id}", quest: valid_status_attrs)
+        
+        assert %{"id" => ^id, "status" => ^status} = json_response(conn, 200)["data"]
+        
+        # Verify it's stored correctly
+        conn = get(conn, ~p"/api/games/#{game}/quests/#{id}")
+        assert %{"status" => ^status} = json_response(conn, 200)["data"]
+      end)
     end
   end
 
