@@ -19,6 +19,8 @@ defmodule GameMasterCore.Characters.Character do
     field :tags, {:array, :string}, default: []
     field :faction_role, :string
     field :pinned, :boolean, default: false
+    field :race, :string
+    field :alive, :boolean, default: true
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -48,7 +50,9 @@ defmodule GameMasterCore.Characters.Character do
       :tags,
       :member_of_faction_id,
       :faction_role,
-      :pinned
+      :pinned,
+      :race,
+      :alive
     ])
     |> validate_required([:name, :class, :level])
     |> validate_tags()

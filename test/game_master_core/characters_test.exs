@@ -45,6 +45,8 @@ defmodule GameMasterCore.CharactersTest do
         content: "some content",
         class: "some class",
         image_url: "some image_url",
+        race: "some race",
+        alive: true,
         game_id: game.id
       }
 
@@ -54,6 +56,8 @@ defmodule GameMasterCore.CharactersTest do
       assert character.content == "some content"
       assert character.class == "some class"
       assert character.image_url == "some image_url"
+      assert character.race == "some race"
+      assert character.alive == true
       assert character.user_id == scope.user.id
     end
 
@@ -74,7 +78,9 @@ defmodule GameMasterCore.CharactersTest do
         level: 43,
         content: "some updated content",
         class: "some updated class",
-        image_url: "some updated image_url"
+        image_url: "some updated image_url",
+        race: "some updated race",
+        alive: false
       }
 
       assert {:ok, %Character{} = character} =
@@ -85,6 +91,8 @@ defmodule GameMasterCore.CharactersTest do
       assert character.content == "some updated content"
       assert character.class == "some updated class"
       assert character.image_url == "some updated image_url"
+      assert character.race == "some updated race"
+      assert character.alive == false
     end
 
     test "update_character/3 with invalid scope doesn't raise but doesn't permit update" do
@@ -186,6 +194,8 @@ defmodule GameMasterCore.CharactersTest do
         content: "some content",
         class: "some class",
         image_url: "some image_url",
+        race: "some race",
+        alive: true,
         game_id: game.id
       }
 
@@ -195,6 +205,8 @@ defmodule GameMasterCore.CharactersTest do
       assert character.game_id == scope.game.id
       assert character.user_id == scope.user.id
       assert character.name == "some name"
+      assert character.race == "some race"
+      assert character.alive == true
     end
   end
 
