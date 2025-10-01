@@ -115,6 +115,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       tags: quest.tags,
       parent_id: quest.parent_id,
       pinned: quest.pinned,
+      status: quest.status,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
     }

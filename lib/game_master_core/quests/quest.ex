@@ -14,6 +14,7 @@ defmodule GameMasterCore.Quests.Quest do
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
+    field :status, :string, default: "preparing"
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -35,9 +36,10 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned, :status])
     |> validate_required([:name])
     |> validate_tags()
+    |> validate_status()
     |> validate_parent_quest(game_id)
     |> put_change(:user_id, game_scope.user.id)
     |> put_change(:game_id, game_id)
@@ -59,6 +61,11 @@ defmodule GameMasterCore.Quests.Quest do
       true ->
         changeset
     end
+  end
+
+  defp validate_status(changeset) do
+    valid_statuses = ["preparing", "ready", "active", "paused", "completed", "cancelled"]
+    validate_inclusion(changeset, :status, valid_statuses)
   end
 
   defp validate_parent_quest(changeset, game_id) do
