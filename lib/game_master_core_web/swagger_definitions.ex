@@ -131,7 +131,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
-        content(:string, "Note content", required: true)
+        content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -196,7 +196,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        content(:string, "Faction content", required: true)
+        content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -262,7 +262,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
-        content(:string, "Quest content", required: true)
+        content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
@@ -368,7 +368,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
-        content(:string, "Note content", required: true)
+        content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
@@ -407,7 +407,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Note name", required: true)
-        content(:string, "Note content", required: true)
+        content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags for this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
@@ -417,7 +417,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
       end
 
-      required([:name, :content])
+      required([:name])
 
       example(%{
         name: "Important Quest Notes",
@@ -689,7 +689,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
-        content(:string, "Note content", required: true)
+        content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(Schema.array(:string), "Tags associated with this note")
         parent_id(:string, "Parent ID (note or other entity)", format: :uuid)
@@ -736,7 +736,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        content(:string, "Faction content", required: true)
+        content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
@@ -770,12 +770,12 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Faction name", required: true)
-        content(:string, "Faction content", required: true)
+        content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags for this faction")
       end
 
-      required([:name, :description])
+      required([:name])
 
       example(%{
         name: "The Shadow Council",
@@ -1140,7 +1140,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
-        content(:string, "Quest content", required: true)
+        content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
@@ -1174,13 +1174,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         name(:string, "Quest name", required: true)
-        content(:string, "Quest content", required: true)
+        content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         tags(Schema.array(:string), "Tags for this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
       end
 
-      required([:name, :content])
+      required([:name])
 
       example(%{
         name: "The Lost Treasure",
@@ -1472,7 +1472,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Character ID", required: true, format: :uuid)
         name(:string, "Character name", required: true)
-        content(:string, "Character content", required: true)
+        content(:string, "Character content")
         content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
 
@@ -1499,7 +1499,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Faction ID", required: true, format: :uuid)
         name(:string, "Faction name", required: true)
-        content(:string, "Faction content", required: true)
+        content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         tags(:array, "Faction tags")
         relationship_type(:string, "Type of relationship", required: false)
@@ -1519,7 +1519,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Location ID", required: true, format: :uuid)
         name(:string, "Location name", required: true)
-        content(:string, "Location content", required: true)
+        content(:string, "Location content")
         content_plain_text(:string, "Location content as plain text")
         tags(:array, "Location tags")
         relationship_type(:string, "Type of relationship", required: false)
@@ -1539,7 +1539,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Quest ID", required: true, format: :uuid)
         name(:string, "Quest name", required: true)
-        content(:string, "Quest content", required: true)
+        content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         tags(:array, "Quest tags")
         relationship_type(:string, "Type of relationship", required: false)
@@ -1559,7 +1559,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "Note ID", required: true, format: :uuid)
         name(:string, "Note name", required: true)
-        content(:string, "Note content", required: true)
+        content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
         tags(:array, "Note tags")
         relationship_type(:string, "Type of relationship", required: false)

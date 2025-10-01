@@ -45,7 +45,7 @@ defmodule GameMasterCore.Notes.Note do
       :parent_type,
       :pinned
     ])
-    |> validate_required([:name, :content])
+    |> validate_required([:name])
     |> validate_tags()
     |> validate_parent_type()
     |> validate_parent_note(game_id)
