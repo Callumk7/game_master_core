@@ -53,4 +53,23 @@ defmodule GameMasterCoreWeb.FactionJSON do
       }
     }
   end
+
+  @doc """
+  Renders faction notes tree.
+  """
+  def notes_tree(%{faction: faction, notes_tree: notes_tree}) do
+    %{
+      data: %{
+        faction_id: faction.id,
+        faction_name: faction.name,
+        notes_tree: for(note <- notes_tree, do: note_tree_data(note))
+      }
+    }
+  end
+
+  defp note_tree_data(note) do
+    note_data(note)
+    |> Map.put(:children, for(child <- Map.get(note, :children, []), do: note_tree_data(child)))
+    |> Map.put(:entity_type, Map.get(note, :entity_type, "note"))
+  end
 end

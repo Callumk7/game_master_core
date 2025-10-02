@@ -1244,4 +1244,308 @@ defmodule GameMasterCore.NotesTest do
       assert child_node.entity_type == "note"
     end
   end
+
+  describe "list_faction_notes_tree_for_game/2" do
+    alias GameMasterCore.Notes.Note
+    alias GameMasterCore.Accounts.Scope
+
+    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.NotesFixtures
+    import GameMasterCore.GamesFixtures
+    import GameMasterCore.FactionsFixtures
+
+    test "list_faction_notes_tree_for_game/2 returns empty list for faction with no notes" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      assert Notes.list_faction_notes_tree_for_game(scope, faction.id) == []
+    end
+
+    test "list_faction_notes_tree_for_game/2 returns direct child notes" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Faction Note 1",
+        parent_id: faction.id,
+        parent_type: "faction"
+      })
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Faction Note 2",
+        parent_id: faction.id,
+        parent_type: "faction"
+      })
+
+      tree = Notes.list_faction_notes_tree_for_game(scope, faction.id)
+      assert length(tree) == 2
+
+      note_names = Enum.map(tree, & &1.name) |> Enum.sort()
+      assert note_names == ["Faction Note 1", "Faction Note 2"]
+
+      # Check that all notes have empty children lists initially
+      assert Enum.all?(tree, fn note -> Map.get(note, :children) == [] end)
+    end
+
+    test "list_faction_notes_tree_for_game/2 builds hierarchical structure with traditional note parents" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create root note attached to faction
+      root_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Root Note",
+          parent_id: faction.id,
+          parent_type: "faction"
+        })
+
+      # Create child note (traditional note hierarchy)
+      child_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Child Note",
+          parent_id: root_note.id
+        })
+
+      # Create grandchild note
+      grandchild_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Grandchild Note",
+          parent_id: child_note.id
+        })
+
+      tree = Notes.list_faction_notes_tree_for_game(scope, faction.id)
+      assert length(tree) == 1
+
+      root = hd(tree)
+      assert root.name == "Root Note"
+      assert root.id == root_note.id
+
+      children = Map.get(root, :children)
+      assert length(children) == 1
+
+      child = hd(children)
+      assert child.name == "Child Note"
+      assert child.id == child_note.id
+
+      grandchildren = Map.get(child, :children)
+      assert length(grandchildren) == 1
+
+      grandchild = hd(grandchildren)
+      assert grandchild.name == "Grandchild Note"
+      assert grandchild.id == grandchild_note.id
+      assert Map.get(grandchild, :children) == []
+    end
+
+    test "list_faction_notes_tree_for_game/2 excludes notes from other factions" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction1 = faction_fixture(scope, %{game_id: game.id})
+      faction2 = faction_fixture(scope, %{game_id: game.id})
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Faction 1 Note",
+        parent_id: faction1.id,
+        parent_type: "faction"
+      })
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Faction 2 Note",
+        parent_id: faction2.id,
+        parent_type: "faction"
+      })
+
+      tree1 = Notes.list_faction_notes_tree_for_game(scope, faction1.id)
+      tree2 = Notes.list_faction_notes_tree_for_game(scope, faction2.id)
+
+      assert length(tree1) == 1
+      assert length(tree2) == 1
+      assert hd(tree1).name == "Faction 1 Note"
+      assert hd(tree2).name == "Faction 2 Note"
+    end
+
+    test "list_faction_notes_tree_for_game/2 excludes notes from other games" do
+      scope1 = user_scope_fixture()
+      scope2 = user_scope_fixture()
+      game1 = game_fixture(scope1)
+      game2 = game_fixture(scope2)
+      scope1 = Scope.put_game(scope1, game1)
+      scope2 = Scope.put_game(scope2, game2)
+      faction1 = faction_fixture(scope1, %{game_id: game1.id})
+      faction2 = faction_fixture(scope2, %{game_id: game2.id})
+
+      note_fixture(scope1, %{
+        game_id: game1.id,
+        name: "Game 1 Note",
+        parent_id: faction1.id,
+        parent_type: "faction"
+      })
+
+      note_fixture(scope2, %{
+        game_id: game2.id,
+        name: "Game 2 Note",
+        parent_id: faction2.id,
+        parent_type: "faction"
+      })
+
+      # Use different scopes to access different games
+      tree1 = Notes.list_faction_notes_tree_for_game(scope1, faction1.id)
+      tree2 = Notes.list_faction_notes_tree_for_game(scope2, faction2.id)
+
+      assert length(tree1) == 1
+      assert length(tree2) == 1
+      assert hd(tree1).name == "Game 1 Note"
+      assert hd(tree2).name == "Game 2 Note"
+    end
+
+    test "list_faction_notes_tree_for_game/2 orders notes alphabetically" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Z Note",
+        parent_id: faction.id,
+        parent_type: "faction"
+      })
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "A Note",
+        parent_id: faction.id,
+        parent_type: "faction"
+      })
+
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "M Note",
+        parent_id: faction.id,
+        parent_type: "faction"
+      })
+
+      tree = Notes.list_faction_notes_tree_for_game(scope, faction.id)
+      assert length(tree) == 3
+
+      note_names = Enum.map(tree, & &1.name)
+      assert note_names == ["A Note", "M Note", "Z Note"]
+    end
+
+    test "list_faction_notes_tree_for_game/2 handles complex mixed hierarchies" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create multiple root notes attached to faction
+      root1 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Root 1",
+          parent_id: faction.id,
+          parent_type: "faction"
+        })
+
+      _root2 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Root 2",
+          parent_id: faction.id,
+          parent_type: "faction"
+        })
+
+      # Create children under root1
+      child1_1 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Child 1.1",
+          parent_id: root1.id
+        })
+
+      _child1_2 =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Child 1.2",
+          parent_id: root1.id
+        })
+
+      # Create grandchild under child1_1
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Grandchild 1.1.1",
+        parent_id: child1_1.id
+      })
+
+      tree = Notes.list_faction_notes_tree_for_game(scope, faction.id)
+      assert length(tree) == 2
+
+      # Find the roots by name
+      root1_result = Enum.find(tree, &(&1.name == "Root 1"))
+      root2_result = Enum.find(tree, &(&1.name == "Root 2"))
+
+      assert root1_result != nil
+      assert root2_result != nil
+
+      # Check root1 has 2 children
+      root1_children = Map.get(root1_result, :children)
+      assert length(root1_children) == 2
+
+      # Check root2 has no children
+      root2_children = Map.get(root2_result, :children)
+      assert length(root2_children) == 0
+
+      # Check grandchild structure
+      child1_1_result = Enum.find(root1_children, &(&1.name == "Child 1.1"))
+      assert child1_1_result != nil
+
+      grandchildren = Map.get(child1_1_result, :children)
+      assert length(grandchildren) == 1
+      assert hd(grandchildren).name == "Grandchild 1.1.1"
+    end
+
+    test "list_faction_notes_tree_for_game/2 includes entity_type field for all nodes" do
+      scope = user_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create parent note attached to faction
+      parent_note =
+        note_fixture(scope, %{
+          game_id: game.id,
+          name: "Parent Note",
+          parent_id: faction.id,
+          parent_type: "faction"
+        })
+
+      # Create child note
+      note_fixture(scope, %{
+        game_id: game.id,
+        name: "Child Note",
+        parent_id: parent_note.id
+      })
+
+      tree = Notes.list_faction_notes_tree_for_game(scope, faction.id)
+      [parent_node] = tree
+      [child_node] = Map.get(parent_node, :children)
+
+      # Verify entity_type field is present on all nodes
+      assert parent_node.entity_type == "note"
+      assert child_node.entity_type == "note"
+    end
+  end
 end

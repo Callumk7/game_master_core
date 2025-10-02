@@ -75,6 +75,32 @@ defmodule GameMasterCore.Notes do
     build_entity_note_tree(all_notes, character_id, "character")
   end
 
+  @doc """
+  Returns a hierarchical tree of notes for a specific faction.
+
+  This function builds a tree structure that supports:
+  1. Direct child notes (parent_id = faction_id, parent_type = "Faction") 
+  2. Traditional note hierarchies beneath those notes (parent_id = note_id, parent_type = nil)
+
+  ## Examples
+
+      iex> list_faction_notes_tree_for_game(scope, faction_id)
+      [%Note{children: [%Note{}, ...]}, ...]
+
+  """
+  def list_faction_notes_tree_for_game(%Scope{} = scope, faction_id) do
+    # Get all notes in the game
+    all_notes =
+      from(n in Note,
+        where: n.game_id == ^scope.game.id,
+        order_by: [asc: n.name]
+      )
+      |> Repo.all()
+
+    # Filter to notes that belong to this faction's tree and build hierarchy
+    build_entity_note_tree(all_notes, faction_id, "faction")
+  end
+
   defp build_entity_note_tree(all_notes, entity_id, entity_type) do
     # Group all notes by their parent relationship
     grouped =

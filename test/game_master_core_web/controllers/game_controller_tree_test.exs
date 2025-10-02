@@ -1,7 +1,6 @@
 defmodule GameMasterCoreWeb.GameControllerTreeTest do
   use GameMasterCoreWeb.ConnCase
 
-  import GameMasterCore.AccountsFixtures
   import GameMasterCore.GamesFixtures
 
   alias GameMasterCore.{Characters, Factions, Links}

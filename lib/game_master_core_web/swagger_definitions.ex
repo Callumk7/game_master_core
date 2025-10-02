@@ -700,6 +700,19 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def faction_notes_tree_data_schema do
+    swagger_schema do
+      title("Faction Notes Tree Data")
+      description("Hierarchical tree of notes associated with a faction")
+
+      properties do
+        faction_id(:string, "Faction ID", required: true, format: :uuid)
+        faction_name(:string, "Faction name", required: true)
+        notes_tree(Schema.array(:NoteTreeNode), "Hierarchical notes tree")
+      end
+    end
+  end
+
   def note_tree_node_schema do
     swagger_schema do
       title("Note Tree Node")
@@ -1863,6 +1876,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing character notes tree"
         ),
       NoteTreeNode: note_tree_node_schema(),
+      FactionNotesTreeData: faction_notes_tree_data_schema(),
+      FactionNotesTreeResponse:
+        response_schema(
+          Schema.ref(:FactionNotesTreeData),
+          "Faction Notes Tree Response",
+          "Response containing faction notes tree"
+        ),
       Faction: faction_schema(),
       FactionCreateParams: faction_create_params_schema(),
       FactionUpdateParams: faction_update_params_schema(),
