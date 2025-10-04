@@ -21,6 +21,7 @@ defmodule GameMasterCore.Quests.Quest do
     belongs_to :parent, __MODULE__, foreign_key: :parent_id
 
     has_many :children, __MODULE__, foreign_key: :parent_id
+    has_many :objectives, GameMasterCore.Quests.Objective
 
     many_to_many :related_quests, __MODULE__,
       join_through: "quest_quests",

@@ -117,6 +117,11 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", QuestController, :delete_link
         put "/pin", QuestController, :pin
         put "/unpin", QuestController, :unpin
+
+        resources "/objectives", ObjectiveController, except: [:new, :edit] do
+          put "/complete", ObjectiveController, :complete
+          put "/uncomplete", ObjectiveController, :uncomplete
+        end
       end
     end
   end
