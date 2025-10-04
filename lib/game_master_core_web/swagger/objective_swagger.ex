@@ -38,7 +38,7 @@ defmodule GameMasterCoreWeb.Swagger.ObjectiveSwagger do
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
-          objective(:body, Schema.ref(:ObjectiveCreateRequest), "Objective data", required: true)
+          body(:body, Schema.ref(:ObjectiveCreateRequest), "Objective data", required: true)
         end
 
         security([%{Bearer: []}])
@@ -83,7 +83,7 @@ defmodule GameMasterCoreWeb.Swagger.ObjectiveSwagger do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
           quest_id(:path, :string, "Quest ID", required: true, format: :uuid)
           id(:path, :string, "Objective ID", required: true, format: :uuid)
-          objective(:body, Schema.ref(:ObjectiveUpdateRequest), "Objective data", required: true)
+          body(:body, Schema.ref(:ObjectiveUpdateRequest), "Objective data", required: true)
         end
 
         security([%{Bearer: []}])
