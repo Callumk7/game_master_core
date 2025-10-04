@@ -2080,7 +2080,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Parameters for creating a new objective")
 
       properties do
-        body(:string, "Objective description", required: true)
+        body(:string, "Objective description")
         complete(:boolean, "Whether the objective is complete")
         note_link_id(:string, "Note link ID", format: :uuid)
       end
@@ -2120,7 +2120,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Request body for creating an objective")
 
       properties do
-        objective(Schema.ref(:ObjectiveCreateParams), "Objective data", required: true)
+        objective(Schema.ref(:ObjectiveCreateParams), "Objective data")
       end
 
       required([:objective])
@@ -2133,7 +2133,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Request body for updating an objective")
 
       properties do
-        objective(Schema.ref(:ObjectiveUpdateParams), "Objective data", required: true)
+        objective(Schema.ref(:ObjectiveUpdateParams), "Objective data")
       end
 
       required([:objective])
