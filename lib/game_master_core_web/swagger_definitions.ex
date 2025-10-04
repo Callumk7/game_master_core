@@ -2025,7 +2025,118 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:EntityTreeData),
           "Entity Tree Response",
           "Response containing hierarchical tree of entity relationships"
+        ),
+      # Objective schemas
+      Objective: objective_schema(),
+      ObjectiveCreateParams: objective_create_params_schema(),
+      ObjectiveUpdateParams: objective_update_params_schema(),
+      ObjectiveCreateRequest: objective_create_request_schema(),
+      ObjectiveUpdateRequest: objective_update_request_schema(),
+      ObjectiveResponse:
+        response_schema(
+          Schema.ref(:Objective),
+          "Objective Response",
+          "Response containing a single objective"
+        ),
+      ObjectivesResponse:
+        array_response_schema(
+          :Objective,
+          "Objectives Response",
+          "Response containing a list of objectives"
         )
     }
+  end
+
+  def objective_schema do
+    swagger_schema do
+      title("Objective")
+      description("A quest objective")
+
+      properties do
+        id(:string, "Objective ID", required: true, format: :uuid)
+        body(:string, "Objective description", required: true)
+        complete(:boolean, "Whether the objective is complete", required: true)
+        quest_id(:string, "Quest ID", required: true, format: :uuid)
+        note_link_id(:string, "Note link ID", format: :uuid)
+        inserted_at(:string, "Creation timestamp", required: true, format: :"date-time")
+        updated_at(:string, "Last update timestamp", required: true, format: :"date-time")
+      end
+
+      example(%{
+        id: "123e4567-e89b-12d3-a456-426614174010",
+        body: "Find the lost treasure",
+        complete: false,
+        quest_id: "123e4567-e89b-12d3-a456-426614174009",
+        note_link_id: nil,
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def objective_create_params_schema do
+    swagger_schema do
+      title("Objective Create Parameters")
+      description("Parameters for creating a new objective")
+
+      properties do
+        body(:string, "Objective description", required: true)
+        complete(:boolean, "Whether the objective is complete")
+        note_link_id(:string, "Note link ID", format: :uuid)
+      end
+
+      required([:body])
+
+      example(%{
+        body: "Find the lost treasure",
+        complete: false,
+        note_link_id: nil
+      })
+    end
+  end
+
+  def objective_update_params_schema do
+    swagger_schema do
+      title("Objective Update Parameters")
+      description("Parameters for updating an objective")
+
+      properties do
+        body(:string, "Objective description")
+        complete(:boolean, "Whether the objective is complete")
+        note_link_id(:string, "Note link ID", format: :uuid)
+      end
+
+      example(%{
+        body: "Find the lost treasure in the ancient ruins",
+        complete: true,
+        note_link_id: "123e4567-e89b-12d3-a456-426614174008"
+      })
+    end
+  end
+
+  def objective_create_request_schema do
+    swagger_schema do
+      title("Objective Create Request")
+      description("Request body for creating an objective")
+
+      properties do
+        objective(Schema.ref(:ObjectiveCreateParams), "Objective data", required: true)
+      end
+
+      required([:objective])
+    end
+  end
+
+  def objective_update_request_schema do
+    swagger_schema do
+      title("Objective Update Request")
+      description("Request body for updating an objective")
+
+      properties do
+        objective(Schema.ref(:ObjectiveUpdateParams), "Objective data", required: true)
+      end
+
+      required([:objective])
+    end
   end
 end
