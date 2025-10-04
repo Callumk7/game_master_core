@@ -34,6 +34,8 @@ defmodule GameMasterCoreWeb.Swagger.ObjectiveSwagger do
         description("Create a new objective for a quest")
         operation_id("createObjective")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
@@ -78,6 +80,8 @@ defmodule GameMasterCoreWeb.Swagger.ObjectiveSwagger do
         description("Update an existing objective")
         operation_id("updateObjective")
         tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
