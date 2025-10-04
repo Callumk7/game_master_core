@@ -5347,6 +5347,9 @@
         ]
       },
       "put": {
+        "consumes": [
+          "application/json"
+        ],
         "description": "Update an existing objective",
         "operationId": "updateObjective",
         "parameters": [
@@ -5383,6 +5386,9 @@
               "$ref": "#/definitions/ObjectiveUpdateRequest"
             }
           }
+        ],
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "200": {
@@ -7353,6 +7359,9 @@
         ]
       },
       "post": {
+        "consumes": [
+          "application/json"
+        ],
         "description": "Create a new objective for a quest",
         "operationId": "createObjective",
         "parameters": [
@@ -7381,6 +7390,9 @@
               "$ref": "#/definitions/ObjectiveCreateRequest"
             }
           }
+        ],
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "201": {
