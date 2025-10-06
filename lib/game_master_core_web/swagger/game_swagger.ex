@@ -106,7 +106,7 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
-          user_id(:formData, :integer, "User ID to add", required: true)
+          user_id(:formData, :string, "User ID to add", required: true, format: :uuid)
           role(:formData, :string, "Member role (default: 'member')")
         end
 
@@ -125,7 +125,7 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
-          user_id(:path, :integer, "User ID to remove", required: true)
+          user_id(:path, :string, "User ID to remove", required: true, format: :uuid)
         end
 
         response(204, "No Content")

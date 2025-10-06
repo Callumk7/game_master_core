@@ -17,7 +17,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Game content")
         content_plain_text(:string, "Game content as plain text")
         setting(:string, "Game setting")
-        owner_id(:integer, "Owner user ID", required: true)
+        owner_id(:string, "Owner user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -28,7 +28,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content: "An epic adventure",
         content_plain_text: "An epic adventure",
         setting: "Fantasy",
-        owner_id: 1,
+        owner_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -108,14 +108,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("A game member")
 
       properties do
-        user_id(:integer, "User ID", required: true)
+        user_id(:string, "User ID", required: true, format: :uuid)
         email(:string, "User email", required: true)
         role(:string, "Member role", required: true)
         joined_at(:string, "Join timestamp", format: :datetime)
       end
 
       example(%{
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174000",
         email: "user@example.com",
         role: "member",
         joined_at: "2023-08-20T12:00:00Z"
@@ -386,7 +386,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         pinned(:boolean, "Whether this note is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:integer, "Author user ID", required: true)
+        user_id(:string, "Author user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -400,7 +400,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags: ["important", "dragon", "quest"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -536,7 +536,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         race(:string, "Character race")
         alive(:boolean, "Whether this character is alive", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:integer, "Creator user ID", required: true)
+        user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -556,7 +556,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         race: "Maiar",
         alive: true,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -773,7 +773,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:integer, "Creator user ID", required: true)
+        user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -788,7 +788,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags: ["secret", "political", "antagonist"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -1025,7 +1025,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags(Schema.array(:string), "Tags associated with this location")
         pinned(:boolean, "Whether this location is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:integer, "Creator user ID", required: true)
+        user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -1041,7 +1041,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         tags: ["magical", "hidden", "dangerous"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -1184,7 +1184,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:integer, "Creator user ID", required: true)
+        user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -1199,7 +1199,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         pinned: false,
         status: "preparing",
         game_id: "123e4567-e89b-12d3-a456-426614174000",
-        user_id: 1,
+        user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -1343,13 +1343,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("User information")
 
       properties do
-        id(:integer, "User ID", required: true)
+        id(:string, "User ID", required: true, format: :uuid)
         email(:string, "User email", required: true)
         confirmed_at(:string, "Email confirmation timestamp", format: :datetime)
       end
 
       example(%{
-        id: 1,
+        id: "123e4567-e89b-12d3-a456-426614174001",
         email: "user@example.com",
         confirmed_at: "2023-08-20T12:00:00Z"
       })
@@ -1387,7 +1387,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         token: "dGVzdF90b2tlbg==",
         user: %{
-          id: 1,
+          id: "123e4567-e89b-12d3-a456-426614174001",
           email: "user@example.com",
           confirmed_at: "2023-08-20T12:00:00Z"
         }
@@ -1408,7 +1408,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         authenticated: true,
         user: %{
-          id: 1,
+          id: "123e4567-e89b-12d3-a456-426614174001",
           email: "user@example.com",
           confirmed_at: "2023-08-20T12:00:00Z"
         }

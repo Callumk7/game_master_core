@@ -11,9 +11,9 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
   """
   def common_parameters do
     %{
-      id: {:path, :integer, "ID", required: true},
-      game_id: {:path, :integer, "Game ID", required: true},
-      user_id: {:path, :integer, "User ID", required: true}
+      id: {:path, :string, "ID", required: true, format: :uuid},
+      game_id: {:path, :string, "Game ID", required: true, format: :uuid},
+      user_id: {:path, :string, "User ID", required: true, format: :uuid}
     }
   end
 
