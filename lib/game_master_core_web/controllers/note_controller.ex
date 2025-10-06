@@ -88,7 +88,7 @@ defmodule GameMasterCoreWeb.NoteController do
 
   def list_links(conn, %{"note_id" => note_id}) do
     with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id) do
-      links = Notes.links(conn.assigns.current_scope, note.id)
+      links = Notes.links(conn.assigns.current_scope, note_id)
 
       render(conn, :links,
         note: note,

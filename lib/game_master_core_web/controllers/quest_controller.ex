@@ -97,7 +97,7 @@ defmodule GameMasterCoreWeb.QuestController do
 
   def list_links(conn, %{"quest_id" => quest_id}) do
     with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id) do
-      links = Quests.links(conn.assigns.current_scope, quest.id)
+      links = Quests.links(conn.assigns.current_scope, quest_id)
 
       render(conn, :links,
         quest: quest,

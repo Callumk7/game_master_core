@@ -15,6 +15,8 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Locations
   alias GameMasterCore.Quests
 
+  import GameMasterCore.Helpers
+
   @doc """
   Subscribes to scoped notifications about any character changes.
 
@@ -592,52 +594,7 @@ defmodule GameMasterCore.Characters do
     |> Enum.sort()
   end
 
-  # Private helper functions for character links
-
-  defp get_scoped_character(scope, character_id) do
-    try do
-      character = get_character_for_game!(scope, character_id)
-      {:ok, character}
-    rescue
-      Ecto.NoResultsError -> {:error, :character_not_found}
-    end
-  end
-
-  defp get_scoped_note(scope, note_id) do
-    try do
-      note = Notes.get_note_for_game!(scope, note_id)
-      {:ok, note}
-    rescue
-      Ecto.NoResultsError -> {:error, :note_not_found}
-    end
-  end
-
-  defp get_scoped_faction(scope, faction_id) do
-    try do
-      faction = Factions.get_faction_for_game!(scope, faction_id)
-      {:ok, faction}
-    rescue
-      Ecto.NoResultsError -> {:error, :faction_not_found}
-    end
-  end
-
-  defp get_scoped_quest(scope, quest_id) do
-    try do
-      quest = Quests.get_quest_for_game!(scope, quest_id)
-      {:ok, quest}
-    rescue
-      Ecto.NoResultsError -> {:error, :quest_not_found}
-    end
-  end
-
-  defp get_scoped_location(scope, location_id) do
-    try do
-      location = Locations.get_location_for_game!(scope, location_id)
-      {:ok, location}
-    rescue
-      Ecto.NoResultsError -> {:error, :location_not_found}
-    end
-  end
+  # Private helper functions for character links - now using shared functions from GameMasterCore.Helpers
 
   ## Pinning Management
 
