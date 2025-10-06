@@ -106,19 +106,15 @@ defmodule GameMasterCoreWeb.FactionController do
 
   def list_links(conn, %{"faction_id" => faction_id}) do
     with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id) do
-      notes = Factions.linked_notes(conn.assigns.current_scope, faction_id)
-      characters = Factions.linked_characters(conn.assigns.current_scope, faction_id)
-      quests = Factions.linked_quests(conn.assigns.current_scope, faction_id)
-      locations = Factions.linked_locations(conn.assigns.current_scope, faction_id)
-      factions = Factions.linked_factions(conn.assigns.current_scope, faction_id)
+      links = Factions.links(conn.assigns.current_scope, faction_id)
 
       render(conn, :links,
         faction: faction,
-        notes: notes,
-        characters: characters,
-        locations: locations,
-        quests: quests,
-        factions: factions
+        notes: links.notes,
+        characters: links.characters,
+        locations: links.locations,
+        quests: links.quests,
+        factions: links.factions
       )
     end
   end

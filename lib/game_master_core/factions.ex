@@ -524,6 +524,16 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
+  Returns all links for a faction.
+  """
+  def links(%Scope{} = scope, faction_id) do
+    case get_scoped_faction(scope, faction_id) do
+      {:ok, faction} -> Links.links_for(faction)
+      {:error, _} -> %{}
+    end
+  end
+
+  @doc """
   Returns all unique tags used across all factions for a user.
 
   ## Examples
