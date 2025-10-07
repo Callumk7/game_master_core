@@ -29,7 +29,7 @@ defmodule GameMasterCoreWeb.Endpoint do
   # Serve uploaded files from the uploads directory
   plug Plug.Static,
     at: "/uploads",
-    from: "uploads",
+    from: {Application, :get_env, [:game_master_core, :uploads_directory, "uploads"]},
     gzip: false
 
   # Code reloading can be explicitly enabled under the

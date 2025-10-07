@@ -99,6 +99,13 @@ if config_env() == :prod do
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
+  # Configure uploads directory for production
+  # Use absolute path to ensure uploads are stored in the mounted directory
+  uploads_directory = System.get_env("UPLOADS_DIRECTORY") || "/app/uploads"
+  
+  config :game_master_core,
+    uploads_directory: uploads_directory
+
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.
