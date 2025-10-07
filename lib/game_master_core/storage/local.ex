@@ -126,8 +126,19 @@ defmodule GameMasterCore.Storage.Local do
     
     # Check if the directory exists and is accessible
     case File.stat(upload_dir) do
-      {:ok, %File.Stat{type: :directory}} ->
-        Logger.info("Upload directory #{upload_dir} exists and is accessible")
+      {:ok, %File.Stat{type: :directory, access: access, mode: mode}} ->
+        Logger.info("Upload directory #{upload_dir} exists and is accessible (access: #{access}, mode: #{mode})")
+        
+        # Test if we can actually write to this directory
+        test_file = Path.join(upload_dir, "test_write_#{System.system_time()}")
+        case File.write(test_file, "test") do
+          :ok ->
+            File.rm(test_file)
+            Logger.info("Write test to #{upload_dir} successful")
+          {:error, reason} ->
+            Logger.error("Write test to #{upload_dir} failed: #{inspect(reason)}")
+        end
+        
       {:ok, %File.Stat{type: type}} ->
         Logger.error("Upload path #{upload_dir} exists but is not a directory (type: #{type})")
       {:error, :enoent} ->
@@ -155,10 +166,16 @@ defmodule GameMasterCore.Storage.Local do
 
   defp ensure_directory_exists(file_path) do
     dir_path = Path.dirname(file_path)
+    
+    Logger.info("Attempting to create directory structure: #{dir_path}")
 
     case File.mkdir_p(dir_path) do
-      :ok -> :ok
-      {:error, reason} -> {:error, reason}
+      :ok -> 
+        Logger.info("Successfully created directory structure: #{dir_path}")
+        :ok
+      {:error, reason} -> 
+        Logger.error("Failed to create directory structure #{dir_path}: #{inspect(reason)}")
+        {:error, reason}
     end
   end
 
