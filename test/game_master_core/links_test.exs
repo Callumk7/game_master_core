@@ -4,7 +4,7 @@ defmodule GameMasterCore.LinksTest do
   alias GameMasterCore.Links
   alias GameMasterCore.Characters.CharacterNote
 
-  import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+  import GameMasterCore.AccountsFixtures, only: [game_scope_fixture: 0]
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.NotesFixtures
   import GameMasterCore.FactionsFixtures
@@ -14,9 +14,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Character and Note" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character: character, note: note}
     end
 
@@ -69,10 +69,10 @@ defmodule GameMasterCore.LinksTest do
 
   describe "links_for/1 - Character and Note" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(character, note1)
       {:ok, _} = Links.link(character, note2)
@@ -102,8 +102,8 @@ defmodule GameMasterCore.LinksTest do
     end
 
     test "returns empty list for entity with no links" do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       links = Links.links_for(character)
       assert %{notes: []} = links
@@ -112,9 +112,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Character and Faction" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character: character, faction: faction}
     end
 
@@ -147,9 +147,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Character and Location" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      location = location_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character: character, location: location}
     end
 
@@ -174,8 +174,8 @@ defmodule GameMasterCore.LinksTest do
   describe "link/2 and unlink/2 - Character and Quest" do
     setup do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
-      quest = quest_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character: character, quest: quest}
     end
 
@@ -193,9 +193,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Note and Faction" do
     setup do
-      scope = user_scope_fixture()
-      note = note_fixture(scope)
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, note: note, faction: faction}
     end
 
@@ -213,9 +213,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Note and Location" do
     setup do
-      scope = user_scope_fixture()
-      note = note_fixture(scope)
-      location = location_fixture(scope)
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, note: note, location: location}
     end
 
@@ -234,8 +234,8 @@ defmodule GameMasterCore.LinksTest do
   describe "link/2 and unlink/2 - Note and Quest" do
     setup do
       scope = game_scope_fixture()
-      note = note_fixture(scope)
-      quest = quest_fixture(scope)
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, note: note, quest: quest}
     end
 
@@ -253,9 +253,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Faction and Location" do
     setup do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      location = location_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, faction: faction, location: location}
     end
 
@@ -274,8 +274,8 @@ defmodule GameMasterCore.LinksTest do
   describe "link/2 and unlink/2 - Faction and Quest" do
     setup do
       scope = game_scope_fixture()
-      faction = faction_fixture(scope)
-      quest = quest_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, faction: faction, quest: quest}
     end
 
@@ -294,8 +294,8 @@ defmodule GameMasterCore.LinksTest do
   describe "link/2 and unlink/2 - Location and Quest" do
     setup do
       scope = game_scope_fixture()
-      location = location_fixture(scope)
-      quest = quest_fixture(scope)
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, location: location, quest: quest}
     end
 
@@ -313,9 +313,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Character self-join" do
     setup do
-      scope = user_scope_fixture()
-      character1 = character_fixture(scope)
-      character2 = character_fixture(scope)
+      scope = game_scope_fixture()
+      character1 = character_fixture(scope, %{game_id: scope.game.id})
+      character2 = character_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character1: character1, character2: character2}
     end
 
@@ -359,9 +359,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Note self-join" do
     setup do
-      scope = user_scope_fixture()
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
+      scope = game_scope_fixture()
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, note1: note1, note2: note2}
     end
 
@@ -383,9 +383,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Faction self-join" do
     setup do
-      scope = user_scope_fixture()
-      faction1 = faction_fixture(scope)
-      faction2 = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction1 = faction_fixture(scope, %{game_id: scope.game.id})
+      faction2 = faction_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, faction1: faction1, faction2: faction2}
     end
 
@@ -407,9 +407,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/2 and unlink/2 - Location self-join" do
     setup do
-      scope = user_scope_fixture()
-      location1 = location_fixture(scope)
-      location2 = location_fixture(scope)
+      scope = game_scope_fixture()
+      location1 = location_fixture(scope, %{game_id: scope.game.id})
+      location2 = location_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, location1: location1, location2: location2}
     end
 
@@ -432,8 +432,8 @@ defmodule GameMasterCore.LinksTest do
   describe "link/2 and unlink/2 - Quest self-join" do
     setup do
       scope = game_scope_fixture()
-      quest1 = quest_fixture(scope)
-      quest2 = quest_fixture(scope)
+      quest1 = quest_fixture(scope, %{game_id: scope.game.id})
+      quest2 = quest_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, quest1: quest1, quest2: quest2}
     end
 
@@ -456,11 +456,11 @@ defmodule GameMasterCore.LinksTest do
   describe "links_for/1 - all entity types" do
     setup do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
-      note = note_fixture(scope)
-      faction = faction_fixture(scope)
-      location = location_fixture(scope)
-      quest = quest_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       {:ok,
        scope: scope,
@@ -556,7 +556,7 @@ defmodule GameMasterCore.LinksTest do
 
     test "returns empty lists for entity with no links" do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       links = Links.links_for(character)
       assert %{notes: [], factions: [], locations: [], quests: []} = links
@@ -565,10 +565,10 @@ defmodule GameMasterCore.LinksTest do
 
   describe "links_for/1 - self-join properties" do
     test "returns self-linked characters for a character" do
-      scope = user_scope_fixture()
-      character1 = character_fixture(scope)
-      character2 = character_fixture(scope)
-      character3 = character_fixture(scope)
+      scope = game_scope_fixture()
+      character1 = character_fixture(scope, %{game_id: scope.game.id})
+      character2 = character_fixture(scope, %{game_id: scope.game.id})
+      character3 = character_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(character1, character2)
       {:ok, _} = Links.link(character1, character3)
@@ -582,9 +582,9 @@ defmodule GameMasterCore.LinksTest do
     end
 
     test "returns self-linked notes for a note" do
-      scope = user_scope_fixture()
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
+      scope = game_scope_fixture()
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(note1, note2)
 
@@ -596,9 +596,9 @@ defmodule GameMasterCore.LinksTest do
     end
 
     test "returns self-linked factions for a faction" do
-      scope = user_scope_fixture()
-      faction1 = faction_fixture(scope)
-      faction2 = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction1 = faction_fixture(scope, %{game_id: scope.game.id})
+      faction2 = faction_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(faction1, faction2)
 
@@ -610,9 +610,9 @@ defmodule GameMasterCore.LinksTest do
     end
 
     test "returns self-linked locations for a location" do
-      scope = user_scope_fixture()
-      location1 = location_fixture(scope)
-      location2 = location_fixture(scope)
+      scope = game_scope_fixture()
+      location1 = location_fixture(scope, %{game_id: scope.game.id})
+      location2 = location_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(location1, location2)
 
@@ -625,8 +625,8 @@ defmodule GameMasterCore.LinksTest do
 
     test "returns self-linked quests for a quest" do
       scope = game_scope_fixture()
-      quest1 = quest_fixture(scope)
-      quest2 = quest_fixture(scope)
+      quest1 = quest_fixture(scope, %{game_id: scope.game.id})
+      quest2 = quest_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Links.link(quest1, quest2)
 
@@ -640,9 +640,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "link/3 with metadata - Character and Note" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character: character, note: note}
     end
 
@@ -735,10 +735,10 @@ defmodule GameMasterCore.LinksTest do
 
   describe "links_for/1 metadata retrieval" do
     setup do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
 
       # Create links with different metadata
       {:ok, _} =
@@ -811,10 +811,10 @@ defmodule GameMasterCore.LinksTest do
   describe "metadata across different entity types" do
     setup do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
-      faction = faction_fixture(scope)
-      location = location_fixture(scope)
-      quest = quest_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       {:ok,
        scope: scope, character: character, faction: faction, location: location, quest: quest}
@@ -877,9 +877,9 @@ defmodule GameMasterCore.LinksTest do
 
   describe "self-join links with metadata" do
     setup do
-      scope = user_scope_fixture()
-      character1 = character_fixture(scope)
-      character2 = character_fixture(scope)
+      scope = game_scope_fixture()
+      character1 = character_fixture(scope, %{game_id: scope.game.id})
+      character2 = character_fixture(scope, %{game_id: scope.game.id})
       {:ok, scope: scope, character1: character1, character2: character2}
     end
 
@@ -920,7 +920,7 @@ defmodule GameMasterCore.LinksTest do
 
   describe "complex tree operations accuracy" do
     setup do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
       scope = %{scope | game: game}
 
@@ -1035,11 +1035,11 @@ defmodule GameMasterCore.LinksTest do
   describe "cross-entity link accuracy verification" do
     setup do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
-      note = note_fixture(scope)
-      faction = faction_fixture(scope)
-      location = location_fixture(scope)
-      quest = quest_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       # Create a complex web of relationships
       {:ok, _} = Links.link(character, note, %{relationship_type: "chronicler"})
