@@ -16,24 +16,24 @@ defmodule GameMasterCore.FactionsTest do
     @invalid_attrs %{name: nil, content: nil}
 
     test "list_factions/1 returns all scoped factions" do
-      scope = user_scope_fixture()
-      other_scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      other_faction = faction_fixture(other_scope)
+      scope = game_scope_fixture()
+      other_scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      other_faction = faction_fixture(other_scope, %{game_id: other_scope.game.id})
       assert Factions.list_factions(scope) == [faction]
       assert Factions.list_factions(other_scope) == [other_faction]
     end
 
     test "get_faction!/2 returns the faction with given id" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      other_scope = user_scope_fixture()
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      other_scope = game_scope_fixture()
       assert Factions.get_faction!(scope, faction.id) == faction
       assert_raise Ecto.NoResultsError, fn -> Factions.get_faction!(other_scope, faction.id) end
     end
 
     test "create_faction/2 with valid data creates a faction" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
 
       valid_attrs = %{
@@ -50,14 +50,14 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "create_faction/2 with invalid data returns error changeset" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
       attrs_with_game = Map.put(@invalid_attrs, :game_id, game.id)
       assert {:error, %Ecto.Changeset{}} = Factions.create_faction(scope, attrs_with_game)
     end
 
     test "update_faction/3 with valid data updates the faction" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
 
       scope = Scope.put_game(scope, game)
@@ -75,9 +75,9 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "update_faction/3 with invalid scope doesn't raise but doesn't permit update" do
-      scope = user_scope_fixture()
-      _other_scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      _other_scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       # The function no longer raises but the update should not be allowed
       # Since we're using game-based permissions now, other users can't update factions
@@ -85,36 +85,36 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "update_faction/3 with invalid data returns error changeset" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, %Ecto.Changeset{}} = Factions.update_faction(scope, faction, @invalid_attrs)
       assert faction == Factions.get_faction!(scope, faction.id)
     end
 
     test "delete_faction/2 deletes the faction" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
       assert {:ok, %Faction{}} = Factions.delete_faction(scope, faction)
       assert_raise Ecto.NoResultsError, fn -> Factions.get_faction!(scope, faction.id) end
     end
 
     test "delete_faction/2 with invalid scope doesn't raise but works based on game permissions" do
-      scope = user_scope_fixture()
-      _other_scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      _other_scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
       # The function no longer raises but works based on game permissions
       assert {:ok, _} = Factions.delete_faction(scope, faction)
     end
 
     test "change_faction/2 returns a faction changeset" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
       assert %Ecto.Changeset{} = Factions.change_faction(scope, faction)
     end
 
     test "list_factions_for_game/1 returns factions for a specific game" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game1 = game_fixture(scope)
       game2 = game_fixture(scope)
 
@@ -135,7 +135,7 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "list_factions_for_game/1 returns empty list for game with no factions" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
 
       scope = Scope.put_game(scope, game)
@@ -144,7 +144,7 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "get_faction_for_game!/2 returns faction only if it belongs to the game" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game1 = game_fixture(scope)
       game2 = game_fixture(scope)
       faction1 = faction_fixture(scope, %{game_id: game1.id})
@@ -160,7 +160,7 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "create_faction_for_game/2 creates a faction associated with the game" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
       game = game_fixture(scope)
 
       scope = Scope.put_game(scope, game)
@@ -180,69 +180,69 @@ defmodule GameMasterCore.FactionsTest do
   end
 
   describe "faction - note links" do
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.AccountsFixtures, only: [game_scope_fixture: 0]
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.NotesFixtures
     import GameMasterCore.QuestsFixtures
 
     test "link_note/3 successfully links a faction and note" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Factions.link_note(scope, faction.id, note.id)
       assert Factions.note_linked?(scope, faction.id, note.id)
     end
 
     test "link_note/3 with invalid faction_id returns error" do
-      scope = user_scope_fixture()
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
       assert {:error, :faction_not_found} = Factions.link_note(scope, invalid_faction_id, note.id)
     end
 
     test "link_note/3 with invalid note_id returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_note_id = Ecto.UUID.generate()
       assert {:error, :note_not_found} = Factions.link_note(scope, faction.id, invalid_note_id)
     end
 
     test "link_note/3 with cross-scope faction returns error" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      note = note_fixture(scope2)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope2, %{game_id: scope2.game.id})
 
       # Faction exists in scope1, note is in scope2, so note_not_found is returned first
       assert {:error, :note_not_found} = Factions.link_note(scope1, faction.id, note.id)
     end
 
     test "link_note/3 with cross-scope note returns error" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      note = note_fixture(scope1)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
 
       # Faction is in scope1, note is in scope1, but called with scope2, so faction_not_found is returned first
       assert {:error, :faction_not_found} = Factions.link_note(scope2, faction.id, note.id)
     end
 
     test "link_note/3 prevents duplicate links" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Factions.link_note(scope, faction.id, note.id)
       assert {:error, %Ecto.Changeset{}} = Factions.link_note(scope, faction.id, note.id)
     end
 
     test "unlink_note/3 successfully removes a faction-note link" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Factions.link_note(scope, faction.id, note.id)
       assert Factions.note_linked?(scope, faction.id, note.id)
@@ -252,16 +252,16 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "unlink_note/3 with non-existent link returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Factions.unlink_note(scope, faction.id, note.id)
     end
 
     test "unlink_note/3 with invalid faction_id returns error" do
-      scope = user_scope_fixture()
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
 
@@ -270,43 +270,43 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "unlink_note/3 with invalid note_id returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_note_id = Ecto.UUID.generate()
       assert {:error, :note_not_found} = Factions.unlink_note(scope, faction.id, invalid_note_id)
     end
 
     test "note_linked?/3 returns false for unlinked entities" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       refute Factions.note_linked?(scope, faction.id, note.id)
     end
 
     test "note_linked?/3 with invalid faction_id returns false" do
-      scope = user_scope_fixture()
-      note = note_fixture(scope)
+      scope = game_scope_fixture()
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
       refute Factions.note_linked?(scope, invalid_faction_id, note.id)
     end
 
     test "note_linked?/3 with invalid note_id returns false" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_note_id = Ecto.UUID.generate()
       refute Factions.note_linked?(scope, faction.id, invalid_note_id)
     end
 
     test "linked_notes/2 returns all notes linked to a faction" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
-      unlinked_note = note_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
+      unlinked_note = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Factions.link_note(scope, faction.id, note1.id)
       {:ok, _} = Factions.link_note(scope, faction.id, note2.id)
@@ -320,24 +320,24 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "linked_notes/2 returns empty list for faction with no linked notes" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert Factions.linked_notes(scope, faction.id) == []
     end
 
     test "linked_notes/2 with invalid faction_id returns empty list" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
 
       invalid_faction_id = Ecto.UUID.generate()
       assert Factions.linked_notes(scope, invalid_faction_id) == []
     end
 
     test "linked_notes/2 respects scope boundaries" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      note = note_fixture(scope1)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
 
       {:ok, _} = Factions.link_note(scope1, faction.id, note.id)
 
@@ -347,24 +347,24 @@ defmodule GameMasterCore.FactionsTest do
   end
 
   describe "faction - character links" do
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0]
+    import GameMasterCore.AccountsFixtures, only: [game_scope_fixture: 0]
     import GameMasterCore.NotesFixtures
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.QuestsFixtures
 
     test "link_character/3 successfully links a faction and character" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Factions.link_character(scope, faction.id, character.id)
       assert Factions.character_linked?(scope, faction.id, character.id)
     end
 
     test "link_character/3 with invalid faction_id returns error" do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
 
@@ -373,8 +373,8 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "link_character/3 with invalid character_id returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_character_id = Ecto.UUID.generate()
 
@@ -383,10 +383,10 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "link_character/3 with cross-scope faction returns error" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      character = character_fixture(scope2)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      character = character_fixture(scope2, %{game_id: scope2.game.id})
 
       # Faction exists in scope1, character is in scope2, so character_not_found is returned first
       assert {:error, :character_not_found} =
@@ -394,10 +394,10 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "link_character/3 with cross-scope character returns error" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      character = character_fixture(scope1)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      character = character_fixture(scope1, %{game_id: scope1.game.id})
 
       # Faction is in scope1, character is in scope1, but called with scope2, so faction_not_found is returned first
       assert {:error, :faction_not_found} =
@@ -405,9 +405,9 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "link_character/3 prevents duplicate links" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Factions.link_character(scope, faction.id, character.id)
 
@@ -416,9 +416,9 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "unlink_character/3 successfully removes a faction-character link" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Factions.link_character(scope, faction.id, character.id)
       assert Factions.character_linked?(scope, faction.id, character.id)
@@ -428,16 +428,16 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "unlink_character/3 with non-existent link returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Factions.unlink_character(scope, faction.id, character.id)
     end
 
     test "unlink_character/3 with invalid faction_id returns error" do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
 
@@ -446,8 +446,8 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "unlink_character/3 with invalid character_id returns error" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_character_id = Ecto.UUID.generate()
 
@@ -456,35 +456,35 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "character_linked?/3 returns false for unlinked entities" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       refute Factions.character_linked?(scope, faction.id, character.id)
     end
 
     test "character_linked?/3 with invalid faction_id returns false" do
-      scope = user_scope_fixture()
-      character = character_fixture(scope)
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
       refute Factions.character_linked?(scope, invalid_faction_id, character.id)
     end
 
     test "character_linked?/3 with invalid character_id returns false" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_character_id = Ecto.UUID.generate()
       refute Factions.character_linked?(scope, faction.id, invalid_character_id)
     end
 
     test "linked_characters/2 returns all characters linked to a faction" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
-      character1 = character_fixture(scope)
-      character2 = character_fixture(scope)
-      unlinked_character = character_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      character1 = character_fixture(scope, %{game_id: scope.game.id})
+      character2 = character_fixture(scope, %{game_id: scope.game.id})
+      unlinked_character = character_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Factions.link_character(scope, faction.id, character1.id)
       {:ok, _} = Factions.link_character(scope, faction.id, character2.id)
@@ -498,24 +498,24 @@ defmodule GameMasterCore.FactionsTest do
     end
 
     test "linked_characters/2 returns empty list for faction with no linked characters" do
-      scope = user_scope_fixture()
-      faction = faction_fixture(scope)
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert Factions.linked_characters(scope, faction.id) == []
     end
 
     test "linked_characters/2 with invalid faction_id returns empty list" do
-      scope = user_scope_fixture()
+      scope = game_scope_fixture()
 
       invalid_faction_id = Ecto.UUID.generate()
       assert Factions.linked_characters(scope, invalid_faction_id) == []
     end
 
     test "linked_characters/2 respects scope boundaries" do
-      scope1 = user_scope_fixture()
-      scope2 = user_scope_fixture()
-      faction = faction_fixture(scope1)
-      character = character_fixture(scope1)
+      scope1 = game_scope_fixture()
+      scope2 = game_scope_fixture()
+      faction = faction_fixture(scope1, %{game_id: scope1.game.id})
+      character = character_fixture(scope1, %{game_id: scope1.game.id})
 
       {:ok, _} = Factions.link_character(scope1, faction.id, character.id)
 

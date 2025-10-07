@@ -18,15 +18,15 @@ defmodule GameMasterCore.QuestsTest do
     test "list_quests/1 returns all scoped quests" do
       scope = game_scope_fixture()
       other_scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      other_quest = quest_fixture(other_scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      other_quest = quest_fixture(other_scope, %{game_id: other_scope.game.id})
       assert Quests.list_quests(scope) == [quest]
       assert Quests.list_quests(other_scope) == [other_quest]
     end
 
     test "get_quest!/2 returns the quest with given id" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       other_scope = game_scope_fixture()
       assert Quests.get_quest!(scope, quest.id) == quest
       assert_raise Ecto.NoResultsError, fn -> Quests.get_quest!(other_scope, quest.id) end
@@ -80,7 +80,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "update_quest/3 with valid data updates the quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       update_attrs = %{name: "some updated name", content: "some updated content"}
 
       assert {:ok, %Quest{} = quest} = Quests.update_quest(scope, quest, update_attrs)
@@ -91,21 +91,21 @@ defmodule GameMasterCore.QuestsTest do
     test "update_quest/3 with invalid scope doesn't raise, but works based on game permissions" do
       scope = game_scope_fixture()
       other_scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _} = Quests.update_quest(other_scope, quest, %{})
     end
 
     test "update_quest/3 with invalid data returns error changeset" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       assert {:error, %Ecto.Changeset{}} = Quests.update_quest(scope, quest, @invalid_attrs)
       assert quest == Quests.get_quest!(scope, quest.id)
     end
 
     test "update_quest/3 with invalid status returns error changeset" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       invalid_status_attrs = %{status: "invalid_status"}
 
       assert {:error, %Ecto.Changeset{} = changeset} =
@@ -116,7 +116,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "update_quest/3 with valid status updates the quest status" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       # Test updating to each valid status
       valid_statuses = ["preparing", "ready", "active", "paused", "completed", "cancelled"]
@@ -131,7 +131,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "delete_quest/2 deletes the quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       assert {:ok, %Quest{}} = Quests.delete_quest(scope, quest)
       assert_raise Ecto.NoResultsError, fn -> Quests.get_quest!(scope, quest.id) end
     end
@@ -139,13 +139,13 @@ defmodule GameMasterCore.QuestsTest do
     test "delete_quest/2 with invalid scope doesn't raise, but works based on game permissions" do
       scope = game_scope_fixture()
       other_scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       assert {:ok, _} = Quests.delete_quest(other_scope, quest)
     end
 
     test "change_quest/2 returns a quest changeset" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       assert %Ecto.Changeset{} = Quests.change_quest(scope, quest)
     end
   end
@@ -160,8 +160,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_note/3 successfully links a quest and note" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_note(scope, quest.id, note.id)
       assert Quests.note_linked?(scope, quest.id, note.id)
@@ -169,7 +169,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_note/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
-      note = note_fixture(scope)
+      note = note_fixture(scope, %{game_id: scope.game.id})
       invalid_quest_id = Ecto.UUID.generate()
 
       assert {:error, :quest_not_found} = Quests.link_note(scope, invalid_quest_id, note.id)
@@ -177,7 +177,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_note/3 with invalid note_id returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
       invalid_note_id = Ecto.UUID.generate()
 
       assert {:error, :note_not_found} = Quests.link_note(scope, quest.id, invalid_note_id)
@@ -186,8 +186,8 @@ defmodule GameMasterCore.QuestsTest do
     test "link_note/3 with cross-scope quest returns error" do
       scope1 = game_scope_fixture()
       scope2 = game_scope_fixture()
-      quest = quest_fixture(scope1)
-      note = note_fixture(scope2)
+      quest = quest_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope2, %{game_id: scope2.game.id})
 
       # Quest exists in scope1, note is in scope2, so note_not_found is returned first
       assert {:error, :note_not_found} = Quests.link_note(scope1, quest.id, note.id)
@@ -196,8 +196,8 @@ defmodule GameMasterCore.QuestsTest do
     test "link_note/3 with cross-scope note returns error" do
       scope1 = game_scope_fixture()
       scope2 = game_scope_fixture()
-      quest = quest_fixture(scope1)
-      note = note_fixture(scope1)
+      quest = quest_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
 
       # Quest is in scope1, note is in scope1, but called with scope2, so quest_not_found is returned first
       assert {:error, :quest_not_found} = Quests.link_note(scope2, quest.id, note.id)
@@ -205,8 +205,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_note/3 prevents duplicate links" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_note(scope, quest.id, note.id)
       assert {:error, %Ecto.Changeset{}} = Quests.link_note(scope, quest.id, note.id)
@@ -214,8 +214,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_note/3 successfully removes a quest-note link" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Quests.link_note(scope, quest.id, note.id)
       assert Quests.note_linked?(scope, quest.id, note.id)
@@ -226,15 +226,15 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_note/3 with non-existent link returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Quests.unlink_note(scope, quest.id, note.id)
     end
 
     test "unlink_note/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
-      note = note_fixture(scope)
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       invalid_quest_id = Ecto.UUID.generate()
       assert {:error, :quest_not_found} = Quests.unlink_note(scope, invalid_quest_id, note.id)
@@ -242,7 +242,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_note/3 with invalid note_id returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       invalid_note_id = Ecto.UUID.generate()
       assert {:error, :note_not_found} = Quests.unlink_note(scope, quest.id, invalid_note_id)
@@ -250,15 +250,15 @@ defmodule GameMasterCore.QuestsTest do
 
     test "note_linked?/3 returns false for unlinked entities" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       refute Quests.note_linked?(scope, quest.id, note.id)
     end
 
     test "note_linked?/3 with invalid quest_id returns false" do
       scope = game_scope_fixture()
-      note = note_fixture(scope)
+      note = note_fixture(scope, %{game_id: scope.game.id})
 
       invalid_quest_id = Ecto.UUID.generate()
       refute Quests.note_linked?(scope, invalid_quest_id, note.id)
@@ -266,7 +266,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "note_linked?/3 with invalid note_id returns false" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       invalid_note_id = Ecto.UUID.generate()
       refute Quests.note_linked?(scope, quest.id, invalid_note_id)
@@ -274,10 +274,10 @@ defmodule GameMasterCore.QuestsTest do
 
     test "linked_notes/2 returns all notes linked to a quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      note1 = note_fixture(scope)
-      note2 = note_fixture(scope)
-      unlinked_note = note_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      note1 = note_fixture(scope, %{game_id: scope.game.id})
+      note2 = note_fixture(scope, %{game_id: scope.game.id})
+      unlinked_note = note_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Quests.link_note(scope, quest.id, note1.id)
       {:ok, _} = Quests.link_note(scope, quest.id, note2.id)
@@ -292,7 +292,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "linked_notes/2 returns empty list for quest with no linked notes" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       assert Quests.linked_notes(scope, quest.id) == []
     end
@@ -307,8 +307,8 @@ defmodule GameMasterCore.QuestsTest do
     test "linked_notes/2 respects scope boundaries" do
       scope1 = game_scope_fixture()
       scope2 = game_scope_fixture()
-      quest = quest_fixture(scope1)
-      note = note_fixture(scope1)
+      quest = quest_fixture(scope1, %{game_id: scope1.game.id})
+      note = note_fixture(scope1, %{game_id: scope1.game.id})
 
       {:ok, _} = Quests.link_note(scope1, quest.id, note.id)
 
@@ -327,8 +327,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_character/3 successfully links a quest and character" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_character(scope, quest.id, character.id)
       assert Quests.character_linked?(scope, quest.id, character.id)
@@ -336,7 +336,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_character/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
-      character = character_fixture(scope)
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       invalid_quest_id = Ecto.UUID.generate()
 
@@ -346,7 +346,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_character/3 with invalid character_id returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       invalid_character_id = Ecto.UUID.generate()
 
@@ -356,8 +356,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_character/3 prevents duplicate links" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_character(scope, quest.id, character.id)
       assert {:error, %Ecto.Changeset{}} = Quests.link_character(scope, quest.id, character.id)
@@ -365,8 +365,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_character/3 successfully removes a quest-character link" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Quests.link_character(scope, quest.id, character.id)
       assert Quests.character_linked?(scope, quest.id, character.id)
@@ -377,26 +377,26 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_character/3 with non-existent link returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Quests.unlink_character(scope, quest.id, character.id)
     end
 
     test "character_linked?/3 returns false for unlinked entities" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character = character_fixture(scope, %{game_id: scope.game.id})
 
       refute Quests.character_linked?(scope, quest.id, character.id)
     end
 
     test "linked_characters/2 returns all characters linked to a quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      character1 = character_fixture(scope)
-      character2 = character_fixture(scope)
-      unlinked_character = character_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      character1 = character_fixture(scope, %{game_id: scope.game.id})
+      character2 = character_fixture(scope, %{game_id: scope.game.id})
+      unlinked_character = character_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Quests.link_character(scope, quest.id, character1.id)
       {:ok, _} = Quests.link_character(scope, quest.id, character2.id)
@@ -411,7 +411,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "linked_characters/2 returns empty list for quest with no linked characters" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       assert Quests.linked_characters(scope, quest.id) == []
     end
@@ -427,8 +427,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_faction/3 successfully links a quest and faction" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_faction(scope, quest.id, faction.id)
       assert Quests.faction_linked?(scope, quest.id, faction.id)
@@ -436,7 +436,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_faction/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
-      faction = faction_fixture(scope)
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       invalid_quest_id = Ecto.UUID.generate()
       assert {:error, :quest_not_found} = Quests.link_faction(scope, invalid_quest_id, faction.id)
@@ -444,7 +444,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_faction/3 with invalid faction_id returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_id = Ecto.UUID.generate()
 
@@ -454,8 +454,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_faction/3 prevents duplicate links" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_faction(scope, quest.id, faction.id)
       assert {:error, %Ecto.Changeset{}} = Quests.link_faction(scope, quest.id, faction.id)
@@ -463,8 +463,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_faction/3 successfully removes a quest-faction link" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Quests.link_faction(scope, quest.id, faction.id)
       assert Quests.faction_linked?(scope, quest.id, faction.id)
@@ -475,26 +475,26 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_faction/3 with non-existent link returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Quests.unlink_faction(scope, quest.id, faction.id)
     end
 
     test "faction_linked?/3 returns false for unlinked entities" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       refute Quests.faction_linked?(scope, quest.id, faction.id)
     end
 
     test "linked_factions/2 returns all factions linked to a quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      faction1 = faction_fixture(scope)
-      faction2 = faction_fixture(scope)
-      unlinked_faction = faction_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      faction1 = faction_fixture(scope, %{game_id: scope.game.id})
+      faction2 = faction_fixture(scope, %{game_id: scope.game.id})
+      unlinked_faction = faction_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Quests.link_faction(scope, quest.id, faction1.id)
       {:ok, _} = Quests.link_faction(scope, quest.id, faction2.id)
@@ -509,7 +509,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "linked_factions/2 returns empty list for quest with no linked factions" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       assert Quests.linked_factions(scope, quest.id) == []
     end
@@ -525,8 +525,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_location/3 successfully links a quest and location" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_location(scope, quest.id, location.id)
       assert Quests.location_linked?(scope, quest.id, location.id)
@@ -534,7 +534,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_location/3 with invalid quest_id returns error" do
       scope = game_scope_fixture()
-      location = location_fixture(scope)
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       invalid_quest_id = Ecto.UUID.generate()
 
@@ -544,7 +544,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_location/3 with invalid location_id returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       invalid_location_id = Ecto.UUID.generate()
 
@@ -554,8 +554,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "link_location/3 prevents duplicate links" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       assert {:ok, _link} = Quests.link_location(scope, quest.id, location.id)
       assert {:error, %Ecto.Changeset{}} = Quests.link_location(scope, quest.id, location.id)
@@ -563,8 +563,8 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_location/3 successfully removes a quest-location link" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _link} = Quests.link_location(scope, quest.id, location.id)
       assert Quests.location_linked?(scope, quest.id, location.id)
@@ -575,26 +575,26 @@ defmodule GameMasterCore.QuestsTest do
 
     test "unlink_location/3 with non-existent link returns error" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       assert {:error, :not_found} = Quests.unlink_location(scope, quest.id, location.id)
     end
 
     test "location_linked?/3 returns false for unlinked entities" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
 
       refute Quests.location_linked?(scope, quest.id, location.id)
     end
 
     test "linked_locations/2 returns all locations linked to a quest" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
-      location1 = location_fixture(scope)
-      location2 = location_fixture(scope)
-      unlinked_location = location_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
+      location1 = location_fixture(scope, %{game_id: scope.game.id})
+      location2 = location_fixture(scope, %{game_id: scope.game.id})
+      unlinked_location = location_fixture(scope, %{game_id: scope.game.id})
 
       {:ok, _} = Quests.link_location(scope, quest.id, location1.id)
       {:ok, _} = Quests.link_location(scope, quest.id, location2.id)
@@ -609,7 +609,7 @@ defmodule GameMasterCore.QuestsTest do
 
     test "linked_locations/2 returns empty list for quest with no linked locations" do
       scope = game_scope_fixture()
-      quest = quest_fixture(scope)
+      quest = quest_fixture(scope, %{game_id: scope.game.id})
 
       assert Quests.linked_locations(scope, quest.id) == []
     end
