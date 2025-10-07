@@ -122,35 +122,9 @@ defmodule GameMasterCore.Storage.Local do
   defp get_upload_directory do
     upload_dir = Application.get_env(:game_master_core, :uploads_directory, "uploads")
     
-    Logger.info("Using uploads directory: #{upload_dir}")
-    
-    # Check if the directory exists and is accessible
-    case File.stat(upload_dir) do
-      {:ok, %File.Stat{type: :directory, access: access, mode: mode}} ->
-        Logger.info("Upload directory #{upload_dir} exists and is accessible (access: #{access}, mode: #{mode})")
-        
-        # Test if we can actually write to this directory
-        test_file = Path.join(upload_dir, "test_write_#{System.system_time()}")
-        case File.write(test_file, "test") do
-          :ok ->
-            File.rm(test_file)
-            Logger.info("Write test to #{upload_dir} successful")
-          {:error, reason} ->
-            Logger.error("Write test to #{upload_dir} failed: #{inspect(reason)}")
-        end
-        
-      {:ok, %File.Stat{type: type}} ->
-        Logger.error("Upload path #{upload_dir} exists but is not a directory (type: #{type})")
-      {:error, :enoent} ->
-        Logger.warning("Upload directory #{upload_dir} does not exist, attempting to create")
-      {:error, reason} ->
-        Logger.error("Cannot access upload directory #{upload_dir}: #{inspect(reason)}")
-    end
-
     # Ensure the base upload directory exists
     case File.mkdir_p(upload_dir) do
       :ok ->
-        Logger.info("Successfully ensured upload directory #{upload_dir} exists")
         upload_dir
 
       {:error, reason} ->
@@ -166,16 +140,10 @@ defmodule GameMasterCore.Storage.Local do
 
   defp ensure_directory_exists(file_path) do
     dir_path = Path.dirname(file_path)
-    
-    Logger.info("Attempting to create directory structure: #{dir_path}")
 
     case File.mkdir_p(dir_path) do
-      :ok -> 
-        Logger.info("Successfully created directory structure: #{dir_path}")
-        :ok
-      {:error, reason} -> 
-        Logger.error("Failed to create directory structure #{dir_path}: #{inspect(reason)}")
-        {:error, reason}
+      :ok -> :ok
+      {:error, reason} -> {:error, reason}
     end
   end
 
