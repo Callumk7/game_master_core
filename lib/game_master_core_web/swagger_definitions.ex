@@ -529,6 +529,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         image_url(:string, "Character image URL")
+        images(Schema.array(:Image), "All images associated with this character")
+        primary_image(Schema.ref(:Image), "Primary image for this character")
         tags(Schema.array(:string), "Tags associated with this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
@@ -549,6 +551,29 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class: "Wizard",
         level: 20,
         image_url: "https://example.com/gandalf.jpg",
+        images: [
+          %{
+            id: "img-123e4567-e89b-12d3-a456-426614174000",
+            filename: "gandalf-portrait.jpg",
+            file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
+            file_size: 1048576,
+            file_size_mb: 1.0,
+            content_type: "image/jpeg",
+            alt_text: "Portrait of Gandalf the Grey",
+            is_primary: true,
+            entity_type: "character",
+            entity_id: "323e4567-e89b-12d3-a456-426614174002",
+            metadata: %{},
+            inserted_at: "2023-08-20T12:00:00Z",
+            updated_at: "2023-08-20T12:00:00Z"
+          }
+        ],
+        primary_image: %{
+          id: "img-123e4567-e89b-12d3-a456-426614174000",
+          filename: "gandalf-portrait.jpg",
+          file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
+          alt_text: "Portrait of Gandalf the Grey"
+        },
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
@@ -770,6 +795,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Faction name", required: true)
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
+        images(Schema.array(:Image), "All images associated with this faction")
+        primary_image(Schema.ref(:Image), "Primary image for this faction")
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
@@ -785,6 +812,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A secretive organization that seeks to control the realm from behind the scenes.",
         content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
+        images: [],
+        primary_image: nil,
         tags: ["secret", "political", "antagonist"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -1022,6 +1051,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         parent_id(:string, "Parent location ID", format: :uuid)
+        images(Schema.array(:Image), "All images associated with this location")
+        primary_image(Schema.ref(:Image), "Primary image for this location")
         tags(Schema.array(:string), "Tags associated with this location")
         pinned(:boolean, "Whether this location is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
@@ -1038,6 +1069,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
+        images: [],
+        primary_image: nil,
         tags: ["magical", "hidden", "dangerous"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -1174,6 +1207,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Quest name", required: true)
         content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
+        images(Schema.array(:Image), "All images associated with this quest")
+        primary_image(Schema.ref(:Image), "Primary image for this quest")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
         pinned(:boolean, "Whether this quest is pinned", required: true)
@@ -1194,6 +1229,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
+        images: [],
+        primary_image: nil,
         tags: ["main", "treasure", "exploration"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         pinned: false,
@@ -2043,6 +2080,26 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           :Objective,
           "Objectives Response",
           "Response containing a list of objectives"
+        ),
+      # Image schemas
+      Image: image_schema(),
+      ImageCreateParams: image_create_params_schema(),
+      ImageUpdateParams: image_update_params_schema(),
+      ImageCreateRequest: image_create_request_schema(),
+      ImageUpdateRequest: image_update_request_schema(),
+      ImageStats: image_stats_schema(),
+      ImagesListResponse: images_list_response_schema(),
+      ImageResponse:
+        response_schema(
+          Schema.ref(:Image),
+          "Image Response",
+          "Response containing a single image"
+        ),
+      ImageStatsResponse:
+        response_schema(
+          Schema.ref(:ImageStats),
+          "Image Statistics Response",
+          "Response containing image statistics for an entity"
         )
     }
   end
@@ -2137,6 +2194,172 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       end
 
       required([:objective])
+    end
+  end
+
+  # Image schemas
+
+  def image_schema do
+    swagger_schema do
+      title("Image")
+      description("An image associated with a game entity")
+
+      properties do
+        id(:string, "Image ID", required: true, format: :uuid)
+        filename(:string, "Original filename", required: true)
+        file_url(:string, "Publicly accessible URL to the image", required: true)
+        file_size(:integer, "File size in bytes", required: true, minimum: 1)
+        file_size_mb(:number, "File size in megabytes", required: true)
+        content_type(:string, "MIME type of the image", required: true, enum: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"])
+        alt_text(:string, "Alternative text for accessibility")
+        is_primary(:boolean, "Whether this is the primary image for the entity", required: true)
+        entity_type(:string, "Type of entity this image belongs to", required: true, enum: ["character", "faction", "location", "quest"])
+        entity_id(:string, "ID of the entity this image belongs to", required: true, format: :uuid)
+        metadata(:object, "Additional metadata for the image", default: %{})
+        inserted_at(:string, "Creation timestamp", required: true, format: :"date-time")
+        updated_at(:string, "Last update timestamp", required: true, format: :"date-time")
+      end
+
+      example(%{
+        id: "img-123e4567-e89b-12d3-a456-426614174000",
+        filename: "hero-portrait.jpg",
+        file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
+        file_size: 1048576,
+        file_size_mb: 1.0,
+        content_type: "image/jpeg",
+        alt_text: "Portrait of the main character",
+        is_primary: true,
+        entity_type: "character",
+        entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
+        metadata: %{},
+        inserted_at: "2023-08-20T12:00:00Z",
+        updated_at: "2023-08-20T12:00:00Z"
+      })
+    end
+  end
+
+  def image_create_params_schema do
+    swagger_schema do
+      title("Image Create Parameters")
+      description("Parameters for uploading a new image")
+
+      properties do
+        file(:string, "Image file to upload", required: true, format: :binary)
+        alt_text(:string, "Alternative text for accessibility")
+        is_primary(:boolean, "Whether this should be the primary image for the entity", default: false)
+      end
+
+      required([:file])
+
+      example(%{
+        file: "binary file data",
+        alt_text: "Portrait of the main character",
+        is_primary: true
+      })
+    end
+  end
+
+  def image_update_params_schema do
+    swagger_schema do
+      title("Image Update Parameters")
+      description("Parameters for updating image metadata")
+
+      properties do
+        alt_text(:string, "Alternative text for accessibility")
+        is_primary(:boolean, "Whether this should be the primary image for the entity")
+      end
+
+      example(%{
+        alt_text: "Updated portrait description",
+        is_primary: false
+      })
+    end
+  end
+
+  def image_create_request_schema do
+    swagger_schema do
+      title("Image Create Request")
+      description("Form data for uploading an image")
+      type(:object)
+
+      properties do
+        image(Schema.ref(:ImageCreateParams), "Image upload parameters")
+      end
+
+      required([:image])
+    end
+  end
+
+  def image_update_request_schema do
+    swagger_schema do
+      title("Image Update Request")
+      description("Request body for updating image metadata")
+
+      properties do
+        image(Schema.ref(:ImageUpdateParams), "Image update parameters")
+      end
+    end
+  end
+
+  def image_stats_schema do
+    swagger_schema do
+      title("Image Statistics")
+      description("Statistics about images for an entity")
+
+      properties do
+        entity_type(:string, "Type of entity", required: true, enum: ["character", "faction", "location", "quest"])
+        entity_id(:string, "ID of the entity", required: true, format: :uuid)
+        total_count(:integer, "Total number of images for this entity", required: true, minimum: 0)
+        total_size(:integer, "Total size of all images in bytes", required: true, minimum: 0)
+        total_size_mb(:number, "Total size of all images in megabytes", required: true)
+        has_primary(:boolean, "Whether the entity has a primary image", required: true)
+      end
+
+      example(%{
+        entity_type: "character",
+        entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
+        total_count: 3,
+        total_size: 3145728,
+        total_size_mb: 3.0,
+        has_primary: true
+      })
+    end
+  end
+
+  def images_list_response_schema do
+    swagger_schema do
+      title("Images List Response")
+      description("Response containing a list of images with metadata")
+
+      properties do
+        data(Schema.array(:Image), "List of images", required: true)
+        meta(:object, "Response metadata", required: true)
+      end
+
+      example(%{
+        data: [
+          %{
+            id: "img-123e4567-e89b-12d3-a456-426614174000",
+            filename: "hero-portrait.jpg",
+            file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
+            file_size: 1048576,
+            file_size_mb: 1.0,
+            content_type: "image/jpeg",
+            alt_text: "Portrait of the main character",
+            is_primary: true,
+            entity_type: "character",
+            entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
+            metadata: %{},
+            inserted_at: "2023-08-20T12:00:00Z",
+            updated_at: "2023-08-20T12:00:00Z"
+          }
+        ],
+        meta: %{
+          entity_type: "character",
+          entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
+          total_count: 1
+        }
+      })
     end
   end
 end
