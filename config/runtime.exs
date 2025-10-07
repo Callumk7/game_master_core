@@ -101,7 +101,9 @@ if config_env() == :prod do
 
   # Configure uploads directory for production
   # Use absolute path to ensure uploads are stored in the mounted directory
-  uploads_directory = System.get_env("UPLOADS_DIRECTORY") || "/app/uploads"
+  # Railway automatically provides RAILWAY_VOLUME_MOUNT_PATH when a volume is attached
+  # Setup: Create a Railway volume and mount it at /uploads
+  uploads_directory = System.get_env("RAILWAY_VOLUME_MOUNT_PATH") || System.get_env("UPLOADS_DIRECTORY") || "/uploads"
 
   config :game_master_core,
     uploads_directory: uploads_directory
