@@ -120,7 +120,17 @@ defmodule GameMasterCore.Storage.Local do
   # Private helper functions
 
   defp get_upload_directory do
-    Application.get_env(:game_master_core, :uploads_directory, "uploads")
+    upload_dir = Application.get_env(:game_master_core, :uploads_directory, "uploads")
+
+    # Ensure the base upload directory exists
+    case File.mkdir_p(upload_dir) do
+      :ok ->
+        upload_dir
+
+      {:error, reason} ->
+        Logger.error("Failed to create uploads directory #{upload_dir}: #{inspect(reason)}")
+        upload_dir
+    end
   end
 
   defp build_public_url(key) do

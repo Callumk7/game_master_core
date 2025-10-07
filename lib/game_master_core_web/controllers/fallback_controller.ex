@@ -88,4 +88,22 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> put_status(:bad_request)
     |> json(%{error: "Image file is required"})
   end
+
+  def call(conn, {:error, :invalid_upload}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Invalid file upload"})
+  end
+
+  def call(conn, {:error, {:file_storage_failed, reason}}) do
+    conn
+    |> put_status(:internal_server_error)
+    |> json(%{error: "Failed to store image file", details: inspect(reason)})
+  end
+
+  def call(conn, {:error, {:invalid_entity_type, entity_type}}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Invalid entity type: #{entity_type}"})
+  end
 end
