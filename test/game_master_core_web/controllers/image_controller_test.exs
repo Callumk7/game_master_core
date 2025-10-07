@@ -1,20 +1,15 @@
 defmodule GameMasterCoreWeb.ImageControllerTest do
   use GameMasterCoreWeb.ConnCase, async: true
 
-  import GameMasterCore.AccountsFixtures
   import GameMasterCore.GamesFixtures
 
-  setup %{conn: conn} do
-    user = user_fixture()
-    scope = %{user: user, game: nil}
+  setup :register_and_log_in_user
+
+  setup %{conn: conn, user: user, scope: scope} do
     game = game_fixture(scope)
+    conn = authenticate_api_user(conn, user)
 
-    conn =
-      conn
-      |> log_in_user(user)
-      |> assign(:current_scope, %{user: user, game: game})
-
-    {:ok, conn: conn, user: user, game: game}
+    {:ok, conn: conn, game: game}
   end
 
   describe "GET /api/games/:game_id/characters/:character_id/images" do

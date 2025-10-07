@@ -5,14 +5,10 @@ defmodule GameMasterCore.ImagesTest do
   alias GameMasterCore.Images.Image
 
   import GameMasterCore.AccountsFixtures
-  import GameMasterCore.GamesFixtures
 
   setup do
-    user = user_fixture()
-    scope = %{user: user, game: nil}
-    game = game_fixture(scope)
-    scope = %{user: user, game: game}
-
+    scope = game_scope_fixture()
+    
     {:ok, scope: scope}
   end
 
@@ -80,12 +76,4 @@ defmodule GameMasterCore.ImagesTest do
     end
   end
 
-  # Helper to create a mock upload for testing
-  defp mock_upload(filename \\ "test.jpg", content_type \\ "image/jpeg") do
-    %Plug.Upload{
-      filename: filename,
-      content_type: content_type,
-      path: "/tmp/test_file"
-    }
-  end
 end

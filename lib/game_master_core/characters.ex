@@ -9,11 +9,8 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Notes
   alias GameMasterCore.Links
   alias GameMasterCore.Factions
-  alias GameMasterCore.Locations
-  alias GameMasterCore.Quests
 
   import GameMasterCore.Helpers
 
