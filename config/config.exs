@@ -94,6 +94,12 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Storage configuration
+config :game_master_core,
+  storage_adapter: GameMasterCore.Storage.Local,
+  uploads_directory: "uploads",
+  uploads_base_url: "/uploads"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

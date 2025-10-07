@@ -84,6 +84,14 @@ defmodule GameMasterCoreWeb.Router do
         delete "/primary-faction", CharacterController, :remove_primary_faction
         put "/pin", CharacterController, :pin
         put "/unpin", CharacterController, :unpin
+
+        # Image management routes
+        get "/images/stats", ImageController, :stats
+
+        resources "/images", ImageController, except: [:new, :edit] do
+          put "/primary", ImageController, :set_primary
+          get "/file", ImageController, :serve_file
+        end
       end
 
       resources "/factions", FactionController, except: [:new, :edit] do
@@ -95,6 +103,14 @@ defmodule GameMasterCoreWeb.Router do
         get "/members", FactionController, :members
         put "/pin", FactionController, :pin
         put "/unpin", FactionController, :unpin
+
+        # Image management routes
+        get "/images/stats", ImageController, :stats
+
+        resources "/images", ImageController, except: [:new, :edit] do
+          put "/primary", ImageController, :set_primary
+          get "/file", ImageController, :serve_file
+        end
       end
 
       get "/locations/tree", LocationController, :tree
@@ -106,6 +122,14 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", LocationController, :delete_link
         put "/pin", LocationController, :pin
         put "/unpin", LocationController, :unpin
+
+        # Image management routes
+        get "/images/stats", ImageController, :stats
+
+        resources "/images", ImageController, except: [:new, :edit] do
+          put "/primary", ImageController, :set_primary
+          get "/file", ImageController, :serve_file
+        end
       end
 
       get "/quests/tree", QuestController, :tree
@@ -117,6 +141,14 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", QuestController, :delete_link
         put "/pin", QuestController, :pin
         put "/unpin", QuestController, :unpin
+
+        # Image management routes
+        get "/images/stats", ImageController, :stats
+
+        resources "/images", ImageController, except: [:new, :edit] do
+          put "/primary", ImageController, :set_primary
+          get "/file", ImageController, :serve_file
+        end
 
         resources "/objectives", ObjectiveController, except: [:new, :edit] do
           put "/complete", ObjectiveController, :complete

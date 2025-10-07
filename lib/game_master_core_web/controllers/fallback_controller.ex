@@ -81,4 +81,11 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> put_status(:unprocessable_entity)
     |> json(%{error: "Linking #{source_type}s to #{target_type} is not yet supported"})
   end
+
+  # Handle image upload errors
+  def call(conn, {:error, :missing_file}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Image file is required"})
+  end
 end

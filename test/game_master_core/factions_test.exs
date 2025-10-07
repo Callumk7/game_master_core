@@ -525,7 +525,7 @@ defmodule GameMasterCore.FactionsTest do
   end
 
   describe "faction - quest links" do
-    import GameMasterCore.AccountsFixtures, only: [user_scope_fixture: 0, game_scope_fixture: 0]
+    import GameMasterCore.AccountsFixtures, only: [game_scope_fixture: 0]
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.QuestsFixtures
 

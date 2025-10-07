@@ -6,7 +6,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
   import GameMasterCore.QuestsFixtures
   import GameMasterCore.GamesFixtures
 
-  alias GameMasterCore.Quests.Objective
+
 
   @create_attrs %{
     body: "some objective body",
@@ -45,7 +45,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns empty list when quest has no objectives", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -63,7 +63,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
   describe "create objective" do
     test "renders objective when data is valid", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -86,7 +86,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "renders errors when data is invalid", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -124,7 +124,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns 404 for non-existent objective", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -190,7 +190,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns 404 for non-existent objective", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -218,7 +218,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns 404 for non-existent objective", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -238,7 +238,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns 404 for non-existent objective", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -258,7 +258,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
 
     test "returns 404 for non-existent objective", %{
       conn: conn,
-      scope: scope,
+      scope: _scope,
       game: game,
       quest: quest
     } do
@@ -310,7 +310,7 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
       assert json_response(conn, 401)
     end
 
-    test "cannot create objective in quest from different game", %{scope: scope, quest: quest} do
+    test "cannot create objective in quest from different game", %{scope: _scope, quest: quest} do
       other_user_scope = user_scope_fixture()
       other_game = game_fixture(other_user_scope)
 
