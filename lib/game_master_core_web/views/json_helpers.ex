@@ -12,6 +12,8 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   alias GameMasterCore.Locations.Location
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Games.Game
+  alias GameMasterCore.Images
+  alias GameMasterCore.Images.Image
 
   @doc """
   Formats a note for JSON response.
@@ -55,6 +57,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   end
 
   @doc """
+  Enhanced character data with image information.
+  """
+  def character_data_with_images(%Character{} = character, scope) do
+    character_data(character)
+    |> add_image_info(scope, "character", character.id)
+  end
+
+  @doc """
   Formats a faction for JSON response.
   """
   def faction_data(%Faction{} = faction) do
@@ -68,6 +78,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
     }
+  end
+
+  @doc """
+  Enhanced faction data with image information.
+  """
+  def faction_data_with_images(%Faction{} = faction, scope) do
+    faction_data(faction)
+    |> add_image_info(scope, "faction", faction.id)
   end
 
   @doc """
@@ -104,6 +122,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   end
 
   @doc """
+  Enhanced location data with image information.
+  """
+  def location_data_with_images(%Location{} = location, scope) do
+    location_data(location)
+    |> add_image_info(scope, "location", location.id)
+  end
+
+  @doc """
   Formats a quest for JSON response.
   """
   def quest_data(%Quest{} = quest) do
@@ -119,6 +145,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
     }
+  end
+
+  @doc """
+  Enhanced quest data with image information.
+  """
+  def quest_data_with_images(%Quest{} = quest, scope) do
+    quest_data(quest)
+    |> add_image_info(scope, "quest", quest.id)
   end
 
   def character_data_with_metadata(%{
@@ -209,5 +243,38 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       is_active: is_active,
       metadata: metadata
     })
+  end
+
+  # Private helper functions for image integration
+
+  defp add_image_info(entity_data, scope, entity_type, entity_id) do
+    # Get primary image
+    primary_image =
+      case Images.get_primary_image(scope, entity_type, entity_id) do
+        {:ok, image} -> format_image_data(image)
+        {:error, :not_found} -> nil
+      end
+
+    # Get image statistics
+    stats = Images.get_image_stats(scope, entity_type, entity_id)
+
+    entity_data
+    |> Map.put(:primary_image, primary_image)
+    |> Map.put(:image_stats, %{
+      total_count: stats.total_count,
+      total_size: stats.total_size,
+      has_primary: stats.has_primary
+    })
+  end
+
+  defp format_image_data(%Image{} = image) do
+    %{
+      id: image.id,
+      filename: image.filename,
+      file_url: image.file_url,
+      alt_text: image.alt_text,
+      file_size: image.file_size,
+      content_type: image.content_type
+    }
   end
 end
