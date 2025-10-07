@@ -121,10 +121,25 @@ defmodule GameMasterCore.Storage.Local do
 
   defp get_upload_directory do
     upload_dir = Application.get_env(:game_master_core, :uploads_directory, "uploads")
+    
+    Logger.info("Using uploads directory: #{upload_dir}")
+    
+    # Check if the directory exists and is accessible
+    case File.stat(upload_dir) do
+      {:ok, %File.Stat{type: :directory}} ->
+        Logger.info("Upload directory #{upload_dir} exists and is accessible")
+      {:ok, %File.Stat{type: type}} ->
+        Logger.error("Upload path #{upload_dir} exists but is not a directory (type: #{type})")
+      {:error, :enoent} ->
+        Logger.warning("Upload directory #{upload_dir} does not exist, attempting to create")
+      {:error, reason} ->
+        Logger.error("Cannot access upload directory #{upload_dir}: #{inspect(reason)}")
+    end
 
     # Ensure the base upload directory exists
     case File.mkdir_p(upload_dir) do
       :ok ->
+        Logger.info("Successfully ensured upload directory #{upload_dir} exists")
         upload_dir
 
       {:error, reason} ->
