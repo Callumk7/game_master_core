@@ -6,8 +6,6 @@ defmodule GameMasterCoreWeb.ObjectiveControllerTest do
   import GameMasterCore.QuestsFixtures
   import GameMasterCore.GamesFixtures
 
-
-
   @create_attrs %{
     body: "some objective body",
     complete: false

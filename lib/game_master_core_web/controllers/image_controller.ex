@@ -12,33 +12,13 @@ defmodule GameMasterCoreWeb.ImageController do
   alias GameMasterCore.Images
   alias GameMasterCore.Images.Image
   alias GameMasterCoreWeb.SwaggerDefinitions
-  alias PhoenixSwagger.Schema
+  use GameMasterCoreWeb.Swagger.ImageSwagger
 
   def swagger_definitions do
     SwaggerDefinitions.common_definitions()
   end
 
   action_fallback GameMasterCoreWeb.FallbackController
-
-  swagger_path :index do
-    get("/api/games/{game_id}/{entity_type}s/{entity_id}/images")
-    summary("List images for an entity")
-    description("Retrieve all images associated with a specific game entity")
-    tag("Images")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      primary_first(:query, :boolean, "Sort primary image first", required: false)
-    end
-    
-    response(200, "Success", Schema.ref(:ImagesListResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
 
   @doc """
   List all images for a specific entity.
@@ -60,28 +40,6 @@ defmodule GameMasterCoreWeb.ImageController do
 
       render(conn, :index, images: images, entity_type: entity_type, entity_id: entity_id)
     end
-  end
-
-  swagger_path :create do
-    post("/api/games/{game_id}/{entity_type}s/{entity_id}/images")
-    summary("Upload an image for an entity")
-    description("Upload a new image file and associate it with a game entity")
-    tag("Images")
-    consumes("multipart/form-data")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      body(:formData, Schema.ref(:ImageCreateRequest), "Image upload data", required: true)
-    end
-    
-    response(201, "Created", Schema.ref(:ImageResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   @doc """
@@ -110,25 +68,6 @@ defmodule GameMasterCoreWeb.ImageController do
     end
   end
 
-  swagger_path :show do
-    get("/api/games/{game_id}/{entity_type}s/{entity_id}/images/{id}")
-    summary("Get an image by ID")
-    description("Retrieve a specific image by its ID")
-    tag("Images")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      id(:path, :string, "Image ID", required: true, format: :uuid)
-    end
-    
-    response(200, "Success", Schema.ref(:ImageResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   @doc """
   Get a specific image by ID.
 
@@ -138,29 +77,6 @@ defmodule GameMasterCoreWeb.ImageController do
     with {:ok, image} <- Images.get_image_for_game(conn.assigns.current_scope, image_id) do
       render(conn, :show, image: image)
     end
-  end
-
-  swagger_path :update do
-    put("/api/games/{game_id}/{entity_type}s/{entity_id}/images/{id}")
-    summary("Update image metadata")
-    description("Update image metadata such as alt text and primary status")
-    tag("Images")
-    consumes("application/json")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      id(:path, :string, "Image ID", required: true, format: :uuid)
-      body(:body, Schema.ref(:ImageUpdateRequest), "Image update data", required: true)
-    end
-    
-    response(200, "Success", Schema.ref(:ImageResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-    response(422, "Unprocessable Entity", Schema.ref(:Error))
   end
 
   @doc """
@@ -176,24 +92,6 @@ defmodule GameMasterCoreWeb.ImageController do
     end
   end
 
-  swagger_path :delete do
-    PhoenixSwagger.Path.delete("/api/games/{game_id}/{entity_type}s/{entity_id}/images/{id}")
-    summary("Delete an image")
-    description("Delete an image and remove it from storage")
-    tag("Images")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      id(:path, :string, "Image ID", required: true, format: :uuid)
-    end
-    
-    response(204, "No Content")
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   @doc """
   Delete an image.
 
@@ -205,25 +103,6 @@ defmodule GameMasterCoreWeb.ImageController do
     end
   end
 
-  swagger_path :set_primary do
-    put("/api/games/{game_id}/{entity_type}s/{entity_id}/images/{id}/primary")
-    summary("Set image as primary")
-    description("Set an image as the primary image for its entity")
-    tag("Images")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      id(:path, :string, "Image ID", required: true, format: :uuid)
-    end
-    
-    response(200, "Success", Schema.ref(:ImageResponse))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
-  end
-
   @doc """
   Set an image as the primary image for its entity.
 
@@ -233,25 +112,6 @@ defmodule GameMasterCoreWeb.ImageController do
     with {:ok, image} <- Images.set_as_primary(conn.assigns.current_scope, image_id) do
       render(conn, :show, image: image)
     end
-  end
-
-  swagger_path :stats do
-    get("/api/games/{game_id}/{entity_type}s/{entity_id}/images/stats")
-    summary("Get image statistics")
-    description("Get statistics about images for an entity (count, total size, etc.)")
-    tag("Images")
-    produces("application/json")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-    end
-    
-    response(200, "Success", Schema.ref(:ImageStatsResponse))
-    response(400, "Bad Request", Schema.ref(:Error))
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
   end
 
   @doc """
@@ -266,25 +126,6 @@ defmodule GameMasterCoreWeb.ImageController do
       stats = Images.get_image_stats(conn.assigns.current_scope, entity_type, entity_id)
       render(conn, :stats, stats: stats, entity_type: entity_type, entity_id: entity_id)
     end
-  end
-
-  swagger_path :serve_file do
-    get("/api/games/{game_id}/{entity_type}s/{entity_id}/images/{id}/file")
-    summary("Serve image file")
-    description("Serve or redirect to the actual image file")
-    tag("Images")
-    produces("image/*")
-    
-    parameters do
-      game_id(:path, :string, "Game ID", required: true, format: :uuid)
-      entity_type(:path, :string, "Entity type", required: true, enum: ["character", "faction", "location", "quest"])
-      entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-      id(:path, :string, "Image ID", required: true, format: :uuid)
-    end
-    
-    response(302, "Redirect to image file")
-    response(401, "Unauthorized", Schema.ref(:Error))
-    response(404, "Not Found", Schema.ref(:Error))
   end
 
   @doc """

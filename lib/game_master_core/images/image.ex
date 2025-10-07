@@ -86,7 +86,7 @@ defmodule GameMasterCore.Images.Image do
 
   @doc """
   Changeset for creating an image with complete file information.
-  
+
   This is used when the file has already been stored and we have all
   the necessary information to create the database record.
   """

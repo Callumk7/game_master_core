@@ -29,7 +29,11 @@ defmodule GameMasterCore.Storage.Local do
       file_stat = File.stat!(dest_path)
 
       # Convert Erlang datetime tuple to ISO8601 string for JSON compatibility
-      modified_at = file_stat.mtime |> NaiveDateTime.from_erl!() |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
+      modified_at =
+        file_stat.mtime
+        |> NaiveDateTime.from_erl!()
+        |> DateTime.from_naive!("Etc/UTC")
+        |> DateTime.to_iso8601()
 
       {:ok,
        %{

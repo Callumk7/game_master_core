@@ -112,26 +112,28 @@ defmodule GameMasterCore.Images do
   def create_image_for_entity(scope, %Plug.Upload{} = upload, attrs) do
     Repo.transaction(fn ->
       # Step 1: Store the file first to get storage information
-      key = KeyGenerator.generate_key(
-        scope.game.id,
-        attrs.entity_type,
-        attrs.entity_id,
-        upload.filename
-      )
+      key =
+        KeyGenerator.generate_key(
+          scope.game.id,
+          attrs.entity_type,
+          attrs.entity_id,
+          upload.filename
+        )
 
       case Storage.store(upload.path, key, content_type: upload.content_type) do
         {:ok, %{url: url, metadata: storage_metadata}} ->
           # Step 2: Create the database record with complete file information
           file_size = Map.get(storage_metadata, :size, 0)
-          
-          complete_attrs = Map.merge(attrs, %{
-            filename: upload.filename,
-            file_path: key,
-            file_url: url,
-            file_size: file_size,
-            content_type: upload.content_type,
-            metadata: storage_metadata
-          })
+
+          complete_attrs =
+            Map.merge(attrs, %{
+              filename: upload.filename,
+              file_path: key,
+              file_url: url,
+              file_size: file_size,
+              content_type: upload.content_type,
+              metadata: storage_metadata
+            })
 
           case create_complete_image_record(scope, complete_attrs) do
             {:ok, image} ->
@@ -235,7 +237,6 @@ defmodule GameMasterCore.Images do
     |> Image.complete_changeset(complete_attrs, scope, scope.game.id)
     |> Repo.insert()
   end
-
 
   defp unset_other_primary_images(scope, entity_type, entity_id, exclude_image_id) do
     query =

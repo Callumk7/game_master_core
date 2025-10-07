@@ -8,7 +8,7 @@ defmodule GameMasterCore.ImagesTest do
 
   setup do
     scope = game_scope_fixture()
-    
+
     {:ok, scope: scope}
   end
 
@@ -75,5 +75,4 @@ defmodule GameMasterCore.ImagesTest do
       assert max_size <= 100 * 1024 * 1024
     end
   end
-
 end

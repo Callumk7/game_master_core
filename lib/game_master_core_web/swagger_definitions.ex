@@ -556,7 +556,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
             id: "img-123e4567-e89b-12d3-a456-426614174000",
             filename: "gandalf-portrait.jpg",
             file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
-            file_size: 1048576,
+            file_size: 1_048_576,
             file_size_mb: 1.0,
             content_type: "image/jpeg",
             alt_text: "Portrait of Gandalf the Grey",
@@ -2210,11 +2210,25 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         file_url(:string, "Publicly accessible URL to the image", required: true)
         file_size(:integer, "File size in bytes", required: true, minimum: 1)
         file_size_mb(:number, "File size in megabytes", required: true)
-        content_type(:string, "MIME type of the image", required: true, enum: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"])
+
+        content_type(:string, "MIME type of the image",
+          required: true,
+          enum: ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
+        )
+
         alt_text(:string, "Alternative text for accessibility")
         is_primary(:boolean, "Whether this is the primary image for the entity", required: true)
-        entity_type(:string, "Type of entity this image belongs to", required: true, enum: ["character", "faction", "location", "quest"])
-        entity_id(:string, "ID of the entity this image belongs to", required: true, format: :uuid)
+
+        entity_type(:string, "Type of entity this image belongs to",
+          required: true,
+          enum: ["character", "faction", "location", "quest"]
+        )
+
+        entity_id(:string, "ID of the entity this image belongs to",
+          required: true,
+          format: :uuid
+        )
+
         metadata(:object, "Additional metadata for the image", default: %{})
         inserted_at(:string, "Creation timestamp", required: true, format: :"date-time")
         updated_at(:string, "Last update timestamp", required: true, format: :"date-time")
@@ -2224,7 +2238,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         id: "img-123e4567-e89b-12d3-a456-426614174000",
         filename: "hero-portrait.jpg",
         file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
-        file_size: 1048576,
+        file_size: 1_048_576,
         file_size_mb: 1.0,
         content_type: "image/jpeg",
         alt_text: "Portrait of the main character",
@@ -2246,7 +2260,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         file(:string, "Image file to upload", required: true, format: :binary)
         alt_text(:string, "Alternative text for accessibility")
-        is_primary(:boolean, "Whether this should be the primary image for the entity", default: false)
+
+        is_primary(:boolean, "Whether this should be the primary image for the entity",
+          default: false
+        )
       end
 
       required([:file])
@@ -2307,9 +2324,18 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Statistics about images for an entity")
 
       properties do
-        entity_type(:string, "Type of entity", required: true, enum: ["character", "faction", "location", "quest"])
+        entity_type(:string, "Type of entity",
+          required: true,
+          enum: ["character", "faction", "location", "quest"]
+        )
+
         entity_id(:string, "ID of the entity", required: true, format: :uuid)
-        total_count(:integer, "Total number of images for this entity", required: true, minimum: 0)
+
+        total_count(:integer, "Total number of images for this entity",
+          required: true,
+          minimum: 0
+        )
+
         total_size(:integer, "Total size of all images in bytes", required: true, minimum: 0)
         total_size_mb(:number, "Total size of all images in megabytes", required: true)
         has_primary(:boolean, "Whether the entity has a primary image", required: true)
@@ -2319,7 +2345,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         entity_type: "character",
         entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
         total_count: 3,
-        total_size: 3145728,
+        total_size: 3_145_728,
         total_size_mb: 3.0,
         has_primary: true
       })
@@ -2342,7 +2368,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
             id: "img-123e4567-e89b-12d3-a456-426614174000",
             filename: "hero-portrait.jpg",
             file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
-            file_size: 1048576,
+            file_size: 1_048_576,
             file_size_mb: 1.0,
             content_type: "image/jpeg",
             alt_text: "Portrait of the main character",
