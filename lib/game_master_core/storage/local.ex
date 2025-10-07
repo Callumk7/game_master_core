@@ -121,7 +121,7 @@ defmodule GameMasterCore.Storage.Local do
 
   defp get_upload_directory do
     upload_dir = Application.get_env(:game_master_core, :uploads_directory, "uploads")
-    
+
     # Ensure the base upload directory exists
     case File.mkdir_p(upload_dir) do
       :ok ->

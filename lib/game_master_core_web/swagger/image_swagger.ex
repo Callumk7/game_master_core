@@ -52,8 +52,17 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
-          body(:formData, Schema.ref(:ImageCreateRequest), "Image upload data", required: true)
         end
+
+        parameter(:"image[file]", :formData, :file, "Image file to upload", required: true)
+        parameter(:"image[alt_text]", :formData, :string, "Alternative text for accessibility")
+
+        parameter(
+          :"image[is_primary]",
+          :formData,
+          :boolean,
+          "Whether this should be the primary image"
+        )
 
         response(201, "Created", Schema.ref(:ImageResponse))
         response(400, "Bad Request", Schema.ref(:Error))

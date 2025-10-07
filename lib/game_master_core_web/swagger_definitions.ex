@@ -2255,15 +2255,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
   def image_create_params_schema do
     swagger_schema do
       title("Image Create Parameters")
-      description("Parameters for uploading a new image")
+      description("Parameters for uploading a new image - multipart/form-data fields")
+      type(:object)
 
       properties do
         file(:string, "Image file to upload", required: true, format: :binary)
         alt_text(:string, "Alternative text for accessibility")
-
-        is_primary(:boolean, "Whether this should be the primary image for the entity",
-          default: false
-        )
+        is_primary(:boolean, "Whether this should be the primary image for the entity")
       end
 
       required([:file])
@@ -2296,7 +2294,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
   def image_create_request_schema do
     swagger_schema do
       title("Image Create Request")
-      description("Form data for uploading an image")
+      description("Form data for uploading an image - corresponds to image[field] format")
       type(:object)
 
       properties do

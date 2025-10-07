@@ -104,7 +104,9 @@ if config_env() == :prod do
   # Railway automatically provides RAILWAY_VOLUME_MOUNT_PATH when a volume is attached
   # Setup: Create a Railway volume and mount it at /uploads
   # IMPORTANT: Also set RAILWAY_RUN_UID=0 to ensure proper volume permissions
-  uploads_directory = System.get_env("RAILWAY_VOLUME_MOUNT_PATH") || System.get_env("UPLOADS_DIRECTORY") || "/uploads"
+  uploads_directory =
+    System.get_env("RAILWAY_VOLUME_MOUNT_PATH") || System.get_env("UPLOADS_DIRECTORY") ||
+      "/uploads"
 
   config :game_master_core,
     uploads_directory: uploads_directory
