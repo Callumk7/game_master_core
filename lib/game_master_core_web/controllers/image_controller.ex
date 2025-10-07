@@ -106,9 +106,9 @@ defmodule GameMasterCoreWeb.ImageController do
   @doc """
   Set an image as the primary image for its entity.
 
-  PUT /api/games/{game_id}/{entity_type}/{entity_id}/images/{id}/primary
+  PUT /api/games/{game_id}/{entity_type}/{entity_id}/images/{image_id}/primary
   """
-  def set_primary(conn, %{"id" => image_id}) do
+  def set_primary(conn, %{"image_id" => image_id}) do
     with {:ok, image} <- Images.set_as_primary(conn.assigns.current_scope, image_id) do
       render(conn, :show, image: image)
     end
@@ -131,9 +131,9 @@ defmodule GameMasterCoreWeb.ImageController do
   @doc """
   Serve an image file directly.
 
-  GET /api/games/{game_id}/{entity_type}/{entity_id}/images/{id}/file
+  GET /api/games/{game_id}/{entity_type}/{entity_id}/images/{image_id}/file
   """
-  def serve_file(conn, %{"id" => image_id}) do
+  def serve_file(conn, %{"image_id" => image_id}) do
     with {:ok, image} <- Images.get_image_for_game(conn.assigns.current_scope, image_id) do
       # For local storage, redirect to the public URL
       # For cloud storage, this could serve the file directly or redirect
