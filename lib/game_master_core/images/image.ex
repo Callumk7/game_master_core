@@ -17,7 +17,7 @@ defmodule GameMasterCore.Images.Image do
   @foreign_key_type :binary_id
 
   # Supported entity types for polymorphic association
-  @valid_entity_types ["character", "faction", "location", "quest"]
+  @valid_entity_types ["character", "faction", "location", "quest", "note"]
 
   # Supported image content types
   @valid_content_types [

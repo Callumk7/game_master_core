@@ -49,6 +49,46 @@ defmodule GameMasterCore.Images do
   end
 
   @doc """
+  Get all images for a specific game.
+
+  ## Examples
+
+      iex> list_images_for_game(scope)
+      [%Image{}, ...]
+      
+      iex> list_images_for_game(scope, primary_first: true)
+      [%Image{is_primary: true}, %Image{is_primary: false}, ...]
+
+      iex> list_images_for_game(scope, limit: 10, offset: 20)
+      [%Image{}, ...] # limited results with pagination
+  """
+  def list_images_for_game(scope, opts \\ []) do
+    primary_first = Keyword.get(opts, :primary_first, false)
+    limit = Keyword.get(opts, :limit)
+    offset = Keyword.get(opts, :offset, 0)
+
+    query =
+      from i in Image,
+        where: i.game_id == ^scope.game.id
+
+    query =
+      if primary_first do
+        from i in query, order_by: [desc: i.is_primary, desc: i.inserted_at]
+      else
+        from i in query, order_by: [desc: i.inserted_at]
+      end
+
+    query =
+      if limit do
+        from i in query, limit: ^limit, offset: ^offset
+      else
+        query
+      end
+
+    Repo.all(query)
+  end
+
+  @doc """
   Get the primary image for a specific entity.
 
   ## Examples

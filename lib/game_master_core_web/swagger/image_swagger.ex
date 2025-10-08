@@ -21,7 +21,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -48,7 +48,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -84,7 +84,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -110,7 +110,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -137,7 +137,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -162,7 +162,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -187,7 +187,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -211,7 +211,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -236,7 +236,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
 
           entity_type(:path, :string, "Entity type",
             required: true,
-            enum: ["character", "faction", "location", "quest"]
+            enum: ["character", "faction", "location", "quest", "note"]
           )
 
           entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
@@ -244,6 +244,31 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
         end
 
         response(302, "Redirect to image file")
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :game_images do
+        get("/api/games/{game_id}/images")
+        summary("List all images for a game")
+        description("Retrieve all images across all entities within a specific game")
+        operation_id("listGameImages")
+        tag("GameMaster")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          primary_first(:query, :boolean, "Sort primary images first", required: false)
+          limit(:query, :integer, "Maximum number of results to return", required: false)
+
+          offset(:query, :integer, "Number of results to skip for pagination",
+            required: false,
+            default: 0
+          )
+        end
+
+        response(200, "Success", Schema.ref(:ImagesListResponse))
+        response(400, "Bad Request", Schema.ref(:Error))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
       end

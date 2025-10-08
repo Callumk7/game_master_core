@@ -21,6 +21,22 @@ defmodule GameMasterCoreWeb.ImageController do
   action_fallback GameMasterCoreWeb.FallbackController
 
   @doc """
+  List all images for a specific game.
+
+  GET /api/games/{game_id}/images
+  """
+  def game_images(conn, params) do
+    primary_first = params["primary_first"] == "true"
+    limit = parse_integer_param(params["limit"])
+    offset = parse_integer_param(params["offset"], 0)
+
+    opts = build_query_opts(primary_first, limit, offset)
+    images = Images.list_images_for_game(conn.assigns.current_scope, opts)
+
+    render(conn, :game_images, images: images)
+  end
+
+  @doc """
   List all images for a specific entity.
 
   GET /api/games/{game_id}/{entity_type}/{entity_id}/images
@@ -158,8 +174,31 @@ defmodule GameMasterCoreWeb.ImageController do
 
   # Private helper functions
 
+  defp parse_integer_param(value, default \\ nil)
+  defp parse_integer_param(nil, _default), do: nil
+  defp parse_integer_param(value, _default) when is_nil(value), do: nil
+
+  defp parse_integer_param(value, default) when is_binary(value) do
+    case Integer.parse(value) do
+      {int, ""} -> int
+      _ -> default
+    end
+  end
+
+  defp parse_integer_param(value, _default) when is_integer(value), do: value
+  defp parse_integer_param(_, default), do: default
+
+  defp build_query_opts(primary_first, limit, offset) do
+    [primary_first: primary_first]
+    |> maybe_add_opt(:limit, limit)
+    |> maybe_add_opt(:offset, offset)
+  end
+
+  defp maybe_add_opt(opts, _key, nil), do: opts
+  defp maybe_add_opt(opts, key, value), do: Keyword.put(opts, key, value)
+
   defp validate_entity_type(entity_type)
-       when entity_type in ["character", "faction", "location", "quest"] do
+       when entity_type in ["character", "faction", "location", "quest", "note"] do
     {:ok, entity_type}
   end
 
@@ -202,6 +241,7 @@ defmodule GameMasterCoreWeb.ImageController do
       params["faction_id"] -> {"faction", params["faction_id"]}
       params["location_id"] -> {"location", params["location_id"]}
       params["quest_id"] -> {"quest", params["quest_id"]}
+      params["note_id"] -> {"note", params["note_id"]}
       true -> {nil, nil}
     end
   end

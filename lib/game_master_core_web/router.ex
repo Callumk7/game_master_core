@@ -63,6 +63,7 @@ defmodule GameMasterCoreWeb.Router do
       get "/links", GameController, :list_entities
       get "/tree", GameController, :tree
       get "/pinned", PinnedController, :index
+      get "/images", ImageController, :game_images
 
       resources "/notes", NoteController, except: [:new, :edit] do
         get "/links", NoteController, :list_links
@@ -71,6 +72,15 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", NoteController, :delete_link
         put "/pin", NoteController, :pin
         put "/unpin", NoteController, :unpin
+
+        # Image management routes
+        get "/images/primary", ImageController, :primary
+        get "/images/stats", ImageController, :stats
+
+        resources "/images", ImageController, except: [:new, :edit] do
+          put "/primary", ImageController, :set_primary
+          get "/file", ImageController, :serve_file
+        end
       end
 
       resources "/characters", CharacterController, except: [:new, :edit] do

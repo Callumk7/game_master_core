@@ -29,6 +29,14 @@ defmodule GameMasterCoreWeb.ImageControllerTest do
 
       assert response(conn, 404)
     end
+
+    test "works with note entity type", %{conn: conn, game: game} do
+      note_id = Ecto.UUID.generate()
+
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{note_id}/images")
+
+      assert json_response(conn, 200)["data"] == []
+    end
   end
 
   describe "GET /api/games/:game_id/characters/:character_id/images/stats" do
@@ -44,6 +52,22 @@ defmodule GameMasterCoreWeb.ImageControllerTest do
       assert response_data["has_primary"] == false
       assert response_data["entity_type"] == "character"
       assert response_data["entity_id"] == character_id
+    end
+  end
+
+  describe "GET /api/games/:game_id/notes/:note_id/images/stats" do
+    test "returns zero stats when no images exist for note", %{conn: conn, game: game} do
+      note_id = Ecto.UUID.generate()
+
+      conn = get(conn, ~p"/api/games/#{game.id}/notes/#{note_id}/images/stats")
+
+      response_data = json_response(conn, 200)["data"]
+
+      assert response_data["total_count"] == 0
+      assert response_data["total_size"] == 0
+      assert response_data["has_primary"] == false
+      assert response_data["entity_type"] == "note"
+      assert response_data["entity_id"] == note_id
     end
   end
 
@@ -86,6 +110,74 @@ defmodule GameMasterCoreWeb.ImageControllerTest do
 
       # Should not return a 404 for route matching
       refute conn.status == 404
+    end
+  end
+
+  describe "GET /api/games/:game_id/images" do
+    test "returns empty list when no images exist in game", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images")
+
+      response_data = json_response(conn, 200)
+      assert response_data["data"] == []
+      assert response_data["meta"]["total_count"] == 0
+    end
+
+    test "requires authentication", %{game: game} do
+      # Create a new connection without authentication
+      conn = build_conn()
+
+      conn = get(conn, ~p"/api/games/#{game.id}/images")
+
+      # Should redirect to login or return unauthorized
+      assert conn.status in [401, 302]
+    end
+
+    test "accepts primary_first query parameter", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?primary_first=true")
+
+      assert json_response(conn, 200)["data"] == []
+    end
+
+    test "accepts limit query parameter", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?limit=10")
+
+      assert json_response(conn, 200)["data"] == []
+    end
+
+    test "accepts offset query parameter", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?offset=5")
+
+      assert json_response(conn, 200)["data"] == []
+    end
+
+    test "accepts multiple query parameters", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?primary_first=true&limit=5&offset=10")
+
+      response_data = json_response(conn, 200)
+      assert response_data["data"] == []
+      assert response_data["meta"]["total_count"] == 0
+    end
+
+    test "ignores invalid limit parameter", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?limit=invalid")
+
+      # Should not error and return empty list
+      assert json_response(conn, 200)["data"] == []
+    end
+
+    test "ignores invalid offset parameter", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/images?offset=invalid")
+
+      # Should not error and return empty list
+      assert json_response(conn, 200)["data"] == []
+    end
+
+    test "returns 404 for non-existent game", %{conn: conn} do
+      fake_game_id = Ecto.UUID.generate()
+
+      conn = get(conn, ~p"/api/games/#{fake_game_id}/images")
+
+      assert response(conn, 404)
     end
   end
 end

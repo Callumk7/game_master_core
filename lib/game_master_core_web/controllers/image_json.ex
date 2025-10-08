@@ -42,6 +42,18 @@ defmodule GameMasterCoreWeb.ImageJSON do
     }
   end
 
+  @doc """
+  Renders a list of images for a game.
+  """
+  def game_images(%{images: images}) do
+    %{
+      data: for(image <- images, do: data(image)),
+      meta: %{
+        total_count: length(images)
+      }
+    }
+  end
+
   defp data(%Image{} = image) do
     %{
       id: image.id,

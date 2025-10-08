@@ -2180,7 +2180,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         entity_type(:string, "Type of entity this image belongs to",
           required: true,
-          enum: ["character", "faction", "location", "quest"]
+          enum: ["character", "faction", "location", "quest", "note"]
         )
 
         entity_id(:string, "ID of the entity this image belongs to",

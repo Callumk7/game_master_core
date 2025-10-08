@@ -26,6 +26,12 @@ defmodule GameMasterCore.ImagesTest do
       images = Images.list_images_for_entity(scope, "character", entity_id)
       assert is_list(images)
     end
+
+    test "works with note entity type", %{scope: scope} do
+      note_id = Ecto.UUID.generate()
+      images = Images.list_images_for_entity(scope, "note", note_id)
+      assert images == []
+    end
   end
 
   describe "get_primary_image/3" do
@@ -48,6 +54,50 @@ defmodule GameMasterCore.ImagesTest do
                total_size: 0,
                has_primary: false
              } = stats
+    end
+  end
+
+  describe "list_images_for_game/2" do
+    test "returns empty list when no images exist in game", %{scope: scope} do
+      images = Images.list_images_for_game(scope)
+      assert images == []
+    end
+
+    test "accepts primary_first option", %{scope: scope} do
+      images = Images.list_images_for_game(scope, primary_first: true)
+      assert is_list(images)
+      assert images == []
+    end
+
+    test "accepts limit option", %{scope: scope} do
+      images = Images.list_images_for_game(scope, limit: 10)
+      assert is_list(images)
+      assert images == []
+    end
+
+    test "accepts offset option", %{scope: scope} do
+      images = Images.list_images_for_game(scope, offset: 5)
+      assert is_list(images)
+      assert images == []
+    end
+
+    test "accepts multiple options", %{scope: scope} do
+      images = Images.list_images_for_game(scope, primary_first: true, limit: 5, offset: 10)
+      assert is_list(images)
+      assert images == []
+    end
+
+    test "handles nil limit gracefully", %{scope: scope} do
+      images = Images.list_images_for_game(scope, limit: nil)
+      assert is_list(images)
+      assert images == []
+    end
+
+    test "uses default offset of 0 when not specified", %{scope: scope} do
+      # This test ensures our function doesn't crash with default offset
+      images = Images.list_images_for_game(scope, limit: 10)
+      assert is_list(images)
+      assert images == []
     end
   end
 
