@@ -8,17 +8,15 @@ defmodule GameMasterCoreWeb.Admin.CharacterControllerTest do
     name: "some name",
     content: "some content",
     class: "some class",
-    level: 42,
-    image_url: "some image_url"
+    level: 42
   }
   @update_attrs %{
     name: "some updated name",
     content: "some updated content",
     class: "some updated class",
-    level: 43,
-    image_url: "some updated image_url"
+    level: 43
   }
-  @invalid_attrs %{name: nil, content: nil, class: nil, level: nil, image_url: nil}
+  @invalid_attrs %{name: nil, content: nil, class: nil, level: nil}
 
   setup :register_and_log_in_user
 

@@ -346,7 +346,6 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       assert character_response["class"] == character.class
       assert character_response["level"] == character.level
       assert character_response["content"] == character.content
-      assert character_response["image_url"] == character.image_url
       assert character_response["created_at"]
       assert character_response["updated_at"]
     end

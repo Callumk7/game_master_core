@@ -86,6 +86,7 @@ defmodule GameMasterCoreWeb.Router do
         put "/unpin", CharacterController, :unpin
 
         # Image management routes
+        get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
 
         resources "/images", ImageController, except: [:new, :edit] do
@@ -105,6 +106,7 @@ defmodule GameMasterCoreWeb.Router do
         put "/unpin", FactionController, :unpin
 
         # Image management routes
+        get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
 
         resources "/images", ImageController, except: [:new, :edit] do
@@ -124,6 +126,7 @@ defmodule GameMasterCoreWeb.Router do
         put "/unpin", LocationController, :unpin
 
         # Image management routes
+        get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
 
         resources "/images", ImageController, except: [:new, :edit] do
@@ -143,6 +146,7 @@ defmodule GameMasterCoreWeb.Router do
         put "/unpin", QuestController, :unpin
 
         # Image management routes
+        get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
 
         resources "/images", ImageController, except: [:new, :edit] do

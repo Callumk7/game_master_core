@@ -15,7 +15,6 @@ defmodule GameMasterCore.Characters.Character do
     field :content_plain_text, :string
     field :class, :string
     field :level, :integer
-    field :image_url, :string
     field :tags, {:array, :string}, default: []
     field :faction_role, :string
     field :pinned, :boolean, default: false
@@ -46,7 +45,6 @@ defmodule GameMasterCore.Characters.Character do
       :content_plain_text,
       :class,
       :level,
-      :image_url,
       :tags,
       :member_of_faction_id,
       :faction_role,

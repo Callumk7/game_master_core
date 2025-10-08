@@ -163,7 +163,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
-        image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags associated with this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
@@ -178,7 +177,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
-        image_url: "https://example.com/gandalf.jpg",
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
@@ -528,9 +526,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
-        image_url(:string, "Character image URL")
-        images(Schema.array(:Image), "All images associated with this character")
-        primary_image(Schema.ref(:Image), "Primary image for this character")
         tags(Schema.array(:string), "Tags associated with this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
@@ -550,30 +545,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
-        image_url: "https://example.com/gandalf.jpg",
-        images: [
-          %{
-            id: "img-123e4567-e89b-12d3-a456-426614174000",
-            filename: "gandalf-portrait.jpg",
-            file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
-            file_size: 1_048_576,
-            file_size_mb: 1.0,
-            content_type: "image/jpeg",
-            alt_text: "Portrait of Gandalf the Grey",
-            is_primary: true,
-            entity_type: "character",
-            entity_id: "323e4567-e89b-12d3-a456-426614174002",
-            metadata: %{},
-            inserted_at: "2023-08-20T12:00:00Z",
-            updated_at: "2023-08-20T12:00:00Z"
-          }
-        ],
-        primary_image: %{
-          id: "img-123e4567-e89b-12d3-a456-426614174000",
-          filename: "gandalf-portrait.jpg",
-          file_url: "/uploads/games/game-123/character/char-456/uuid.jpg",
-          alt_text: "Portrait of Gandalf the Grey"
-        },
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
@@ -599,7 +570,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
-        image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags for this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
@@ -615,7 +585,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "A wise and powerful wizard who guides the Fellowship.",
         class: "Wizard",
         level: 20,
-        image_url: "https://example.com/gandalf.jpg",
         tags: ["npc", "ally", "wizard"],
         member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
         faction_role: "Elder Council Member",
@@ -636,7 +605,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         class(:string, "Character class")
         level(:integer, "Character level")
-        image_url(:string, "Character image URL")
         tags(Schema.array(:string), "Tags for this character")
         member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
         faction_role(:string, "Role within the faction")
@@ -796,7 +764,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
         images(Schema.array(:Image), "All images associated with this faction")
-        primary_image(Schema.ref(:Image), "Primary image for this faction")
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
@@ -812,8 +779,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A secretive organization that seeks to control the realm from behind the scenes.",
         content_plain_text:
           "A secretive organization that seeks to control the realm from behind the scenes.",
-        images: [],
-        primary_image: nil,
         tags: ["secret", "political", "antagonist"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -1052,7 +1017,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
         parent_id(:string, "Parent location ID", format: :uuid)
         images(Schema.array(:Image), "All images associated with this location")
-        primary_image(Schema.ref(:Image), "Primary image for this location")
         tags(Schema.array(:string), "Tags associated with this location")
         pinned(:boolean, "Whether this location is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
@@ -1069,8 +1033,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A mysterious cave hidden in the mountains, known for its glowing crystals.",
         type: "building",
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
-        images: [],
-        primary_image: nil,
         tags: ["magical", "hidden", "dangerous"],
         pinned: false,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
@@ -1208,7 +1170,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
         images(Schema.array(:Image), "All images associated with this quest")
-        primary_image(Schema.ref(:Image), "Primary image for this quest")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
         pinned(:boolean, "Whether this quest is pinned", required: true)
@@ -1229,8 +1190,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name: "The Lost Treasure",
         content: "Find the lost treasure hidden in the ancient ruins.",
         content_plain_text: "Find the lost treasure hidden in the ancient ruins.",
-        images: [],
-        primary_image: nil,
         tags: ["main", "treasure", "exploration"],
         parent_id: "723e4567-e89b-12d3-a456-426614174006",
         pinned: false,

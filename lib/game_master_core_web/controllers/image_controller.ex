@@ -115,6 +115,21 @@ defmodule GameMasterCoreWeb.ImageController do
   end
 
   @doc """
+  Get the primary image for an entity.
+
+  GET /api/games/{game_id}/{entity_type}/{entity_id}/images/primary
+  """
+  def primary(conn, params) do
+    {entity_type, entity_id} = extract_entity_info(conn, params)
+
+    with {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, image} <-
+           Images.get_primary_image(conn.assigns.current_scope, entity_type, entity_id) do
+      render(conn, :show, image: image)
+    end
+  end
+
+  @doc """
   Get image statistics for an entity.
 
   GET /api/games/{game_id}/{entity_type}/{entity_id}/images/stats

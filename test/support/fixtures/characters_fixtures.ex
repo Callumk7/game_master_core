@@ -23,7 +23,6 @@ defmodule GameMasterCore.CharactersFixtures do
       Enum.into(attrs, %{
         class: "some class",
         content: "some content",
-        image_url: "some image_url",
         level: 42,
         name: "some name"
       })

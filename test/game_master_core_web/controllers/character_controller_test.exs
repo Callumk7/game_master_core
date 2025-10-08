@@ -12,17 +12,15 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
     name: "some name",
     level: 42,
     content: "some content",
-    class: "some class",
-    image_url: "some image_url"
+    class: "some class"
   }
   @update_attrs %{
     name: "some updated name",
     level: 43,
     content: "some updated content",
-    class: "some updated class",
-    image_url: "some updated image_url"
+    class: "some updated class"
   }
-  @invalid_attrs %{name: nil, level: nil, content: nil, class: nil, image_url: nil}
+  @invalid_attrs %{name: nil, level: nil, content: nil, class: nil}
 
   setup :register_and_log_in_user
 
@@ -59,7 +57,6 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
                "id" => ^id,
                "class" => "some class",
                "content" => "some content",
-               "image_url" => "some image_url",
                "level" => 42,
                "name" => "some name"
              } = json_response(conn, 200)["data"]
@@ -138,7 +135,6 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
                "id" => ^id,
                "class" => "some updated class",
                "content" => "some updated content",
-               "image_url" => "some updated image_url",
                "level" => 43,
                "name" => "some updated name"
              } = json_response(conn, 200)["data"]
