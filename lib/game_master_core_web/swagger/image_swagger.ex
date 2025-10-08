@@ -174,6 +174,30 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
+      swagger_path :primary do
+        get("/api/games/{game_id}/{entity_type}s/{entity_id}/images/primary")
+        summary("Get primary image")
+        description("Get the primary image for an entity")
+        operation_id("getEntityPrimaryImage")
+        tag("GameMaster")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+
+          entity_type(:path, :string, "Entity type",
+            required: true,
+            enum: ["character", "faction", "location", "quest"]
+          )
+
+          entity_id(:path, :string, "Entity ID", required: true, format: :uuid)
+        end
+
+        response(200, "Success", Schema.ref(:ImageResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
       swagger_path :stats do
         get("/api/games/{game_id}/{entity_type}s/{entity_id}/images/stats")
         summary("Get image statistics")
