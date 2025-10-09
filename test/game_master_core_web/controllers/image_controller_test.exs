@@ -180,4 +180,143 @@ defmodule GameMasterCoreWeb.ImageControllerTest do
       assert response(conn, 404)
     end
   end
+
+  describe "PUT /api/games/:game_id/characters/:character_id/images/:id" do
+    setup %{game: game} do
+      character_id = Ecto.UUID.generate()
+      
+      # Create a test image record directly in the database
+      image_attrs = %{
+        id: Ecto.UUID.generate(),
+        filename: "test-image.jpg",
+        file_path: "/uploads/test/test-image.jpg",
+        file_url: "/uploads/test/test-image.jpg",
+        file_size: 12345,
+        content_type: "image/jpeg",
+        alt_text: "Test image",
+        is_primary: false,
+        entity_type: "character",
+        entity_id: character_id,
+        metadata: %{},
+        position_y: 50,
+        game_id: game.id,
+        user_id: game.owner_id,
+        inserted_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        updated_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+      
+      {:ok, image} = GameMasterCore.Repo.insert(struct(GameMasterCore.Images.Image, image_attrs))
+      
+      {:ok, character_id: character_id, image: image}
+    end
+
+    test "updates position_y successfully", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 25
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["position_y"] == 25
+      assert response_data["id"] == image.id
+    end
+
+    test "updates position_y to 0", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 0
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["position_y"] == 0
+    end
+
+    test "updates position_y to 100", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 100
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["position_y"] == 100
+    end
+
+    test "rejects position_y below 0", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => -1
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      assert response(conn, 422)
+    end
+
+    test "rejects position_y above 100", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 101
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      assert response(conn, 422)
+    end
+
+    test "preserves position_y when not provided", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "alt_text" => "Updated alt text"
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["position_y"] == 50  # Should preserve original value
+      assert response_data["alt_text"] == "Updated alt text"
+    end
+
+    test "updates position_y along with other fields", %{conn: conn, game: game, character_id: character_id, image: image} do
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 75,
+          "alt_text" => "New alt text",
+          "is_primary" => true
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{image.id}", update_attrs)
+      
+      response_data = json_response(conn, 200)["data"]
+      assert response_data["position_y"] == 75
+      assert response_data["alt_text"] == "New alt text"
+      assert response_data["is_primary"] == true
+    end
+
+    test "returns 404 for non-existent image", %{conn: conn, game: game, character_id: character_id} do
+      fake_image_id = Ecto.UUID.generate()
+      
+      update_attrs = %{
+        "image" => %{
+          "position_y" => 25
+        }
+      }
+      
+      conn = put(conn, ~p"/api/games/#{game.id}/characters/#{character_id}/images/#{fake_image_id}", update_attrs)
+      
+      assert response(conn, 404)
+    end
+  end
 end
