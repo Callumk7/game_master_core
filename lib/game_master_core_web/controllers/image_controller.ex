@@ -223,13 +223,14 @@ defmodule GameMasterCoreWeb.ImageController do
       entity_type: entity_type,
       entity_id: entity_id,
       alt_text: Map.get(params, "alt_text"),
-      is_primary: Map.get(params, "is_primary", false)
+      is_primary: Map.get(params, "is_primary", false),
+      position_y: Map.get(params, "position_y")
     }
   end
 
   defp extract_update_attrs(params) do
     params
-    |> Map.take(["alt_text", "is_primary"])
+    |> Map.take(["alt_text", "is_primary", "position_y"])
     |> Enum.into(%{}, fn {k, v} -> {String.to_atom(k), v} end)
   end
 

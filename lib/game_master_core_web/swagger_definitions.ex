@@ -2189,6 +2189,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         metadata(:object, "Additional metadata for the image", default: %{})
+
+        position_y(:integer, "Vertical position percentage (0-100) for banner placement",
+          required: true,
+          minimum: 0,
+          maximum: 100,
+          default: 50
+        )
+
         inserted_at(:string, "Creation timestamp", required: true, format: :"date-time")
         updated_at(:string, "Last update timestamp", required: true, format: :"date-time")
       end
@@ -2205,6 +2213,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         entity_type: "character",
         entity_id: "char-456e7890-e89b-12d3-a456-426614174001",
         metadata: %{},
+        position_y: 50,
         inserted_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -2221,6 +2230,12 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         file(:string, "Image file to upload", required: true, format: :binary)
         alt_text(:string, "Alternative text for accessibility")
         is_primary(:boolean, "Whether this should be the primary image for the entity")
+
+        position_y(:integer, "Vertical position percentage (0-100) for banner placement",
+          minimum: 0,
+          maximum: 100,
+          default: 50
+        )
       end
 
       required([:file])
@@ -2228,7 +2243,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       example(%{
         file: "binary file data",
         alt_text: "Portrait of the main character",
-        is_primary: true
+        is_primary: true,
+        position_y: 30
       })
     end
   end
@@ -2241,11 +2257,17 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         alt_text(:string, "Alternative text for accessibility")
         is_primary(:boolean, "Whether this should be the primary image for the entity")
+
+        position_y(:integer, "Vertical position percentage (0-100) for banner placement",
+          minimum: 0,
+          maximum: 100
+        )
       end
 
       example(%{
         alt_text: "Updated portrait description",
-        is_primary: false
+        is_primary: false,
+        position_y: 75
       })
     end
   end

@@ -64,6 +64,13 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
           "Whether this should be the primary image"
         )
 
+        parameter(
+          :"image[position_y]",
+          :formData,
+          :integer,
+          "Vertical position percentage (0-100) for banner placement"
+        )
+
         response(201, "Created", Schema.ref(:ImageResponse))
         response(400, "Bad Request", Schema.ref(:Error))
         response(401, "Unauthorized", Schema.ref(:Error))

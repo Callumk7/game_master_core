@@ -67,6 +67,7 @@ defmodule GameMasterCoreWeb.ImageJSON do
       entity_type: image.entity_type,
       entity_id: image.entity_id,
       metadata: image.metadata,
+      position_y: image.position_y,
       inserted_at: image.inserted_at,
       updated_at: image.updated_at
     }

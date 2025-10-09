@@ -42,6 +42,7 @@ defmodule GameMasterCore.Images.Image do
     field :entity_type, :string
     field :entity_id, :binary_id
     field :metadata, :map, default: %{}
+    field :position_y, :integer, default: 50
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -61,11 +62,13 @@ defmodule GameMasterCore.Images.Image do
       :alt_text,
       :entity_type,
       :entity_id,
-      :is_primary
+      :is_primary,
+      :position_y
     ])
     |> validate_required([:filename, :entity_type, :entity_id])
     |> validate_entity_type()
     |> validate_filename()
+    |> validate_position_y()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
   end
@@ -102,7 +105,8 @@ defmodule GameMasterCore.Images.Image do
       :entity_type,
       :entity_id,
       :is_primary,
-      :metadata
+      :metadata,
+      :position_y
     ])
     |> validate_required([
       :filename,
@@ -117,6 +121,7 @@ defmodule GameMasterCore.Images.Image do
     |> validate_filename()
     |> validate_content_type()
     |> validate_file_size()
+    |> validate_position_y()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
   end
@@ -126,8 +131,9 @@ defmodule GameMasterCore.Images.Image do
   """
   def update_changeset(image, attrs) do
     image
-    |> cast(attrs, [:alt_text, :is_primary, :metadata])
+    |> cast(attrs, [:alt_text, :is_primary, :metadata, :position_y])
     |> validate_length(:alt_text, max: 255)
+    |> validate_position_y()
   end
 
   @doc """
@@ -172,6 +178,14 @@ defmodule GameMasterCore.Images.Image do
     |> validate_length(:filename, min: 1, max: 255)
     |> validate_format(:filename, ~r/\.(jpe?g|png|webp|gif)$/i,
       message: "must be a valid image file (jpg, jpeg, png, webp, gif)"
+    )
+  end
+
+  defp validate_position_y(changeset) do
+    validate_number(changeset, :position_y,
+      greater_than_or_equal_to: 0,
+      less_than_or_equal_to: 100,
+      message: "must be between 0 and 100"
     )
   end
 end
