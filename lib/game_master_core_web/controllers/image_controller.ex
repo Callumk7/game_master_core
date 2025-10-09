@@ -219,18 +219,24 @@ defmodule GameMasterCoreWeb.ImageController do
   end
 
   defp build_image_attrs(entity_type, entity_id, params) do
-    %{
+    base_attrs = %{
       entity_type: entity_type,
       entity_id: entity_id,
       alt_text: Map.get(params, "alt_text"),
-      is_primary: Map.get(params, "is_primary", false),
-      position_y: Map.get(params, "position_y")
+      is_primary: Map.get(params, "is_primary", false)
     }
+
+    # Only include position_y if it's provided, allowing schema default to be used otherwise
+    case Map.get(params, "position_y") do
+      nil -> base_attrs
+      position_y -> Map.put(base_attrs, :position_y, position_y)
+    end
   end
 
   defp extract_update_attrs(params) do
     params
     |> Map.take(["alt_text", "is_primary", "position_y"])
+    |> Enum.reject(fn {_k, v} -> is_nil(v) end)  # Remove nil values to preserve existing values
     |> Enum.into(%{}, fn {k, v} -> {String.to_atom(k), v} end)
   end
 
