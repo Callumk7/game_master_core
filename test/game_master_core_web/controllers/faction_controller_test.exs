@@ -6,6 +6,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   import GameMasterCore.AccountsFixtures
   import GameMasterCore.NotesFixtures
   import GameMasterCore.CharactersFixtures
+  import GameMasterCore.LocationsFixtures
   alias GameMasterCore.Factions.Faction
 
   @create_attrs %{
@@ -1040,5 +1041,110 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
     faction = faction_fixture(scope, %{game_id: game.id})
 
     %{faction: faction}
+  end
+
+  describe "faction links with is_current_location metadata" do
+    setup [:create_faction]
+
+    test "create_link successfully creates faction-location link with is_current_location metadata",
+         %{
+           conn: conn,
+           game: game,
+           faction: faction,
+           scope: scope
+         } do
+      location = location_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+          "entity_type" => "location",
+          "entity_id" => location.id,
+          "is_current_location" => true,
+          "description" => "Main headquarters",
+          "strength" => 10
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["faction_id"] == faction.id
+      assert response["entity_type"] == "location"
+      assert response["entity_id"] == location.id
+    end
+
+    test "update_link successfully updates faction-location link with is_current_location metadata",
+         %{
+           conn: conn,
+           game: game,
+           faction: faction,
+           scope: scope
+         } do
+      location = location_fixture(scope, %{game_id: game.id})
+
+      # Create link first
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location.id,
+        "is_current_location" => false
+      })
+
+      # Update the link with new metadata
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{game.id}/factions/#{faction.id}/links/location/#{location.id}",
+          %{
+            "is_current_location" => true,
+            "description" => "Now main headquarters",
+            "strength" => 10
+          }
+        )
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["faction_id"] == faction.id
+      assert response["entity_type"] == "location"
+      assert response["entity_id"] == location.id
+    end
+
+    test "list_links returns faction links with is_current_location metadata", %{
+      conn: conn,
+      game: game,
+      faction: faction,
+      scope: scope
+    } do
+      location1 = location_fixture(scope, %{game_id: game.id, name: "Current HQ"})
+      location2 = location_fixture(scope, %{game_id: game.id, name: "Former HQ"})
+
+      # Create links with different is_current_location values
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location1.id,
+        "is_current_location" => true,
+        "description" => "Main headquarters"
+      })
+
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location2.id,
+        "is_current_location" => false,
+        "description" => "Former headquarters"
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["faction_id"] == faction.id
+      assert length(response["data"]["links"]["locations"]) == 2
+
+      locations = response["data"]["links"]["locations"]
+      current_location = Enum.find(locations, fn loc -> loc["name"] == "Current HQ" end)
+      former_location = Enum.find(locations, fn loc -> loc["name"] == "Former HQ" end)
+
+      assert current_location["is_current_location"] == true
+      assert current_location["description_meta"] == "Main headquarters"
+
+      assert former_location["is_current_location"] == false
+      assert former_location["description_meta"] == "Former headquarters"
+    end
   end
 end

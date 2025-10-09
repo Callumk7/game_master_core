@@ -733,6 +733,134 @@ defmodule GameMasterCore.LinksTest do
     end
   end
 
+  describe "link/3 with is_current_location metadata - Character and Location" do
+    setup do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      {:ok, scope: scope, character: character, location: location}
+    end
+
+    test "successfully creates character-location link with is_current_location true", %{
+      character: character,
+      location: location
+    } do
+      metadata = %{is_current_location: true}
+
+      assert {:ok, link} = Links.link(character, location, metadata)
+      assert link.is_current_location == true
+    end
+
+    test "successfully creates character-location link with is_current_location false", %{
+      character: character,
+      location: location
+    } do
+      metadata = %{is_current_location: false}
+
+      assert {:ok, link} = Links.link(character, location, metadata)
+      assert link.is_current_location == false
+    end
+
+    test "defaults is_current_location to false when not provided", %{
+      character: character,
+      location: location
+    } do
+      assert {:ok, link} = Links.link(character, location, %{})
+      assert link.is_current_location == false
+    end
+
+    test "successfully creates character-location link with all metadata including is_current_location",
+         %{
+           character: character,
+           location: location
+         } do
+      metadata = %{
+        relationship_type: "resident",
+        description: "Lives in the uptown district",
+        strength: 8,
+        is_active: true,
+        is_current_location: true,
+        metadata: %{
+          "address" => "123 Main Street",
+          "years_lived" => 5
+        }
+      }
+
+      assert {:ok, link} = Links.link(character, location, metadata)
+      assert link.relationship_type == "resident"
+      assert link.description == "Lives in the uptown district"
+      assert link.strength == 8
+      assert link.is_active == true
+      assert link.is_current_location == true
+      assert link.metadata["address"] == "123 Main Street"
+      assert link.metadata["years_lived"] == 5
+    end
+  end
+
+  describe "link/3 with is_current_location metadata - Faction and Location" do
+    setup do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+      {:ok, scope: scope, faction: faction, location: location}
+    end
+
+    test "successfully creates faction-location link with is_current_location true", %{
+      faction: faction,
+      location: location
+    } do
+      metadata = %{is_current_location: true}
+
+      assert {:ok, link} = Links.link(faction, location, metadata)
+      assert link.is_current_location == true
+    end
+
+    test "successfully creates faction-location link with is_current_location false", %{
+      faction: faction,
+      location: location
+    } do
+      metadata = %{is_current_location: false}
+
+      assert {:ok, link} = Links.link(faction, location, metadata)
+      assert link.is_current_location == false
+    end
+
+    test "defaults is_current_location to false when not provided", %{
+      faction: faction,
+      location: location
+    } do
+      assert {:ok, link} = Links.link(faction, location, %{})
+      assert link.is_current_location == false
+    end
+
+    test "successfully creates faction-location link with all metadata including is_current_location",
+         %{
+           faction: faction,
+           location: location
+         } do
+      metadata = %{
+        relationship_type: "headquartered",
+        description: "Main operations center",
+        strength: 10,
+        is_active: true,
+        is_current_location: true,
+        metadata: %{
+          "building_type" => "fortress",
+          "established" => "2020-01-01"
+        }
+      }
+
+      assert {:ok, link} = Links.link(faction, location, metadata)
+      assert link.relationship_type == "headquartered"
+      assert link.description == "Main operations center"
+      assert link.strength == 10
+      assert link.is_active == true
+      assert link.is_current_location == true
+      assert link.metadata["building_type"] == "fortress"
+      assert link.metadata["established"] == "2020-01-01"
+    end
+  end
+
   describe "links_for/1 metadata retrieval" do
     setup do
       scope = game_scope_fixture()
@@ -915,6 +1043,138 @@ defmodule GameMasterCore.LinksTest do
       assert character1_link.entity.id == character1.id
       assert character1_link.relationship_type == "sibling"
       assert character1_link.metadata["reunion_date"] == "2023-05-15"
+    end
+  end
+
+  describe "links_for/1 metadata retrieval with is_current_location" do
+    setup do
+      scope = game_scope_fixture()
+      character = character_fixture(scope, %{game_id: scope.game.id})
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location1 = location_fixture(scope, %{game_id: scope.game.id})
+      location2 = location_fixture(scope, %{game_id: scope.game.id})
+
+      # Create links with is_current_location metadata
+      {:ok, _} =
+        Links.link(character, location1, %{
+          relationship_type: "resident",
+          description: "Current home",
+          strength: 9,
+          is_active: true,
+          is_current_location: true,
+          metadata: %{"address" => "123 Main St"}
+        })
+
+      {:ok, _} =
+        Links.link(character, location2, %{
+          relationship_type: "former_resident",
+          description: "Childhood home",
+          strength: 7,
+          is_active: false,
+          is_current_location: false,
+          metadata: %{"years_lived" => 15}
+        })
+
+      {:ok, _} =
+        Links.link(faction, location1, %{
+          relationship_type: "headquartered",
+          description: "Main operations center",
+          strength: 10,
+          is_active: true,
+          is_current_location: true,
+          metadata: %{"building_type" => "fortress"}
+        })
+
+      {:ok,
+       scope: scope,
+       character: character,
+       faction: faction,
+       location1: location1,
+       location2: location2}
+    end
+
+    test "returns is_current_location metadata for character location links", %{
+      character: character,
+      location1: location1,
+      location2: location2
+    } do
+      links = Links.links_for(character)
+      assert %{locations: locations} = links
+      assert length(locations) == 2
+
+      # Find the specific locations in the results
+      location1_link = Enum.find(locations, fn link -> link.entity.id == location1.id end)
+      location2_link = Enum.find(locations, fn link -> link.entity.id == location2.id end)
+
+      # Verify location1 metadata (current location)
+      assert location1_link.relationship_type == "resident"
+      assert location1_link.description == "Current home"
+      assert location1_link.strength == 9
+      assert location1_link.is_active == true
+      assert location1_link.is_current_location == true
+      assert location1_link.metadata["address"] == "123 Main St"
+
+      # Verify location2 metadata (former location)
+      assert location2_link.relationship_type == "former_resident"
+      assert location2_link.description == "Childhood home"
+      assert location2_link.strength == 7
+      assert location2_link.is_active == false
+      assert location2_link.is_current_location == false
+      assert location2_link.metadata["years_lived"] == 15
+    end
+
+    test "returns is_current_location metadata for faction location links", %{
+      faction: faction,
+      location1: location1
+    } do
+      links = Links.links_for(faction)
+      assert %{locations: locations} = links
+      assert length(locations) == 1
+
+      location_link = List.first(locations)
+      assert location_link.entity.id == location1.id
+      assert location_link.relationship_type == "headquartered"
+      assert location_link.description == "Main operations center"
+      assert location_link.strength == 10
+      assert location_link.is_active == true
+      assert location_link.is_current_location == true
+      assert location_link.metadata["building_type"] == "fortress"
+    end
+
+    test "returns is_current_location metadata from reverse direction (location -> character)", %{
+      character: character,
+      location1: location1
+    } do
+      links = Links.links_for(location1)
+      assert %{characters: characters} = links
+      assert length(characters) == 1
+
+      character_link = List.first(characters)
+      assert character_link.entity.id == character.id
+      assert character_link.relationship_type == "resident"
+      assert character_link.description == "Current home"
+      assert character_link.strength == 9
+      assert character_link.is_active == true
+      assert character_link.is_current_location == true
+      assert character_link.metadata["address"] == "123 Main St"
+    end
+
+    test "returns is_current_location metadata from reverse direction (location -> faction)", %{
+      faction: faction,
+      location1: location1
+    } do
+      links = Links.links_for(location1)
+      assert %{factions: factions} = links
+      assert length(factions) == 1
+
+      faction_link = List.first(factions)
+      assert faction_link.entity.id == faction.id
+      assert faction_link.relationship_type == "headquartered"
+      assert faction_link.description == "Main operations center"
+      assert faction_link.strength == 10
+      assert faction_link.is_active == true
+      assert faction_link.is_current_location == true
+      assert faction_link.metadata["building_type"] == "fortress"
     end
   end
 

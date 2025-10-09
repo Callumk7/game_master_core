@@ -64,14 +64,17 @@ defmodule GameMasterCoreWeb.QuestController do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
-    # Extract metadata fields
-    metadata_attrs = %{
-      relationship_type: Map.get(params, "relationship_type"),
-      description: Map.get(params, "description"),
-      strength: Map.get(params, "strength"),
-      is_active: Map.get(params, "is_active"),
-      metadata: Map.get(params, "metadata")
-    }
+    # Extract metadata fields, excluding nils to use schema defaults
+    metadata_attrs = 
+      %{
+        relationship_type: Map.get(params, "relationship_type"),
+        description: Map.get(params, "description"),
+        strength: Map.get(params, "strength"),
+        is_active: Map.get(params, "is_active"),
+        metadata: Map.get(params, "metadata")
+      }
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.new()
 
     with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
          {:ok, entity_type} <- validate_entity_type(entity_type),
@@ -132,14 +135,17 @@ defmodule GameMasterCoreWeb.QuestController do
           "entity_id" => entity_id
         } = params
       ) do
-    # Extract metadata fields
-    metadata_attrs = %{
-      relationship_type: Map.get(params, "relationship_type"),
-      description: Map.get(params, "description"),
-      strength: Map.get(params, "strength"),
-      is_active: Map.get(params, "is_active"),
-      metadata: Map.get(params, "metadata")
-    }
+    # Extract metadata fields, excluding nils to preserve existing values
+    metadata_attrs = 
+      %{
+        relationship_type: Map.get(params, "relationship_type"),
+        description: Map.get(params, "description"),
+        strength: Map.get(params, "strength"),
+        is_active: Map.get(params, "is_active"),
+        metadata: Map.get(params, "metadata")
+      }
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.new()
 
     with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
          {:ok, entity_type} <- validate_entity_type(entity_type),

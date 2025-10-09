@@ -6,6 +6,7 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
   import GameMasterCore.AccountsFixtures
   import GameMasterCore.NotesFixtures
   import GameMasterCore.FactionsFixtures
+  import GameMasterCore.LocationsFixtures
   alias GameMasterCore.Characters.Character
 
   @create_attrs %{
@@ -1115,6 +1116,131 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
         )
 
       assert response(conn, 404)
+    end
+
+    test "create_link successfully creates character-location link with is_current_location metadata",
+         %{
+           conn: conn,
+           game: game,
+           character: character,
+           scope: scope
+         } do
+      location = location_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+          "entity_type" => "location",
+          "entity_id" => location.id,
+          "is_current_location" => true,
+          "description" => "Current residence",
+          "strength" => 8
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["character_id"] == character.id
+      assert response["entity_type"] == "location"
+      assert response["entity_id"] == location.id
+    end
+
+    test "create_link successfully creates character-location link with is_current_location false",
+         %{
+           conn: conn,
+           game: game,
+           character: character,
+           scope: scope
+         } do
+      location = location_fixture(scope, %{game_id: game.id})
+
+      conn =
+        post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+          "entity_type" => "location",
+          "entity_id" => location.id,
+          "is_current_location" => false,
+          "description" => "Former residence"
+        })
+
+      response = json_response(conn, 201)
+      assert response["message"] == "Link created successfully"
+      assert response["character_id"] == character.id
+      assert response["entity_type"] == "location"
+      assert response["entity_id"] == location.id
+    end
+
+    test "update_link successfully updates character-location link with is_current_location metadata",
+         %{
+           conn: conn,
+           game: game,
+           character: character,
+           scope: scope
+         } do
+      location = location_fixture(scope, %{game_id: game.id})
+
+      # Create link first
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location.id,
+        "is_current_location" => false
+      })
+
+      # Update the link with new metadata
+      conn =
+        put(
+          conn,
+          ~p"/api/games/#{game.id}/characters/#{character.id}/links/location/#{location.id}",
+          %{
+            "is_current_location" => true,
+            "description" => "Now current residence",
+            "strength" => 10
+          }
+        )
+
+      response = json_response(conn, 200)
+      assert response["message"] == "Link updated successfully"
+      assert response["character_id"] == character.id
+      assert response["entity_type"] == "location"
+      assert response["entity_id"] == location.id
+    end
+
+    test "list_links returns character links with is_current_location metadata", %{
+      conn: conn,
+      game: game,
+      character: character,
+      scope: scope
+    } do
+      location1 = location_fixture(scope, %{game_id: game.id, name: "Current Home"})
+      location2 = location_fixture(scope, %{game_id: game.id, name: "Former Home"})
+
+      # Create links with different is_current_location values
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location1.id,
+        "is_current_location" => true,
+        "description" => "Current residence"
+      })
+
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location2.id,
+        "is_current_location" => false,
+        "description" => "Former residence"
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["character_id"] == character.id
+      assert length(response["data"]["links"]["locations"]) == 2
+
+      locations = response["data"]["links"]["locations"]
+      current_location = Enum.find(locations, fn loc -> loc["name"] == "Current Home" end)
+      former_location = Enum.find(locations, fn loc -> loc["name"] == "Former Home" end)
+
+      assert current_location["is_current_location"] == true
+      assert current_location["description_meta"] == "Current residence"
+
+      assert former_location["is_current_location"] == false
+      assert former_location["description_meta"] == "Former residence"
     end
   end
 end

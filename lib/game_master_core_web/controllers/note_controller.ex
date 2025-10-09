@@ -56,13 +56,16 @@ defmodule GameMasterCoreWeb.NoteController do
     entity_id = Map.get(params, "entity_id")
 
     # Extract metadata fields
-    metadata_attrs = %{
-      relationship_type: Map.get(params, "relationship_type"),
-      description: Map.get(params, "description"),
-      strength: Map.get(params, "strength"),
-      is_active: Map.get(params, "is_active"),
-      metadata: Map.get(params, "metadata")
-    }
+    metadata_attrs =
+      %{
+        relationship_type: Map.get(params, "relationship_type"),
+        description: Map.get(params, "description"),
+        strength: Map.get(params, "strength"),
+        is_active: Map.get(params, "is_active"),
+        metadata: Map.get(params, "metadata")
+      }
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.new()
 
     with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
          {:ok, entity_type} <- validate_entity_type(entity_type),
@@ -124,13 +127,16 @@ defmodule GameMasterCoreWeb.NoteController do
         } = params
       ) do
     # Extract metadata fields
-    metadata_attrs = %{
-      relationship_type: Map.get(params, "relationship_type"),
-      description: Map.get(params, "description"),
-      strength: Map.get(params, "strength"),
-      is_active: Map.get(params, "is_active"),
-      metadata: Map.get(params, "metadata")
-    }
+    metadata_attrs =
+      %{
+        relationship_type: Map.get(params, "relationship_type"),
+        description: Map.get(params, "description"),
+        strength: Map.get(params, "strength"),
+        is_active: Map.get(params, "is_active"),
+        metadata: Map.get(params, "metadata")
+      }
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.new()
 
     with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
          {:ok, entity_type} <- validate_entity_type(entity_type),
