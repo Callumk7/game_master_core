@@ -720,6 +720,7 @@ defmodule GameMasterCore.Links do
         description: cl.description,
         strength: cl.strength,
         is_active: cl.is_active,
+        is_current_location: cl.is_current_location,
         metadata: cl.metadata
       }
     )
@@ -737,6 +738,7 @@ defmodule GameMasterCore.Links do
         description: cl.description,
         strength: cl.strength,
         is_active: cl.is_active,
+        is_current_location: cl.is_current_location,
         metadata: cl.metadata
       }
     )
@@ -782,6 +784,7 @@ defmodule GameMasterCore.Links do
         description: fl.description,
         strength: fl.strength,
         is_active: fl.is_active,
+        is_current_location: fl.is_current_location,
         metadata: fl.metadata
       }
     )
@@ -799,6 +802,7 @@ defmodule GameMasterCore.Links do
         description: fl.description,
         strength: fl.strength,
         is_active: fl.is_active,
+        is_current_location: fl.is_current_location,
         metadata: fl.metadata
       }
     )

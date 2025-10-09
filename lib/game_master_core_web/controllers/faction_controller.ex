@@ -78,6 +78,7 @@ defmodule GameMasterCoreWeb.FactionController do
       description: Map.get(params, "description"),
       strength: Map.get(params, "strength"),
       is_active: Map.get(params, "is_active"),
+      is_current_location: Map.get(params, "is_current_location"),
       metadata: Map.get(params, "metadata")
     }
 
@@ -155,6 +156,7 @@ defmodule GameMasterCoreWeb.FactionController do
       description: Map.get(params, "description"),
       strength: Map.get(params, "strength"),
       is_active: Map.get(params, "is_active"),
+      is_current_location: Map.get(params, "is_current_location"),
       metadata: Map.get(params, "metadata")
     }
 

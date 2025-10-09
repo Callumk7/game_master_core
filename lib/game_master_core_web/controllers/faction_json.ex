@@ -33,7 +33,11 @@ defmodule GameMasterCoreWeb.FactionJSON do
         links: %{
           notes: for(note <- notes, do: note_data_with_metadata(note)),
           characters: for(character <- characters, do: character_data_with_metadata(character)),
-          locations: for(location <- locations, do: location_data_with_metadata(location)),
+          locations:
+            for(
+              location <- locations,
+              do: location_data_with_metadata_with_current_location(location)
+            ),
           quests: for(quest <- quests, do: quest_data_with_metadata(quest)),
           factions: for(fact <- factions, do: faction_data_with_metadata(fact))
         }

@@ -16,6 +16,7 @@ defmodule GameMasterCore.Characters.CharacterLocation do
     field :description, :string
     field :strength, :integer
     field :is_active, :boolean, default: true
+    field :is_current_location, :boolean, default: false
     field :metadata, :map
 
     timestamps(type: :utc_datetime)
@@ -31,6 +32,7 @@ defmodule GameMasterCore.Characters.CharacterLocation do
       :description,
       :strength,
       :is_active,
+      :is_current_location,
       :metadata
     ])
     |> validate_required([:character_id, :location_id])
