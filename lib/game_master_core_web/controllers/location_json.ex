@@ -37,8 +37,13 @@ defmodule GameMasterCoreWeb.LocationJSON do
         location_type: location.type,
         links: %{
           notes: for(note <- notes, do: note_data_with_metadata(note)),
-          factions: for(faction <- factions, do: faction_data_with_metadata(faction)),
-          characters: for(character <- characters, do: character_data_with_metadata(character)),
+          factions:
+            for(faction <- factions, do: faction_data_with_metadata_with_location(faction)),
+          characters:
+            for(
+              character <- characters,
+              do: character_data_with_metadata_with_location(character)
+            ),
           quests: for(quest <- quests, do: quest_data_with_metadata(quest)),
           locations: for(loc <- locations, do: location_data_with_metadata(loc))
         }

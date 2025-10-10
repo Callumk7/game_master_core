@@ -672,8 +672,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         notes(Schema.array(:LinkedNote), "Linked notes with metadata")
-        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
-        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        factions(Schema.array(:LinkedFactionWithPrimary), "Linked factions with metadata")
+        locations(Schema.array(:LinkedLocationWithCurrent), "Linked locations with metadata")
         quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
         characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
       end
@@ -883,8 +883,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         notes(Schema.array(:LinkedNote), "Linked notes with metadata")
-        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
-        locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
+        characters(Schema.array(:LinkedCharacterWithPrimary), "Linked characters with metadata")
+        locations(Schema.array(:LinkedLocationWithCurrent), "Linked locations with metadata")
         quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
         factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
       end
@@ -1151,8 +1151,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
 
       properties do
         notes(Schema.array(:LinkedNote), "Linked notes with metadata")
-        characters(Schema.array(:LinkedCharacter), "Linked characters with metadata")
-        factions(Schema.array(:LinkedFaction), "Linked factions with metadata")
+
+        characters(
+          Schema.array(:LinkedCharacterWithCurrentLocation),
+          "Linked characters with metadata"
+        )
+
+        factions(Schema.array(:LinkedFactionWithCurrentLocation), "Linked factions with metadata")
         quests(Schema.array(:LinkedQuest), "Linked quests with metadata")
         locations(Schema.array(:LinkedLocation), "Linked locations with metadata")
       end
@@ -1541,6 +1546,67 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def linked_character_with_primary_schema do
+    swagger_schema do
+      title("Linked Character")
+      description("A character with relationship metadata")
+
+      properties do
+        id(:string, "Character ID", required: true, format: :uuid)
+        name(:string, "Character name", required: true)
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
+        tags(:array, "Character tags")
+
+        member_of_faction_id(:string, "ID of faction this character belongs to",
+          format: :uuid,
+          required: false
+        )
+
+        faction_role(:string, "Role within the faction", required: false)
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        is_primary(:boolean, "Whether the relationship is primary", required: false)
+        faction_role(:string, "Role within the faction", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_character_with_current_location_schema do
+    swagger_schema do
+      title("Linked Character")
+      description("A character with relationship metadata")
+
+      properties do
+        id(:string, "Character ID", required: true, format: :uuid)
+        name(:string, "Character name", required: true)
+        content(:string, "Character content")
+        content_plain_text(:string, "Character content as plain text")
+        tags(:array, "Character tags")
+
+        member_of_faction_id(:string, "ID of faction this character belongs to",
+          format: :uuid,
+          required: false
+        )
+
+        faction_role(:string, "Role within the faction", required: false)
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+
+        is_current_location(:boolean, "Whether the location is the current location",
+          required: false
+        )
+
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
   def linked_faction_schema do
     swagger_schema do
       title("Linked Faction")
@@ -1561,6 +1627,53 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def linked_faction_with_primary_schema do
+    swagger_schema do
+      title("Linked Faction")
+      description("A faction with relationship metadata")
+
+      properties do
+        id(:string, "Faction ID", required: true, format: :uuid)
+        name(:string, "Faction name", required: true)
+        content(:string, "Faction content")
+        content_plain_text(:string, "Faction content as plain text")
+        tags(:array, "Faction tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+        is_primary(:boolean, "Whether the relationship is primary", required: false)
+        faction_role(:string, "Role within the faction", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_faction_with_current_location_schema do
+    swagger_schema do
+      title("Linked Faction")
+      description("A faction with relationship metadata")
+
+      properties do
+        id(:string, "Faction ID", required: true, format: :uuid)
+        name(:string, "Faction name", required: true)
+        content(:string, "Faction content")
+        content_plain_text(:string, "Faction content as plain text")
+        tags(:array, "Faction tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+
+        is_current_location(:boolean, "Whether the location is the current location",
+          required: false
+        )
+
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
   def linked_location_schema do
     swagger_schema do
       title("Linked Location")
@@ -1576,6 +1689,31 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
         is_active(:boolean, "Whether the relationship is active", required: false)
+        metadata(:object, "Additional metadata", required: false)
+      end
+    end
+  end
+
+  def linked_location_with_current_schema do
+    swagger_schema do
+      title("Linked Location")
+      description("A location with relationship metadata")
+
+      properties do
+        id(:string, "Location ID", required: true, format: :uuid)
+        name(:string, "Location name", required: true)
+        content(:string, "Location content")
+        content_plain_text(:string, "Location content as plain text")
+        tags(:array, "Location tags")
+        relationship_type(:string, "Type of relationship", required: false)
+        description_meta(:string, "Description of the relationship", required: false)
+        strength(:integer, "Relationship strength (1-10)", required: false)
+        is_active(:boolean, "Whether the relationship is active", required: false)
+
+        is_current_location(:boolean, "Whether the location is the current location",
+          required: false
+        )
+
         metadata(:object, "Additional metadata", required: false)
       end
     end
@@ -1991,8 +2129,13 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       # Linked entity schemas with relationship metadata
       LinkedEntityBase: linked_entity_base_schema(),
       LinkedCharacter: linked_character_schema(),
+      LinkedCharacterWithCurrentLocation: linked_character_with_current_location_schema(),
+      LinkedCharacterWithPrimary: linked_character_with_primary_schema(),
       LinkedFaction: linked_faction_schema(),
+      LinkedFactionWithCurrentLocation: linked_faction_with_current_location_schema(),
+      LinkedFactionWithPrimary: linked_faction_with_primary_schema(),
       LinkedLocation: linked_location_schema(),
+      LinkedLocationWithCurrent: linked_location_with_current_schema(),
       LinkedQuest: linked_quest_schema(),
       LinkedNote: linked_note_schema(),
       # Primary faction schemas

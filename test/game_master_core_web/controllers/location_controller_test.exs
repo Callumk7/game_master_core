@@ -6,6 +6,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
   import GameMasterCore.AccountsFixtures
   import GameMasterCore.NotesFixtures
   import GameMasterCore.CharactersFixtures
+  import GameMasterCore.FactionsFixtures
 
   alias GameMasterCore.Locations.Location
 
@@ -985,5 +986,55 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
     location = location_fixture(scope, %{game_id: game.id})
 
     %{location: location}
+  end
+
+  describe "location links with is_current_location metadata" do
+    setup [:create_location]
+
+    test "list_links returns location links with character/faction is_current_location metadata",
+         %{
+           conn: conn,
+           game: game,
+           location: location,
+           scope: scope
+         } do
+      character = character_fixture(scope, %{game_id: game.id, name: "Current Resident"})
+      faction = faction_fixture(scope, %{game_id: game.id, name: "Current HQ Faction"})
+
+      # Create character link with location as current location
+      post(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location.id,
+        "is_current_location" => true,
+        "description" => "Lives here currently"
+      })
+
+      # Create faction link with location as current headquarters
+      post(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/links", %{
+        "entity_type" => "location",
+        "entity_id" => location.id,
+        "is_current_location" => true,
+        "description" => "Headquarters location"
+      })
+
+      conn = get(conn, ~p"/api/games/#{game.id}/locations/#{location.id}/links")
+      response = json_response(conn, 200)
+
+      assert response["data"]["location_id"] == location.id
+      assert length(response["data"]["links"]["characters"]) == 1
+      assert length(response["data"]["links"]["factions"]) == 1
+
+      # Check character link metadata
+      [character_link] = response["data"]["links"]["characters"]
+      assert character_link["name"] == "Current Resident"
+      assert character_link["is_current_location"] == true
+      assert character_link["description_meta"] == "Lives here currently"
+
+      # Check faction link metadata
+      [faction_link] = response["data"]["links"]["factions"]
+      assert faction_link["name"] == "Current HQ Faction"
+      assert faction_link["is_current_location"] == true
+      assert faction_link["description_meta"] == "Headquarters location"
+    end
   end
 end

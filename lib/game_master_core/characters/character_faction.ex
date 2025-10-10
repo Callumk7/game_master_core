@@ -16,6 +16,8 @@ defmodule GameMasterCore.Characters.CharacterFaction do
     field :description, :string
     field :strength, :integer
     field :is_active, :boolean, default: true
+    field :is_primary, :boolean, default: false
+    field :faction_role, :string
     field :metadata, :map
 
     timestamps(type: :utc_datetime)
@@ -31,6 +33,8 @@ defmodule GameMasterCore.Characters.CharacterFaction do
       :description,
       :strength,
       :is_active,
+      :is_primary,
+      :faction_role,
       :metadata
     ])
     |> validate_required([:character_id, :faction_id])

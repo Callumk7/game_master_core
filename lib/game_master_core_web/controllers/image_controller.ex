@@ -236,10 +236,11 @@ defmodule GameMasterCoreWeb.ImageController do
   defp extract_update_attrs(params) do
     # Extract from nested "image" params if present, otherwise from top level
     image_params = Map.get(params, "image", params)
-    
+
     image_params
     |> Map.take(["alt_text", "is_primary", "position_y"])
-    |> Enum.reject(fn {_k, v} -> is_nil(v) end)  # Remove nil values to preserve existing values
+    # Remove nil values to preserve existing values
+    |> Enum.reject(fn {_k, v} -> is_nil(v) end)
     |> Enum.into(%{}, fn {k, v} -> {String.to_atom(k), v} end)
   end
 
