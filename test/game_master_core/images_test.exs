@@ -120,9 +120,11 @@ defmodule GameMasterCore.ImagesTest do
 
     test "has reasonable max file size" do
       max_size = Image.max_file_size()
-      # Should be at least 1MB but not more than 100MB
+      # Should be at least 1MB but not more than 100MB (currently 20MB)
       assert max_size >= 1024 * 1024
       assert max_size <= 100 * 1024 * 1024
+      # Verify it's exactly 20MB
+      assert max_size == 20 * 1024 * 1024
     end
   end
 end

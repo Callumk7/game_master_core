@@ -45,7 +45,7 @@ The image upload system provides:
 
 ### File Size Limit
 
-- Maximum file size: **10MB** per image
+- Maximum file size: **20MB** per image
 
 ## Database Schema
 
@@ -115,7 +115,7 @@ The `GameMasterCore.Images.Image` schema handles validation and data integrity:
 
 - **Entity types**: Must be one of the supported entity types
 - **Content types**: Must be a valid image MIME type
-- **File size**: Must be between 1 byte and 10MB
+- **File size**: Must be between 1 byte and 20MB
 - **Filename**: Must have valid image extension and be 1-255 characters
 - **Alt text**: Optional, maximum 255 characters
 
@@ -134,8 +134,8 @@ The `GameMasterCore.Images.Image` schema handles validation and data integrity:
   "image/gif"
 ]
 
-# Maximum file size (10MB)
-@max_file_size 10 * 1024 * 1024
+# Maximum file size (20MB)
+@max_file_size 20 * 1024 * 1024
 ```
 
 ## Storage Architecture
@@ -544,7 +544,7 @@ The system provides comprehensive error handling:
 {
   "errors": {
     "content_type": ["must be a valid image type (JPEG, PNG, WebP, or GIF)"],
-    "file_size": ["must be less than 10MB"],
+    "file_size": ["must be less than 20MB"],
     "entity_type": ["must be one of: character, faction, location, quest"]
   }
 }

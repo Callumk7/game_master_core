@@ -28,8 +28,8 @@ defmodule GameMasterCore.Images.Image do
     "image/gif"
   ]
 
-  # Maximum file size (10MB)
-  @max_file_size 10 * 1024 * 1024
+  # Maximum file size (20MB)
+  @max_file_size 20 * 1024 * 1024
 
   schema "images" do
     field :filename, :string

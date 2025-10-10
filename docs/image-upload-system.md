@@ -75,8 +75,8 @@ CREATE INDEX images_entity_type_entity_id_index ON images (entity_type, entity_i
   "image/gif"
 ]
 
-# Maximum file size (10MB)
-@max_file_size 10 * 1024 * 1024
+# Maximum file size (20MB)
+@max_file_size 20 * 1024 * 1024
 ```
 
 ### Changeset Types
@@ -458,7 +458,7 @@ http --form POST localhost:4000/api/games/GAME_ID/characters/CHAR_ID/images \
 
 - **Content Type Validation**: Only image MIME types allowed
 - **File Extension Validation**: Filename must match allowed extensions
-- **File Size Limits**: Configurable maximum file size (default: 10MB)
+- **File Size Limits**: Configurable maximum file size (default: 20MB)
 - **Filename Sanitization**: Original filenames are not used in storage keys
 
 ### Access Control
@@ -492,7 +492,7 @@ http --form POST localhost:4000/api/games/GAME_ID/characters/CHAR_ID/images \
 ```json
 {
   "errors": {
-    "file_size": ["must be less than 10MB"]
+    "file_size": ["must be less than 20MB"]
   }
 }
 ```
