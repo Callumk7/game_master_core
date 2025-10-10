@@ -80,6 +80,8 @@ defmodule GameMasterCoreWeb.FactionController do
         strength: Map.get(params, "strength"),
         is_active: Map.get(params, "is_active"),
         is_current_location: Map.get(params, "is_current_location"),
+        is_primary: Map.get(params, "is_primary"),
+        faction_role: Map.get(params, "faction_role"),
         metadata: Map.get(params, "metadata")
       }
       |> Enum.reject(fn {_k, v} -> is_nil(v) end)
@@ -161,6 +163,8 @@ defmodule GameMasterCoreWeb.FactionController do
         strength: Map.get(params, "strength"),
         is_active: Map.get(params, "is_active"),
         is_current_location: Map.get(params, "is_current_location"),
+        is_primary: Map.get(params, "is_primary"),
+        faction_role: Map.get(params, "faction_role"),
         metadata: Map.get(params, "metadata")
       }
       |> Enum.reject(fn {_k, v} -> is_nil(v) end)

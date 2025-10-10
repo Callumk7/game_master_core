@@ -138,6 +138,28 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     })
   end
 
+  def character_data_with_metadata_with_faction(%{
+        entity: character,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        is_primary: is_primary,
+        faction_role: faction_role,
+        metadata: metadata
+      }) do
+    character_data(character)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      is_primary: is_primary,
+      faction_role: faction_role,
+      metadata: metadata
+    })
+  end
+
   def character_data_with_metadata_with_location(%{
         entity: character,
         relationship_type: relationship_type,
@@ -172,6 +194,28 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       description_meta: description,
       strength: strength,
       is_active: is_active,
+      metadata: metadata
+    })
+  end
+
+  def faction_data_with_metadata_with_faction(%{
+        entity: faction,
+        relationship_type: relationship_type,
+        description: description,
+        strength: strength,
+        is_active: is_active,
+        is_primary: is_primary,
+        faction_role: faction_role,
+        metadata: metadata
+      }) do
+    faction_data(faction)
+    |> Map.merge(%{
+      relationship_type: relationship_type,
+      description_meta: description,
+      strength: strength,
+      is_active: is_active,
+      is_primary: is_primary,
+      faction_role: faction_role,
       metadata: metadata
     })
   end

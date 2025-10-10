@@ -594,6 +594,8 @@ defmodule GameMasterCore.Links do
         description: fc.description,
         strength: fc.strength,
         is_active: fc.is_active,
+        is_primary: fc.is_primary,
+        faction_role: fc.faction_role,
         metadata: fc.metadata
       }
     )
@@ -611,6 +613,8 @@ defmodule GameMasterCore.Links do
         description: fc.description,
         strength: fc.strength,
         is_active: fc.is_active,
+        is_primary: fc.is_primary,
+        faction_role: fc.faction_role,
         metadata: fc.metadata
       }
     )
