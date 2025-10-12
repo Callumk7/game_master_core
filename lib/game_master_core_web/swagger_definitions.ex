@@ -294,11 +294,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Collection of game entities")
 
       properties do
-        notes(Schema.array(:EntityNote), "Notes list")
-        characters(Schema.array(:EntityCharacter), "Characters list")
-        factions(Schema.array(:EntityFaction), "Factions list")
-        locations(Schema.array(:EntityLocation), "Locations list")
-        quests(Schema.array(:EntityQuest), "Quests list")
+        notes(Schema.array(:Note), "Notes list")
+        characters(Schema.array(:Character), "Characters list")
+        factions(Schema.array(:Faction), "Factions list")
+        locations(Schema.array(:Location), "Locations list")
+        quests(Schema.array(:Quest), "Quests list")
       end
     end
   end

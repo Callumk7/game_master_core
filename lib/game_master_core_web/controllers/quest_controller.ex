@@ -65,7 +65,7 @@ defmodule GameMasterCoreWeb.QuestController do
     entity_id = Map.get(params, "entity_id")
 
     # Extract metadata fields, excluding nils to use schema defaults
-    metadata_attrs = 
+    metadata_attrs =
       %{
         relationship_type: Map.get(params, "relationship_type"),
         description: Map.get(params, "description"),
@@ -136,7 +136,7 @@ defmodule GameMasterCoreWeb.QuestController do
         } = params
       ) do
     # Extract metadata fields, excluding nils to preserve existing values
-    metadata_attrs = 
+    metadata_attrs =
       %{
         relationship_type: Map.get(params, "relationship_type"),
         description: Map.get(params, "description"),

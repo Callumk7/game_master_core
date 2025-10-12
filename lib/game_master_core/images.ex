@@ -207,15 +207,18 @@ defmodule GameMasterCore.Images do
   """
   def update_image(scope, image_id, attrs) do
     Repo.transaction(fn ->
-      with {:ok, image} <- get_image_for_game(scope, image_id),
-           changeset <- Image.update_changeset(image, attrs),
-           {:ok, updated_image} <- Repo.update(changeset) do
-        # If setting as primary, unset other primary images
+      with {:ok, image} <- get_image_for_game(scope, image_id) do
+        # If setting as primary, unset other primary images first
         if Map.get(attrs, :is_primary) || Map.get(attrs, "is_primary") do
           unset_other_primary_images(scope, image.entity_type, image.entity_id, image.id)
         end
 
-        updated_image
+        changeset = Image.update_changeset(image, attrs)
+
+        case Repo.update(changeset) do
+          {:ok, updated_image} -> updated_image
+          {:error, reason} -> Repo.rollback(reason)
+        end
       else
         {:error, reason} -> Repo.rollback(reason)
       end

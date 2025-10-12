@@ -52,7 +52,8 @@ defmodule GameMasterCoreWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library(),
-    length: 25_000_000  # 25MB to accommodate 20MB images plus form overhead
+    # 25MB to accommodate 20MB images plus form overhead
+    length: 25_000_000
 
   plug Plug.MethodOverride
   plug Plug.Head
