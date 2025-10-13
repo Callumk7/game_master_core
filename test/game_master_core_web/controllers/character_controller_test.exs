@@ -76,47 +76,24 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    test "creates character with faction membership", %{conn: conn, game: game, scope: scope} do
-      faction = faction_fixture(scope, %{game_id: game.id})
-
-      create_attrs_with_faction =
-        Map.merge(@create_attrs, %{
-          member_of_faction_id: faction.id,
-          faction_role: "Member"
-        })
-
-      conn = post(conn, ~p"/api/games/#{game}/characters", character: create_attrs_with_faction)
+    test "creates character successfully", %{conn: conn, game: game, scope: scope} do
+      conn = post(conn, ~p"/api/games/#{game}/characters", character: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, ~p"/api/games/#{game}/characters/#{id}")
 
       assert %{
                "id" => ^id,
-               "name" => "some name",
-               "member_of_faction_id" => faction_id,
-               "faction_role" => "Member"
+               "name" => "some name"
              } = json_response(conn, 200)["data"]
-
-      assert faction_id == faction.id
+             
+      # Verify the response no longer includes the old fields
+      character_data = json_response(conn, 200)["data"]
+      refute Map.has_key?(character_data, "member_of_faction_id")
+      refute Map.has_key?(character_data, "faction_role")
     end
 
-    test "renders errors when creating character with member_of_faction_id but no faction_role",
-         %{
-           conn: conn,
-           game: game,
-           scope: scope
-         } do
-      faction = faction_fixture(scope, %{game_id: game.id})
 
-      invalid_attrs =
-        Map.merge(@create_attrs, %{
-          member_of_faction_id: faction.id
-          # faction_role is missing
-        })
-
-      conn = post(conn, ~p"/api/games/#{game}/characters", character: invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
   end
 
   describe "update character" do
@@ -148,37 +125,31 @@ defmodule GameMasterCoreWeb.CharacterControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    test "updates character faction membership", %{
+    test "updates character successfully", %{
       conn: conn,
       character: character,
       game: game,
       scope: scope
     } do
-      faction = faction_fixture(scope, %{game_id: game.id})
-
-      update_attrs_with_faction =
-        Map.merge(@update_attrs, %{
-          member_of_faction_id: faction.id,
-          faction_role: "Leader"
-        })
-
       conn =
         put(conn, ~p"/api/games/#{game.id}/characters/#{character}",
-          character: update_attrs_with_faction
+          character: @update_attrs
         )
 
       assert %{"id" => id} = json_response(conn, 200)["data"]
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{id}")
 
+      character_data = json_response(conn, 200)["data"]
+      
       assert %{
                "id" => ^id,
-               "name" => "some updated name",
-               "member_of_faction_id" => faction_id,
-               "faction_role" => "Leader"
-             } = json_response(conn, 200)["data"]
-
-      assert faction_id == faction.id
+               "name" => "some updated name"
+             } = character_data
+             
+      # Verify the response no longer includes the old fields
+      refute Map.has_key?(character_data, "member_of_faction_id")
+      refute Map.has_key?(character_data, "faction_role")
     end
   end
 

@@ -10,6 +10,7 @@ defmodule GameMasterCore.Factions do
 
   alias GameMasterCore.Factions.Faction
   alias GameMasterCore.Characters.Character
+  alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Links
 
@@ -514,7 +515,9 @@ defmodule GameMasterCore.Factions do
     case fetch_faction_for_game(scope, faction_id) do
       {:ok, _faction} ->
         from(c in Character,
-          where: c.game_id == ^scope.game.id and c.member_of_faction_id == ^faction_id
+          join: cf in CharacterFaction,
+          on: cf.character_id == c.id,
+          where: c.game_id == ^scope.game.id and cf.faction_id == ^faction_id and cf.is_primary == true
         )
         |> Repo.all()
 

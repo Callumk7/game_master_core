@@ -164,8 +164,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         tags(Schema.array(:string), "Tags associated with this character")
-        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
-        faction_role(:string, "Role within the faction")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -178,8 +176,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class: "Wizard",
         level: 20,
         tags: ["npc", "ally", "wizard"],
-        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
-        faction_role: "Elder Council Member",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -527,8 +523,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         tags(Schema.array(:string), "Tags associated with this character")
-        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
-        faction_role(:string, "Role within the faction")
         pinned(:boolean, "Whether this character is pinned", required: true)
         race(:string, "Character race")
         alive(:boolean, "Whether this character is alive", required: true)
@@ -546,8 +540,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class: "Wizard",
         level: 20,
         tags: ["npc", "ally", "wizard"],
-        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
-        faction_role: "Elder Council Member",
         pinned: false,
         race: "Maiar",
         alive: true,
@@ -571,8 +563,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class(:string, "Character class", required: true)
         level(:integer, "Character level", required: true)
         tags(Schema.array(:string), "Tags for this character")
-        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
-        faction_role(:string, "Role within the faction")
         race(:string, "Character race")
         alive(:boolean, "Whether this character is alive")
       end
@@ -586,8 +576,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class: "Wizard",
         level: 20,
         tags: ["npc", "ally", "wizard"],
-        member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
-        faction_role: "Elder Council Member",
         race: "Maiar",
         alive: true
       })
@@ -606,8 +594,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         class(:string, "Character class")
         level(:integer, "Character level")
         tags(Schema.array(:string), "Tags for this character")
-        member_of_faction_id(:string, "ID of faction this character belongs to", format: :uuid)
-        faction_role(:string, "Role within the faction")
         pinned(:boolean, "Whether this character is pinned")
         race(:string, "Character race")
         alive(:boolean, "Whether this character is alive")
@@ -987,9 +973,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
             id: "123e4567-e89b-12d3-a456-426614174000",
             name: "Gandalf the Grey",
             class: "Wizard",
-            level: 20,
-            member_of_faction_id: "423e4567-e89b-12d3-a456-426614174003",
-            faction_role: "Elder Council Member"
+            level: 20
           }
         ]
       })
@@ -1608,12 +1592,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
 
-        member_of_faction_id(:string, "ID of faction this character belongs to",
-          format: :uuid,
-          required: false
-        )
-
-        faction_role(:string, "Role within the faction", required: false)
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1635,12 +1613,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
 
-        member_of_faction_id(:string, "ID of faction this character belongs to",
-          format: :uuid,
-          required: false
-        )
-
-        faction_role(:string, "Role within the faction", required: false)
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1664,12 +1636,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Character content as plain text")
         tags(:array, "Character tags")
 
-        member_of_faction_id(:string, "ID of faction this character belongs to",
-          format: :uuid,
-          required: false
-        )
-
-        faction_role(:string, "Role within the faction", required: false)
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)

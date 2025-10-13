@@ -7,7 +7,9 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   import GameMasterCore.NotesFixtures
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.LocationsFixtures
+  
   alias GameMasterCore.Factions.Faction
+  alias GameMasterCore.Characters
 
   @create_attrs %{
     name: "some name",
@@ -494,22 +496,22 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       faction: faction,
       scope: scope
     } do
-      # Create characters with different faction membership statuses
-      _member_character1 =
+      # Create characters and set their primary factions using the new approach
+      member_character1 =
         character_fixture(scope, %{
           game_id: game.id,
-          name: "Faction Member 1",
-          member_of_faction_id: faction.id,
-          faction_role: "Leader"
+          name: "Faction Member 1"
         })
+      
+      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, member_character1, faction.id, "Leader")
 
-      _member_character2 =
+      member_character2 =
         character_fixture(scope, %{
           game_id: game.id,
-          name: "Faction Member 2",
-          member_of_faction_id: faction.id,
-          faction_role: "Member"
+          name: "Faction Member 2"
         })
+        
+      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, member_character2, faction.id, "Member")
 
       # Character without faction membership
       _independent_character =
@@ -521,13 +523,13 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       # Character belonging to different faction
       other_faction = faction_fixture(scope, %{game_id: game.id})
 
-      _other_faction_member =
+      other_faction_member =
         character_fixture(scope, %{
           game_id: game.id,
-          name: "Other Faction Member",
-          member_of_faction_id: other_faction.id,
-          faction_role: "Scout"
+          name: "Other Faction Member"
         })
+        
+      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, other_faction_member, other_faction.id, "Scout")
 
       conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/members")
       response = json_response(conn, 200)
@@ -542,14 +544,14 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       refute "Independent Character" in member_names
       refute "Other Faction Member" in member_names
 
-      # Verify faction membership fields are included
+      # Verify that the old faction membership fields are no longer in the response
       leader = Enum.find(response["data"]["members"], &(&1["name"] == "Faction Member 1"))
-      assert leader["member_of_faction_id"] == faction.id
-      assert leader["faction_role"] == "Leader"
+      refute Map.has_key?(leader, "member_of_faction_id")
+      refute Map.has_key?(leader, "faction_role")
 
       member = Enum.find(response["data"]["members"], &(&1["name"] == "Faction Member 2"))
-      assert member["member_of_faction_id"] == faction.id
-      assert member["faction_role"] == "Member"
+      refute Map.has_key?(member, "member_of_faction_id") 
+      refute Map.has_key?(member, "faction_role")
     end
 
     test "members returns empty list for faction with no members", %{

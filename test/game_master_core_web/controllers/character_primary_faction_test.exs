@@ -4,6 +4,9 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.FactionsFixtures
 
+  alias GameMasterCore.Characters
+  alias GameMasterCore.Characters.CharacterFaction
+
   setup :register_and_log_in_user
 
   setup %{conn: conn, user: user, scope: scope} do
@@ -14,14 +17,14 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
 
   describe "get_primary_faction/2" do
     test "returns primary faction when character has one", %{conn: conn, scope: scope, game: game} do
-      faction = faction_fixture(scope, %{game_id: game.id})
+      # Create a scope with the game information
+      game_scope = %{scope | game: game}
+      
+      faction = faction_fixture(game_scope, %{game_id: game.id})
+      character = character_fixture(game_scope, %{game_id: game.id})
 
-      character =
-        character_fixture(scope, %{
-          game_id: game.id,
-          member_of_faction_id: faction.id,
-          faction_role: "Captain"
-        })
+      # Set primary faction using the new approach
+      {:ok, _} = Characters.set_primary_faction(game_scope, character, faction.id, "Captain")
 
       conn = get(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/primary-faction")
 
@@ -66,20 +69,18 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
         })
 
       assert %{
-               "data" => %{
-                 "id" => character_id,
-                 "member_of_faction_id" => faction_id,
-                 "faction_role" => "Captain"
-               }
+               "data" => character_data
              } = json_response(conn, 200)
 
-      assert character_id == character.id
-      assert faction_id == faction.id
+      # Verify character data no longer includes the old fields
+      assert character_data["id"] == character.id
+      refute Map.has_key?(character_data, "member_of_faction_id")
+      refute Map.has_key?(character_data, "faction_role")
 
       # Verify CharacterFaction record was created
       character_faction =
         GameMasterCore.Repo.get_by(
-          GameMasterCore.Characters.CharacterFaction,
+          CharacterFaction,
           character_id: character.id,
           faction_id: faction.id
         )
@@ -92,23 +93,24 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
 
   describe "remove_primary_faction/2" do
     test "removes primary faction", %{conn: conn, scope: scope, game: game} do
-      faction = faction_fixture(scope, %{game_id: game.id})
+      # Create a scope with the game information
+      game_scope = %{scope | game: game}
+      
+      faction = faction_fixture(game_scope, %{game_id: game.id})
+      character = character_fixture(game_scope, %{game_id: game.id})
 
-      character =
-        character_fixture(scope, %{
-          game_id: game.id,
-          member_of_faction_id: faction.id,
-          faction_role: "Captain"
-        })
+      # Set primary faction first
+      {:ok, _} = Characters.set_primary_faction(game_scope, character, faction.id, "Captain")
 
       conn = delete(conn, ~p"/api/games/#{game.id}/characters/#{character.id}/primary-faction")
 
       assert %{
-               "data" => %{
-                 "member_of_faction_id" => nil,
-                 "faction_role" => nil
-               }
+               "data" => character_data
              } = json_response(conn, 200)
+
+      # Verify the old fields are no longer in the response
+      refute Map.has_key?(character_data, "member_of_faction_id")
+      refute Map.has_key?(character_data, "faction_role")
     end
   end
 end

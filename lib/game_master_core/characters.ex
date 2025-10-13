@@ -784,22 +784,25 @@ defmodule GameMasterCore.Characters do
   Gets the primary faction for a character, including faction details.
   Returns {:ok, primary_faction_data} or {:error, :no_primary_faction}
   """
-  def get_primary_faction(%Scope{} = scope, %Character{} = character) do
-    if character.member_of_faction_id do
-      case Factions.fetch_faction_for_game(scope, character.member_of_faction_id) do
-        {:ok, faction} ->
-          {:ok,
-           %{
-             faction: faction,
-             role: character.faction_role,
-             character_id: character.id
-           }}
+  def get_primary_faction(%Scope{} = _scope, %Character{} = character) do
+    query =
+      from(cf in CharacterFaction,
+        join: f in assoc(cf, :faction),
+        where: cf.character_id == ^character.id and cf.is_primary == true,
+        select: {cf, f}
+      )
 
-        {:error, :not_found} ->
-          {:error, :no_primary_faction}
-      end
-    else
-      {:error, :no_primary_faction}
+    case Repo.one(query) do
+      {character_faction, faction} ->
+        {:ok,
+         %{
+           faction: faction,
+           role: character_faction.faction_role,
+           character_id: character.id
+         }}
+
+      nil ->
+        {:error, :no_primary_faction}
     end
   end
 
@@ -815,25 +818,17 @@ defmodule GameMasterCore.Characters do
           Repo.rollback({:error, :faction_not_found})
 
         {:ok, _faction} ->
-          # Update the character's primary faction fields
-          changeset =
-            Character.changeset(
-              character,
-              %{
-                member_of_faction_id: faction_id,
-                faction_role: role
-              },
-              scope,
-              character.game_id
-            )
+          # First, set any existing primary faction for this character to false
+          from(cf in CharacterFaction,
+            where: cf.character_id == ^character.id and cf.is_primary == true
+          )
+          |> Repo.update_all(set: [is_primary: false, updated_at: DateTime.utc_now()])
 
-          case Repo.update(changeset) do
-            {:ok, updated_character} ->
-              # Create or update the CharacterFaction relationship record
-              create_or_update_character_faction_link(character.id, faction_id, role)
-
-              broadcast(scope, {:updated, updated_character})
-              updated_character
+          # Create or update the CharacterFaction record for the new primary faction
+          case create_or_update_primary_faction_link(character.id, faction_id, role) do
+            {:ok, _character_faction} ->
+              broadcast(scope, {:updated, character})
+              character
 
             {:error, changeset} ->
               Repo.rollback({:error, changeset})
@@ -847,31 +842,25 @@ defmodule GameMasterCore.Characters do
   relationship record (as per the original plan).
   """
   def remove_primary_faction(%Scope{} = scope, %Character{} = character) do
-    changeset =
-      Character.changeset(
-        character,
-        %{
-          member_of_faction_id: nil,
-          faction_role: nil
-        },
-        scope,
-        character.game_id
+    # Set any primary faction for this character to false
+    {updated_count, _} =
+      from(cf in CharacterFaction,
+        where: cf.character_id == ^character.id and cf.is_primary == true
       )
+      |> Repo.update_all(set: [is_primary: false, updated_at: DateTime.utc_now()])
 
-    case Repo.update(changeset) do
-      {:ok, updated_character} ->
-        # Note: We preserve the CharacterFaction record as designed
-        # This maintains the relationship history even when primary status is removed
-        broadcast(scope, {:updated, updated_character})
-        {:ok, updated_character}
-
-      {:error, changeset} ->
-        {:error, changeset}
+    if updated_count > 0 do
+      # Note: We preserve the CharacterFaction record as designed
+      # This maintains the relationship history even when primary status is removed
+      broadcast(scope, {:updated, character})
+      {:ok, character}
+    else
+      {:error, :no_primary_faction_to_remove}
     end
   end
 
-  # Private helper to create or update CharacterFaction link
-  defp create_or_update_character_faction_link(character_id, faction_id, role) do
+  # Private helper to create or update CharacterFaction link for primary faction
+  defp create_or_update_primary_faction_link(character_id, faction_id, role) do
     # Check if a CharacterFaction record already exists
     existing =
       from(cf in CharacterFaction,
@@ -881,25 +870,30 @@ defmodule GameMasterCore.Characters do
 
     case existing do
       nil ->
-        # Create new CharacterFaction record
+        # Create new CharacterFaction record as primary
         %CharacterFaction{}
         |> CharacterFaction.changeset(%{
           character_id: character_id,
           faction_id: faction_id,
-          # Use the role as relationship_type for consistency
           relationship_type: role,
-          is_active: true
+          faction_role: role,
+          is_active: true,
+          is_primary: true
         })
         |> Repo.insert()
 
       existing_record ->
-        # Update existing record to ensure it's active and has current role info
+        # Update existing record to be primary with current role info
         existing_record
         |> CharacterFaction.changeset(%{
           relationship_type: role,
-          is_active: true
+          faction_role: role,
+          is_active: true,
+          is_primary: true
         })
         |> Repo.update()
     end
   end
+
+
 end

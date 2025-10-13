@@ -4,7 +4,6 @@ defmodule GameMasterCore.Characters.Character do
 
   alias GameMasterCore.Games.Game
   alias GameMasterCore.Accounts.User
-  alias GameMasterCore.Factions.Faction
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -16,14 +15,12 @@ defmodule GameMasterCore.Characters.Character do
     field :class, :string
     field :level, :integer
     field :tags, {:array, :string}, default: []
-    field :faction_role, :string
     field :pinned, :boolean, default: false
     field :race, :string
     field :alive, :boolean, default: true
 
     belongs_to :game, Game
     belongs_to :user, User
-    belongs_to :member_of_faction, Faction
 
     many_to_many :related_characters, __MODULE__,
       join_through: "character_characters",
@@ -46,16 +43,12 @@ defmodule GameMasterCore.Characters.Character do
       :class,
       :level,
       :tags,
-      :member_of_faction_id,
-      :faction_role,
       :pinned,
       :race,
       :alive
     ])
     |> validate_required([:name, :class, :level])
     |> validate_tags()
-    |> validate_faction_role_when_member()
-    |> foreign_key_constraint(:member_of_faction_id)
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
   end
@@ -78,21 +71,5 @@ defmodule GameMasterCore.Characters.Character do
     end
   end
 
-  defp validate_faction_role_when_member(changeset) do
-    member_of_faction_id = get_field(changeset, :member_of_faction_id)
-    faction_role = get_field(changeset, :faction_role)
 
-    cond do
-      # If member_of_faction_id is present but faction_role is blank
-      member_of_faction_id && (is_nil(faction_role) || String.trim(faction_role) == "") ->
-        add_error(
-          changeset,
-          :faction_role,
-          "must be specified when character is a member of a faction"
-        )
-
-      true ->
-        changeset
-    end
-  end
 end

@@ -106,4 +106,10 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> put_status(:bad_request)
     |> json(%{error: "Invalid entity type: #{entity_type}"})
   end
+
+  def call(conn, {:error, :no_primary_faction_to_remove}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Character does not have a primary faction to remove"})
+  end
 end

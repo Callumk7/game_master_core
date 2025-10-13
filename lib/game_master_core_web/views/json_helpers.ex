@@ -43,8 +43,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       class: character.class,
       level: character.level,
       tags: character.tags,
-      member_of_faction_id: character.member_of_faction_id,
-      faction_role: character.faction_role,
       pinned: character.pinned,
       race: character.race,
       alive: character.alive,
