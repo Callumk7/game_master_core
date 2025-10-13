@@ -24,6 +24,41 @@ defmodule GameMasterCore.Links do
   }
 
   @doc """
+  Creates multiple links from a source entity to multiple target entities.
+
+  Takes a source entity and a list of `{target_entity, metadata_attrs}` tuples.
+  All links are created or none are (fail-fast behavior).
+
+  ## Examples
+
+      iex> create_multiple_links(character, [
+        {faction, %{is_primary: true, faction_role: "Leader"}},
+        {location, %{is_current_location: true}}
+      ])
+      {:ok, [%CharacterFaction{}, %CharacterLocation{}]}
+      
+      iex> create_multiple_links(character, [{invalid_entity, %{}}])
+      {:error, :unsupported_link_type}
+  """
+  def create_multiple_links(_source_entity, []), do: {:ok, []}
+
+  def create_multiple_links(source_entity, target_entities_with_metadata)
+      when is_list(target_entities_with_metadata) do
+    results =
+      Enum.map(target_entities_with_metadata, fn {target_entity, metadata_attrs} ->
+        link(source_entity, target_entity, metadata_attrs)
+      end)
+
+    case Enum.find(results, &match?({:error, _}, &1)) do
+      nil ->
+        {:ok, Enum.map(results, fn {:ok, link} -> link end)}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
   Creates a link between two entities.
   Returns {:ok, link} on success, {:error, changeset} on failure.
   """

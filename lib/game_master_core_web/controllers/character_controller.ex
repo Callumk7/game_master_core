@@ -22,12 +22,18 @@ defmodule GameMasterCoreWeb.CharacterController do
     render(conn, :index, characters: characters)
   end
 
-  def create(conn, %{"character" => character_params}) do
-    with {:ok, %Character{} = character} <-
-           Characters.create_character_for_game(
-             conn.assigns.current_scope,
-             character_params
-           ) do
+  def create(conn, %{"character" => character_params} = params) do
+    links = Map.get(params, "links", [])
+    
+    creation_result = if Enum.empty?(links) do
+      # Existing path - backward compatible
+      Characters.create_character_for_game(conn.assigns.current_scope, character_params)
+    else
+      # New path - create character with links
+      Characters.create_character_with_links(conn.assigns.current_scope, character_params, links)
+    end
+    
+    with {:ok, %Character{} = character} <- creation_result do
       conn
       |> put_status(:created)
       |> put_resp_header(

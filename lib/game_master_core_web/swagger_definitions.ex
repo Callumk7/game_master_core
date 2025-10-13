@@ -626,16 +626,93 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def character_creation_link_schema do
+    swagger_schema do
+      title("Character Creation Link")
+      description("Link definition for character creation")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        is_current_location(:boolean, "Whether this is the character's current location (location links only)",
+          required: false,
+          default: false
+        )
+
+        is_primary(:boolean, "Whether this is the character's primary faction (faction links only)",
+          required: false,
+          default: false
+        )
+
+        faction_role(:string, "Character's role in the faction (faction links only)", required: false)
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "faction",
+        entity_id: "423e4567-e89b-12d3-a456-426614174003",
+        is_primary: true,
+        faction_role: "Leader",
+        relationship_type: "member",
+        strength: 8,
+        is_active: true
+      })
+    end
+  end
+
   def character_create_request_schema do
     swagger_schema do
       title("Character Create Request")
-      description("Character creation parameters")
+      description("Character creation parameters with optional entity links")
 
       properties do
         character(Schema.ref(:CharacterCreateParams), "Character parameters")
+        links(Schema.array(:CharacterCreationLink), "Optional links to other entities", required: false)
       end
 
       required([:character])
+
+      example(%{
+        character: %{
+          name: "Aragorn",
+          class: "Ranger",
+          level: 20,
+          content: "Heir of Isildur, rightful king of Gondor",
+          race: "Human"
+        },
+        links: [
+          %{
+            entity_type: "faction",
+            entity_id: "423e4567-e89b-12d3-a456-426614174003",
+            is_primary: true,
+            faction_role: "Leader",
+            relationship_type: "member"
+          }
+        ]
+      })
     end
   end
 
@@ -1978,6 +2055,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing note links"
         ),
       Character: character_schema(),
+      CharacterCreationLink: character_creation_link_schema(),
       CharacterCreateParams: character_create_params_schema(),
       CharacterUpdateParams: character_update_params_schema(),
       CharacterCreateRequest: character_create_request_schema(),

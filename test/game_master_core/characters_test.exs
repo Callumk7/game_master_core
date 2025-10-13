@@ -915,4 +915,144 @@ defmodule GameMasterCore.CharactersTest do
       assert Characters.linked_quests(scope2, character.id) == []
     end
   end
+
+  describe "create_character_with_links/3" do
+    alias GameMasterCore.Characters.Character
+    
+    import GameMasterCore.AccountsFixtures
+    import GameMasterCore.CharactersFixtures
+    import GameMasterCore.FactionsFixtures
+    import GameMasterCore.LocationsFixtures
+    import GameMasterCore.GamesFixtures
+
+    test "creates character with faction links successfully" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+
+      character_attrs = %{
+        name: "Test Character",
+        level: 5,
+        content: "A test character",
+        class: "Fighter"
+      }
+
+      links = [
+        %{
+          entity_type: "faction",
+          entity_id: faction.id,
+          is_primary: true,
+          faction_role: "Leader"
+        }
+      ]
+
+      assert {:ok, %Character{} = character} =
+               Characters.create_character_with_links(scope, character_attrs, links)
+
+      assert character.name == "Test Character"
+      assert character.member_of_faction_id == faction.id
+      assert character.faction_role == "Leader"
+
+      # Verify the join table link was also created
+      assert Characters.faction_linked?(scope, character.id, faction.id)
+    end
+
+    test "creates character with multiple links successfully" do
+      scope = game_scope_fixture()
+      faction = faction_fixture(scope, %{game_id: scope.game.id})
+      location = location_fixture(scope, %{game_id: scope.game.id})
+
+      character_attrs = %{
+        name: "Multi-linked Character",
+        level: 3,
+        content: "Has multiple relationships",
+        class: "Rogue"
+      }
+
+      links = [
+        %{
+          entity_type: "faction",
+          entity_id: faction.id,
+          relationship_type: "ally"
+        },
+        %{
+          entity_type: "location",
+          entity_id: location.id,
+          is_current_location: true
+        }
+      ]
+
+      assert {:ok, %Character{} = character} =
+               Characters.create_character_with_links(scope, character_attrs, links)
+
+      assert character.name == "Multi-linked Character"
+      assert Characters.faction_linked?(scope, character.id, faction.id)
+      assert Characters.location_linked?(scope, character.id, location.id)
+    end
+
+    test "creates character with no links successfully" do
+      scope = game_scope_fixture()
+
+      character_attrs = %{
+        name: "Solo Character",
+        level: 1,
+        content: "No relationships",
+        class: "Wizard"
+      }
+
+      assert {:ok, %Character{} = character} =
+               Characters.create_character_with_links(scope, character_attrs, [])
+
+      assert character.name == "Solo Character"
+      assert character.member_of_faction_id == nil
+    end
+
+    test "rolls back character creation if link fails" do
+      scope = game_scope_fixture()
+      invalid_faction_id = Ecto.UUID.generate()
+
+      character_attrs = %{
+        name: "Failed Character",
+        level: 2,
+        content: "Should not be created",
+        class: "Paladin"
+      }
+
+      links = [
+        %{
+          entity_type: "faction",
+          entity_id: invalid_faction_id,
+          is_primary: true,
+          faction_role: "Member"
+        }
+      ]
+
+      assert {:error, _reason} =
+               Characters.create_character_with_links(scope, character_attrs, links)
+
+      # Verify character was not created
+      characters = Characters.list_characters_for_game(scope)
+      assert Enum.empty?(characters)
+    end
+
+    test "handles invalid entity type in links" do
+      scope = game_scope_fixture()
+
+      character_attrs = %{
+        name: "Invalid Link Character",
+        level: 1,
+        content: "Has invalid link",
+        class: "Bard"
+      }
+
+      links = [
+        %{
+          entity_type: "invalid_type",
+          entity_id: Ecto.UUID.generate()
+        }
+      ]
+
+      assert {:error, :invalid_entity_type} =
+               Characters.create_character_with_links(scope, character_attrs, links)
+    end
+  end
 end

@@ -30,7 +30,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/characters")
         summary("Create character")
-        description("Create a new character in the game")
+        description("Create a new character in the game with optional entity links (factions, locations, etc.)")
         operation_id("createCharacter")
         tag("GameMaster")
         consumes("application/json")

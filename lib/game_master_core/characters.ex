@@ -88,6 +88,37 @@ defmodule GameMasterCore.Characters do
   end
 
   @doc """
+  Create a character for a specific game with associated links.
+
+  Creates the character and establishes all specified relationships in a single transaction.
+  Links are expected to be a list of maps with keys:
+  - entity_type: "faction", "location", "note", "quest", or "character"
+  - entity_id: UUID of the entity to link to
+  - Additional metadata fields like is_primary, faction_role, etc.
+
+  ## Examples
+
+      iex> create_character_with_links(scope, %{name: "Aragorn"}, [
+        %{entity_type: "faction", entity_id: faction_id, is_primary: true, faction_role: "Leader"}
+      ])
+      {:ok, %Character{}}
+      
+      iex> create_character_with_links(scope, %{invalid: "data"}, [])
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_character_with_links(%Scope{} = scope, attrs, links) when is_list(links) do
+    Repo.transaction(fn ->
+      with {:ok, character} <- create_character_for_game(scope, attrs),
+           {:ok, {_links, updated_character}} <-
+             create_links_for_character(scope, character, links) do
+        updated_character
+      else
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  @doc """
   Returns the list of characters.
 
   ## Examples
@@ -514,6 +545,121 @@ defmodule GameMasterCore.Characters do
     case get_scoped_character(scope, character_id) do
       {:ok, character} -> Links.links_for(character)
       {:error, _} -> %{}
+    end
+  end
+
+  ## Link Creation Helpers for create_character_with_links
+
+  @doc false
+  defp create_links_for_character(%Scope{} = scope, %Character{} = character, links) do
+    with {:ok, target_entities_with_metadata} <- prepare_target_entities_for_links(scope, links),
+         {:ok, created_links} <-
+           Links.create_multiple_links(character, target_entities_with_metadata),
+         {:ok, updated_character} <- handle_primary_faction_links(scope, character, links) do
+      {:ok, {created_links, updated_character}}
+    end
+  end
+
+  @doc false
+  defp prepare_target_entities_for_links(%Scope{} = scope, links) do
+    results = Enum.map(links, &prepare_single_link_target(scope, &1))
+
+    case Enum.find(results, &match?({:error, _}, &1)) do
+      nil -> {:ok, Enum.map(results, fn {:ok, result} -> result end)}
+      error -> error
+    end
+  end
+
+  @doc false
+  defp prepare_single_link_target(%Scope{} = scope, link_params) do
+    entity_type = Map.get(link_params, "entity_type") || Map.get(link_params, :entity_type)
+    entity_id = Map.get(link_params, "entity_id") || Map.get(link_params, :entity_id)
+
+    # Extract metadata attributes (excluding entity_type and entity_id)
+    metadata_attrs =
+      link_params
+      |> Map.drop(["entity_type", "entity_id", :entity_type, :entity_id])
+      |> Map.new(fn
+        {k, v} when is_binary(k) -> {String.to_existing_atom(k), v}
+        {k, v} when is_atom(k) -> {k, v}
+      end)
+
+    with {:ok, entity_type_atom} <- validate_entity_type(entity_type),
+         {:ok, entity_uuid} <- validate_entity_id(entity_id),
+         {:ok, target_entity} <- fetch_target_entity(scope, entity_type_atom, entity_uuid) do
+      {:ok, {target_entity, metadata_attrs}}
+    end
+  end
+
+  @doc false
+  defp validate_entity_type(entity_type)
+       when entity_type in ["faction", "location", "note", "quest", "character"] do
+    {:ok, String.to_existing_atom(entity_type)}
+  end
+
+  defp validate_entity_type(entity_type)
+       when entity_type in [:faction, :location, :note, :quest, :character] do
+    {:ok, entity_type}
+  end
+
+  defp validate_entity_type(_), do: {:error, :invalid_entity_type}
+
+  @doc false
+  defp validate_entity_id(entity_id) when is_binary(entity_id) do
+    case Ecto.UUID.cast(entity_id) do
+      {:ok, uuid} -> {:ok, uuid}
+      :error -> {:error, :invalid_entity_id}
+    end
+  end
+
+  defp validate_entity_id(_), do: {:error, :invalid_entity_id}
+
+  @doc false
+  defp fetch_target_entity(scope, :note, note_id) do
+    get_scoped_note(scope, note_id)
+  end
+
+  defp fetch_target_entity(scope, :faction, faction_id) do
+    get_scoped_faction(scope, faction_id)
+  end
+
+  defp fetch_target_entity(scope, :location, location_id) do
+    get_scoped_location(scope, location_id)
+  end
+
+  defp fetch_target_entity(scope, :quest, quest_id) do
+    get_scoped_quest(scope, quest_id)
+  end
+
+  defp fetch_target_entity(scope, :character, character_id) do
+    get_scoped_character(scope, character_id)
+  end
+
+  defp fetch_target_entity(_scope, entity_type, _entity_id) do
+    {:error, {:unsupported_entity_type, entity_type}}
+  end
+
+  @doc false
+  defp handle_primary_faction_links(%Scope{} = scope, %Character{} = character, links) do
+    primary_faction_link =
+      Enum.find(links, fn link ->
+        entity_type = Map.get(link, "entity_type") || Map.get(link, :entity_type)
+        is_primary = Map.get(link, "is_primary") || Map.get(link, :is_primary)
+        entity_type in ["faction", :faction] && is_primary
+      end)
+
+    case primary_faction_link do
+      nil ->
+        {:ok, character}
+
+      link ->
+        faction_id = Map.get(link, "entity_id") || Map.get(link, :entity_id)
+        faction_role = Map.get(link, "faction_role") || Map.get(link, :faction_role)
+
+        case set_primary_faction(scope, character, faction_id, faction_role) do
+          {:ok, updated_character} -> {:ok, updated_character}
+          error -> error
+        end
     end
   end
 
