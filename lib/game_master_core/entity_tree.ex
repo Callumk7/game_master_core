@@ -63,14 +63,21 @@ defmodule GameMasterCore.EntityTree do
     # Get all entities for the game
     entities = get_all_game_entities(scope)
 
-    # Build trees for each entity type
-    %{
-      characters: build_trees_for_entities(entities.characters, depth, MapSet.new()),
-      factions: build_trees_for_entities(entities.factions, depth, MapSet.new()),
-      locations: build_trees_for_entities(entities.locations, depth, MapSet.new()),
-      quests: build_trees_for_entities(entities.quests, depth, MapSet.new()),
-      notes: build_trees_for_entities(entities.notes, depth, MapSet.new())
-    }
+    # Build trees for each entity type, sharing visited across types to avoid duplicates
+    {results, _final_visited} =
+      [
+        {:characters, entities.characters},
+        {:factions, entities.factions},
+        {:locations, entities.locations},
+        {:quests, entities.quests},
+        {:notes, entities.notes}
+      ]
+      |> Enum.reduce({%{}, MapSet.new()}, fn {type, type_entities}, {acc_results, acc_visited} ->
+        {trees, new_visited} = build_trees_for_entities(type_entities, depth, acc_visited)
+        {Map.put(acc_results, type, trees), new_visited}
+      end)
+
+    results
   end
 
   @doc """
@@ -79,7 +86,7 @@ defmodule GameMasterCore.EntityTree do
   def build_tree_from_entity(%Scope{} = scope, entity_type, entity_id, depth) do
     with {:ok, entity} <- fetch_entity(scope, entity_type, entity_id) do
       visited = MapSet.new()
-      tree_node = traverse_entity_links(entity, 0, depth, visited)
+      {tree_node, _final_visited} = traverse_entity_links(entity, 0, depth, visited)
       {:ok, tree_node}
     end
   end
@@ -106,13 +113,11 @@ defmodule GameMasterCore.EntityTree do
       if MapSet.member?(visited, entity_key) do
         {trees, visited}
       else
-        tree_node = traverse_entity_links(entity, 0, depth, visited)
-        new_visited = collect_visited_from_tree(tree_node, visited)
+        {tree_node, new_visited} = traverse_entity_links(entity, 0, depth, visited)
         {[tree_node | trees], new_visited}
       end
     end)
-    |> elem(0)
-    |> Enum.reverse()
+    |> then(fn {trees, visited} -> {Enum.reverse(trees), visited} end)
   end
 
   defp traverse_entity_links(entity, current_depth, max_depth, visited) do
@@ -123,7 +128,7 @@ defmodule GameMasterCore.EntityTree do
 
     # If we've reached max depth or already visited this entity, return without children
     if current_depth >= max_depth or MapSet.member?(visited, entity_key) do
-      Map.put(base_node, :children, [])
+      {Map.put(base_node, :children, []), visited}
     else
       # Mark this entity as visited
       new_visited = MapSet.put(visited, entity_key)
@@ -131,36 +136,38 @@ defmodule GameMasterCore.EntityTree do
       # Get all linked entities using the existing Links module
       links = Links.links_for(entity)
 
-      # Build children from all linked entities
-      children =
+      # Build children from all linked entities, threading visited through each traversal
+      {children, final_visited} =
         links
         |> Map.values()
         |> List.flatten()
-        |> Enum.map(fn link_data ->
+        |> Enum.reduce({[], new_visited}, fn link_data, {acc_children, acc_visited} ->
           linked_entity = link_data.entity
           linked_entity_key = entity_key(linked_entity)
 
           # Only traverse if not already visited (cycle detection)
-          if MapSet.member?(new_visited, linked_entity_key) do
-            nil
+          if MapSet.member?(acc_visited, linked_entity_key) do
+            {acc_children, acc_visited}
           else
-            child_node =
-              traverse_entity_links(linked_entity, current_depth + 1, max_depth, new_visited)
+            {child_node, updated_visited} =
+              traverse_entity_links(linked_entity, current_depth + 1, max_depth, acc_visited)
 
             # Add relationship metadata to the child node
-            child_node
-            |> Map.merge(%{
-              relationship_type: link_data.relationship_type,
-              description: link_data.description,
-              strength: link_data.strength,
-              is_active: link_data.is_active,
-              metadata: link_data.metadata
-            })
+            enriched_child =
+              child_node
+              |> Map.merge(%{
+                relationship_type: link_data.relationship_type,
+                description: link_data.description,
+                strength: link_data.strength,
+                is_active: link_data.is_active,
+                metadata: link_data.metadata
+              })
+
+            {[enriched_child | acc_children], updated_visited}
           end
         end)
-        |> Enum.reject(&is_nil/1)
 
-      Map.put(base_node, :children, children)
+      {Map.put(base_node, :children, Enum.reverse(children)), final_visited}
     end
   end
 
@@ -180,15 +187,6 @@ defmodule GameMasterCore.EntityTree do
 
   defp entity_key(entity) do
     "#{get_entity_type(entity)}_#{entity.id}"
-  end
-
-  defp collect_visited_from_tree(tree_node, visited) do
-    key = "#{tree_node.type}_#{tree_node.id}"
-    new_visited = MapSet.put(visited, key)
-
-    Enum.reduce(tree_node.children, new_visited, fn child, acc ->
-      collect_visited_from_tree(child, acc)
-    end)
   end
 
   defp fetch_entity(%Scope{} = scope, "character", entity_id) do
