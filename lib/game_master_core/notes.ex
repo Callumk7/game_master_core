@@ -186,6 +186,37 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
+  Creates a note and establishes links to other entities in a single transaction.
+  
+  Creates the note and establishes all specified relationships in a single transaction.
+  Links are expected to be a list of maps with keys:
+  - entity_type: "faction", "location", "note", "quest", or "character"
+  - entity_id: UUID of the entity to link to
+  - Additional metadata fields like is_primary, parent_note, polymorphic_type, etc.
+
+  ## Examples
+
+      iex> create_note_with_links(scope, %{title: "Session Notes"}, [
+        %{entity_type: "character", entity_id: character_id, note_type: "biography"}
+      ])
+      {:ok, %Note{}}
+      
+      iex> create_note_with_links(scope, %{invalid: "data"}, [])
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_note_with_links(%Scope{} = scope, attrs, links) when is_list(links) do
+    Repo.transaction(fn ->
+      with {:ok, note} <- create_note_for_game(scope, attrs),
+           {:ok, {_links, updated_note}} <-
+             create_links_for_note(scope, note, links) do
+        updated_note
+      else
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  @doc """
   Updates a note.
 
   ## Examples
@@ -693,4 +724,15 @@ defmodule GameMasterCore.Notes do
     from(n in Note, where: n.game_id == ^scope.game.id and n.pinned == true)
     |> Repo.all()
   end
+
+  @doc false
+  defp create_links_for_note(%Scope{} = scope, %Note{} = note, links) do
+    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+         {:ok, created_links} <-
+           Links.create_multiple_links(note, target_entities_with_metadata) do
+      {:ok, {created_links, note}}
+    end
+  end
+
+
 end

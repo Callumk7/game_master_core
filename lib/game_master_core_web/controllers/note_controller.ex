@@ -21,6 +21,16 @@ defmodule GameMasterCoreWeb.NoteController do
     render(conn, :index, notes: notes)
   end
 
+  def create(conn, %{"note" => note_params, "links" => links}) when is_list(links) do
+    with {:ok, %Note{} = note} <-
+           Notes.create_note_with_links(conn.assigns.current_scope, note_params, links) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", ~p"/api/games/#{note.game_id}/notes/#{note}")
+      |> render(:show, note: note)
+    end
+  end
+
   def create(conn, %{"note" => note_params}) do
     with {:ok, %Note{} = note} <-
            Notes.create_note_for_game(conn.assigns.current_scope, note_params) do

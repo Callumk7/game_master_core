@@ -49,7 +49,7 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/locations")
         summary("Create location")
-        description("Create a new location in the game")
+        description("Create a new location in the game with optional entity links")
         operation_id("createLocation")
         tag("GameMaster")
         consumes("application/json")

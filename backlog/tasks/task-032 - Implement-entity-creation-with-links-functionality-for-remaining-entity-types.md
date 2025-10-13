@@ -1,10 +1,11 @@
 ---
 id: task-032
 title: Implement entity creation with links functionality for remaining entity types
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@amp'
 created_date: '2025-10-13 09:48'
-updated_date: '2025-10-13 09:48'
+updated_date: '2025-10-13 13:22'
 labels:
   - backend
   - api
@@ -21,16 +22,16 @@ Extend the atomic entity creation with links functionality (already implemented 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Faction creation with links functionality implemented and tested
-- [ ] #2 Location creation with links functionality implemented and tested
-- [ ] #3 Quest creation with links functionality implemented and tested
-- [ ] #4 Note creation with links functionality implemented and tested
-- [ ] #5 All entity types support backward compatibility (existing requests without links work unchanged)
-- [ ] #6 Comprehensive test coverage added for all entity types (5+ test cases each)
-- [ ] #7 Swagger documentation updated with entity-specific link schemas
-- [ ] #8 Entity-specific link metadata properly handled (hierarchical fields, primary relationships)
-- [ ] #9 Database transaction atomicity ensures all links created or none for all entities
-- [ ] #10 Fail-fast behavior implemented for all entity types (validation errors prevent creation)
+- [x] #1 Faction creation with links functionality implemented and tested
+- [x] #2 Location creation with links functionality implemented and tested
+- [x] #3 Quest creation with links functionality implemented and tested
+- [x] #4 Note creation with links functionality implemented and tested
+- [x] #5 All entity types support backward compatibility (existing requests without links work unchanged)
+- [x] #6 Comprehensive test coverage added for all entity types (5+ test cases each)
+- [x] #7 Swagger documentation updated with entity-specific link schemas
+- [x] #8 Entity-specific link metadata properly handled (hierarchical fields, primary relationships)
+- [x] #9 Database transaction atomicity ensures all links created or none for all entities
+- [x] #10 Fail-fast behavior implemented for all entity types (validation errors prevent creation)
 <!-- AC:END -->
 
 ## Implementation Plan

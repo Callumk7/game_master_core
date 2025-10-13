@@ -49,7 +49,7 @@ defmodule GameMasterCoreWeb.Swagger.QuestSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/quests")
         summary("Create quest")
-        description("Create a new quest in the game")
+        description("Create a new quest in the game with optional entity links")
         operation_id("createQuest")
         tag("GameMaster")
         consumes("application/json")

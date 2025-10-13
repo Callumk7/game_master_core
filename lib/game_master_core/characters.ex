@@ -586,7 +586,7 @@ defmodule GameMasterCore.Characters do
 
     with {:ok, entity_type_atom} <- validate_entity_type(entity_type),
          {:ok, entity_uuid} <- validate_entity_id(entity_id),
-         {:ok, target_entity} <- fetch_target_entity(scope, entity_type_atom, entity_uuid) do
+         {:ok, target_entity} <- GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
       {:ok, {target_entity, metadata_attrs}}
     end
   end
@@ -614,30 +614,7 @@ defmodule GameMasterCore.Characters do
 
   defp validate_entity_id(_), do: {:error, :invalid_entity_id}
 
-  @doc false
-  defp fetch_target_entity(scope, :note, note_id) do
-    get_scoped_note(scope, note_id)
-  end
 
-  defp fetch_target_entity(scope, :faction, faction_id) do
-    get_scoped_faction(scope, faction_id)
-  end
-
-  defp fetch_target_entity(scope, :location, location_id) do
-    get_scoped_location(scope, location_id)
-  end
-
-  defp fetch_target_entity(scope, :quest, quest_id) do
-    get_scoped_quest(scope, quest_id)
-  end
-
-  defp fetch_target_entity(scope, :character, character_id) do
-    get_scoped_character(scope, character_id)
-  end
-
-  defp fetch_target_entity(_scope, entity_type, _entity_id) do
-    {:error, {:unsupported_entity_type, entity_type}}
-  end
 
   @doc false
   defp handle_primary_faction_links(%Scope{} = scope, %Character{} = character, links) do

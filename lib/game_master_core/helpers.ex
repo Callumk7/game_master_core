@@ -49,4 +49,24 @@ defmodule GameMasterCore.Helpers do
       Ecto.NoResultsError -> {:error, :quest_not_found}
     end
   end
+
+  def fetch_target_entity(scope, :faction, entity_id) do
+    get_scoped_faction(scope, entity_id)
+  end
+
+  def fetch_target_entity(scope, :location, entity_id) do
+    get_scoped_location(scope, entity_id)
+  end
+
+  def fetch_target_entity(scope, :note, entity_id) do
+    get_scoped_note(scope, entity_id)
+  end
+
+  def fetch_target_entity(scope, :quest, entity_id) do
+    get_scoped_quest(scope, entity_id)
+  end
+
+  def fetch_target_entity(scope, :character, entity_id) do
+    get_scoped_character(scope, entity_id)
+  end
 end

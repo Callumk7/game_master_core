@@ -28,7 +28,7 @@ defmodule GameMasterCoreWeb.Swagger.NoteSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/notes")
         summary("Create a note")
-        description("Create a new note for the specified game")
+        description("Create a new note for the specified game with optional entity links")
         operation_id("createNote")
         tag("GameMaster")
         consumes("application/json")

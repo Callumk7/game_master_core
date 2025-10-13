@@ -73,6 +73,37 @@ defmodule GameMasterCore.Locations do
   end
 
   @doc """
+  Creates a location and establishes links to other entities in a single transaction.
+  
+  Creates the location and establishes all specified relationships in a single transaction.
+  Links are expected to be a list of maps with keys:
+  - entity_type: "faction", "location", "note", "quest", or "character"
+  - entity_id: UUID of the entity to link to
+  - Additional metadata fields like is_primary, parent_location, etc.
+
+  ## Examples
+
+      iex> create_location_with_links(scope, %{name: "Rivendell"}, [
+        %{entity_type: "character", entity_id: character_id, relationship_type: "home"}
+      ])
+      {:ok, %Location{}}
+      
+      iex> create_location_with_links(scope, %{invalid: "data"}, [])
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_location_with_links(%Scope{} = scope, attrs, links) when is_list(links) do
+    Repo.transaction(fn ->
+      with {:ok, location} <- create_location_for_game(scope, attrs),
+           {:ok, {_links, updated_location}} <-
+             create_links_for_location(scope, location, links) do
+        updated_location
+      else
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  @doc """
   Returns a hierarchical tree structure of locations for a game.
 
   ## Examples
@@ -710,4 +741,15 @@ defmodule GameMasterCore.Locations do
     from(l in Location, where: l.game_id == ^scope.game.id and l.pinned == true)
     |> Repo.all()
   end
+
+  @doc false
+  defp create_links_for_location(%Scope{} = scope, %Location{} = location, links) do
+    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+         {:ok, created_links} <-
+           Links.create_multiple_links(location, target_entities_with_metadata) do
+      {:ok, {created_links, location}}
+    end
+  end
+
+
 end

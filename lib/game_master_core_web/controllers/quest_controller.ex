@@ -26,6 +26,19 @@ defmodule GameMasterCoreWeb.QuestController do
     render(conn, :tree, tree: tree)
   end
 
+  def create(conn, %{"quest" => quest_params, "links" => links}) when is_list(links) do
+    with {:ok, %Quest{} = quest} <-
+           Quests.create_quest_with_links(conn.assigns.current_scope, quest_params, links) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/quests/#{quest}"
+      )
+      |> render(:show, quest: quest)
+    end
+  end
+
   def create(conn, %{"quest" => quest_params}) do
     with {:ok, %Quest{} = quest} <-
            Quests.create_quest_for_game(conn.assigns.current_scope, quest_params) do

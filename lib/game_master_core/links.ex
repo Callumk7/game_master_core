@@ -1640,4 +1640,70 @@ defmodule GameMasterCore.Links do
         |> Repo.update()
     end
   end
+
+  @doc """
+  Prepares target entities for link creation from link parameters.
+  
+  Takes a list of link parameter maps and validates/fetches each target entity.
+  Returns a list of {target_entity, metadata_attrs} tuples for create_multiple_links/2.
+  """
+  def prepare_target_entities_for_links(scope, links) do
+    results = Enum.map(links, &prepare_single_link_target(scope, &1))
+
+    case Enum.find(results, &match?({:error, _}, &1)) do
+      nil -> {:ok, Enum.map(results, fn {:ok, result} -> result end)}
+      error -> error
+    end
+  end
+
+  @doc """
+  Prepares a single link target from link parameters.
+  
+  Extracts entity_type and entity_id, validates them, fetches the target entity,
+  and returns {target_entity, metadata_attrs} tuple.
+  """
+  def prepare_single_link_target(scope, link_params) do
+    entity_type = Map.get(link_params, "entity_type") || Map.get(link_params, :entity_type)
+    entity_id = Map.get(link_params, "entity_id") || Map.get(link_params, :entity_id)
+
+    # Extract metadata attributes (excluding entity_type and entity_id)
+    metadata_attrs =
+      link_params
+      |> Map.drop(["entity_type", "entity_id", :entity_type, :entity_id])
+      |> Map.new(fn
+        {k, v} when is_binary(k) -> {String.to_existing_atom(k), v}
+        {k, v} when is_atom(k) -> {k, v}
+      end)
+
+    with {:ok, entity_type_atom} <- validate_entity_type(entity_type),
+         {:ok, entity_uuid} <- validate_entity_id(entity_id),
+         {:ok, target_entity} <- GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
+      {:ok, {target_entity, metadata_attrs}}
+    end
+  end
+
+  @doc """
+  Validates that entity_type is one of the supported entity types.
+  """
+  def validate_entity_type(entity_type) when entity_type in ["faction", "location", "note", "quest", "character"] do
+    {:ok, String.to_existing_atom(entity_type)}
+  end
+
+  def validate_entity_type(_entity_type) do
+    {:error, "Invalid entity type. Must be one of: faction, location, note, quest, character"}
+  end
+
+  @doc """
+  Validates that entity_id is a valid UUID string.
+  """
+  def validate_entity_id(entity_id) when is_binary(entity_id) do
+    case Ecto.UUID.cast(entity_id) do
+      {:ok, uuid} -> {:ok, uuid}
+      :error -> {:error, "Invalid entity ID format"}
+    end
+  end
+
+  def validate_entity_id(_entity_id) do
+    {:error, "Entity ID must be a string"}
+  end
 end

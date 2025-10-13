@@ -96,6 +96,37 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
+  Creates a faction and establishes links to other entities in a single transaction.
+  
+  Creates the faction and establishes all specified relationships in a single transaction.
+  Links are expected to be a list of maps with keys:
+  - entity_type: "faction", "location", "note", "quest", or "character"
+  - entity_id: UUID of the entity to link to
+  - Additional metadata fields like is_primary, location_id, etc.
+
+  ## Examples
+
+      iex> create_faction_with_links(scope, %{name: "The Rangers"}, [
+        %{entity_type: "location", entity_id: location_id, is_primary: true}
+      ])
+      {:ok, %Faction{}}
+      
+      iex> create_faction_with_links(scope, %{invalid: "data"}, [])
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_faction_with_links(%Scope{} = scope, attrs, links) when is_list(links) do
+    Repo.transaction(fn ->
+      with {:ok, faction} <- create_faction_for_game(scope, attrs),
+           {:ok, {_links, updated_faction}} <-
+             create_links_for_faction(scope, faction, links) do
+        updated_faction
+      else
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  @doc """
   Returns the list of factions for a user.
 
   ## Examples
@@ -614,4 +645,15 @@ defmodule GameMasterCore.Factions do
     from(f in Faction, where: f.game_id == ^scope.game.id and f.pinned == true)
     |> Repo.all()
   end
+
+  @doc false
+  defp create_links_for_faction(%Scope{} = scope, %Faction{} = faction, links) do
+    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+         {:ok, created_links} <-
+           Links.create_multiple_links(faction, target_entities_with_metadata) do
+      {:ok, {created_links, faction}}
+    end
+  end
+
+
 end

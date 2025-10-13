@@ -22,6 +22,19 @@ defmodule GameMasterCoreWeb.FactionController do
     render(conn, :index, factions: factions)
   end
 
+  def create(conn, %{"faction" => faction_params, "links" => links}) when is_list(links) do
+    with {:ok, %Faction{} = faction} <-
+           Factions.create_faction_with_links(conn.assigns.current_scope, faction_params, links) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/factions/#{faction}"
+      )
+      |> render(:show, faction: faction)
+    end
+  end
+
   def create(conn, %{"faction" => faction_params}) do
     with {:ok, %Faction{} = faction} <-
            Factions.create_faction_for_game(conn.assigns.current_scope, faction_params) do

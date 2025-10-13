@@ -669,6 +669,184 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def faction_creation_link_schema do
+    swagger_schema do
+      title("Faction Creation Link")
+      description("Link definition for faction creation")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "location",
+        entity_id: "523e4567-e89b-12d3-a456-426614174004",
+        relationship_type: "base_of_operations",
+        strength: 9,
+        is_active: true
+      })
+    end
+  end
+
+  def location_creation_link_schema do
+    swagger_schema do
+      title("Location Creation Link")
+      description("Link definition for location creation")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "character",
+        entity_id: "623e4567-e89b-12d3-a456-426614174005",
+        relationship_type: "home",
+        strength: 8,
+        is_active: true
+      })
+    end
+  end
+
+  def quest_creation_link_schema do
+    swagger_schema do
+      title("Quest Creation Link")
+      description("Link definition for quest creation")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        objective_type(:string, "Type of objective (quest links only)", required: false)
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "character",
+        entity_id: "723e4567-e89b-12d3-a456-426614174006",
+        relationship_type: "quest_giver",
+        objective_type: "main",
+        strength: 10,
+        is_active: true
+      })
+    end
+  end
+
+  def note_creation_link_schema do
+    swagger_schema do
+      title("Note Creation Link")
+      description("Link definition for note creation")
+
+      properties do
+        entity_type(:string, "Entity type to link",
+          required: true,
+          enum: ["character", "faction", "location", "quest", "note"]
+        )
+
+        entity_id(:string, "Entity ID to link", required: true, format: :uuid)
+
+        relationship_type(:string, "Type of relationship between entities", required: false)
+
+        description(:string, "Free-form description of the relationship", required: false)
+
+        strength(:integer, "Relationship strength/importance (1-10)",
+          required: false,
+          minimum: 1,
+          maximum: 10
+        )
+
+        is_active(:boolean, "Whether the relationship is currently active",
+          required: false,
+          default: true
+        )
+
+        note_type(:string, "Type of note relationship", required: false)
+
+        metadata(:object, "Additional flexible metadata as JSON", required: false)
+      end
+
+      required([:entity_type, :entity_id])
+
+      example(%{
+        entity_type: "character",
+        entity_id: "823e4567-e89b-12d3-a456-426614174007",
+        relationship_type: "biography",
+        note_type: "character_background",
+        strength: 7,
+        is_active: true
+      })
+    end
+  end
+
   def character_create_request_schema do
     swagger_schema do
       title("Character Create Request")
@@ -2022,6 +2200,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         ),
       Character: character_schema(),
       CharacterCreationLink: character_creation_link_schema(),
+      FactionCreationLink: faction_creation_link_schema(),
+      LocationCreationLink: location_creation_link_schema(),
+      QuestCreationLink: quest_creation_link_schema(),
+      NoteCreationLink: note_creation_link_schema(),
       CharacterCreateParams: character_create_params_schema(),
       CharacterUpdateParams: character_update_params_schema(),
       CharacterCreateRequest: character_create_request_schema(),

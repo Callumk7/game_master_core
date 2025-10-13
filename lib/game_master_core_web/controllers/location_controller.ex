@@ -26,6 +26,19 @@ defmodule GameMasterCoreWeb.LocationController do
     render(conn, :tree, tree: tree)
   end
 
+  def create(conn, %{"location" => location_params, "links" => links}) when is_list(links) do
+    with {:ok, %Location{} = location} <-
+           Locations.create_location_with_links(conn.assigns.current_scope, location_params, links) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header(
+        "location",
+        ~p"/api/games/#{conn.assigns.current_scope.game}/locations/#{location}"
+      )
+      |> render(:show, location: location)
+    end
+  end
+
   def create(conn, %{"location" => location_params}) do
     with {:ok, %Location{} = location} <-
            Locations.create_location_for_game(conn.assigns.current_scope, location_params) do

@@ -30,7 +30,7 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/factions")
         summary("Create faction")
-        description("Create a new faction in the game")
+        description("Create a new faction in the game with optional entity links")
         operation_id("createFaction")
         tag("GameMaster")
         consumes("application/json")

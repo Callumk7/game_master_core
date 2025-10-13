@@ -81,6 +81,37 @@ defmodule GameMasterCore.Quests do
   end
 
   @doc """
+  Creates a quest and establishes links to other entities in a single transaction.
+  
+  Creates the quest and establishes all specified relationships in a single transaction.
+  Links are expected to be a list of maps with keys:
+  - entity_type: "faction", "location", "note", "quest", or "character"
+  - entity_id: UUID of the entity to link to
+  - Additional metadata fields like is_primary, parent_quest, objective_type, etc.
+
+  ## Examples
+
+      iex> create_quest_with_links(scope, %{name: "Find the Ring"}, [
+        %{entity_type: "character", entity_id: character_id, objective_type: "main"}
+      ])
+      {:ok, %Quest{}}
+      
+      iex> create_quest_with_links(scope, %{invalid: "data"}, [])
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_quest_with_links(%Scope{} = scope, attrs, links) when is_list(links) do
+    Repo.transaction(fn ->
+      with {:ok, quest} <- create_quest_for_game(scope, attrs),
+           {:ok, {_links, updated_quest}} <-
+             create_links_for_quest(scope, quest, links) do
+        updated_quest
+      else
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  @doc """
   Returns a hierarchical tree structure of quests for a game.
 
   ## Examples
@@ -620,4 +651,15 @@ defmodule GameMasterCore.Quests do
     from(q in Quest, where: q.game_id == ^scope.game.id and q.pinned == true)
     |> Repo.all()
   end
+
+  @doc false
+  defp create_links_for_quest(%Scope{} = scope, %Quest{} = quest, links) do
+    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+         {:ok, created_links} <-
+           Links.create_multiple_links(quest, target_entities_with_metadata) do
+      {:ok, {created_links, quest}}
+    end
+  end
+
+
 end
