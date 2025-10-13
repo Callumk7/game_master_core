@@ -42,5 +42,21 @@ defmodule GameMasterCore.Characters.CharacterFaction do
     |> foreign_key_constraint(:character_id)
     |> foreign_key_constraint(:faction_id)
     |> unique_constraint([:character_id, :faction_id])
+    |> maybe_check_primary_faction()
+  end
+
+  # A new private helper function to apply the constraint conditionally
+  defp maybe_check_primary_faction(changeset) do
+    # Only apply the check if is_primary is being set to true.
+    # This prevents errors when un-setting a primary faction.
+    if get_field(changeset, :is_primary) == true do
+      unique_constraint(changeset, :is_primary,
+        name: :character_factions_unique_primary_faction_index,
+        message: "This character already has a primary faction"
+      )
+    else
+      # If not primary, skip the check
+      changeset
+    end
   end
 end

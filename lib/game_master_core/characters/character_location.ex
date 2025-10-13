@@ -40,5 +40,17 @@ defmodule GameMasterCore.Characters.CharacterLocation do
     |> foreign_key_constraint(:character_id)
     |> foreign_key_constraint(:location_id)
     |> unique_constraint([:location_id, :character_id])
+    |> maybe_check_current_location()
+  end
+
+  defp maybe_check_current_location(changeset) do
+    if get_field(changeset, :is_current_location) == true do
+      unique_constraint(changeset, :is_current_location,
+        name: :character_locations_unique_current_location_index,
+        message: "This character already has a current location"
+      )
+    else
+      changeset
+    end
   end
 end
