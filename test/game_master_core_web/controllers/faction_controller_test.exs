@@ -7,7 +7,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
   import GameMasterCore.NotesFixtures
   import GameMasterCore.CharactersFixtures
   import GameMasterCore.LocationsFixtures
-  
+
   alias GameMasterCore.Factions.Faction
   alias GameMasterCore.Characters
 
@@ -502,16 +502,28 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
           game_id: game.id,
           name: "Faction Member 1"
         })
-      
-      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, member_character1, faction.id, "Leader")
+
+      {:ok, _} =
+        Characters.set_primary_faction(
+          %{scope | game: game},
+          member_character1,
+          faction.id,
+          "Leader"
+        )
 
       member_character2 =
         character_fixture(scope, %{
           game_id: game.id,
           name: "Faction Member 2"
         })
-        
-      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, member_character2, faction.id, "Member")
+
+      {:ok, _} =
+        Characters.set_primary_faction(
+          %{scope | game: game},
+          member_character2,
+          faction.id,
+          "Member"
+        )
 
       # Character without faction membership
       _independent_character =
@@ -528,8 +540,14 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
           game_id: game.id,
           name: "Other Faction Member"
         })
-        
-      {:ok, _} = Characters.set_primary_faction(%{scope | game: game}, other_faction_member, other_faction.id, "Scout")
+
+      {:ok, _} =
+        Characters.set_primary_faction(
+          %{scope | game: game},
+          other_faction_member,
+          other_faction.id,
+          "Scout"
+        )
 
       conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/members")
       response = json_response(conn, 200)
@@ -550,7 +568,7 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       refute Map.has_key?(leader, "faction_role")
 
       member = Enum.find(response["data"]["members"], &(&1["name"] == "Faction Member 2"))
-      refute Map.has_key?(member, "member_of_faction_id") 
+      refute Map.has_key?(member, "member_of_faction_id")
       refute Map.has_key?(member, "faction_role")
     end
 
@@ -828,213 +846,6 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
           }
         )
 
-      assert response(conn, 404)
-    end
-  end
-
-  describe "faction notes tree" do
-    setup [:create_faction]
-
-    test "notes_tree returns empty tree for faction with no notes", %{
-      conn: conn,
-      game: game,
-      faction: faction
-    } do
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/notes/tree")
-      response = json_response(conn, 200)
-
-      assert response["data"]["faction_id"] == faction.id
-      assert response["data"]["faction_name"] == faction.name
-      assert response["data"]["notes_tree"] == []
-    end
-
-    test "notes_tree returns direct child notes", %{
-      conn: conn,
-      scope: scope,
-      game: game,
-      faction: faction
-    } do
-      # Create notes attached to faction
-      _note1 =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Faction Note 1",
-          content: "Content 1",
-          parent_id: faction.id,
-          parent_type: "faction"
-        })
-
-      _note2 =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Faction Note 2",
-          content: "Content 2",
-          parent_id: faction.id,
-          parent_type: "faction"
-        })
-
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/notes/tree")
-      response = json_response(conn, 200)
-
-      assert response["data"]["faction_id"] == faction.id
-      assert response["data"]["faction_name"] == faction.name
-
-      notes_tree = response["data"]["notes_tree"]
-      assert length(notes_tree) == 2
-
-      # Verify note structure (should be sorted alphabetically)
-      [first_note, second_note] = notes_tree
-
-      assert first_note["name"] == "Faction Note 1"
-      assert first_note["content"] == "Content 1"
-      assert first_note["parent_id"] == faction.id
-      assert first_note["parent_type"] == "faction"
-      assert first_note["children"] == []
-
-      assert second_note["name"] == "Faction Note 2"
-      assert second_note["content"] == "Content 2"
-      assert second_note["children"] == []
-    end
-
-    test "notes_tree returns hierarchical structure with note children", %{
-      conn: conn,
-      scope: scope,
-      game: game,
-      faction: faction
-    } do
-      # Create root note attached to faction
-      root_note =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Root Note",
-          content: "Root content",
-          parent_id: faction.id,
-          parent_type: "faction"
-        })
-
-      # Create child note (traditional note hierarchy)
-      child_note =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Child Note",
-          content: "Child content",
-          parent_id: root_note.id
-          # parent_type is nil for traditional note hierarchy
-        })
-
-      # Create grandchild note
-      _grandchild_note =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Grandchild Note",
-          content: "Grandchild content",
-          parent_id: child_note.id
-        })
-
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/notes/tree")
-      response = json_response(conn, 200)
-
-      notes_tree = response["data"]["notes_tree"]
-      assert length(notes_tree) == 1
-
-      # Check root note
-      root = hd(notes_tree)
-      assert root["name"] == "Root Note"
-      assert root["id"] == root_note.id
-      assert root["parent_id"] == faction.id
-      assert root["parent_type"] == "faction"
-
-      # Check child structure
-      children = root["children"]
-      assert length(children) == 1
-
-      child = hd(children)
-      assert child["name"] == "Child Note"
-      assert child["id"] == child_note.id
-
-      # Check grandchild structure
-      grandchildren = child["children"]
-      assert length(grandchildren) == 1
-
-      grandchild = hd(grandchildren)
-      assert grandchild["name"] == "Grandchild Note"
-      assert grandchild["children"] == []
-    end
-
-    test "notes_tree excludes notes from other factions and games", %{
-      conn: conn,
-      scope: scope,
-      game: game,
-      faction: faction
-    } do
-      # Create note for this faction
-      _faction_note =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "My Faction Note",
-          parent_id: faction.id,
-          parent_type: "faction"
-        })
-
-      # Create another faction in the same game
-      other_faction = faction_fixture(scope, %{game_id: game.id})
-
-      _other_faction_note =
-        note_fixture(scope, %{
-          game_id: game.id,
-          name: "Other Faction Note",
-          parent_id: other_faction.id,
-          parent_type: "faction"
-        })
-
-      # Create a note in a different game
-      other_scope = user_scope_fixture()
-      other_game = game_fixture(other_scope)
-      other_game_faction = faction_fixture(other_scope, %{game_id: other_game.id})
-
-      _other_game_note =
-        note_fixture(other_scope, %{
-          game_id: other_game.id,
-          name: "Other Game Note",
-          parent_id: other_game_faction.id,
-          parent_type: "faction"
-        })
-
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/notes/tree")
-      response = json_response(conn, 200)
-
-      notes_tree = response["data"]["notes_tree"]
-      assert length(notes_tree) == 1
-      assert hd(notes_tree)["name"] == "My Faction Note"
-    end
-
-    test "notes_tree returns 404 for non-existent faction", %{conn: conn, game: game} do
-      non_existent_id = Ecto.UUID.generate()
-
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{non_existent_id}/notes/tree")
-      assert json_response(conn, 404)
-    end
-
-    test "notes_tree returns 404 for invalid faction id format", %{conn: conn, game: game} do
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/invalid/notes/tree")
-      assert json_response(conn, 404)
-    end
-
-    test "notes_tree requires authentication", %{game: game, faction: faction} do
-      conn = build_conn()
-      conn = get(conn, ~p"/api/games/#{game.id}/factions/#{faction.id}/notes/tree")
-      assert response(conn, 401)
-    end
-
-    test "notes_tree respects game access permissions", %{
-      conn: conn,
-      faction: faction
-    } do
-      # Try to access faction from a different game
-      other_scope = user_scope_fixture()
-      other_game = game_fixture(other_scope)
-
-      conn = get(conn, ~p"/api/games/#{other_game.id}/factions/#{faction.id}/notes/tree")
       assert response(conn, 404)
     end
   end

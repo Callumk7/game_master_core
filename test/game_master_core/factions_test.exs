@@ -696,7 +696,7 @@ defmodule GameMasterCore.FactionsTest do
 
   describe "create_faction_with_links/3" do
     alias GameMasterCore.Factions.Faction
-    
+
     import GameMasterCore.AccountsFixtures
     import GameMasterCore.FactionsFixtures
     import GameMasterCore.LocationsFixtures
@@ -725,7 +725,7 @@ defmodule GameMasterCore.FactionsTest do
                Factions.create_faction_with_links(scope, faction_attrs, links)
 
       assert faction.name == "Test Faction"
-      
+
       # Verify the link was created
       assert Factions.location_linked?(scope, faction.id, location.id)
     end
@@ -763,7 +763,7 @@ defmodule GameMasterCore.FactionsTest do
                Factions.create_faction_with_links(scope, faction_attrs, links)
 
       assert faction.name == "Multi-Linked Faction"
-      
+
       # Verify all links were created
       assert Factions.location_linked?(scope, faction.id, location.id)
       assert Factions.character_linked?(scope, faction.id, character.id)
@@ -789,7 +789,8 @@ defmodule GameMasterCore.FactionsTest do
       location = location_fixture(scope, %{game_id: scope.game.id})
 
       invalid_faction_attrs = %{
-        name: nil,  # Invalid - name is required
+        # Invalid - name is required
+        name: nil,
         content: "Content"
       }
 
@@ -831,7 +832,7 @@ defmodule GameMasterCore.FactionsTest do
 
       assert faction.name == "Metadata Faction"
       assert Factions.character_linked?(scope, faction.id, character.id)
-      
+
       # Verify metadata was stored (would need to check links table directly in a real test)
     end
 
@@ -850,7 +851,8 @@ defmodule GameMasterCore.FactionsTest do
         }
       ]
 
-      assert {:error, "Invalid entity type. Must be one of: faction, location, note, quest, character"} =
+      assert {:error,
+              "Invalid entity type. Must be one of: faction, location, note, quest, character"} =
                Factions.create_faction_with_links(scope, faction_attrs, links)
     end
 

@@ -70,6 +70,4 @@ defmodule GameMasterCore.Characters.Character do
         changeset
     end
   end
-
-
 end

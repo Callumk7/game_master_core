@@ -47,25 +47,6 @@ defmodule GameMasterCoreWeb.CharacterJSON do
   end
 
   @doc """
-  Renders character notes tree.
-  """
-  def notes_tree(%{character: character, notes_tree: notes_tree}) do
-    %{
-      data: %{
-        character_id: character.id,
-        character_name: character.name,
-        notes_tree: for(note <- notes_tree, do: note_tree_data(note))
-      }
-    }
-  end
-
-  defp note_tree_data(note) do
-    note_data(note)
-    |> Map.put(:children, for(child <- Map.get(note, :children, []), do: note_tree_data(child)))
-    |> Map.put(:entity_type, Map.get(note, :entity_type, "note"))
-  end
-
-  @doc """
   Renders primary faction data for a character.
   """
   def primary_faction(%{primary_faction_data: primary_faction_data}) do

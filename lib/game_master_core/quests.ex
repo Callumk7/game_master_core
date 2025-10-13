@@ -82,7 +82,7 @@ defmodule GameMasterCore.Quests do
 
   @doc """
   Creates a quest and establishes links to other entities in a single transaction.
-  
+
   Creates the quest and establishes all specified relationships in a single transaction.
   Links are expected to be a list of maps with keys:
   - entity_type: "faction", "location", "note", "quest", or "character"
@@ -654,12 +654,11 @@ defmodule GameMasterCore.Quests do
 
   @doc false
   defp create_links_for_quest(%Scope{} = scope, %Quest{} = quest, links) do
-    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+    with {:ok, target_entities_with_metadata} <-
+           Links.prepare_target_entities_for_links(scope, links),
          {:ok, created_links} <-
            Links.create_multiple_links(quest, target_entities_with_metadata) do
       {:ok, {created_links, quest}}
     end
   end
-
-
 end

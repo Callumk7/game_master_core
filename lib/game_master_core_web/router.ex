@@ -84,7 +84,6 @@ defmodule GameMasterCoreWeb.Router do
       end
 
       resources "/characters", CharacterController, except: [:new, :edit] do
-        get "/notes/tree", CharacterController, :notes_tree
         get "/links", CharacterController, :list_links
         post "/links", CharacterController, :create_link
         put "/links/:entity_type/:entity_id", CharacterController, :update_link
@@ -106,7 +105,6 @@ defmodule GameMasterCoreWeb.Router do
       end
 
       resources "/factions", FactionController, except: [:new, :edit] do
-        get "/notes/tree", FactionController, :notes_tree
         get "/links", FactionController, :list_links
         post "/links", FactionController, :create_link
         put "/links/:entity_type/:entity_id", FactionController, :update_link

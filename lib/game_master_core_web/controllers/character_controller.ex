@@ -4,7 +4,6 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   alias GameMasterCore.Characters
   alias GameMasterCore.Characters.Character
-  alias GameMasterCore.Notes
   alias GameMasterCoreWeb.SwaggerDefinitions
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
@@ -24,15 +23,20 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   def create(conn, %{"character" => character_params} = params) do
     links = Map.get(params, "links", [])
-    
-    creation_result = if Enum.empty?(links) do
-      # Existing path - backward compatible
-      Characters.create_character_for_game(conn.assigns.current_scope, character_params)
-    else
-      # New path - create character with links
-      Characters.create_character_with_links(conn.assigns.current_scope, character_params, links)
-    end
-    
+
+    creation_result =
+      if Enum.empty?(links) do
+        # Existing path - backward compatible
+        Characters.create_character_for_game(conn.assigns.current_scope, character_params)
+      else
+        # New path - create character with links
+        Characters.create_character_with_links(
+          conn.assigns.current_scope,
+          character_params,
+          links
+        )
+      end
+
     with {:ok, %Character{} = character} <- creation_result do
       conn
       |> put_status(:created)
@@ -62,18 +66,6 @@ defmodule GameMasterCoreWeb.CharacterController do
     with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
          {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
       send_resp(conn, :no_content, "")
-    end
-  end
-
-  def notes_tree(conn, params) do
-    character_id = params["character_id"] || params["id"]
-
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
-      notes_tree =
-        Notes.list_character_notes_tree_for_game(conn.assigns.current_scope, character.id)
-
-      render(conn, :notes_tree, character: character, notes_tree: notes_tree)
     end
   end
 

@@ -205,7 +205,6 @@ defmodule GameMasterCore.CharactersTest do
     end
   end
 
-
   describe "character - note links" do
     import GameMasterCore.AccountsFixtures
     import GameMasterCore.CharactersFixtures
@@ -732,7 +731,7 @@ defmodule GameMasterCore.CharactersTest do
 
   describe "create_character_with_links/3" do
     alias GameMasterCore.Characters.Character
-    
+
     import GameMasterCore.AccountsFixtures
     import GameMasterCore.CharactersFixtures
     import GameMasterCore.FactionsFixtures
@@ -763,7 +762,7 @@ defmodule GameMasterCore.CharactersTest do
                Characters.create_character_with_links(scope, character_attrs, links)
 
       assert character.name == "Test Character"
-      
+
       # Verify the primary faction is set correctly via the join table
       assert {:ok, primary_faction_data} = Characters.get_primary_faction(scope, character)
       assert primary_faction_data.faction.id == faction.id

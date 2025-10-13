@@ -4,7 +4,6 @@ defmodule GameMasterCoreWeb.FactionController do
 
   alias GameMasterCore.Factions
   alias GameMasterCore.Factions.Faction
-  alias GameMasterCore.Notes
   alias GameMasterCoreWeb.SwaggerDefinitions
 
   import GameMasterCoreWeb.Controllers.LinkHelpers
@@ -66,18 +65,6 @@ defmodule GameMasterCoreWeb.FactionController do
     with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id),
          {:ok, %Faction{}} <- Factions.delete_faction(conn.assigns.current_scope, faction) do
       send_resp(conn, :no_content, "")
-    end
-  end
-
-  def notes_tree(conn, params) do
-    faction_id = params["faction_id"] || params["id"]
-
-    with {:ok, faction} <-
-           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id) do
-      notes_tree =
-        Notes.list_faction_notes_tree_for_game(conn.assigns.current_scope, faction.id)
-
-      render(conn, :notes_tree, faction: faction, notes_tree: notes_tree)
     end
   end
 

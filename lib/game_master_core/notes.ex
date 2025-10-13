@@ -50,91 +50,6 @@ defmodule GameMasterCore.Notes do
   end
 
   @doc """
-  Returns a hierarchical tree of notes for a specific character.
-
-  This includes:
-  1. Direct child notes (parent_id = character_id, parent_type = "Character") 
-  2. Traditional note hierarchies beneath those notes (parent_id = note_id, parent_type = nil)
-
-  ## Examples
-
-      iex> list_character_notes_tree_for_game(scope, character_id)
-      [%Note{children: [%Note{}, ...]}, ...]
-
-  """
-  def list_character_notes_tree_for_game(%Scope{} = scope, character_id) do
-    # Get all notes in the game
-    all_notes =
-      from(n in Note,
-        where: n.game_id == ^scope.game.id,
-        order_by: [asc: n.name]
-      )
-      |> Repo.all()
-
-    # Filter to notes that belong to this character's tree and build hierarchy
-    build_entity_note_tree(all_notes, character_id, "character")
-  end
-
-  @doc """
-  Returns a hierarchical tree of notes for a specific faction.
-
-  This function builds a tree structure that supports:
-  1. Direct child notes (parent_id = faction_id, parent_type = "Faction") 
-  2. Traditional note hierarchies beneath those notes (parent_id = note_id, parent_type = nil)
-
-  ## Examples
-
-      iex> list_faction_notes_tree_for_game(scope, faction_id)
-      [%Note{children: [%Note{}, ...]}, ...]
-
-  """
-  def list_faction_notes_tree_for_game(%Scope{} = scope, faction_id) do
-    # Get all notes in the game
-    all_notes =
-      from(n in Note,
-        where: n.game_id == ^scope.game.id,
-        order_by: [asc: n.name]
-      )
-      |> Repo.all()
-
-    # Filter to notes that belong to this faction's tree and build hierarchy
-    build_entity_note_tree(all_notes, faction_id, "faction")
-  end
-
-  defp build_entity_note_tree(all_notes, entity_id, entity_type) do
-    # Group all notes by their parent relationship
-    grouped =
-      Enum.group_by(all_notes, fn note ->
-        if note.parent_id && note.parent_type do
-          # Polymorphic parent: {parent_id, parent_type}
-          {note.parent_id, note.parent_type}
-        else
-          # Traditional note parent: {parent_id, "Note"}
-          {note.parent_id, "Note"}
-        end
-      end)
-
-    # Start with direct children of the entity
-    root_notes = Map.get(grouped, {entity_id, entity_type}, [])
-
-    # Build the tree recursively
-    Enum.map(root_notes, &add_note_children(&1, grouped))
-  end
-
-  defp add_note_children(note, grouped) do
-    # Find children of this note (traditional note hierarchy)
-    children = Map.get(grouped, {note.id, "Note"}, [])
-
-    # Recursively add children
-    children_with_trees = Enum.map(children, &add_note_children(&1, grouped))
-
-    # Add children and entity_type to the note struct
-    note
-    |> Map.put(:children, children_with_trees)
-    |> Map.put(:entity_type, "note")
-  end
-
-  @doc """
   Gets a single note for a specific game.
   Only users who can access the game can access its notes.
 
@@ -187,7 +102,7 @@ defmodule GameMasterCore.Notes do
 
   @doc """
   Creates a note and establishes links to other entities in a single transaction.
-  
+
   Creates the note and establishes all specified relationships in a single transaction.
   Links are expected to be a list of maps with keys:
   - entity_type: "faction", "location", "note", "quest", or "character"
@@ -727,12 +642,11 @@ defmodule GameMasterCore.Notes do
 
   @doc false
   defp create_links_for_note(%Scope{} = scope, %Note{} = note, links) do
-    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+    with {:ok, target_entities_with_metadata} <-
+           Links.prepare_target_entities_for_links(scope, links),
          {:ok, created_links} <-
            Links.create_multiple_links(note, target_entities_with_metadata) do
       {:ok, {created_links, note}}
     end
   end
-
-
 end

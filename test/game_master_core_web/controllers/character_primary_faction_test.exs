@@ -19,7 +19,7 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
     test "returns primary faction when character has one", %{conn: conn, scope: scope, game: game} do
       # Create a scope with the game information
       game_scope = %{scope | game: game}
-      
+
       faction = faction_fixture(game_scope, %{game_id: game.id})
       character = character_fixture(game_scope, %{game_id: game.id})
 
@@ -95,7 +95,7 @@ defmodule GameMasterCoreWeb.CharacterPrimaryFactionTest do
     test "removes primary faction", %{conn: conn, scope: scope, game: game} do
       # Create a scope with the game information
       game_scope = %{scope | game: game}
-      
+
       faction = faction_fixture(game_scope, %{game_id: game.id})
       character = character_fixture(game_scope, %{game_id: game.id})
 

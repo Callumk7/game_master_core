@@ -116,26 +116,6 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
         response(404, "Not Found", Schema.ref(:Error))
       end
 
-      swagger_path :notes_tree do
-        get("/api/games/{game_id}/factions/{id}/notes/tree")
-        summary("Get faction notes tree")
-        description("Get hierarchical tree of notes associated with a faction")
-        operation_id("getFactionNotesTree")
-        tag("GameMaster")
-
-        parameters do
-          game_id(:path, :string, "Game ID", required: true, format: :uuid)
-          id(:path, :string, "Faction ID", required: true, format: :uuid)
-        end
-
-        security([%{Bearer: []}])
-
-        response(200, "Success", Schema.ref(:FactionNotesTreeResponse))
-        response(401, "Unauthorized", Schema.ref(:Error))
-        response(403, "Forbidden", Schema.ref(:Error))
-        response(404, "Not Found", Schema.ref(:Error))
-      end
-
       swagger_path :create_link do
         post("/api/games/{game_id}/factions/{faction_id}/links")
         summary("Create faction link")
@@ -186,9 +166,7 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
         get("/api/games/{game_id}/factions/{faction_id}/members")
         summary("Get faction members")
 
-        description(
-          "Get all characters that have this faction as their primary faction"
-        )
+        description("Get all characters that have this faction as their primary faction")
 
         operation_id("getFactionMembers")
         tag("GameMaster")

@@ -586,7 +586,8 @@ defmodule GameMasterCore.Characters do
 
     with {:ok, entity_type_atom} <- validate_entity_type(entity_type),
          {:ok, entity_uuid} <- validate_entity_id(entity_id),
-         {:ok, target_entity} <- GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
+         {:ok, target_entity} <-
+           GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
       {:ok, {target_entity, metadata_attrs}}
     end
   end
@@ -613,8 +614,6 @@ defmodule GameMasterCore.Characters do
   end
 
   defp validate_entity_id(_), do: {:error, :invalid_entity_id}
-
-
 
   @doc false
   defp handle_primary_faction_links(%Scope{} = scope, %Character{} = character, links) do
@@ -871,6 +870,4 @@ defmodule GameMasterCore.Characters do
         |> Repo.update()
     end
   end
-
-
 end

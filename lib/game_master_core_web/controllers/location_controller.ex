@@ -28,7 +28,11 @@ defmodule GameMasterCoreWeb.LocationController do
 
   def create(conn, %{"location" => location_params, "links" => links}) when is_list(links) do
     with {:ok, %Location{} = location} <-
-           Locations.create_location_with_links(conn.assigns.current_scope, location_params, links) do
+           Locations.create_location_with_links(
+             conn.assigns.current_scope,
+             location_params,
+             links
+           ) do
       conn
       |> put_status(:created)
       |> put_resp_header(

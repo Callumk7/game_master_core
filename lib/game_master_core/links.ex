@@ -1643,7 +1643,7 @@ defmodule GameMasterCore.Links do
 
   @doc """
   Prepares target entities for link creation from link parameters.
-  
+
   Takes a list of link parameter maps and validates/fetches each target entity.
   Returns a list of {target_entity, metadata_attrs} tuples for create_multiple_links/2.
   """
@@ -1658,7 +1658,7 @@ defmodule GameMasterCore.Links do
 
   @doc """
   Prepares a single link target from link parameters.
-  
+
   Extracts entity_type and entity_id, validates them, fetches the target entity,
   and returns {target_entity, metadata_attrs} tuple.
   """
@@ -1677,7 +1677,8 @@ defmodule GameMasterCore.Links do
 
     with {:ok, entity_type_atom} <- validate_entity_type(entity_type),
          {:ok, entity_uuid} <- validate_entity_id(entity_id),
-         {:ok, target_entity} <- GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
+         {:ok, target_entity} <-
+           GameMasterCore.Helpers.fetch_target_entity(scope, entity_type_atom, entity_uuid) do
       {:ok, {target_entity, metadata_attrs}}
     end
   end
@@ -1685,7 +1686,8 @@ defmodule GameMasterCore.Links do
   @doc """
   Validates that entity_type is one of the supported entity types.
   """
-  def validate_entity_type(entity_type) when entity_type in ["faction", "location", "note", "quest", "character"] do
+  def validate_entity_type(entity_type)
+      when entity_type in ["faction", "location", "note", "quest", "character"] do
     {:ok, String.to_existing_atom(entity_type)}
   end
 

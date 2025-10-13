@@ -97,7 +97,7 @@ defmodule GameMasterCore.Factions do
 
   @doc """
   Creates a faction and establishes links to other entities in a single transaction.
-  
+
   Creates the faction and establishes all specified relationships in a single transaction.
   Links are expected to be a list of maps with keys:
   - entity_type: "faction", "location", "note", "quest", or "character"
@@ -548,7 +548,8 @@ defmodule GameMasterCore.Factions do
         from(c in Character,
           join: cf in CharacterFaction,
           on: cf.character_id == c.id,
-          where: c.game_id == ^scope.game.id and cf.faction_id == ^faction_id and cf.is_primary == true
+          where:
+            c.game_id == ^scope.game.id and cf.faction_id == ^faction_id and cf.is_primary == true
         )
         |> Repo.all()
 
@@ -648,12 +649,11 @@ defmodule GameMasterCore.Factions do
 
   @doc false
   defp create_links_for_faction(%Scope{} = scope, %Faction{} = faction, links) do
-    with {:ok, target_entities_with_metadata} <- Links.prepare_target_entities_for_links(scope, links),
+    with {:ok, target_entities_with_metadata} <-
+           Links.prepare_target_entities_for_links(scope, links),
          {:ok, created_links} <-
            Links.create_multiple_links(faction, target_entities_with_metadata) do
       {:ok, {created_links, faction}}
     end
   end
-
-
 end

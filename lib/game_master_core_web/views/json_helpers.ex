@@ -23,8 +23,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content: note.content,
       content_plain_text: note.content_plain_text,
       tags: note.tags,
-      parent_id: note.parent_id,
-      parent_type: note.parent_type,
       pinned: note.pinned,
       created_at: note.inserted_at,
       updated_at: note.updated_at

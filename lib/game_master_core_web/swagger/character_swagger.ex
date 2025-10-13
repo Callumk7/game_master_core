@@ -30,7 +30,11 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
       swagger_path :create do
         post("/api/games/{game_id}/characters")
         summary("Create character")
-        description("Create a new character in the game with optional entity links (factions, locations, etc.)")
+
+        description(
+          "Create a new character in the game with optional entity links (factions, locations, etc.)"
+        )
+
         operation_id("createCharacter")
         tag("GameMaster")
         consumes("application/json")
@@ -111,26 +115,6 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         security([%{Bearer: []}])
 
         response(204, "No Content")
-        response(401, "Unauthorized", Schema.ref(:Error))
-        response(403, "Forbidden", Schema.ref(:Error))
-        response(404, "Not Found", Schema.ref(:Error))
-      end
-
-      swagger_path :notes_tree do
-        get("/api/games/{game_id}/characters/{id}/notes/tree")
-        summary("Get character notes tree")
-        description("Get hierarchical tree of notes associated with a character")
-        operation_id("getCharacterNotesTree")
-        tag("GameMaster")
-
-        parameters do
-          game_id(:path, :string, "Game ID", required: true, format: :uuid)
-          id(:path, :string, "Character ID", required: true, format: :uuid)
-        end
-
-        security([%{Bearer: []}])
-
-        response(200, "Success", Schema.ref(:CharacterNotesTreeResponse))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
