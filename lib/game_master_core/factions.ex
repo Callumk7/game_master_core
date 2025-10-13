@@ -497,9 +497,9 @@ defmodule GameMasterCore.Factions do
   end
 
   @doc """
-  Returns all characters that are members of a specific faction.
+  Returns all characters that have the specified faction as their primary faction.
 
-  This queries characters where member_of_faction_id matches the given faction_id.
+  This queries character-faction relationships where is_primary is true.
 
   ## Examples
 

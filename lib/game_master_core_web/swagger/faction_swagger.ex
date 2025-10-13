@@ -187,7 +187,7 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
         summary("Get faction members")
 
         description(
-          "Get all characters that are members of a faction (using member_of_faction_id)"
+          "Get all characters that have this faction as their primary faction"
         )
 
         operation_id("getFactionMembers")
