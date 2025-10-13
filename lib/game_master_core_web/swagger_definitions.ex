@@ -1105,6 +1105,16 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           default: true
         )
 
+        is_primary(:boolean, "Whether the relationship is the primary relationship",
+          required: false
+        )
+
+        faction_role(:string, "Role within the faction", required: false)
+
+        is_current_location(:boolean, "Whether the location is the current location",
+          required: false
+        )
+
         metadata(:object, "Additional flexible metadata as JSON", required: false)
       end
 
@@ -1141,6 +1151,17 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         is_active(:boolean, "Whether the relationship is currently active", required: false)
+
+        is_primary(:boolean, "Whether the relationship is the primary relationship",
+          required: false
+        )
+
+        faction_role(:string, "Role within the faction", required: false)
+
+        is_current_location(:boolean, "Whether the location is the current location",
+          required: false
+        )
+
         metadata(:object, "Additional flexible metadata as JSON", required: false)
       end
 
