@@ -12,6 +12,7 @@ defmodule GameMasterCore.Factions do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Images
   alias GameMasterCore.Links
 
   @doc """
@@ -223,11 +224,24 @@ defmodule GameMasterCore.Factions do
   """
   def delete_faction(%Scope{} = scope, %Faction{} = faction) do
     # Note: game access already validated in controller before fetching the faction
-    with {:ok, faction = %Faction{}} <-
-           Repo.delete(faction) do
-      broadcast(scope, {:deleted, faction})
-      {:ok, faction}
-    end
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "faction", faction.id) do
+        {:ok, _count} ->
+          # Then delete the faction
+          case Repo.delete(faction) do
+            {:ok, faction} ->
+              broadcast(scope, {:deleted, faction})
+              faction
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """

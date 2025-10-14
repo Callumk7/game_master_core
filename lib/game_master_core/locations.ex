@@ -10,6 +10,7 @@ defmodule GameMasterCore.Locations do
 
   alias GameMasterCore.Locations.Location
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Images
   alias GameMasterCore.Links
 
   @doc """
@@ -250,11 +251,24 @@ defmodule GameMasterCore.Locations do
   """
   def delete_location(%Scope{} = scope, %Location{} = location) do
     # Note: game access already validated in controller before fetching the location
-    with {:ok, location = %Location{}} <-
-           Repo.delete(location) do
-      broadcast(scope, {:deleted, location})
-      {:ok, location}
-    end
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "location", location.id) do
+        {:ok, _count} ->
+          # Then delete the location
+          case Repo.delete(location) do
+            {:ok, location} ->
+              broadcast(scope, {:deleted, location})
+              location
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """

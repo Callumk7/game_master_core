@@ -9,6 +9,7 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Images
   alias GameMasterCore.Links
   alias GameMasterCore.Factions
 
@@ -215,11 +216,24 @@ defmodule GameMasterCore.Characters do
   """
   def delete_character(%Scope{} = scope, %Character{} = character) do
     # Note: game access already validated in controller before fetching the character
-    with {:ok, character = %Character{}} <-
-           Repo.delete(character) do
-      broadcast(scope, {:deleted, character})
-      {:ok, character}
-    end
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "character", character.id) do
+        {:ok, _count} ->
+          # Then delete the character
+          case Repo.delete(character) do
+            {:ok, character} ->
+              broadcast(scope, {:deleted, character})
+              character
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """

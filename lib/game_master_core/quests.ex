@@ -9,6 +9,7 @@ defmodule GameMasterCore.Quests do
   alias GameMasterCore.Repo
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Images
   alias GameMasterCore.Links
 
   @doc """
@@ -252,11 +253,24 @@ defmodule GameMasterCore.Quests do
   """
   def delete_quest(%Scope{} = scope, %Quest{} = quest) do
     # Note: game access already validated in controller before fetching the quest
-    with {:ok, quest = %Quest{}} <-
-           Repo.delete(quest) do
-      broadcast(scope, {:deleted, quest})
-      {:ok, quest}
-    end
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "quest", quest.id) do
+        {:ok, _count} ->
+          # Then delete the quest
+          case Repo.delete(quest) do
+            {:ok, quest} ->
+              broadcast(scope, {:deleted, quest})
+              quest
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """

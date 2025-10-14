@@ -9,6 +9,7 @@ defmodule GameMasterCore.Notes do
   alias GameMasterCore.Repo
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Images
   alias GameMasterCore.Links
 
   @doc """
@@ -167,12 +168,24 @@ defmodule GameMasterCore.Notes do
 
   """
   def delete_note(%Scope{} = scope, %Note{} = note) do
-    # Note: game access already validated in controller before fetching the note
-    with {:ok, note = %Note{}} <-
-           Repo.delete(note) do
-      broadcast(scope, {:deleted, note})
-      {:ok, note}
-    end
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "note", note.id) do
+        {:ok, _count} ->
+          # Then delete the note
+          case Repo.delete(note) do
+            {:ok, note} ->
+              broadcast(scope, {:deleted, note})
+              note
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """

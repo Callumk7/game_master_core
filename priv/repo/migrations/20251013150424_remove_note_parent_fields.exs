@@ -6,7 +6,7 @@ defmodule GameMasterCore.Repo.Migrations.RemoveNoteParentFields do
     drop index(:notes, [:parent_id])
     drop index(:notes, [:parent_type])
     drop index(:notes, [:parent_id, :parent_type])
-    
+
     # Remove columns
     alter table(:notes) do
       remove :parent_id, :binary_id

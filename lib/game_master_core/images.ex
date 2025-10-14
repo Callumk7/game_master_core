@@ -273,6 +273,31 @@ defmodule GameMasterCore.Images do
     end
   end
 
+  @doc """
+  Delete all images associated with a specific entity.
+
+  This function is called when an entity is deleted to clean up
+  all associated images and their files.
+  """
+  def delete_images_for_entity(scope, entity_type, entity_id) do
+    images = list_images_for_entity(scope, entity_type, entity_id)
+
+    Repo.transaction(fn ->
+      Enum.each(images, fn image ->
+        case Repo.delete(image) do
+          {:ok, _deleted_image} ->
+            cleanup_image_file(image)
+
+          {:error, reason} ->
+            Logger.error("Failed to delete image #{image.id}: #{inspect(reason)}")
+            Repo.rollback(reason)
+        end
+      end)
+
+      {:ok, length(images)}
+    end)
+  end
+
   # Private helper functions
 
   defp create_complete_image_record(scope, complete_attrs) do
