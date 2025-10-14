@@ -1098,16 +1098,22 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Character <-> Character links
   defp create_character_character_link(character1, character2, metadata_attrs) do
-    changeset_attrs =
-      %{
-        character_1_id: character1.id,
-        character_2_id: character2.id
-      }
-      |> Map.merge(metadata_attrs)
+    # Check if link already exists in either direction
+    if character_character_exists?(character1, character2) do
+      {:error,
+       %Ecto.Changeset{} |> Ecto.Changeset.add_error(:character_2_id, "link already exists")}
+    else
+      changeset_attrs =
+        %{
+          character_1_id: character1.id,
+          character_2_id: character2.id
+        }
+        |> Map.merge(metadata_attrs)
 
-    %CharacterCharacter{}
-    |> CharacterCharacter.changeset(changeset_attrs)
-    |> Repo.insert()
+      %CharacterCharacter{}
+      |> CharacterCharacter.changeset(changeset_attrs)
+      |> Repo.insert()
+    end
   end
 
   defp remove_character_character_link(character1, character2) do
@@ -1160,16 +1166,22 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Faction <-> Faction links
   defp create_faction_faction_link(faction1, faction2, metadata_attrs) do
-    changeset_attrs =
-      %{
-        faction_1_id: faction1.id,
-        faction_2_id: faction2.id
-      }
-      |> Map.merge(metadata_attrs)
+    # Check if link already exists in either direction
+    if faction_faction_exists?(faction1, faction2) do
+      {:error,
+       %Ecto.Changeset{} |> Ecto.Changeset.add_error(:faction_2_id, "link already exists")}
+    else
+      changeset_attrs =
+        %{
+          faction_1_id: faction1.id,
+          faction_2_id: faction2.id
+        }
+        |> Map.merge(metadata_attrs)
 
-    %FactionFaction{}
-    |> FactionFaction.changeset(changeset_attrs)
-    |> Repo.insert()
+      %FactionFaction{}
+      |> FactionFaction.changeset(changeset_attrs)
+      |> Repo.insert()
+    end
   end
 
   defp remove_faction_faction_link(faction1, faction2) do
@@ -1215,16 +1227,22 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Location <-> Location links
   defp create_location_location_link(location1, location2, metadata_attrs) do
-    changeset_attrs =
-      %{
-        location_1_id: location1.id,
-        location_2_id: location2.id
-      }
-      |> Map.merge(metadata_attrs)
+    # Check if link already exists in either direction
+    if location_location_exists?(location1, location2) do
+      {:error,
+       %Ecto.Changeset{} |> Ecto.Changeset.add_error(:location_2_id, "link already exists")}
+    else
+      changeset_attrs =
+        %{
+          location_1_id: location1.id,
+          location_2_id: location2.id
+        }
+        |> Map.merge(metadata_attrs)
 
-    %LocationLocation{}
-    |> LocationLocation.changeset(changeset_attrs)
-    |> Repo.insert()
+      %LocationLocation{}
+      |> LocationLocation.changeset(changeset_attrs)
+      |> Repo.insert()
+    end
   end
 
   defp remove_location_location_link(location1, location2) do
@@ -1273,16 +1291,21 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Quest <-> Quest links
   defp create_quest_quest_link(quest1, quest2, metadata_attrs) do
-    changeset_attrs =
-      %{
-        quest_1_id: quest1.id,
-        quest_2_id: quest2.id
-      }
-      |> Map.merge(metadata_attrs)
+    # Check if link already exists in either direction
+    if quest_quest_exists?(quest1, quest2) do
+      {:error, %Ecto.Changeset{} |> Ecto.Changeset.add_error(:quest_2_id, "link already exists")}
+    else
+      changeset_attrs =
+        %{
+          quest_1_id: quest1.id,
+          quest_2_id: quest2.id
+        }
+        |> Map.merge(metadata_attrs)
 
-    %QuestQuest{}
-    |> QuestQuest.changeset(changeset_attrs)
-    |> Repo.insert()
+      %QuestQuest{}
+      |> QuestQuest.changeset(changeset_attrs)
+      |> Repo.insert()
+    end
   end
 
   defp remove_quest_quest_link(quest1, quest2) do
@@ -1328,16 +1351,21 @@ defmodule GameMasterCore.Links do
 
   # Private functions for Note <-> Note links
   defp create_note_note_link(note1, note2, metadata_attrs) do
-    changeset_attrs =
-      %{
-        note_1_id: note1.id,
-        note_2_id: note2.id
-      }
-      |> Map.merge(metadata_attrs)
+    # Check if link already exists in either direction
+    if note_note_exists?(note1, note2) do
+      {:error, %Ecto.Changeset{} |> Ecto.Changeset.add_error(:note_2_id, "link already exists")}
+    else
+      changeset_attrs =
+        %{
+          note_1_id: note1.id,
+          note_2_id: note2.id
+        }
+        |> Map.merge(metadata_attrs)
 
-    %NoteNote{}
-    |> NoteNote.changeset(changeset_attrs)
-    |> Repo.insert()
+      %NoteNote{}
+      |> NoteNote.changeset(changeset_attrs)
+      |> Repo.insert()
+    end
   end
 
   defp remove_note_note_link(note1, note2) do

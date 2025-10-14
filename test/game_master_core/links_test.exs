@@ -337,6 +337,21 @@ defmodule GameMasterCore.LinksTest do
       assert {:error, %Ecto.Changeset{}} = Links.link(character1, character2)
     end
 
+    test "prevents bidirectional duplicate character links", %{
+      character1: character1,
+      character2: character2
+    } do
+      # Create char1 -> char2
+      assert {:ok, _link} = Links.link(character1, character2)
+
+      # Attempt to create char2 -> char1 (should fail due to bidirectional constraint)
+      assert {:error, %Ecto.Changeset{}} = Links.link(character2, character1)
+
+      # Both directions should still show as linked
+      assert Links.linked?(character1, character2)
+      assert Links.linked?(character2, character1)
+    end
+
     test "successfully unlinks two characters", %{character1: character1, character2: character2} do
       {:ok, _link} = Links.link(character1, character2)
       assert Links.linked?(character1, character2)
@@ -374,6 +389,18 @@ defmodule GameMasterCore.LinksTest do
       {:ok, _link} = Links.link(note1, note2)
       assert {:ok, _link} = Links.unlink(note1, note2)
       refute Links.linked?(note1, note2)
+    end
+
+    test "prevents bidirectional duplicate note links", %{note1: note1, note2: note2} do
+      # Create note1 -> note2
+      assert {:ok, _link} = Links.link(note1, note2)
+
+      # Attempt to create note2 -> note1 (should fail due to bidirectional constraint)
+      assert {:error, %Ecto.Changeset{}} = Links.link(note2, note1)
+
+      # Both directions should still show as linked
+      assert Links.linked?(note1, note2)
+      assert Links.linked?(note2, note1)
     end
 
     test "note cannot link to itself", %{note1: note1} do
