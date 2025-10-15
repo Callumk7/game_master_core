@@ -964,6 +964,169 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       [quest_data] = response["data"]
       assert quest_data["name"] == "Member Quest"
     end
+
+    test "returns subtree when start_id is provided", %{conn: conn, game: game, scope: scope} do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create main quest (root)
+      main_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Main Quest",
+          content: "Main quest",
+          parent_id: nil
+        })
+
+      # Create sub-quest (child of main quest)
+      sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Sub Quest",
+          content: "Sub quest",
+          parent_id: main_quest.id
+        })
+
+      # Create sub-sub-quest (child of sub-quest)
+      sub_sub_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Sub Sub Quest",
+          content: "Sub sub quest",
+          parent_id: sub_quest.id
+        })
+
+      # Create another root quest
+      _other_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Other Quest",
+          content: "Other quest",
+          parent_id: nil
+        })
+
+      # Request tree starting from sub_quest
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree?start_id=#{sub_quest.id}")
+      response = json_response(conn, 200)
+
+      # Should only return sub_quest and its children, not main_quest or other_quest
+      assert length(response["data"]) == 1
+      [sub_quest_data] = response["data"]
+
+      assert sub_quest_data["id"] == sub_quest.id
+      assert sub_quest_data["name"] == "Sub Quest"
+      assert sub_quest_data["parent_id"] == main_quest.id
+
+      # Should have one child (sub_sub_quest)
+      assert length(sub_quest_data["children"]) == 1
+      [sub_sub_data] = sub_quest_data["children"]
+      assert sub_sub_data["id"] == sub_sub_quest.id
+      assert sub_sub_data["name"] == "Sub Sub Quest"
+      assert sub_sub_data["children"] == []
+    end
+
+    test "returns single node when start_id is a leaf quest", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create parent and child
+      parent_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Parent Quest",
+          content: "Parent quest",
+          parent_id: nil
+        })
+
+      leaf_quest =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Leaf Quest",
+          content: "Leaf quest",
+          parent_id: parent_quest.id
+        })
+
+      # Request tree starting from leaf_quest (no children)
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree?start_id=#{leaf_quest.id}")
+      response = json_response(conn, 200)
+
+      assert length(response["data"]) == 1
+      [leaf_data] = response["data"]
+
+      assert leaf_data["id"] == leaf_quest.id
+      assert leaf_data["name"] == "Leaf Quest"
+      assert leaf_data["parent_id"] == parent_quest.id
+      assert leaf_data["children"] == []
+    end
+
+    test "returns 404 when start_id does not exist", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree?start_id=#{non_existent_id}")
+      response = json_response(conn, 404)
+
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "returns 404 when start_id is from a different game", %{
+      conn: conn,
+      game: game,
+      scope: _scope
+    } do
+      # Create quest in a different game
+      other_scope = user_scope_fixture()
+      other_game = game_fixture(other_scope)
+      other_game_scope = GameMasterCore.Accounts.Scope.put_game(other_scope, other_game)
+
+      other_quest =
+        quest_fixture(other_game_scope, %{
+          game_id: other_game.id,
+          name: "Other Game Quest",
+          content: "Quest from other game"
+        })
+
+      # Try to access it via our game
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree?start_id=#{other_quest.id}")
+      response = json_response(conn, 404)
+
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "returns full tree when start_id is not provided", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+      # Create two root quests
+      quest1 =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "First Root",
+          content: "First root quest",
+          parent_id: nil
+        })
+
+      quest2 =
+        quest_fixture(game_scope, %{
+          game_id: game.id,
+          name: "Second Root",
+          content: "Second root quest",
+          parent_id: nil
+        })
+
+      # Request without start_id should return all roots
+      conn = get(conn, ~p"/api/games/#{game}/quests/tree")
+      response = json_response(conn, 200)
+
+      assert length(response["data"]) == 2
+      quest_ids = Enum.map(response["data"], & &1["id"])
+      assert quest1.id in quest_ids
+      assert quest2.id in quest_ids
+    end
   end
 
   describe "error handling" do

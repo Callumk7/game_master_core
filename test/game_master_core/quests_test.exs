@@ -622,7 +622,7 @@ defmodule GameMasterCore.QuestsTest do
     test "list_quests_tree_for_game/1 returns empty list when no quests exist" do
       scope = game_scope_fixture()
 
-      assert Quests.list_quests_tree_for_game(scope) == []
+      assert {:ok, []} = Quests.list_quests_tree_for_game(scope)
     end
 
     test "list_quests_tree_for_game/1 returns flat tree for root quests" do
@@ -644,7 +644,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: nil
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
 
       assert length(tree) == 2
       # Should be sorted by name
@@ -688,7 +688,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: sub_quest.id
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
 
       assert length(tree) == 1
       [main_node] = tree
@@ -739,7 +739,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: main_quest.id
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
 
       [main_node] = tree
       assert length(main_node.children) == 2
@@ -766,7 +766,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: nil
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
 
       [node] = tree
       assert node.id == quest.id
@@ -790,7 +790,7 @@ defmodule GameMasterCore.QuestsTest do
           content: "Game 1 content"
         })
 
-      # Create quest in game2  
+      # Create quest in game2
       _quest2 =
         quest_fixture(scope2, %{
           game_id: scope2.game.id,
@@ -799,13 +799,13 @@ defmodule GameMasterCore.QuestsTest do
         })
 
       # Test game1
-      tree1 = Quests.list_quests_tree_for_game(scope1)
+      {:ok, tree1} = Quests.list_quests_tree_for_game(scope1)
       assert length(tree1) == 1
       [node1] = tree1
       assert node1.name == "Game 1 Quest"
 
       # Test game2
-      tree2 = Quests.list_quests_tree_for_game(scope2)
+      {:ok, tree2} = Quests.list_quests_tree_for_game(scope2)
       assert length(tree2) == 1
       [node2] = tree2
       assert node2.name == "Game 2 Quest"
@@ -847,7 +847,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: sub_sub_quest.id
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
 
       [main_node] = tree
       [sub_node] = main_node.children
@@ -881,7 +881,7 @@ defmodule GameMasterCore.QuestsTest do
           parent_id: parent.id
         })
 
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
       [parent_node] = tree
       [child_node] = parent_node.children
 

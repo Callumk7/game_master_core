@@ -88,7 +88,7 @@ defmodule GameMasterCore.QuestObjectivesTest do
       _objective2 = objective_fixture(scope, quest, %{body: "second objective"})
 
       # This tests that the quest tree functionality doesn't break with objectives
-      tree = Quests.list_quests_tree_for_game(scope)
+      {:ok, tree} = Quests.list_quests_tree_for_game(scope)
       assert is_list(tree)
 
       # Find our quest in the tree

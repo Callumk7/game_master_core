@@ -30,12 +30,24 @@ defmodule GameMasterCoreWeb.Swagger.QuestSwagger do
       swagger_path :tree do
         get("/api/games/{game_id}/quests/tree")
         summary("Get quest tree")
-        description("Get hierarchical tree structure of all quests in a game")
+
+        description("""
+        Get hierarchical tree structure of quests in a game.
+
+        - Without `start_id`: Returns the full tree with all root quests and their descendants
+        - With `start_id`: Returns a subtree starting from the specified quest, including all its descendants
+        """)
+
         operation_id("getQuestTree")
         tag("GameMaster")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
+
+          start_id(:query, :string, "Quest ID to start the tree from (optional)",
+            required: false,
+            format: :uuid
+          )
         end
 
         security([%{Bearer: []}])

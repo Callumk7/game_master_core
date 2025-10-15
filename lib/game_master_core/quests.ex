@@ -118,10 +118,16 @@ defmodule GameMasterCore.Quests do
   ## Examples
 
       iex> list_quests_tree_for_game(scope)
-      [%{id: "...", name: "Main Quest", children: [%{id: "...", name: "Sub Quest", children: []}]}]
+      {:ok, [%{id: "...", name: "Main Quest", children: [%{id: "...", name: "Sub Quest", children: []}]}]}
+
+      iex> list_quests_tree_for_game(scope, start_id)
+      {:ok, [%{id: "start_id", name: "Specific Quest", children: [...]}]}
+
+      iex> list_quests_tree_for_game(scope, "invalid-id")
+      {:error, :not_found}
 
   """
-  def list_quests_tree_for_game(%Scope{} = scope) do
+  def list_quests_tree_for_game(%Scope{} = scope, start_id \\ nil) do
     quests =
       from(q in Quest,
         where: q.game_id == ^scope.game.id,
@@ -129,7 +135,21 @@ defmodule GameMasterCore.Quests do
       )
       |> Repo.all()
 
-    build_tree(quests)
+    case start_id do
+      nil ->
+        {:ok, build_tree(quests)}
+
+      id ->
+        case Enum.find(quests, fn q -> q.id == id end) do
+          nil ->
+            {:error, :not_found}
+
+          quest ->
+            grouped = Enum.group_by(quests, & &1.parent_id)
+            tree_node = build_quest_node(quest, grouped)
+            {:ok, [tree_node]}
+        end
+    end
   end
 
   defp build_tree(quests) do
