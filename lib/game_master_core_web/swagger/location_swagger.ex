@@ -30,12 +30,24 @@ defmodule GameMasterCoreWeb.Swagger.LocationSwagger do
       swagger_path :tree do
         get("/api/games/{game_id}/locations/tree")
         summary("Get location tree")
-        description("Get hierarchical tree structure of all locations in a game")
+
+        description("""
+        Get hierarchical tree structure of locations in a game.
+
+        - Without `start_id`: Returns the full tree with all root locations and their descendants
+        - With `start_id`: Returns a subtree starting from the specified location, including all its descendants
+        """)
+
         operation_id("getLocationTree")
         tag("GameMaster")
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
+
+          start_id(:query, :string, "Location ID to start the tree from (optional)",
+            required: false,
+            format: :uuid
+          )
         end
 
         security([%{Bearer: []}])

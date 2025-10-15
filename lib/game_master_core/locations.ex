@@ -110,10 +110,16 @@ defmodule GameMasterCore.Locations do
   ## Examples
 
       iex> list_locations_tree_for_game(scope)
-      [%{id: "...", name: "Continent", children: [%{id: "...", name: "City", children: []}]}]
+      {:ok, [%{id: "...", name: "Continent", children: [%{id: "...", name: "City", children: []}]}]}
+
+      iex> list_locations_tree_for_game(scope, start_id)
+      {:ok, [%{id: "start_id", name: "Specific Location", children: [...]}]}
+
+      iex> list_locations_tree_for_game(scope, "invalid-id")
+      {:error, :not_found}
 
   """
-  def list_locations_tree_for_game(%Scope{} = scope) do
+  def list_locations_tree_for_game(%Scope{} = scope, start_id \\ nil) do
     locations =
       from(l in Location,
         where: l.game_id == ^scope.game.id,
@@ -121,7 +127,21 @@ defmodule GameMasterCore.Locations do
       )
       |> Repo.all()
 
-    build_tree(locations)
+    case start_id do
+      nil ->
+        {:ok, build_tree(locations)}
+
+      id ->
+        case Enum.find(locations, fn l -> l.id == id end) do
+          nil ->
+            {:error, :not_found}
+
+          location ->
+            grouped = Enum.group_by(locations, & &1.parent_id)
+            tree_node = build_location_node(location, grouped)
+            {:ok, [tree_node]}
+        end
+    end
   end
 
   defp build_tree(locations) do

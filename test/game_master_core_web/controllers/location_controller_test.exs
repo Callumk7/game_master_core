@@ -737,6 +737,148 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
       [location_data] = response["data"]
       assert location_data["name"] == "Member Location"
     end
+
+    test "returns subtree when start_id is provided", %{conn: conn, game: game, scope: scope} do
+      # Create a hierarchy: Continent -> Nation -> City
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Continent",
+          type: "continent",
+          parent_id: nil
+        })
+
+      nation =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Nation",
+          type: "nation",
+          parent_id: continent.id
+        })
+
+      city =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "City",
+          type: "city",
+          parent_id: nation.id
+        })
+
+      # Request tree starting from the nation (should not include continent)
+      conn = get(conn, ~p"/api/games/#{game}/locations/tree?start_id=#{nation.id}")
+      response = json_response(conn, 200)
+
+      # Should return only nation and its descendants
+      assert length(response["data"]) == 1
+      [nation_data] = response["data"]
+      assert nation_data["id"] == nation.id
+      assert nation_data["name"] == "Nation"
+
+      # Nation should have city as child
+      assert length(nation_data["children"]) == 1
+      [city_data] = nation_data["children"]
+      assert city_data["id"] == city.id
+      assert city_data["name"] == "City"
+    end
+
+    test "returns single node when start_id is a leaf location", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      # Create a hierarchy
+      continent =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Continent",
+          type: "continent",
+          parent_id: nil
+        })
+
+      leaf_location =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Leaf City",
+          type: "city",
+          parent_id: continent.id
+        })
+
+      # Request tree starting from the leaf
+      conn = get(conn, ~p"/api/games/#{game}/locations/tree?start_id=#{leaf_location.id}")
+      response = json_response(conn, 200)
+
+      # Should return only the leaf location
+      assert length(response["data"]) == 1
+      [location_data] = response["data"]
+      assert location_data["id"] == leaf_location.id
+      assert location_data["name"] == "Leaf City"
+      assert location_data["children"] == []
+    end
+
+    test "returns 404 when start_id does not exist", %{conn: conn, game: game} do
+      non_existent_id = Ecto.UUID.generate()
+      conn = get(conn, ~p"/api/games/#{game}/locations/tree?start_id=#{non_existent_id}")
+      response = json_response(conn, 404)
+
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "returns 404 when start_id is from a different game", %{
+      conn: conn,
+      game: game,
+      scope: _scope
+    } do
+      # Create a location in a different game
+      other_scope = user_scope_fixture()
+      other_game = game_fixture(other_scope)
+
+      other_location =
+        location_fixture(other_scope, %{
+          game_id: other_game.id,
+          name: "Other Location",
+          type: "city"
+        })
+
+      # Try to access it through our game's tree endpoint
+      conn = get(conn, ~p"/api/games/#{game}/locations/tree?start_id=#{other_location.id}")
+      response = json_response(conn, 404)
+
+      assert %{"errors" => %{"detail" => "Not Found"}} = response
+    end
+
+    test "returns full tree when start_id is not provided", %{
+      conn: conn,
+      game: game,
+      scope: scope
+    } do
+      # Create multiple root locations
+      _location1 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Root 1",
+          type: "continent",
+          parent_id: nil
+        })
+
+      _location2 =
+        location_fixture(scope, %{
+          game_id: game.id,
+          name: "Root 2",
+          type: "continent",
+          parent_id: nil
+        })
+
+      # Request tree without start_id
+      conn = get(conn, ~p"/api/games/#{game}/locations/tree")
+      response = json_response(conn, 200)
+
+      # Should return all root locations
+      assert length(response["data"]) == 2
+
+      location_names = Enum.map(response["data"], & &1["name"])
+      assert "Root 1" in location_names
+      assert "Root 2" in location_names
+    end
   end
 
   describe "error handling" do

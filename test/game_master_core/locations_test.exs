@@ -649,7 +649,7 @@ defmodule GameMasterCore.LocationsTest do
       game = game_fixture(scope)
       scope = %{scope | game: game}
 
-      assert Locations.list_locations_tree_for_game(scope) == []
+      assert {:ok, []} = Locations.list_locations_tree_for_game(scope)
     end
 
     test "list_locations_tree_for_game/1 returns flat tree for root locations" do
@@ -673,7 +673,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: nil
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
 
       assert length(tree) == 2
       # Should be sorted by name
@@ -719,7 +719,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: nation.id
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
 
       assert length(tree) == 1
       [continent_node] = tree
@@ -772,7 +772,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: continent.id
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
 
       [continent_node] = tree
       assert length(continent_node.children) == 2
@@ -801,7 +801,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: nil
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
 
       [node] = tree
       assert node.id == location.id
@@ -827,7 +827,7 @@ defmodule GameMasterCore.LocationsTest do
           type: "city"
         })
 
-      # Create location in game2  
+      # Create location in game2
       _location2 =
         location_fixture(scope, %{
           game_id: game2.id,
@@ -837,14 +837,14 @@ defmodule GameMasterCore.LocationsTest do
 
       # Test game1
       scope1 = %{scope | game: game1}
-      tree1 = Locations.list_locations_tree_for_game(scope1)
+      {:ok, tree1} = Locations.list_locations_tree_for_game(scope1)
       assert length(tree1) == 1
       [node1] = tree1
       assert node1.name == "Game 1 Location"
 
       # Test game2
       scope2 = %{scope | game: game2}
-      tree2 = Locations.list_locations_tree_for_game(scope2)
+      {:ok, tree2} = Locations.list_locations_tree_for_game(scope2)
       assert length(tree2) == 1
       [node2] = tree2
       assert node2.name == "Game 2 Location"
@@ -888,7 +888,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: region.id
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
 
       [continent_node] = tree
       [nation_node] = continent_node.children
@@ -924,7 +924,7 @@ defmodule GameMasterCore.LocationsTest do
           parent_id: parent.id
         })
 
-      tree = Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = Locations.list_locations_tree_for_game(scope)
       [parent_node] = tree
       [child_node] = parent_node.children
 

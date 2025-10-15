@@ -1274,7 +1274,7 @@ defmodule GameMasterCore.LinksTest do
       scope: scope,
       continent: continent
     } do
-      tree = GameMasterCore.Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = GameMasterCore.Locations.list_locations_tree_for_game(scope)
 
       assert length(tree) == 1
       [continent_node] = tree
@@ -1305,7 +1305,7 @@ defmodule GameMasterCore.LinksTest do
     end
 
     test "tree ordering is consistent and alphabetical", %{scope: scope} do
-      tree = GameMasterCore.Locations.list_locations_tree_for_game(scope)
+      {:ok, tree} = GameMasterCore.Locations.list_locations_tree_for_game(scope)
       [continent_node] = tree
 
       # Nations should be alphabetically ordered

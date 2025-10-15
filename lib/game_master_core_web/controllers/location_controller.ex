@@ -21,9 +21,12 @@ defmodule GameMasterCoreWeb.LocationController do
     render(conn, :index, locations: locations)
   end
 
-  def tree(conn, _params) do
-    tree = Locations.list_locations_tree_for_game(conn.assigns.current_scope)
-    render(conn, :tree, tree: tree)
+  def tree(conn, params) do
+    start_id = Map.get(params, "start_id")
+
+    with {:ok, tree} <- Locations.list_locations_tree_for_game(conn.assigns.current_scope, start_id) do
+      render(conn, :tree, tree: tree)
+    end
   end
 
   def create(conn, %{"location" => location_params, "links" => links}) when is_list(links) do
