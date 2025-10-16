@@ -64,6 +64,7 @@ defmodule GameMasterCoreWeb.Router do
       get "/tree", GameController, :tree
       get "/pinned", PinnedController, :index
       get "/images", ImageController, :game_images
+      get "/objectives", ObjectiveController, :game_objectives
 
       resources "/notes", NoteController, except: [:new, :edit] do
         get "/links", NoteController, :list_links
@@ -250,7 +251,7 @@ defmodule GameMasterCoreWeb.Router do
 
     %{
       info: %{
-        version: "1.0",
+        version: "1.1",
         title: "Game Master API"
       },
       host: host,

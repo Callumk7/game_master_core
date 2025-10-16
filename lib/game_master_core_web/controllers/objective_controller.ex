@@ -21,6 +21,11 @@ defmodule GameMasterCoreWeb.ObjectiveController do
     end
   end
 
+  def game_objectives(conn, _params) do
+    objectives = Objectives.list_objectives_for_game(conn.assigns.current_scope)
+    render(conn, :index, objectives: objectives)
+  end
+
   def create(conn, %{"quest_id" => quest_id, "objective" => objective_params}) do
     with {:ok, %Objective{} = objective} <-
            Objectives.create_objective_for_quest(
