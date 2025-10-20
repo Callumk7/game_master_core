@@ -19,6 +19,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   def note_data(%Note{} = note) do
     %{
       id: note.id,
+      game_id: note.game_id,
       name: note.name,
       content: note.content,
       content_plain_text: note.content_plain_text,
@@ -35,6 +36,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   def character_data(%Character{} = character) do
     %{
       id: character.id,
+      game_id: character.game_id,
       name: character.name,
       content: character.content,
       content_plain_text: character.content_plain_text,
@@ -55,6 +57,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   def faction_data(%Faction{} = faction) do
     %{
       id: faction.id,
+      game_id: faction.game_id,
       name: faction.name,
       content: faction.content,
       content_plain_text: faction.content_plain_text,
@@ -86,11 +89,12 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   def location_data(%Location{} = location) do
     %{
       id: location.id,
+      game_id: location.game_id,
       name: location.name,
       content: location.content,
       content_plain_text: location.content_plain_text,
       type: location.type,
-      has_parent: location.parent_id != nil,
+      parent_id: location.parent_id,
       tags: location.tags,
       pinned: location.pinned,
       created_at: location.inserted_at,
@@ -104,6 +108,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
   def quest_data(%Quest{} = quest) do
     %{
       id: quest.id,
+      game_id: quest.game_id,
       name: quest.name,
       content: quest.content,
       content_plain_text: quest.content_plain_text,

@@ -923,7 +923,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Faction name", required: true)
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
-        images(Schema.array(:Image), "All images associated with this faction")
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
@@ -1195,11 +1194,9 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         )
 
         parent_id(:string, "Parent location ID", format: :uuid)
-        images(Schema.array(:Image), "All images associated with this location")
         tags(Schema.array(:string), "Tags associated with this location")
         pinned(:boolean, "Whether this location is pinned", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
-        user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -1353,7 +1350,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Quest name", required: true)
         content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
-        images(Schema.array(:Image), "All images associated with this quest")
         tags(Schema.array(:string), "Tags associated with this quest")
         parent_id(:string, "Parent quest ID for hierarchical structure", format: :uuid)
         pinned(:boolean, "Whether this quest is pinned", required: true)
@@ -2116,11 +2112,6 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Members Response",
           "Response containing a list of game members"
         ),
-      EntityNote: entity_note_schema(),
-      EntityCharacter: entity_character_schema(),
-      EntityFaction: entity_faction_schema(),
-      EntityLocation: entity_location_schema(),
-      EntityQuest: entity_quest_schema(),
       Note: note_schema(),
       NoteCreateParams: note_create_params_schema(),
       NoteUpdateParams: note_update_params_schema(),
