@@ -1619,6 +1619,76 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def profile_update_schema do
+    swagger_schema do
+      title("Profile Update")
+      description("Parameters for updating user profile")
+
+      properties do
+        username(:string, "New username (3-30 chars, alphanumeric + underscores/hyphens)", minLength: 3, maxLength: 30)
+      end
+
+      example(%{
+        username: "new_username"
+      })
+    end
+  end
+
+  def email_change_request_schema do
+    swagger_schema do
+      title("Email Change Request")
+      description("Request to change user email address")
+
+      properties do
+        new_email(:string, "New email address", required: true, format: :email)
+        password(:string, "Current password for verification", required: true)
+      end
+
+      example(%{
+        new_email: "newemail@example.com",
+        password: "current_password"
+      })
+    end
+  end
+
+  def email_change_confirm_schema do
+    swagger_schema do
+      title("Email Change Confirm")
+      description("Confirm email address change with token")
+
+      properties do
+        token(:string, "Email change confirmation token", required: true)
+      end
+
+      example(%{
+        token: "abc123def456"
+      })
+    end
+  end
+
+  def success_response_schema do
+    swagger_schema do
+      title("Success Response")
+      description("Generic success response")
+
+      properties do
+        message(:string, "Success message", required: true)
+        profile(Schema.ref(:User), "Updated user profile")
+      end
+
+      example(%{
+        message: "Operation completed successfully",
+        profile: %{
+          id: "123e4567-e89b-12d3-a456-426614174001",
+          email: "user@example.com",
+          username: "cool_player",
+          avatar_url: "https://example.com/avatars/user.jpg",
+          confirmed_at: "2023-08-20T12:00:00Z"
+        }
+      })
+    end
+  end
+
   def location_tree_node_schema do
     swagger_schema do
       title("Location Tree Node")
@@ -2272,6 +2342,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       Error: error_schema(),
       ErrorDetails: error_details_schema(),
       User: user_schema(),
+      ProfileUpdate: profile_update_schema(),
+      EmailChangeRequest: email_change_request_schema(),
+      EmailChangeConfirm: email_change_confirm_schema(),
+      SuccessResponse: success_response_schema(),
       LoginRequest: login_request_schema(),
       LoginResponse: login_response_schema(),
       AuthStatusResponse: auth_status_response_schema(),

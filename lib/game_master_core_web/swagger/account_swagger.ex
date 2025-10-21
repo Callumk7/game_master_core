@@ -18,7 +18,7 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
 
         security([%{Bearer: []}])
 
-        response(200, "Success", Schema.ref(:UserProfile))
+        response(200, "Success", Schema.ref(:User))
         response(401, "Unauthorized", Schema.ref(:Error))
       end
 
@@ -37,7 +37,7 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
           body(:body, Schema.ref(:ProfileUpdate), "Profile update data", required: true)
         end
 
-        response(200, "Success", Schema.ref(:UserProfile))
+        response(200, "Success", Schema.ref(:User))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(422, "Validation error", Schema.ref(:Error))
       end
@@ -55,7 +55,7 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
 
         parameter("avatar", :formData, :file, "Avatar image file", required: true)
 
-        response(201, "Created", Schema.ref(:UserProfile))
+        response(201, "Created", Schema.ref(:User))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(422, "Validation error", Schema.ref(:Error))
       end
@@ -70,7 +70,7 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
 
         security([%{Bearer: []}])
 
-        response(200, "Success", Schema.ref(:UserProfile))
+        response(200, "Success", Schema.ref(:User))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not found", Schema.ref(:Error))
       end
