@@ -24,6 +24,8 @@ defmodule GameMasterCoreWeb.ApiAuthController do
           user: %{
             id: user.id,
             email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
             confirmed_at: user.confirmed_at
           }
         })
@@ -52,6 +54,8 @@ defmodule GameMasterCoreWeb.ApiAuthController do
         user: %{
           id: user.id,
           email: user.email,
+          username: user.username,
+          avatar_url: user.avatar_url,
           confirmed_at: user.confirmed_at
         }
       })
@@ -75,6 +79,8 @@ defmodule GameMasterCoreWeb.ApiAuthController do
           user: %{
             id: user.id,
             email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
             confirmed_at: user.confirmed_at
           }
         })
@@ -107,6 +113,8 @@ defmodule GameMasterCoreWeb.ApiAuthController do
         user: %{
           id: current_scope.user.id,
           email: current_scope.user.email,
+          username: current_scope.user.username,
+          avatar_url: current_scope.user.avatar_url,
           confirmed_at: current_scope.user.confirmed_at
         }
       })

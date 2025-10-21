@@ -1525,12 +1525,16 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       properties do
         id(:string, "User ID", required: true, format: :uuid)
         email(:string, "User email", required: true)
+        username(:string, "Username (3-30 chars, alphanumeric + underscores/hyphens)")
+        avatar_url(:string, "URL to user's avatar image")
         confirmed_at(:string, "Email confirmation timestamp", format: :datetime)
       end
 
       example(%{
         id: "123e4567-e89b-12d3-a456-426614174001",
         email: "user@example.com",
+        username: "cool_player",
+        avatar_url: "https://example.com/avatars/user.jpg",
         confirmed_at: "2023-08-20T12:00:00Z"
       })
     end
@@ -1569,6 +1573,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         user: %{
           id: "123e4567-e89b-12d3-a456-426614174001",
           email: "user@example.com",
+          username: "cool_player",
+          avatar_url: "https://example.com/avatars/user.jpg",
           confirmed_at: "2023-08-20T12:00:00Z"
         }
       })
@@ -1590,6 +1596,8 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         user: %{
           id: "123e4567-e89b-12d3-a456-426614174001",
           email: "user@example.com",
+          username: "cool_player",
+          avatar_url: "https://example.com/avatars/user.jpg",
           confirmed_at: "2023-08-20T12:00:00Z"
         }
       })

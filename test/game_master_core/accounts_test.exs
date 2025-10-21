@@ -391,6 +391,108 @@ defmodule GameMasterCore.AccountsTest do
     end
   end
 
+  describe "username_changeset/3" do
+    test "validates username when given" do
+      user = %User{}
+
+      # Valid usernames
+      changeset = User.username_changeset(user, %{username: "valid_user"})
+      assert changeset.valid?
+
+      changeset = User.username_changeset(user, %{username: "user-123"})
+      assert changeset.valid?
+
+      changeset = User.username_changeset(user, %{username: "User_Name-123"})
+      assert changeset.valid?
+    end
+
+    test "validates minimum length" do
+      user = %User{}
+      changeset = User.username_changeset(user, %{username: "ab"})
+
+      assert %{username: ["should be at least 3 character(s)"]} = errors_on(changeset)
+    end
+
+    test "validates maximum length" do
+      user = %User{}
+      too_long = String.duplicate("a", 31)
+      changeset = User.username_changeset(user, %{username: too_long})
+
+      assert %{username: ["should be at most 30 character(s)"]} = errors_on(changeset)
+    end
+
+    test "validates format - rejects invalid characters" do
+      user = %User{}
+
+      # Test special characters
+      changeset = User.username_changeset(user, %{username: "user@name"})
+
+      assert %{username: ["must contain only letters, numbers, underscores, and hyphens"]} =
+               errors_on(changeset)
+
+      changeset = User.username_changeset(user, %{username: "user name"})
+
+      assert %{username: ["must contain only letters, numbers, underscores, and hyphens"]} =
+               errors_on(changeset)
+
+      changeset = User.username_changeset(user, %{username: "user.name"})
+
+      assert %{username: ["must contain only letters, numbers, underscores, and hyphens"]} =
+               errors_on(changeset)
+    end
+
+    test "validates uniqueness" do
+      user1 = user_fixture()
+      {:ok, _user1} = Repo.update(User.username_changeset(user1, %{username: "taken_name"}))
+
+      user2 = user_fixture()
+      changeset = User.username_changeset(user2, %{username: "taken_name"})
+
+      assert {:error, changeset} = Repo.update(changeset)
+      assert %{username: ["has already been taken"]} = errors_on(changeset)
+    end
+
+    test "allows nil username" do
+      user = %User{}
+      changeset = User.username_changeset(user, %{username: nil})
+      assert changeset.valid?
+    end
+
+    test "skips validation when validate_unique is false" do
+      user1 = user_fixture()
+      {:ok, _user1} = Repo.update(User.username_changeset(user1, %{username: "taken_name"}))
+
+      user2 = %User{}
+
+      changeset =
+        User.username_changeset(user2, %{username: "taken_name"}, validate_unique: false)
+
+      assert changeset.valid?
+    end
+  end
+
+  describe "avatar_changeset/2" do
+    test "validates avatar_url when given" do
+      user = %User{}
+      changeset = User.avatar_changeset(user, %{avatar_url: "https://example.com/avatar.jpg"})
+      assert changeset.valid?
+    end
+
+    test "validates maximum length" do
+      user = %User{}
+      too_long = String.duplicate("a", 501)
+      changeset = User.avatar_changeset(user, %{avatar_url: too_long})
+
+      assert %{avatar_url: ["should be at most 500 character(s)"]} = errors_on(changeset)
+    end
+
+    test "allows nil avatar_url" do
+      user = %User{}
+      changeset = User.avatar_changeset(user, %{avatar_url: nil})
+      assert changeset.valid?
+    end
+  end
+
   describe "inspect/2 for the User module" do
     test "does not include password" do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""

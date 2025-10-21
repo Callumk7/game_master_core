@@ -11,6 +11,8 @@ defmodule GameMasterCore.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
+    field :username, :string
+    field :avatar_url, :string
 
     many_to_many :games, GameMasterCore.Games.Game, join_through: "game_members"
 
@@ -116,6 +118,47 @@ defmodule GameMasterCore.Accounts.User do
     else
       changeset
     end
+  end
+
+  @doc """
+  A user changeset for changing the username.
+
+  ## Options
+
+    * `:validate_unique` - Set to false if you don't want to validate the
+      uniqueness of the username, useful when displaying live validations.
+      Defaults to `true`.
+  """
+  def username_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:username])
+    |> validate_username(opts)
+  end
+
+  defp validate_username(changeset, opts) do
+    changeset =
+      changeset
+      |> validate_length(:username, min: 3, max: 30)
+      |> validate_format(:username, ~r/^[a-zA-Z0-9_-]+$/,
+        message: "must contain only letters, numbers, underscores, and hyphens"
+      )
+
+    if Keyword.get(opts, :validate_unique, true) do
+      changeset
+      |> unsafe_validate_unique(:username, GameMasterCore.Repo)
+      |> unique_constraint(:username)
+    else
+      changeset
+    end
+  end
+
+  @doc """
+  A user changeset for updating the avatar URL.
+  """
+  def avatar_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:avatar_url])
+    |> validate_length(:avatar_url, max: 500)
   end
 
   @doc """
