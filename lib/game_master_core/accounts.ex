@@ -188,6 +188,40 @@ defmodule GameMasterCore.Accounts do
     |> update_user_and_delete_all_tokens()
   end
 
+  @doc """
+  Updates the user username.
+
+  ## Examples
+
+      iex> update_user_username(user, %{username: "new_username"})
+      {:ok, %User{}}
+
+      iex> update_user_username(user, %{username: ""})
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_user_username(user, attrs) do
+    user
+    |> User.username_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Updates the user avatar URL.
+
+  ## Examples
+
+      iex> update_user_avatar(user, %{avatar_url: "https://example.com/avatar.jpg"})
+      {:ok, %User{}}
+
+      iex> update_user_avatar(user, %{avatar_url: nil})
+      {:ok, %User{}}
+  """
+  def update_user_avatar(user, attrs) do
+    user
+    |> User.avatar_changeset(attrs)
+    |> Repo.update()
+  end
+
   ## Session
 
   @doc """
