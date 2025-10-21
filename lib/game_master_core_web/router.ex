@@ -52,6 +52,17 @@ defmodule GameMasterCoreWeb.Router do
     get "/status", ApiAuthController, :status
   end
 
+  scope "/api/account", GameMasterCoreWeb do
+  pipe_through [:session_api, :require_session_auth]
+
+  get "/profile", AccountController, :show
+  patch "/profile", AccountController, :update
+  post "/avatar", AccountController, :upload_avatar
+  delete "/avatar", AccountController, :delete_avatar
+  post "/email/change-request", AccountController, :request_email_change
+  post "/email/change-confirm", AccountController, :confirm_email_change
+  end
+
   scope "/api", GameMasterCoreWeb do
     pipe_through [:session_api, :require_session_auth, :assign_current_game]
 
