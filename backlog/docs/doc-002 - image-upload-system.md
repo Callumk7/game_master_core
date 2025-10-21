@@ -1,20 +1,12 @@
+---
+id: doc-002
+title: Image Upload System Documentation
+type: other
+created_date: '2025-10-15 17:26'
+---
 # Image Upload System Documentation
 
 The Game Master Core application includes a comprehensive image upload system that allows users to upload and manage images for various game entities including characters, factions, locations, and quests.
-
-## Table of Contents
-
-1. [System Overview](#system-overview)
-2. [Database Schema](#database-schema)
-3. [Image Schema and Validation](#image-schema-and-validation)
-4. [Storage Architecture](#storage-architecture)
-5. [Context Module](#context-module)
-6. [REST API Endpoints](#rest-api-endpoints)
-7. [Configuration](#configuration)
-8. [Usage Examples](#usage-examples)
-9. [File Organization](#file-organization)
-10. [Error Handling](#error-handling)
-11. [Security Considerations](#security-considerations)
 
 ## System Overview
 
