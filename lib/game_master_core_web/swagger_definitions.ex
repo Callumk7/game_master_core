@@ -1625,7 +1625,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       description("Parameters for updating user profile")
 
       properties do
-        username(:string, "New username (3-30 chars, alphanumeric + underscores/hyphens)", minLength: 3, maxLength: 30)
+        username(:string, "New username (3-30 chars, alphanumeric + underscores/hyphens)",
+          minLength: 3,
+          maxLength: 30
+        )
       end
 
       example(%{
@@ -1782,8 +1785,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Character name", required: true)
         content(:string, "Character content")
         content_plain_text(:string, "Character content as plain text")
-        tags(:array, "Character tags")
-
+        tags(Schema.array(:string), "Tags associated with this character")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1803,8 +1805,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Character name", required: true)
         content(:string, "Character content")
         content_plain_text(:string, "Character content as plain text")
-        tags(:array, "Character tags")
-
+        tags(Schema.array(:string), "Tags associated with this character")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1826,8 +1827,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Character name", required: true)
         content(:string, "Character content")
         content_plain_text(:string, "Character content as plain text")
-        tags(:array, "Character tags")
-
+        tags(Schema.array(:string), "Tags associated with this character")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1852,7 +1852,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Faction name", required: true)
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
-        tags(:array, "Faction tags")
+        tags(Schema.array(:string), "Faction tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1872,7 +1872,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Faction name", required: true)
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
-        tags(:array, "Faction tags")
+        tags(Schema.array(:string), "Faction tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1894,7 +1894,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Faction name", required: true)
         content(:string, "Faction content")
         content_plain_text(:string, "Faction content as plain text")
-        tags(:array, "Faction tags")
+        tags(Schema.array(:string), "Faction tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1919,7 +1919,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Location name", required: true)
         content(:string, "Location content")
         content_plain_text(:string, "Location content as plain text")
-        tags(:array, "Location tags")
+        tags(Schema.array(:string), "Location tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1939,7 +1939,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Location name", required: true)
         content(:string, "Location content")
         content_plain_text(:string, "Location content as plain text")
-        tags(:array, "Location tags")
+        tags(Schema.array(:string), "Location tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1964,7 +1964,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Quest name", required: true)
         content(:string, "Quest content")
         content_plain_text(:string, "Quest content as plain text")
-        tags(:array, "Quest tags")
+        tags(Schema.array(:string), "Quest tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
@@ -1984,7 +1984,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         name(:string, "Note name", required: true)
         content(:string, "Note content")
         content_plain_text(:string, "Note content as plain text")
-        tags(:array, "Note tags")
+        tags(Schema.array(:string), "Note tags")
         relationship_type(:string, "Type of relationship", required: false)
         description_meta(:string, "Description of the relationship", required: false)
         strength(:integer, "Relationship strength (1-10)", required: false)
