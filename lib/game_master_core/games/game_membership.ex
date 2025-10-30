@@ -20,7 +20,7 @@ defmodule GameMasterCore.Games.GameMembership do
     membership
     |> cast(attrs, [:user_id, :game_id, :role])
     |> validate_required([:user_id, :game_id, :role])
-    |> validate_inclusion(:role, ["member", "owner"])
+    |> validate_inclusion(:role, ["admin", "game_master", "member"])
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:game_id)
     |> unique_constraint([:user_id, :game_id])
