@@ -179,6 +179,7 @@ defmodule GameMasterCore.Quests do
       tags: quest.tags,
       parent_id: quest.parent_id,
       entity_type: "quest",
+      status: quest.status,
       children: children
     }
   end
