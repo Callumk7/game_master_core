@@ -32,12 +32,6 @@ defmodule GameMasterCoreWeb.Router do
     get "/", PageController, :home
   end
 
-  scope "/token", GameMasterCoreWeb do
-    pipe_through :api
-
-    post "/", TokenController, :create
-  end
-
   scope "/api/auth", GameMasterCoreWeb do
     pipe_through :api
 
@@ -53,14 +47,14 @@ defmodule GameMasterCoreWeb.Router do
   end
 
   scope "/api/account", GameMasterCoreWeb do
-  pipe_through [:session_api, :require_session_auth]
+    pipe_through [:session_api, :require_session_auth]
 
-  get "/profile", AccountController, :show
-  patch "/profile", AccountController, :update
-  post "/avatar", AccountController, :upload_avatar
-  delete "/avatar", AccountController, :delete_avatar
-  post "/email/change-request", AccountController, :request_email_change
-  post "/email/change-confirm", AccountController, :confirm_email_change
+    get "/profile", AccountController, :show
+    patch "/profile", AccountController, :update
+    post "/avatar", AccountController, :upload_avatar
+    delete "/avatar", AccountController, :delete_avatar
+    post "/email/change-request", AccountController, :request_email_change
+    post "/email/change-confirm", AccountController, :confirm_email_change
   end
 
   scope "/api", GameMasterCoreWeb do
