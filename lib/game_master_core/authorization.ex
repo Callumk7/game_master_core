@@ -207,7 +207,7 @@ defmodule GameMasterCore.Authorization do
       %EntityShare{}
       |> EntityShare.changeset(attrs)
       |> Repo.insert(
-        on_conflict: {:replace, [:permission, :shared_by_id, :updated_at]},
+        on_conflict: {:replace, [:permission, :shared_by_id, :inserted_at, :updated_at]},
         conflict_target: [:entity_type, :entity_id, :user_id]
       )
     else
