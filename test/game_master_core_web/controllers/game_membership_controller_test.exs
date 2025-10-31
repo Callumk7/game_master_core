@@ -25,7 +25,8 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
       game = game_fixture(scope)
       other_user = user_fixture()
 
-      {:ok, _membership} = GameMasterCore.Games.add_member(scope, game, other_user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _membership} = GameMasterCore.Games.add_member(scope_with_game, game, other_user.id)
 
       conn = delete(conn, ~p"/api/games/#{game.id}/members/#{other_user.id}")
       assert response(conn, 204)
@@ -35,7 +36,8 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
       game = game_fixture(scope)
       other_user = user_fixture()
 
-      {:ok, _membership} = GameMasterCore.Games.add_member(scope, game, other_user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _membership} = GameMasterCore.Games.add_member(scope_with_game, game, other_user.id)
 
       conn = get(conn, ~p"/api/games/#{game.id}/members")
       assert %{"data" => [member]} = json_response(conn, 200)
@@ -48,7 +50,8 @@ defmodule GameMasterCoreWeb.GameMembershipControllerTest do
       other_user = user_fixture()
       member_user = user_fixture()
 
-      {:ok, _membership} = GameMasterCore.Games.add_member(owner_scope, game, member_user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(owner_scope, game)
+      {:ok, _membership} = GameMasterCore.Games.add_member(scope_with_game, game, member_user.id)
 
       conn = authenticate_api_user(build_conn(), member_user)
 

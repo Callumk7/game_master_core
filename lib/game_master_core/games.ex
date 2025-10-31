@@ -14,6 +14,7 @@ defmodule GameMasterCore.Games do
   alias GameMasterCore.Games.Game
   alias GameMasterCore.Games.GameMembership
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Authorization
 
   @doc """
   Subscribes to scoped notifications about any game changes.
@@ -200,10 +201,10 @@ defmodule GameMasterCore.Games do
 
   @doc """
   Adds a user as a member to a game.
-  Only the game owner can add members.
+  Only admins can add members.
   """
   def add_member(%Scope{} = scope, %Game{} = game, user_id, role \\ "member") do
-    if game.owner_id == scope.user.id do
+    if Authorization.authorized?(scope, :manage_members) do
       attrs = %{
         game_id: game.id,
         user_id: user_id,
@@ -219,15 +220,40 @@ defmodule GameMasterCore.Games do
   end
 
   @doc """
+  Changes a member's role in the game.
+  Only admins can change roles.
+  """
+  def change_member_role(%Scope{} = scope, %Game{} = game, user_id, new_role) do
+    if Authorization.authorized?(scope, :manage_members) do
+      case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
+        nil ->
+          {:error, :not_found}
+
+        membership when membership.role == "admin" ->
+          {:error, :cannot_change_admin_role}
+
+        membership ->
+          membership
+          |> GameMembership.changeset(%{role: new_role})
+          |> Repo.update()
+      end
+    else
+      {:error, :unauthorized}
+    end
+  end
+
+  @doc """
   Removes a member from a game.
-  Only the game owner can remove members.
+  Only admins can remove members.
   """
   def remove_member(%Scope{} = scope, %Game{} = game, user_id) do
-    true = game.owner_id == scope.user.id
-
-    case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
-      nil -> {:error, :not_found}
-      membership -> Repo.delete(membership)
+    if Authorization.authorized?(scope, :manage_members) do
+      case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
+        nil -> {:error, :not_found}
+        membership -> Repo.delete(membership)
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 

@@ -24,7 +24,8 @@ defmodule GameMasterCoreWeb.LocationController do
   def tree(conn, params) do
     start_id = Map.get(params, "start_id")
 
-    with {:ok, tree} <- Locations.list_locations_tree_for_game(conn.assigns.current_scope, start_id) do
+    with {:ok, tree} <-
+           Locations.list_locations_tree_for_game(conn.assigns.current_scope, start_id) do
       render(conn, :tree, tree: tree)
     end
   end
@@ -285,6 +286,58 @@ defmodule GameMasterCoreWeb.LocationController do
            Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
          {:ok, updated_location} <- Locations.unpin_location(conn.assigns.current_scope, location) do
       render(conn, :show, location: updated_location)
+    end
+  end
+
+  # Visibility and Sharing endpoints
+
+  def update_visibility(conn, %{
+        "location_id" => location_id,
+        "visibility" => visibility
+      }) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, updated_location} <-
+           Locations.update_location_visibility(conn.assigns.current_scope, location, visibility) do
+      render(conn, :show, location: updated_location)
+    end
+  end
+
+  def share(conn, %{
+        "location_id" => location_id,
+        "user_id" => user_id,
+        "permission" => permission
+      }) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, _share} <-
+           Locations.share_location(conn.assigns.current_scope, location, user_id, permission) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Location shared successfully"})
+    end
+  end
+
+  def unshare(conn, %{
+        "location_id" => location_id,
+        "user_id" => user_id
+      }) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, _} <-
+           Locations.unshare_location(conn.assigns.current_scope, location, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Share removed successfully"})
+    end
+  end
+
+  def list_shares(conn, %{"location_id" => location_id}) do
+    with {:ok, location} <-
+           Locations.fetch_location_for_game(conn.assigns.current_scope, location_id),
+         {:ok, shares} <-
+           Locations.list_location_shares(conn.assigns.current_scope, location) do
+      render(conn, :shares, shares: shares)
     end
   end
 end

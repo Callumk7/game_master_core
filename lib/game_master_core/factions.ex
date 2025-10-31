@@ -14,6 +14,7 @@ defmodule GameMasterCore.Factions do
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+  alias GameMasterCore.Authorization
 
   @doc """
   Subscribes to scoped notifications about any faction changes.
@@ -39,10 +40,11 @@ defmodule GameMasterCore.Factions do
 
   @doc """
   Returns the list of factions for a game.
-  Only users who can access the game can see its factions.
+  Filters factions based on user's permissions (role-based + entity-level).
   """
   def list_factions_for_game(%Scope{} = scope) do
     from(f in Faction, where: f.game_id == ^scope.game.id)
+    |> Authorization.scope_entity_query(Faction, scope)
     |> Repo.all()
   end
 
@@ -189,6 +191,7 @@ defmodule GameMasterCore.Factions do
 
   @doc """
   Updates a faction.
+  Checks authorization before allowing edit.
 
   ## Examples
 
@@ -200,18 +203,22 @@ defmodule GameMasterCore.Factions do
 
   """
   def update_faction(%Scope{} = scope, %Faction{} = faction, attrs) do
-    # Note: game access already validated in controller before fetching the faction
-    with {:ok, faction = %Faction{}} <-
-           faction
-           |> Faction.changeset(attrs, scope, faction.game_id)
-           |> Repo.update() do
-      broadcast(scope, {:updated, faction})
-      {:ok, faction}
+    if Authorization.can_access_entity?(scope, faction, :edit) do
+      with {:ok, faction = %Faction{}} <-
+             faction
+             |> Faction.changeset(attrs, scope, faction.game_id)
+             |> Repo.update() do
+        broadcast(scope, {:updated, faction})
+        {:ok, faction}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Deletes a faction.
+  Checks authorization before allowing deletion.
 
   ## Examples
 
@@ -223,25 +230,28 @@ defmodule GameMasterCore.Factions do
 
   """
   def delete_faction(%Scope{} = scope, %Faction{} = faction) do
-    # Note: game access already validated in controller before fetching the faction
-    Repo.transaction(fn ->
-      # First, delete all associated images
-      case Images.delete_images_for_entity(scope, "faction", faction.id) do
-        {:ok, _count} ->
-          # Then delete the faction
-          case Repo.delete(faction) do
-            {:ok, faction} ->
-              broadcast(scope, {:deleted, faction})
-              faction
+    if Authorization.can_access_entity?(scope, faction, :delete) do
+      Repo.transaction(fn ->
+        # First, delete all associated images
+        case Images.delete_images_for_entity(scope, "faction", faction.id) do
+          {:ok, _count} ->
+            # Then delete the faction
+            case Repo.delete(faction) do
+              {:ok, faction} ->
+                broadcast(scope, {:deleted, faction})
+                faction
 
-            {:error, reason} ->
-              Repo.rollback(reason)
-          end
+              {:error, reason} ->
+                Repo.rollback(reason)
+            end
 
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
-    end)
+          {:error, reason} ->
+            Repo.rollback(reason)
+        end
+      end)
+    else
+      {:error, :unauthorized}
+    end
   end
 
   @doc """
@@ -670,4 +680,45 @@ defmodule GameMasterCore.Factions do
       {:ok, {created_links, faction}}
     end
   end
+
+  ## Visibility and Sharing Management
+
+  @doc """
+  Update faction visibility.
+  Only creator or elevated roles can change visibility.
+  """
+  def update_faction_visibility(%Scope{} = scope, %Faction{} = faction, visibility) do
+    with {:ok, _} <- Authorization.update_entity_visibility(scope, faction, visibility),
+         {:ok, faction} <-
+           faction
+           |> Ecto.Changeset.change(visibility: visibility)
+           |> Repo.update() do
+      broadcast(scope, {:updated, faction})
+      {:ok, faction}
+    end
+  end
+
+  @doc """
+  Share a faction with another user.
+  Delegates to Authorization module.
+  """
+  defdelegate share_faction(scope, faction, user_id, permission),
+    to: Authorization,
+    as: :share_entity
+
+  @doc """
+  Remove a share for a faction.
+  Delegates to Authorization module.
+  """
+  defdelegate unshare_faction(scope, faction, user_id),
+    to: Authorization,
+    as: :unshare_entity
+
+  @doc """
+  List all shares for a faction.
+  Delegates to Authorization module.
+  """
+  defdelegate list_faction_shares(scope, faction),
+    to: Authorization,
+    as: :list_entity_shares
 end

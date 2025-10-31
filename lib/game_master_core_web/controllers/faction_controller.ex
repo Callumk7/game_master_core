@@ -285,4 +285,56 @@ defmodule GameMasterCoreWeb.FactionController do
       render(conn, :show, faction: updated_faction)
     end
   end
+
+  # Visibility and Sharing endpoints
+
+  def update_visibility(conn, %{
+        "faction_id" => faction_id,
+        "visibility" => visibility
+      }) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, updated_faction} <-
+           Factions.update_faction_visibility(conn.assigns.current_scope, faction, visibility) do
+      render(conn, :show, faction: updated_faction)
+    end
+  end
+
+  def share(conn, %{
+        "faction_id" => faction_id,
+        "user_id" => user_id,
+        "permission" => permission
+      }) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, _share} <-
+           Factions.share_faction(conn.assigns.current_scope, faction, user_id, permission) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Faction shared successfully"})
+    end
+  end
+
+  def unshare(conn, %{
+        "faction_id" => faction_id,
+        "user_id" => user_id
+      }) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, _} <-
+           Factions.unshare_faction(conn.assigns.current_scope, faction, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Share removed successfully"})
+    end
+  end
+
+  def list_shares(conn, %{"faction_id" => faction_id}) do
+    with {:ok, faction} <-
+           Factions.fetch_faction_for_game(conn.assigns.current_scope, faction_id),
+         {:ok, shares} <-
+           Factions.list_faction_shares(conn.assigns.current_scope, faction) do
+      render(conn, :shares, shares: shares)
+    end
+  end
 end

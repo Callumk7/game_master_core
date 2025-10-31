@@ -273,4 +273,56 @@ defmodule GameMasterCoreWeb.QuestController do
       render(conn, :show, quest: updated_quest)
     end
   end
+
+  # Visibility and Sharing endpoints
+
+  def update_visibility(conn, %{
+        "quest_id" => quest_id,
+        "visibility" => visibility
+      }) do
+    with {:ok, quest} <-
+           Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, updated_quest} <-
+           Quests.update_quest_visibility(conn.assigns.current_scope, quest, visibility) do
+      render(conn, :show, quest: updated_quest)
+    end
+  end
+
+  def share(conn, %{
+        "quest_id" => quest_id,
+        "user_id" => user_id,
+        "permission" => permission
+      }) do
+    with {:ok, quest} <-
+           Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, _share} <-
+           Quests.share_quest(conn.assigns.current_scope, quest, user_id, permission) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Quest shared successfully"})
+    end
+  end
+
+  def unshare(conn, %{
+        "quest_id" => quest_id,
+        "user_id" => user_id
+      }) do
+    with {:ok, quest} <-
+           Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, _} <-
+           Quests.unshare_quest(conn.assigns.current_scope, quest, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Share removed successfully"})
+    end
+  end
+
+  def list_shares(conn, %{"quest_id" => quest_id}) do
+    with {:ok, quest} <-
+           Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, shares} <-
+           Quests.list_quest_shares(conn.assigns.current_scope, quest) do
+      render(conn, :shares, shares: shares)
+    end
+  end
 end

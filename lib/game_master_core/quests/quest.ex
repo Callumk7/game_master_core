@@ -38,7 +38,16 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned, :status, :visibility])
+    |> cast(attrs, [
+      :name,
+      :content,
+      :content_plain_text,
+      :tags,
+      :parent_id,
+      :pinned,
+      :status,
+      :visibility
+    ])
     |> validate_required([:name])
     |> validate_inclusion(:visibility, ["private", "viewable", "editable"])
     |> validate_tags()

@@ -72,7 +72,8 @@ defmodule GameMasterCoreWeb.AccountControllerTest do
     end
 
     test "returns errors when username is invalid", %{conn: conn} do
-      attrs = %{"username" => "ab"} # too short
+      # too short
+      attrs = %{"username" => "ab"}
       conn = patch(conn, ~p"/api/account/profile", attrs)
 
       response = json_response(conn, 422)
@@ -134,7 +135,9 @@ defmodule GameMasterCoreWeb.AccountControllerTest do
       conn = post(conn, ~p"/api/account/avatar", %{"avatar" => upload})
 
       response = json_response(conn, 422)
-      assert %{"error" => "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed."} = response
+
+      assert %{"error" => "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed."} =
+               response
 
       File.rm(tmp_path)
     end

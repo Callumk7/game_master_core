@@ -11,6 +11,7 @@ defmodule GameMasterCore.Quests do
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+  alias GameMasterCore.Authorization
 
   @doc """
   Subscribes to scoped notifications about any quest changes.
@@ -36,9 +37,11 @@ defmodule GameMasterCore.Quests do
 
   @doc """
   Returns a list of quests for a specific game.
+  Filters quests based on user's permissions (role-based + entity-level).
   """
   def list_quests_for_game(%Scope{} = scope) do
     from(q in Quest, where: q.game_id == ^scope.game.id)
+    |> Authorization.scope_entity_query(Quest, scope)
     |> Repo.all()
   end
 
@@ -239,6 +242,7 @@ defmodule GameMasterCore.Quests do
 
   @doc """
   Updates a quest.
+  Checks authorization before allowing edit.
 
   ## Examples
 
@@ -250,18 +254,22 @@ defmodule GameMasterCore.Quests do
 
   """
   def update_quest(%Scope{} = scope, %Quest{} = quest, attrs) do
-    # Note: game access already validated in controller before fetching the quest
-    with {:ok, quest = %Quest{}} <-
-           quest
-           |> Quest.changeset(attrs, scope, quest.game_id)
-           |> Repo.update() do
-      broadcast(scope, {:updated, quest})
-      {:ok, quest}
+    if Authorization.can_access_entity?(scope, quest, :edit) do
+      with {:ok, quest = %Quest{}} <-
+             quest
+             |> Quest.changeset(attrs, scope, quest.game_id)
+             |> Repo.update() do
+        broadcast(scope, {:updated, quest})
+        {:ok, quest}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Deletes a quest.
+  Checks authorization before allowing deletion.
 
   ## Examples
 
@@ -273,25 +281,28 @@ defmodule GameMasterCore.Quests do
 
   """
   def delete_quest(%Scope{} = scope, %Quest{} = quest) do
-    # Note: game access already validated in controller before fetching the quest
-    Repo.transaction(fn ->
-      # First, delete all associated images
-      case Images.delete_images_for_entity(scope, "quest", quest.id) do
-        {:ok, _count} ->
-          # Then delete the quest
-          case Repo.delete(quest) do
-            {:ok, quest} ->
-              broadcast(scope, {:deleted, quest})
-              quest
+    if Authorization.can_access_entity?(scope, quest, :delete) do
+      Repo.transaction(fn ->
+        # First, delete all associated images
+        case Images.delete_images_for_entity(scope, "quest", quest.id) do
+          {:ok, _count} ->
+            # Then delete the quest
+            case Repo.delete(quest) do
+              {:ok, quest} ->
+                broadcast(scope, {:deleted, quest})
+                quest
 
-            {:error, reason} ->
-              Repo.rollback(reason)
-          end
+              {:error, reason} ->
+                Repo.rollback(reason)
+            end
 
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
-    end)
+          {:error, reason} ->
+            Repo.rollback(reason)
+        end
+      end)
+    else
+      {:error, :unauthorized}
+    end
   end
 
   @doc """
@@ -696,4 +707,45 @@ defmodule GameMasterCore.Quests do
       {:ok, {created_links, quest}}
     end
   end
+
+  ## Visibility and Sharing Management
+
+  @doc """
+  Update quest visibility.
+  Only creator or elevated roles can change visibility.
+  """
+  def update_quest_visibility(%Scope{} = scope, %Quest{} = quest, visibility) do
+    with {:ok, _} <- Authorization.update_entity_visibility(scope, quest, visibility),
+         {:ok, quest} <-
+           quest
+           |> Ecto.Changeset.change(visibility: visibility)
+           |> Repo.update() do
+      broadcast(scope, {:updated, quest})
+      {:ok, quest}
+    end
+  end
+
+  @doc """
+  Share a quest with another user.
+  Delegates to Authorization module.
+  """
+  defdelegate share_quest(scope, quest, user_id, permission),
+    to: Authorization,
+    as: :share_entity
+
+  @doc """
+  Remove a share for a quest.
+  Delegates to Authorization module.
+  """
+  defdelegate unshare_quest(scope, quest, user_id),
+    to: Authorization,
+    as: :unshare_entity
+
+  @doc """
+  List all shares for a quest.
+  Delegates to Authorization module.
+  """
+  defdelegate list_quest_shares(scope, quest),
+    to: Authorization,
+    as: :list_entity_shares
 end

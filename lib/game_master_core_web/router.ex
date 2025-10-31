@@ -63,6 +63,7 @@ defmodule GameMasterCoreWeb.Router do
     resources "/games", GameController, except: [:new, :edit] do
       get "/members", GameController, :list_members
       post "/members", GameController, :add_member
+      patch "/members/:user_id/role", GameController, :change_member_role
       delete "/members/:user_id", GameController, :remove_member
 
       get "/links", GameController, :list_entities
@@ -78,6 +79,12 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", NoteController, :delete_link
         put "/pin", NoteController, :pin
         put "/unpin", NoteController, :unpin
+
+        # Sharing and visibility routes
+        patch "/visibility", NoteController, :update_visibility
+        post "/share", NoteController, :share
+        delete "/share/:user_id", NoteController, :unshare
+        get "/shares", NoteController, :list_shares
 
         # Image management routes
         get "/images/primary", ImageController, :primary
@@ -100,6 +107,12 @@ defmodule GameMasterCoreWeb.Router do
         put "/pin", CharacterController, :pin
         put "/unpin", CharacterController, :unpin
 
+        # Sharing and visibility routes
+        patch "/visibility", CharacterController, :update_visibility
+        post "/share", CharacterController, :share
+        delete "/share/:user_id", CharacterController, :unshare
+        get "/shares", CharacterController, :list_shares
+
         # Image management routes
         get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
@@ -118,6 +131,12 @@ defmodule GameMasterCoreWeb.Router do
         get "/members", FactionController, :members
         put "/pin", FactionController, :pin
         put "/unpin", FactionController, :unpin
+
+        # Sharing and visibility routes
+        patch "/visibility", FactionController, :update_visibility
+        post "/share", FactionController, :share
+        delete "/share/:user_id", FactionController, :unshare
+        get "/shares", FactionController, :list_shares
 
         # Image management routes
         get "/images/primary", ImageController, :primary
@@ -139,6 +158,12 @@ defmodule GameMasterCoreWeb.Router do
         put "/pin", LocationController, :pin
         put "/unpin", LocationController, :unpin
 
+        # Sharing and visibility routes
+        patch "/visibility", LocationController, :update_visibility
+        post "/share", LocationController, :share
+        delete "/share/:user_id", LocationController, :unshare
+        get "/shares", LocationController, :list_shares
+
         # Image management routes
         get "/images/primary", ImageController, :primary
         get "/images/stats", ImageController, :stats
@@ -158,6 +183,12 @@ defmodule GameMasterCoreWeb.Router do
         delete "/links/:entity_type/:entity_id", QuestController, :delete_link
         put "/pin", QuestController, :pin
         put "/unpin", QuestController, :unpin
+
+        # Sharing and visibility routes
+        patch "/visibility", QuestController, :update_visibility
+        post "/share", QuestController, :share
+        delete "/share/:user_id", QuestController, :unshare
+        get "/shares", QuestController, :list_shares
 
         # Image management routes
         get "/images/primary", ImageController, :primary

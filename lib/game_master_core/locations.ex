@@ -12,6 +12,7 @@ defmodule GameMasterCore.Locations do
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+  alias GameMasterCore.Authorization
 
   @doc """
   Subscribes to scoped notifications about any location changes.
@@ -35,8 +36,13 @@ defmodule GameMasterCore.Locations do
     Phoenix.PubSub.broadcast(GameMasterCore.PubSub, "user:#{key}:locations", message)
   end
 
+  @doc """
+  Returns the list of locations for a game.
+  Filters locations based on user's permissions (role-based + entity-level).
+  """
   def list_locations_for_game(%Scope{} = scope) do
     from(l in Location, where: l.game_id == ^scope.game.id)
+    |> Authorization.scope_entity_query(Location, scope)
     |> Repo.all()
   end
 
@@ -236,6 +242,7 @@ defmodule GameMasterCore.Locations do
 
   @doc """
   Updates a location.
+  Checks authorization before allowing edit.
 
   ## Examples
 
@@ -247,18 +254,22 @@ defmodule GameMasterCore.Locations do
 
   """
   def update_location(%Scope{} = scope, %Location{} = location, attrs) do
-    # Note: game access already validated in controller before fetching the location
-    with {:ok, location = %Location{}} <-
-           location
-           |> Location.changeset(attrs, scope, location.game_id)
-           |> Repo.update() do
-      broadcast(scope, {:updated, location})
-      {:ok, location}
+    if Authorization.can_access_entity?(scope, location, :edit) do
+      with {:ok, location = %Location{}} <-
+             location
+             |> Location.changeset(attrs, scope, location.game_id)
+             |> Repo.update() do
+        broadcast(scope, {:updated, location})
+        {:ok, location}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Deletes a location.
+  Checks authorization before allowing deletion.
 
   ## Examples
 
@@ -270,25 +281,28 @@ defmodule GameMasterCore.Locations do
 
   """
   def delete_location(%Scope{} = scope, %Location{} = location) do
-    # Note: game access already validated in controller before fetching the location
-    Repo.transaction(fn ->
-      # First, delete all associated images
-      case Images.delete_images_for_entity(scope, "location", location.id) do
-        {:ok, _count} ->
-          # Then delete the location
-          case Repo.delete(location) do
-            {:ok, location} ->
-              broadcast(scope, {:deleted, location})
-              location
+    if Authorization.can_access_entity?(scope, location, :delete) do
+      Repo.transaction(fn ->
+        # First, delete all associated images
+        case Images.delete_images_for_entity(scope, "location", location.id) do
+          {:ok, _count} ->
+            # Then delete the location
+            case Repo.delete(location) do
+              {:ok, location} ->
+                broadcast(scope, {:deleted, location})
+                location
 
-            {:error, reason} ->
-              Repo.rollback(reason)
-          end
+              {:error, reason} ->
+                Repo.rollback(reason)
+            end
 
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
-    end)
+          {:error, reason} ->
+            Repo.rollback(reason)
+        end
+      end)
+    else
+      {:error, :unauthorized}
+    end
   end
 
   @doc """
@@ -785,4 +799,45 @@ defmodule GameMasterCore.Locations do
       {:ok, {created_links, location}}
     end
   end
+
+  ## Visibility and Sharing Management
+
+  @doc """
+  Update location visibility.
+  Only creator or elevated roles can change visibility.
+  """
+  def update_location_visibility(%Scope{} = scope, %Location{} = location, visibility) do
+    with {:ok, _} <- Authorization.update_entity_visibility(scope, location, visibility),
+         {:ok, location} <-
+           location
+           |> Ecto.Changeset.change(visibility: visibility)
+           |> Repo.update() do
+      broadcast(scope, {:updated, location})
+      {:ok, location}
+    end
+  end
+
+  @doc """
+  Share a location with another user.
+  Delegates to Authorization module.
+  """
+  defdelegate share_location(scope, location, user_id, permission),
+    to: Authorization,
+    as: :share_entity
+
+  @doc """
+  Remove a share for a location.
+  Delegates to Authorization module.
+  """
+  defdelegate unshare_location(scope, location, user_id),
+    to: Authorization,
+    as: :unshare_entity
+
+  @doc """
+  List all shares for a location.
+  Delegates to Authorization module.
+  """
+  defdelegate list_location_shares(scope, location),
+    to: Authorization,
+    as: :list_entity_shares
 end
