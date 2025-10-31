@@ -50,7 +50,7 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   def show(conn, %{"id" => id}) do
     with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id) do
-      render(conn, :show, character: character)
+      render(conn, :show, character: character, scope: conn.assigns.current_scope)
     end
   end
 

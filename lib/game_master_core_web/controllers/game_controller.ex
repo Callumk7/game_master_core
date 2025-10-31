@@ -31,7 +31,8 @@ defmodule GameMasterCoreWeb.GameController do
 
   def show(conn, %{"id" => id}) do
     with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, id) do
-      render(conn, :show, game: game)
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
+      render(conn, :show, game: game, scope: scope)
     end
   end
 

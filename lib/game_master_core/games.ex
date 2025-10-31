@@ -258,7 +258,7 @@ defmodule GameMasterCore.Games do
   end
 
   @doc """
-  Lists all members of a game.
+  Lists all members of a game with their roles and user data.
   Only accessible by the owner or existing members.
   """
   def list_members(%Scope{} = scope, %Game{} = game) do
@@ -267,7 +267,13 @@ defmodule GameMasterCore.Games do
     from(m in GameMembership,
       join: u in assoc(m, :user),
       where: m.game_id == ^game.id,
-      select: %{id: m.id, user: u, role: m.role, joined_at: m.inserted_at}
+      select: %{
+        user_id: m.user_id,
+        game_id: m.game_id,
+        user: u,
+        role: m.role,
+        joined_at: m.inserted_at
+      }
     )
     |> Repo.all()
   end

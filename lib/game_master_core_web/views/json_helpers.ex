@@ -38,6 +38,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
     %{
       id: character.id,
       game_id: character.game_id,
+      user_id: character.user_id,
       name: character.name,
       content: character.content,
       content_plain_text: character.content_plain_text,
@@ -51,6 +52,18 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       created_at: character.inserted_at,
       updated_at: character.updated_at
     }
+  end
+
+  @doc """
+  Formats a character for JSON response with permission metadata.
+  """
+  def character_data(%Character{} = character, %GameMasterCore.Accounts.Scope{} = scope) do
+    character_data(character)
+    |> Map.merge(%{
+      can_edit: GameMasterCore.Authorization.can_access_entity?(scope, character, :edit),
+      can_delete: GameMasterCore.Authorization.can_access_entity?(scope, character, :delete),
+      can_share: character.user_id == scope.user.id or scope.role in [:admin, :game_master]
+    })
   end
 
   @doc """
@@ -84,6 +97,14 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       created_at: game.inserted_at,
       updated_at: game.updated_at
     }
+  end
+
+  @doc """
+  Formats a game for JSON response with user's role.
+  """
+  def game_data(%Game{} = game, %GameMasterCore.Accounts.Scope{} = scope) do
+    game_data(game)
+    |> Map.put(:your_role, scope.role)
   end
 
   @doc """
