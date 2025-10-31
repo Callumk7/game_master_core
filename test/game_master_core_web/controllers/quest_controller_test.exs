@@ -943,9 +943,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
 
     test "allows game members to access quest tree", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _} = GameMasterCore.Games.add_member(game_scope, game, member_scope.user.id)
 
       # Create a quest
       _quest =
