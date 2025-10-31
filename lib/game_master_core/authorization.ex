@@ -29,7 +29,6 @@ defmodule GameMasterCore.Authorization do
   import Ecto.Query
   alias GameMasterCore.Repo
   alias GameMasterCore.Accounts.Scope
-  alias GameMasterCore.Games.{Game, GameMembership}
   alias GameMasterCore.EntityShares.EntityShare
 
   @type action :: :view | :edit | :delete
@@ -62,8 +61,7 @@ defmodule GameMasterCore.Authorization do
   @spec authorized?(Scope.t(), atom()) :: boolean()
   def authorized?(%Scope{game: nil}, _permission), do: false
 
-  def authorized?(%Scope{user: user, game: game}, permission) do
-    role = get_user_role(user.id, game)
+  def authorized?(%Scope{role: role}, permission) do
     has_game_permission?(role, permission)
   end
 
@@ -106,10 +104,8 @@ defmodule GameMasterCore.Authorization do
       false
   """
   @spec can_access_entity?(Scope.t(), entity(), action()) :: boolean()
-  def can_access_entity?(%Scope{user: user, game: game}, entity, action)
+  def can_access_entity?(%Scope{user: user, role: role}, entity, action)
       when action in [:view, :edit, :delete] do
-    role = get_user_role(user.id, game)
-
     # Admins and Game Masters bypass all entity permissions
     if role in [:admin, :game_master] do
       true
@@ -290,10 +286,8 @@ defmodule GameMasterCore.Authorization do
   """
   @spec update_entity_visibility(Scope.t(), entity(), String.t()) ::
           {:ok, String.t()} | {:error, :unauthorized}
-  def update_entity_visibility(%Scope{} = scope, entity, new_visibility) do
-    role = get_user_role(scope.user.id, scope.game)
-
-    if role in [:admin, :game_master] or entity.user_id == scope.user.id do
+  def update_entity_visibility(%Scope{user: user, role: role}, entity, new_visibility) do
+    if role in [:admin, :game_master] or entity.user_id == user.id do
       {:ok, new_visibility}
     else
       {:error, :unauthorized}
@@ -349,44 +343,8 @@ defmodule GameMasterCore.Authorization do
   # Helpers
   # ------------------------------------------------------------
 
-  defp can_share_entity?(%Scope{user: user, game: game}, entity) do
-    role = get_user_role(user.id, game)
+  defp can_share_entity?(%Scope{user: user, role: role}, entity) do
     role in [:admin, :game_master] or entity.user_id == user.id
-  end
-
-  @doc """
-  Determine a user's role in a game.
-
-  ## Role Resolution Order
-
-  1. Check if user is game owner (game.owner_id) -> :admin
-  2. Check GameMembership table for explicit role
-  3. Return nil if user is not a member
-
-  ## Examples
-
-      iex> Authorization.get_user_role(owner_id, game)
-      :admin
-
-      iex> Authorization.get_user_role(member_id, game)
-      :member
-
-      iex> Authorization.get_user_role(non_member_id, game)
-      nil
-  """
-  @spec get_user_role(String.t(), Game.t()) :: role()
-  def get_user_role(user_id, %Game{owner_id: owner_id}) when user_id == owner_id do
-    :admin
-  end
-
-  def get_user_role(user_id, %Game{id: game_id}) do
-    case Repo.get_by(GameMembership, user_id: user_id, game_id: game_id) do
-      nil -> nil
-      %{role: "admin"} -> :admin
-      %{role: "game_master"} -> :game_master
-      %{role: "member"} -> :member
-      %{role: "owner"} -> :admin # Backward compatibility
-    end
   end
 
   defp get_entity_share(entity_type, entity_id, user_id) do
