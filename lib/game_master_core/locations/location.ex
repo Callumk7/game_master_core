@@ -15,6 +15,7 @@ defmodule GameMasterCore.Locations.Location do
     field :type, :string
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
+    field :visibility, :string, default: "private"
 
     # Self-referencing relationships
     belongs_to :parent, __MODULE__, foreign_key: :parent_id
@@ -37,7 +38,7 @@ defmodule GameMasterCore.Locations.Location do
   @doc false
   def changeset(location, attrs, user_scope, game_id) do
     location
-    |> cast(attrs, [:name, :content, :content_plain_text, :type, :parent_id, :tags, :pinned])
+    |> cast(attrs, [:name, :content, :content_plain_text, :type, :parent_id, :tags, :pinned, :visibility])
     |> validate_required([:name, :type])
     |> validate_inclusion(:type, [
       "continent",
@@ -48,6 +49,7 @@ defmodule GameMasterCore.Locations.Location do
       "building",
       "complex"
     ])
+    |> validate_inclusion(:visibility, ["private", "viewable", "editable"])
     |> foreign_key_constraint(:parent_id)
     |> validate_not_self_parent()
     |> validate_tags()
