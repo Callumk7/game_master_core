@@ -12,6 +12,19 @@ defmodule GameMasterCore.EntityShares.EntityShare do
 
   alias GameMasterCore.Accounts.User
 
+  @type t :: %__MODULE__{
+          id: binary(),
+          entity_type: String.t(),
+          entity_id: binary(),
+          permission: String.t(),
+          user: User.t(),
+          user_id: binary(),
+          shared_by: User.t(),
+          shared_by_id: binary(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
