@@ -349,13 +349,9 @@ defmodule GameMasterCore.Authorization do
           s.user_id == ^user_id,
       where:
         e.user_id == ^user_id or
-          (
-            (is_nil(s.id) or s.permission != "blocked") and
-            (
-              (not is_nil(s.id) and s.permission in ["editor", "viewer"]) or
-              e.visibility in ["viewable", "editable"]
-            )
-          ),
+          ((is_nil(s.id) or s.permission != "blocked") and
+             ((not is_nil(s.id) and s.permission in ["editor", "viewer"]) or
+                e.visibility in ["viewable", "editable"])),
       distinct: true
     )
   end

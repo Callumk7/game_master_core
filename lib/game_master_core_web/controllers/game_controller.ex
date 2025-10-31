@@ -59,7 +59,9 @@ defmodule GameMasterCoreWeb.GameController do
           send_resp(conn, :created, "")
 
         {:error, :unauthorized} ->
-          send_resp(conn, :forbidden, "")
+          conn
+          |> put_status(:forbidden)
+          |> json(%{error: "Unauthorized"})
       end
     end
   end
@@ -112,7 +114,9 @@ defmodule GameMasterCoreWeb.GameController do
           send_resp(conn, :no_content, "")
 
         {:error, :unauthorized} ->
-          send_resp(conn, :forbidden, "")
+          conn
+          |> put_status(:forbidden)
+          |> json(%{error: "Unauthorized"})
       end
     end
   end

@@ -331,7 +331,11 @@ defmodule GameMasterCoreWeb.CharacterController do
     with {:ok, character} <-
            Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
          {:ok, updated_character} <-
-           Characters.update_character_visibility(conn.assigns.current_scope, character, visibility) do
+           Characters.update_character_visibility(
+             conn.assigns.current_scope,
+             character,
+             visibility
+           ) do
       render(conn, :show, character: updated_character)
     end
   end
