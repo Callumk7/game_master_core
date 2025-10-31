@@ -57,9 +57,24 @@ defmodule GameMasterCore.Authorization do
 
       iex> Authorization.authorized?(member_scope, :manage_members)
       false
+
+  ## Raises
+
+  `ArgumentError` if scope does not have game context. Make sure to call
+  `Scope.put_game/2` before checking game-level permissions.
   """
   @spec authorized?(Scope.t(), atom()) :: boolean()
-  def authorized?(%Scope{game: nil}, _permission), do: false
+  def authorized?(%Scope{game: nil}, _permission) do
+    raise ArgumentError, """
+    cannot check game-level permissions without game context.
+
+    Make sure to call Scope.put_game/2 before checking permissions:
+
+        scope = Scope.for_user(user)
+        scope = Scope.put_game(scope, game)
+        Authorization.authorized?(scope, :manage_game)
+    """
+  end
 
   def authorized?(%Scope{role: role}, permission) do
     has_game_permission?(role, permission)
