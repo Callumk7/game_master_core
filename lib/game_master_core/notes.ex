@@ -11,6 +11,7 @@ defmodule GameMasterCore.Notes do
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+  alias GameMasterCore.Authorization
 
   @doc """
   Subscribes to scoped notifications about any note changes.
@@ -36,7 +37,7 @@ defmodule GameMasterCore.Notes do
 
   @doc """
   Returns the list of notes for a specific game.
-  Only users who can access the game can see its notes.
+  Filters notes based on user's permissions (role-based + entity-level).
 
   ## Examples
 
@@ -45,8 +46,8 @@ defmodule GameMasterCore.Notes do
 
   """
   def list_notes_for_game(%Scope{} = scope) do
-    # Games.get_game! already validates access, so if we got the game, we can access its notes
     from(n in Note, where: n.game_id == ^scope.game.id)
+    |> Authorization.scope_entity_query(Note, scope)
     |> Repo.all()
   end
 
@@ -134,6 +135,7 @@ defmodule GameMasterCore.Notes do
 
   @doc """
   Updates a note.
+  Checks authorization before allowing edit.
 
   ## Examples
 
@@ -145,18 +147,22 @@ defmodule GameMasterCore.Notes do
 
   """
   def update_note(%Scope{} = scope, %Note{} = note, attrs) do
-    # Note: game access already validated in controller before fetching the note
-    with {:ok, note = %Note{}} <-
-           note
-           |> Note.changeset(attrs, scope, note.game_id)
-           |> Repo.update() do
-      broadcast(scope, {:updated, note})
-      {:ok, note}
+    if Authorization.can_access_entity?(scope, note, :edit) do
+      with {:ok, note = %Note{}} <-
+             note
+             |> Note.changeset(attrs, scope, note.game_id)
+             |> Repo.update() do
+        broadcast(scope, {:updated, note})
+        {:ok, note}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Deletes a note.
+  Checks authorization before allowing deletion.
 
   ## Examples
 
@@ -168,24 +174,28 @@ defmodule GameMasterCore.Notes do
 
   """
   def delete_note(%Scope{} = scope, %Note{} = note) do
-    Repo.transaction(fn ->
-      # First, delete all associated images
-      case Images.delete_images_for_entity(scope, "note", note.id) do
-        {:ok, _count} ->
-          # Then delete the note
-          case Repo.delete(note) do
-            {:ok, note} ->
-              broadcast(scope, {:deleted, note})
-              note
+    if Authorization.can_access_entity?(scope, note, :delete) do
+      Repo.transaction(fn ->
+        # First, delete all associated images
+        case Images.delete_images_for_entity(scope, "note", note.id) do
+          {:ok, _count} ->
+            # Then delete the note
+            case Repo.delete(note) do
+              {:ok, note} ->
+                broadcast(scope, {:deleted, note})
+                note
 
-            {:error, reason} ->
-              Repo.rollback(reason)
-          end
+              {:error, reason} ->
+                Repo.rollback(reason)
+            end
 
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
-    end)
+          {:error, reason} ->
+            Repo.rollback(reason)
+        end
+      end)
+    else
+      {:error, :unauthorized}
+    end
   end
 
   @doc """
@@ -662,4 +672,45 @@ defmodule GameMasterCore.Notes do
       {:ok, {created_links, note}}
     end
   end
+
+  ## Visibility and Sharing Management
+
+  @doc """
+  Update note visibility.
+  Only creator or elevated roles can change visibility.
+  """
+  def update_note_visibility(%Scope{} = scope, %Note{} = note, visibility) do
+    with {:ok, _} <- Authorization.update_entity_visibility(scope, note, visibility),
+         {:ok, note} <-
+           note
+           |> Ecto.Changeset.change(visibility: visibility)
+           |> Repo.update() do
+      broadcast(scope, {:updated, note})
+      {:ok, note}
+    end
+  end
+
+  @doc """
+  Share a note with another user.
+  Delegates to Authorization module.
+  """
+  defdelegate share_note(scope, note, user_id, permission),
+    to: Authorization,
+    as: :share_entity
+
+  @doc """
+  Remove a share for a note.
+  Delegates to Authorization module.
+  """
+  defdelegate unshare_note(scope, note, user_id),
+    to: Authorization,
+    as: :unshare_entity
+
+  @doc """
+  List all shares for a note.
+  Delegates to Authorization module.
+  """
+  defdelegate list_note_shares(scope, note),
+    to: Authorization,
+    as: :list_entity_shares
 end

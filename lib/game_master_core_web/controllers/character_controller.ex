@@ -321,4 +321,56 @@ defmodule GameMasterCoreWeb.CharacterController do
       render(conn, :show, character: updated_character)
     end
   end
+
+  # Visibility and Sharing endpoints
+
+  def update_visibility(conn, %{
+        "character_id" => character_id,
+        "visibility" => visibility
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.update_character_visibility(conn.assigns.current_scope, character, visibility) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  def share(conn, %{
+        "character_id" => character_id,
+        "user_id" => user_id,
+        "permission" => permission
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, _share} <-
+           Characters.share_character(conn.assigns.current_scope, character, user_id, permission) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Character shared successfully"})
+    end
+  end
+
+  def unshare(conn, %{
+        "character_id" => character_id,
+        "user_id" => user_id
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, _} <-
+           Characters.unshare_character(conn.assigns.current_scope, character, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Share removed successfully"})
+    end
+  end
+
+  def list_shares(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, shares} <-
+           Characters.list_character_shares(conn.assigns.current_scope, character) do
+      render(conn, :shares, shares: shares)
+    end
+  end
 end

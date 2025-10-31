@@ -51,9 +51,10 @@ defmodule GameMasterCoreWeb.GameController do
 
   def add_member(conn, %{"game_id" => game_id, "user_id" => user_id}) do
     with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, game_id) do
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
       role = Map.get(conn.params, "role", "member")
 
-      case Games.add_member(conn.assigns.current_scope, game, user_id, role) do
+      case Games.add_member(scope, game, user_id, role) do
         {:ok, _membership} ->
           send_resp(conn, :created, "")
 
@@ -63,10 +64,54 @@ defmodule GameMasterCoreWeb.GameController do
     end
   end
 
+  def change_member_role(conn, %{
+        "game_id" => game_id,
+        "user_id" => user_id,
+        "role" => role
+      }) do
+    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, game_id) do
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
+
+      case Games.change_member_role(scope, game, user_id, role) do
+        {:ok, membership} ->
+          conn
+          |> put_status(:ok)
+          |> json(%{
+            success: true,
+            data: %{
+              user_id: membership.user_id,
+              game_id: membership.game_id,
+              role: membership.role
+            }
+          })
+
+        {:error, :cannot_change_admin_role} ->
+          conn
+          |> put_status(:forbidden)
+          |> json(%{error: "Cannot change admin role"})
+
+        {:error, :unauthorized} ->
+          send_resp(conn, :forbidden, "")
+
+        {:error, :not_found} ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "Member not found"})
+      end
+    end
+  end
+
   def remove_member(conn, %{"game_id" => game_id, "user_id" => user_id}) do
-    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, game_id),
-         {:ok, _} <- Games.remove_member(conn.assigns.current_scope, game, user_id) do
-      send_resp(conn, :no_content, "")
+    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, game_id) do
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
+
+      case Games.remove_member(scope, game, user_id) do
+        {:ok, _} ->
+          send_resp(conn, :no_content, "")
+
+        {:error, :unauthorized} ->
+          send_resp(conn, :forbidden, "")
+      end
     end
   end
 

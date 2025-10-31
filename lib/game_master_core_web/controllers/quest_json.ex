@@ -47,4 +47,25 @@ defmodule GameMasterCoreWeb.QuestJSON do
       }
     }
   end
+
+  @doc """
+  Renders shares for an entity.
+  """
+  def shares(%{shares: shares}) do
+    %{
+      data: for(share <- shares, do: share_data(share))
+    }
+  end
+
+  defp share_data(share) do
+    %{
+      user: %{
+        id: share.user.id,
+        username: share.user.username,
+        email: share.user.email
+      },
+      permission: share.permission,
+      shared_at: share.shared_at
+    }
+  end
 end

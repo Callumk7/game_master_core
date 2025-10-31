@@ -126,7 +126,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
   describe "game member access" do
     test "allows game members to access notes", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)
@@ -137,7 +138,8 @@ defmodule GameMasterCoreWeb.NoteControllerTest do
 
     test "allows game members to create notes", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)

@@ -260,4 +260,56 @@ defmodule GameMasterCoreWeb.NoteController do
       render(conn, :show, note: updated_note)
     end
   end
+
+  # Visibility and Sharing endpoints
+
+  def update_visibility(conn, %{
+        "note_id" => note_id,
+        "visibility" => visibility
+      }) do
+    with {:ok, note} <-
+           Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, updated_note} <-
+           Notes.update_note_visibility(conn.assigns.current_scope, note, visibility) do
+      render(conn, :show, note: updated_note)
+    end
+  end
+
+  def share(conn, %{
+        "note_id" => note_id,
+        "user_id" => user_id,
+        "permission" => permission
+      }) do
+    with {:ok, note} <-
+           Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, _share} <-
+           Notes.share_note(conn.assigns.current_scope, note, user_id, permission) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Note shared successfully"})
+    end
+  end
+
+  def unshare(conn, %{
+        "note_id" => note_id,
+        "user_id" => user_id
+      }) do
+    with {:ok, note} <-
+           Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, _} <-
+           Notes.unshare_note(conn.assigns.current_scope, note, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{success: true, message: "Share removed successfully"})
+    end
+  end
+
+  def list_shares(conn, %{"note_id" => note_id}) do
+    with {:ok, note} <-
+           Notes.fetch_note_for_game(conn.assigns.current_scope, note_id),
+         {:ok, shares} <-
+           Notes.list_note_shares(conn.assigns.current_scope, note) do
+      render(conn, :shares, shares: shares)
+    end
+  end
 end
