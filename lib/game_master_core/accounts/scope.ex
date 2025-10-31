@@ -18,8 +18,9 @@ defmodule GameMasterCore.Accounts.Scope do
 
   alias GameMasterCore.Accounts.User
   alias GameMasterCore.Games.Game
+  alias GameMasterCore.Authorization
 
-  defstruct user: nil, game: nil
+  defstruct user: nil, game: nil, role: nil
 
   @doc """
   Creates a scope for the given user.
@@ -32,7 +33,23 @@ defmodule GameMasterCore.Accounts.Scope do
 
   def for_user(nil), do: nil
 
-  def put_game(%__MODULE__{} = scope, %Game{} = game) do
-    %{scope | game: game}
+  @doc """
+  Adds game context to scope and determines user's role in that game.
+
+  The role is automatically resolved based on:
+  1. Game ownership (game.owner_id) -> :admin
+  2. GameMembership role -> :admin, :game_master, or :member
+  3. Not a member -> nil
+
+  ## Examples
+
+      iex> scope = Scope.for_user(user)
+      iex> scope = Scope.put_game(scope, game)
+      iex> scope.role
+      :admin  # or :game_master, :member, nil
+  """
+  def put_game(%__MODULE__{user: user} = scope, %Game{} = game) do
+    role = Authorization.get_user_role(user.id, game)
+    %{scope | game: game, role: role}
   end
 end
