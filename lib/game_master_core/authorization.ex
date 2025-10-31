@@ -340,6 +340,7 @@ defmodule GameMasterCore.Authorization do
     user_id = user.id
 
     # Member: complex filtering with visibility + shares
+    # Logic: owner OR (not-blocked AND (explicit-permission OR visibility-allows))
     from(e in query,
       left_join: s in EntityShare,
       on:
@@ -348,9 +349,13 @@ defmodule GameMasterCore.Authorization do
           s.user_id == ^user_id,
       where:
         e.user_id == ^user_id or
-          (e.visibility in ["viewable", "editable"] and
-             (is_nil(s.id) or s.permission != "blocked")) or
-          (not is_nil(s.id) and s.permission in ["editor", "viewer"]),
+          (
+            (is_nil(s.id) or s.permission != "blocked") and
+            (
+              (not is_nil(s.id) and s.permission in ["editor", "viewer"]) or
+              e.visibility in ["viewable", "editable"]
+            )
+          ),
       distinct: true
     )
   end
