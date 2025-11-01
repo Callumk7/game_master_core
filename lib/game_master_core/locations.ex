@@ -41,9 +41,11 @@ defmodule GameMasterCore.Locations do
   Filters locations based on user's permissions (role-based + entity-level).
   """
   def list_locations_for_game(%Scope{} = scope) do
+    # Attaches permission metadata
     from(l in Location, where: l.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Location, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   def get_location_for_game!(%Scope{} = scope, id) do
@@ -53,6 +55,7 @@ defmodule GameMasterCore.Locations do
   @doc """
   Fetches a single location for a specific game.
   Only users who can access the game can access its locations.
+  Attaches permission metadata (can_edit, can_delete, can_share).
 
   Returns `{:ok, location}` if found, `{:error, :not_found}` if not found.
   """
@@ -60,8 +63,12 @@ defmodule GameMasterCore.Locations do
     case Ecto.UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get_by(Location, id: uuid, game_id: scope.game.id) do
-          nil -> {:error, :not_found}
-          location -> {:ok, location}
+          nil ->
+            {:error, :not_found}
+
+          location ->
+            location_with_perms = Authorization.attach_permissions(location, scope)
+            {:ok, location_with_perms}
         end
 
       :error ->

@@ -49,6 +49,7 @@ defmodule GameMasterCore.Notes do
     from(n in Note, where: n.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Note, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   @doc """
@@ -72,7 +73,9 @@ defmodule GameMasterCore.Notes do
       {:ok, uuid} ->
         case Repo.get_by(Note, id: uuid, game_id: scope.game.id) do
           nil -> {:error, :not_found}
-          note -> {:ok, note}
+          note ->
+            note_with_perms = Authorization.attach_permissions(note, scope)
+            {:ok, note_with_perms}
         end
 
       :error ->

@@ -41,11 +41,13 @@ defmodule GameMasterCore.Characters do
   @doc """
   Returns this list of characters for a specific game.
   Filters characters based on user's permissions (role-based + entity-level).
+  Attaches permission metadata (can_edit, can_delete, can_share) to each character.
   """
   def list_characters_for_game(%Scope{} = scope) do
     from(c in Character, where: c.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Character, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   @doc """
@@ -61,6 +63,7 @@ defmodule GameMasterCore.Characters do
   @doc """
   Fetches a single character for a specific game.
   Only users who can access the game can access its characters.
+  Attaches permission metadata (can_edit, can_delete, can_share).
 
   Returns `{:ok, character}` if found, `{:error, :not_found}` if not found.
   """
@@ -68,8 +71,12 @@ defmodule GameMasterCore.Characters do
     case Ecto.UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get_by(Character, id: uuid, game_id: scope.game.id) do
-          nil -> {:error, :not_found}
-          character -> {:ok, character}
+          nil ->
+            {:error, :not_found}
+
+          character ->
+            character_with_perms = Authorization.attach_permissions(character, scope)
+            {:ok, character_with_perms}
         end
 
       :error ->
