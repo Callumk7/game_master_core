@@ -67,8 +67,12 @@ defmodule GameMasterCore.Locations do
             {:error, :not_found}
 
           location ->
-            location_with_perms = Authorization.attach_permissions(location, scope)
-            {:ok, location_with_perms}
+            if Authorization.can_access_entity?(scope, location, :view) do
+              location_with_perms = Authorization.attach_permissions(location, scope)
+              {:ok, location_with_perms}
+            else
+              {:error, :not_found}
+            end
         end
 
       :error ->

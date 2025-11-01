@@ -65,8 +65,12 @@ defmodule GameMasterCore.Quests do
         case Repo.get_by(Quest, id: uuid, game_id: scope.game.id) do
           nil -> {:error, :not_found}
           quest ->
-            quest_with_perms = Authorization.attach_permissions(quest, scope)
-            {:ok, quest_with_perms}
+            if Authorization.can_access_entity?(scope, quest, :view) do
+              quest_with_perms = Authorization.attach_permissions(quest, scope)
+              {:ok, quest_with_perms}
+            else
+              {:error, :not_found}
+            end
         end
 
       :error ->

@@ -74,8 +74,12 @@ defmodule GameMasterCore.Notes do
         case Repo.get_by(Note, id: uuid, game_id: scope.game.id) do
           nil -> {:error, :not_found}
           note ->
-            note_with_perms = Authorization.attach_permissions(note, scope)
-            {:ok, note_with_perms}
+            if Authorization.can_access_entity?(scope, note, :view) do
+              note_with_perms = Authorization.attach_permissions(note, scope)
+              {:ok, note_with_perms}
+            else
+              {:error, :not_found}
+            end
         end
 
       :error ->

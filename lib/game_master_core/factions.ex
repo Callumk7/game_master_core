@@ -83,8 +83,12 @@ defmodule GameMasterCore.Factions do
             {:error, :not_found}
 
           faction ->
-            faction_with_perms = Authorization.attach_permissions(faction, scope)
-            {:ok, faction_with_perms}
+            if Authorization.can_access_entity?(scope, faction, :view) do
+              faction_with_perms = Authorization.attach_permissions(faction, scope)
+              {:ok, faction_with_perms}
+            else
+              {:error, :not_found}
+            end
         end
 
       :error ->

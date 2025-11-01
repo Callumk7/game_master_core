@@ -151,14 +151,16 @@ defmodule GameMasterCore.Games do
 
   """
   def update_game(%Scope{} = scope, %Game{} = game, attrs) do
-    true = can_modify_game?(scope, game)
-
-    with {:ok, game = %Game{}} <-
-           game
-           |> Game.changeset(attrs, scope)
-           |> Repo.update() do
-      broadcast(scope, {:updated, game})
-      {:ok, game}
+    if GameMasterCore.Authorization.authorized?(scope, :manage_game) do
+      with {:ok, game = %Game{}} <-
+             game
+             |> Game.changeset(attrs, scope)
+             |> Repo.update() do
+        broadcast(scope, {:updated, game})
+        {:ok, game}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
@@ -175,12 +177,14 @@ defmodule GameMasterCore.Games do
 
   """
   def delete_game(%Scope{} = scope, %Game{} = game) do
-    true = can_modify_game?(scope, game)
-
-    with {:ok, game = %Game{}} <-
-           Repo.delete(game) do
-      broadcast(scope, {:deleted, game})
-      {:ok, game}
+    if GameMasterCore.Authorization.authorized?(scope, :manage_game) do
+      with {:ok, game = %Game{}} <-
+             Repo.delete(game) do
+        broadcast(scope, {:deleted, game})
+        {:ok, game}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
@@ -225,17 +229,22 @@ defmodule GameMasterCore.Games do
   """
   def change_member_role(%Scope{} = scope, %Game{} = game, user_id, new_role) do
     if Authorization.authorized?(scope, :manage_members) do
-      case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
-        nil ->
-          {:error, :not_found}
+      # If the user is the game owner, they can't change their role
+      if game.owner_id == user_id do
+        {:error, :cannot_change_admin_role}
+      else
+        case Repo.get_by(GameMembership, game_id: game.id, user_id: user_id) do
+          nil ->
+            {:error, :not_found}
 
-        membership when membership.role == "admin" ->
-          {:error, :cannot_change_admin_role}
+          membership when membership.role == "admin" ->
+            {:error, :cannot_change_admin_role}
 
-        membership ->
-          membership
-          |> GameMembership.changeset(%{role: new_role})
-          |> Repo.update()
+          membership ->
+            membership
+            |> GameMembership.changeset(%{role: new_role})
+            |> Repo.update()
+        end
       end
     else
       {:error, :unauthorized}

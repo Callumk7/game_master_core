@@ -37,16 +37,34 @@ defmodule GameMasterCoreWeb.GameController do
   end
 
   def update(conn, %{"id" => id, "game" => game_params}) do
-    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, id),
-         {:ok, %Game{} = game} <- Games.update_game(conn.assigns.current_scope, game, game_params) do
-      render(conn, :show, game: game)
+    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, id) do
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
+
+      case Games.update_game(scope, game, game_params) do
+        {:ok, %Game{} = game} ->
+          render(conn, :show, game: game)
+
+        {:error, :unauthorized} ->
+          conn
+          |> put_status(:forbidden)
+          |> json(%{error: "Unauthorized"})
+      end
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, id),
-         {:ok, %Game{}} <- Games.delete_game(conn.assigns.current_scope, game) do
-      send_resp(conn, :no_content, "")
+    with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, id) do
+      scope = GameMasterCore.Accounts.Scope.put_game(conn.assigns.current_scope, game)
+
+      case Games.delete_game(scope, game) do
+        {:ok, %Game{}} ->
+          send_resp(conn, :no_content, "")
+
+        {:error, :unauthorized} ->
+          conn
+          |> put_status(:forbidden)
+          |> json(%{error: "Unauthorized"})
+      end
     end
   end
 

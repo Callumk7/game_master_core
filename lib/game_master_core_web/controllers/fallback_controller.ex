@@ -16,10 +16,17 @@ defmodule GameMasterCoreWeb.FallbackController do
 
   # This clause is an example of how to handle resources that cannot be found.
   def call(conn, {:error, :not_found}) do
+  conn
+  |> put_status(:not_found)
+  |> put_view(html: GameMasterCoreWeb.ErrorHTML, json: GameMasterCoreWeb.ErrorJSON)
+  |> render(:"404")
+  end
+
+  # Handle authorization errors
+  def call(conn, {:error, :unauthorized}) do
     conn
-    |> put_status(:not_found)
-    |> put_view(html: GameMasterCoreWeb.ErrorHTML, json: GameMasterCoreWeb.ErrorJSON)
-    |> render(:"404")
+    |> put_status(:forbidden)
+    |> json(%{error: "Unauthorized"})
   end
 
   # Handle character/note not found errors
