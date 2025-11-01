@@ -132,9 +132,7 @@ defmodule GameMasterCoreWeb.GameController do
           |> json(%{error: "Cannot change admin role"})
 
         {:error, :unauthorized} ->
-          conn
-          |> put_status(:forbidden)
-          |> json(%{error: "Unauthorized"})
+          send_resp(conn, :forbidden, "")
 
         {:error, :not_found} ->
           conn
