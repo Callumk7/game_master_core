@@ -758,4 +758,168 @@ defmodule GameMasterCoreWeb.CharacterAuthorizationTest do
       assert_not_found_response(conn)
     end
   end
+
+  # ============================================================================
+  # List Endpoint Filtering Tests
+  # ============================================================================
+
+  describe "list endpoint filtering" do
+    setup %{game: game, member_1: member_1, member_2: member_2} do
+      # Create a mix of entities for filtering tests:
+      # member_1 creates: 2 private, 2 viewable, 2 editable
+      # member_2 creates: 2 private
+      member_1_private_1 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "private",
+        name: "Member1 Private 1",
+        class: "Wizard",
+        level: 1
+      })
+
+      member_1_private_2 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "private",
+        name: "Member1 Private 2",
+        class: "Wizard",
+        level: 2
+      })
+
+      member_1_viewable_1 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "viewable",
+        name: "Member1 Viewable 1",
+        class: "Cleric",
+        level: 3
+      })
+
+      member_1_viewable_2 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "viewable",
+        name: "Member1 Viewable 2",
+        class: "Cleric",
+        level: 4
+      })
+
+      member_1_editable_1 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "editable",
+        name: "Member1 Editable 1",
+        class: "Rogue",
+        level: 5
+      })
+
+      member_1_editable_2 = create_entity_for_user(:character, member_1, game, %{
+        visibility: "editable",
+        name: "Member1 Editable 2",
+        class: "Rogue",
+        level: 6
+      })
+
+      member_2_private_1 = create_entity_for_user(:character, member_2, game, %{
+        visibility: "private",
+        name: "Member2 Private 1",
+        class: "Fighter",
+        level: 7
+      })
+
+      member_2_private_2 = create_entity_for_user(:character, member_2, game, %{
+        visibility: "private",
+        name: "Member2 Private 2",
+        class: "Fighter",
+        level: 8
+      })
+
+      %{
+        member_1_chars: [
+          member_1_private_1,
+          member_1_private_2,
+          member_1_viewable_1,
+          member_1_viewable_2,
+          member_1_editable_1,
+          member_1_editable_2
+        ],
+        member_2_chars: [
+          member_2_private_1,
+          member_2_private_2
+        ]
+      }
+    end
+
+    test "admin sees all entities in game", %{
+      conn: conn,
+      game: game,
+      admin: admin
+    } do
+      conn = authenticate_api_user(conn, admin)
+      conn = get(conn, entity_path(:character, game.id))
+
+      assert_success_response(conn, 200)
+      response = json_response(conn, 200)
+
+      # Admin sees: 3 setup chars + 6 member_1 + 2 member_2 = 11 total
+      # (private_char, viewable_char, editable_char from main setup + 8 from list setup)
+      assert length(response["data"]) == 11
+    end
+
+    test "game master sees all entities in game", %{
+      conn: conn,
+      game: game,
+      game_master: gm
+    } do
+      conn = authenticate_api_user(conn, gm)
+      conn = get(conn, entity_path(:character, game.id))
+
+      assert_success_response(conn, 200)
+      response = json_response(conn, 200)
+
+      # Game Master sees: 3 setup chars + 6 member_1 + 2 member_2 = 11 total
+      assert length(response["data"]) == 11
+    end
+
+    test "member sees only their own and accessible entities", %{
+      conn: conn,
+      game: game,
+      member_1: member_1,
+      member_2: member_2
+    } do
+      # Test member_1's view
+      conn = authenticate_api_user(conn, member_1)
+      conn = get(conn, entity_path(:character, game.id))
+
+      assert_success_response(conn, 200)
+      response = json_response(conn, 200)
+
+      # member_1 sees:
+      # - Their 6 entities (2 private, 2 viewable, 2 editable)
+      # - Their 3 setup entities (private_char, viewable_char, editable_char)
+      # - member_2's 0 private entities (cannot see)
+      # Total: 9 entities
+      assert length(response["data"]) == 9
+
+      # Test member_2's view
+      conn = build_conn()
+      conn = authenticate_api_user(conn, member_2)
+      conn = get(conn, entity_path(:character, game.id))
+
+      assert_success_response(conn, 200)
+      response = json_response(conn, 200)
+
+      # member_2 sees:
+      # - Their 2 private entities
+      # - member_1's 0 private entities (cannot see)
+      # - member_1's 2 viewable entities (can view)
+      # - member_1's 2 editable entities (can view/edit)
+      # - member_1's setup viewable_char
+      # - member_1's setup editable_char
+      # Total: 8 entities
+      assert length(response["data"]) == 8
+    end
+
+    test "non-member sees empty list (404)", %{
+      conn: conn,
+      game: game,
+      non_member: non_member
+    } do
+      conn = authenticate_api_user(conn, non_member)
+      conn = get(conn, entity_path(:character, game.id))
+
+      # Non-member has no access to game at all
+      assert_not_found_response(conn)
+    end
+  end
 end
