@@ -298,14 +298,21 @@ defmodule GameMasterCore.Authorization do
 
       iex> Authorization.update_entity_visibility(member_scope, others_entity, "viewable")
       {:error, :unauthorized}
+
+      iex> Authorization.update_entity_visibility(creator_scope, entity, "invalid")
+      {:error, :bad_request}
   """
   @spec update_entity_visibility(Scope.t(), entity(), String.t()) ::
-          {:ok, String.t()} | {:error, :unauthorized}
+          {:ok, String.t()} | {:error, :unauthorized | :bad_request}
   def update_entity_visibility(%Scope{user: user, role: role}, entity, new_visibility) do
-    if role in [:admin, :game_master] or entity.user_id == user.id do
-      {:ok, new_visibility}
+    if new_visibility not in ["private", "viewable", "editable"] do
+      {:error, :bad_request}
     else
-      {:error, :unauthorized}
+      if role in [:admin, :game_master] or entity.user_id == user.id do
+        {:ok, new_visibility}
+      else
+        {:error, :unauthorized}
+      end
     end
   end
 

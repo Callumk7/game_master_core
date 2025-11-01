@@ -10,11 +10,13 @@ defmodule GameMasterCore.AccountsFixtures do
   alias GameMasterCore.Accounts.Scope
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
+  def valid_username, do: "user#{System.unique_integer()}"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      email: unique_user_email()
+      email: unique_user_email(),
+      username: valid_username()
     })
   end
 

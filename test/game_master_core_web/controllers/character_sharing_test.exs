@@ -614,8 +614,6 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
   describe "GET /shares authorization" do
     setup %{game: game, member_1: owner, member_2: user2, member_3: user3} do
-      IO.inspect(user2)
-
       character =
         create_entity_for_user(:character, owner, game, %{
           visibility: "private",
@@ -750,7 +748,6 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       # Check that shares include expected fields
       share_1 = Enum.find(shares, fn s -> s["user"]["id"] == user2.id end)
-      IO.inspect(share_1)
       assert share_1["permission"] == "editor"
       assert share_1["user"]["username"] == "member2"
 
