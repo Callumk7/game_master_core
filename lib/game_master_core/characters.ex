@@ -917,8 +917,7 @@ defmodule GameMasterCore.Characters do
   def update_character_visibility(%Scope{} = scope, %Character{} = character, visibility) do
     with {:ok, _} <- Authorization.update_entity_visibility(scope, character, visibility),
          {:ok, character} <-
-           character
-           |> Ecto.Changeset.change(visibility: visibility)
+           Character.changeset(character, %{visibility: visibility}, scope, character.game_id)
            |> Repo.update() do
       broadcast(scope, {:updated, character})
       {:ok, character}

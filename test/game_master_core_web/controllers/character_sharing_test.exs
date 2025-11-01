@@ -14,12 +14,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
   describe "POST /share authorization - who can share" do
     setup %{game: game, member_1: owner} do
       # Create a private character owned by member_1
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character to Share",
-        class: "Wizard",
-        level: 10
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character to Share",
+          class: "Wizard",
+          level: 10
+        })
 
       %{character: character}
     end
@@ -32,10 +33,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, owner)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: target_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: target_user.id,
+          permission: "editor"
+        })
 
       assert_success_response(conn, 200)
     end
@@ -48,10 +51,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, admin)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: target_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: target_user.id,
+          permission: "editor"
+        })
 
       assert_success_response(conn, 200)
     end
@@ -64,10 +69,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, gm)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: target_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: target_user.id,
+          permission: "editor"
+        })
 
       assert_success_response(conn, 200)
     end
@@ -80,10 +87,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, non_owner)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: target_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: target_user.id,
+          permission: "editor"
+        })
 
       # Non-owner member cannot see private entity (filtered from query), gets 404
       assert_not_found_response(conn)
@@ -97,10 +106,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, non_member)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: target_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: target_user.id,
+          permission: "editor"
+        })
 
       # Non-member has no access to game at all
       assert_not_found_response(conn)
@@ -114,12 +125,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
   describe "share permission types" do
     setup %{game: game, member_1: owner} do
       # Create a private character owned by member_1
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character with Permissions",
-        class: "Rogue",
-        level: 8
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character with Permissions",
+          class: "Rogue",
+          level: 8
+        })
 
       %{character: character}
     end
@@ -144,18 +156,23 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Verify shared user can update
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Updated by Editor"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Updated by Editor"}
+        })
+
       assert_success_response(conn, 200)
 
       # Verify shared user can delete
-      new_char = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "To Delete",
-        class: "Fighter",
-        level: 1
-      })
+      new_char =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "To Delete",
+          class: "Fighter",
+          level: 1
+        })
+
       share_entity_with_user(:character, new_char, owner, shared_user, game, "editor")
 
       conn = build_conn()
@@ -184,9 +201,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Verify shared user cannot update
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Attempted Update"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Attempted Update"}
+        })
+
       assert_unauthorized_response(conn, 403)
 
       # Verify shared user cannot delete
@@ -214,9 +234,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Verify shared user cannot update
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Attempted Update"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Attempted Update"}
+        })
+
       assert_not_found_response(conn)
 
       # Verify shared user cannot delete
@@ -233,12 +256,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       member_2: shared_user
     } do
       # Create viewable entity
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "viewable",
-        name: "Viewable But Blocked",
-        class: "Cleric",
-        level: 5
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "viewable",
+          name: "Viewable But Blocked",
+          class: "Cleric",
+          level: 5
+        })
 
       # Share with blocked permission
       share_entity_with_user(:character, character, owner, shared_user, game, "blocked")
@@ -256,12 +280,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       member_2: shared_user
     } do
       # Create editable entity
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "editable",
-        name: "Editable But Blocked",
-        class: "Paladin",
-        level: 7
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "editable",
+          name: "Editable But Blocked",
+          class: "Paladin",
+          level: 7
+        })
 
       # Share with blocked permission
       share_entity_with_user(:character, character, owner, shared_user, game, "blocked")
@@ -279,12 +304,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
   describe "share updates" do
     setup %{game: game, member_1: owner} do
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character for Update Tests",
-        class: "Barbarian",
-        level: 6
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character for Update Tests",
+          class: "Barbarian",
+          level: 6
+        })
 
       %{character: character}
     end
@@ -306,26 +332,35 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Should Fail"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Should Fail"}
+        })
+
       assert_unauthorized_response(conn, 403)
 
       # Re-share with editor permission
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: shared_user.id,
-        permission: "editor"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: shared_user.id,
+          permission: "editor"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify: can now edit
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Now Can Edit"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Now Can Edit"}
+        })
+
       assert_success_response(conn, 200)
     end
 
@@ -341,18 +376,24 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       # Verify: can edit
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Editor Update"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Editor Update"}
+        })
+
       assert_success_response(conn, 200)
 
       # Re-share with viewer permission
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: shared_user.id,
-        permission: "viewer"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: shared_user.id,
+          permission: "viewer"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify: can view but not edit
@@ -363,9 +404,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Should Fail"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Should Fail"}
+        })
+
       assert_unauthorized_response(conn, 403)
     end
 
@@ -387,10 +431,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Re-share with blocked permission
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = post(conn, share_path(:character, game.id, character.id), %{
-        user_id: shared_user.id,
-        permission: "blocked"
-      })
+
+      conn =
+        post(conn, share_path(:character, game.id, character.id), %{
+          user_id: shared_user.id,
+          permission: "blocked"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify: cannot access
@@ -407,12 +454,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
   describe "DELETE /share authorization" do
     setup %{game: game, member_1: owner, member_2: shared_user} do
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character to Unshare",
-        class: "Monk",
-        level: 12
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character to Unshare",
+          class: "Monk",
+          level: 12
+        })
 
       # Share with member_2
       share_entity_with_user(:character, character, owner, shared_user, game, "editor")
@@ -515,21 +563,25 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       member_2: shared_user
     } do
       # Create viewable entity
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "viewable",
-        name: "Viewable with Share",
-        class: "Druid",
-        level: 9
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "viewable",
+          name: "Viewable with Share",
+          class: "Druid",
+          level: 9
+        })
 
       # Share with editor permission
       share_entity_with_user(:character, character, owner, shared_user, game, "editor")
 
       # Verify: can edit
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Editor Update"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Editor Update"}
+        })
+
       assert_success_response(conn, 200)
 
       # Unshare
@@ -546,9 +598,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Should Fail"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Should Fail"}
+        })
+
       assert_unauthorized_response(conn, 403)
     end
   end
@@ -559,12 +614,15 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
   describe "GET /shares authorization" do
     setup %{game: game, member_1: owner, member_2: user2, member_3: user3} do
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character with Multiple Shares",
-        class: "Sorcerer",
-        level: 14
-      })
+      IO.inspect(user2)
+
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character with Multiple Shares",
+          class: "Sorcerer",
+          level: 14
+        })
 
       # Share with multiple users
       share_entity_with_user(:character, character, owner, user2, game, "editor")
@@ -649,18 +707,21 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       member_1: owner
     } do
       # Create private entity, no share for member without access
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "No Share Access",
-        class: "Ranger",
-        level: 3
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "No Share Access",
+          class: "Ranger",
+          level: 3
+        })
 
       # Use a new user (not member_2 or member_3 who have shares on other entity)
-      new_member = GameMasterCore.AccountsFixtures.user_fixture(%{
-        email: "noshare@test.com",
-        username: "noshare"
-      })
+      new_member =
+        GameMasterCore.AccountsFixtures.user_fixture(%{
+          email: "noshare@test.com",
+          username: "noshare"
+        })
+
       add_game_member(game, new_member, "member")
 
       conn = authenticate_api_user(conn, new_member)
@@ -689,6 +750,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       # Check that shares include expected fields
       share_1 = Enum.find(shares, fn s -> s["user"]["id"] == user2.id end)
+      IO.inspect(share_1)
       assert share_1["permission"] == "editor"
       assert share_1["user"]["username"] == "member2"
 
@@ -704,12 +766,13 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
   describe "PUT /visibility authorization" do
     setup %{game: game, member_1: owner} do
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "private",
-        name: "Character for Visibility Tests",
-        class: "Warlock",
-        level: 11
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "private",
+          name: "Character for Visibility Tests",
+          class: "Warlock",
+          level: 11
+        })
 
       %{character: character}
     end
@@ -721,9 +784,11 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "viewable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "viewable"
+        })
 
       assert_success_response(conn, 200)
       response = json_response(conn, 200)
@@ -737,9 +802,11 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, admin)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "editable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "editable"
+        })
 
       assert_success_response(conn, 200)
       response = json_response(conn, 200)
@@ -753,9 +820,11 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, gm)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "viewable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "viewable"
+        })
 
       assert_success_response(conn, 200)
       response = json_response(conn, 200)
@@ -769,9 +838,11 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, non_owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "viewable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "viewable"
+        })
 
       # Non-owner cannot access private entity
       assert_not_found_response(conn)
@@ -784,9 +855,11 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "invalid"
-      })
+
+      conn =
+        put(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "invalid"
+        })
 
       assert_bad_request_response(conn)
     end
@@ -806,9 +879,12 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Change to viewable
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "viewable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "viewable"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify member_2 can now view
@@ -825,26 +901,33 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       member_2: other_member
     } do
       # Create editable entity
-      character = create_entity_for_user(:character, owner, game, %{
-        visibility: "editable",
-        name: "Editable to Private",
-        class: "Bard",
-        level: 7
-      })
+      character =
+        create_entity_for_user(:character, owner, game, %{
+          visibility: "editable",
+          name: "Editable to Private",
+          class: "Bard",
+          level: 7
+        })
 
       # Verify member_2 can edit
       conn = authenticate_api_user(conn, other_member)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Member Edit"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Member Edit"}
+        })
+
       assert_success_response(conn, 200)
 
       # Change to private
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "private"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "private"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify member_2 cannot access
@@ -866,25 +949,34 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
 
       # Verify shared_user can edit
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Editor Update"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Editor Update"}
+        })
+
       assert_success_response(conn, 200)
 
       # Change visibility to viewable
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
-        visibility: "viewable"
-      })
+
+      conn =
+        patch(conn, visibility_path(:character, game.id, character.id), %{
+          visibility: "viewable"
+        })
+
       assert_success_response(conn, 200)
 
       # Verify shared_user still has editor access (share takes precedence)
       conn = build_conn()
       conn = authenticate_api_user(conn, shared_user)
-      conn = put(conn, entity_path(:character, game.id, character.id), %{
-        character: %{name: "Still Editor"}
-      })
+
+      conn =
+        put(conn, entity_path(:character, game.id, character.id), %{
+          character: %{name: "Still Editor"}
+        })
+
       assert_success_response(conn, 200)
     end
   end
