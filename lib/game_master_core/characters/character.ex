@@ -18,7 +18,6 @@ defmodule GameMasterCore.Characters.Character do
     field :pinned, :boolean, default: false
     field :race, :string
     field :alive, :boolean, default: true
-    field :visibility, :string, default: "private"
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -46,11 +45,9 @@ defmodule GameMasterCore.Characters.Character do
       :tags,
       :pinned,
       :race,
-      :alive,
-      :visibility
+      :alive
     ])
     |> validate_required([:name, :class, :level])
-    |> validate_inclusion(:visibility, ["private", "viewable", "editable"])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)

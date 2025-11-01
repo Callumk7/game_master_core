@@ -15,7 +15,6 @@ defmodule GameMasterCore.Quests.Quest do
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
     field :status, :string, default: "preparing"
-    field :visibility, :string, default: "private"
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -38,9 +37,8 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned, :status, :visibility])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned, :status])
     |> validate_required([:name])
-    |> validate_inclusion(:visibility, ["private", "viewable", "editable"])
     |> validate_tags()
     |> validate_status()
     |> validate_parent_quest(game_id)

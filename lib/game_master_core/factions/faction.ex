@@ -14,7 +14,6 @@ defmodule GameMasterCore.Factions.Faction do
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
-    field :visibility, :string, default: "private"
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -33,9 +32,8 @@ defmodule GameMasterCore.Factions.Faction do
   @doc false
   def changeset(faction, attrs, user_scope, game_id) do
     faction
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :pinned, :visibility])
+    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :pinned])
     |> validate_required([:name])
-    |> validate_inclusion(:visibility, ["private", "viewable", "editable"])
     |> validate_tags()
     |> put_change(:user_id, user_scope.user.id)
     |> put_change(:game_id, game_id)
