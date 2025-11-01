@@ -89,7 +89,6 @@ defmodule GameMasterCoreWeb.AccountController do
 
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
-
     unless upload.content_type in allowed_types do
       conn
       |> put_status(:unprocessable_entity)
@@ -98,7 +97,6 @@ defmodule GameMasterCoreWeb.AccountController do
       # Validate file size (5MB max)
       max_size = 5 * 1024 * 1024
       file_size = File.stat!(upload.path).size
-
       if file_size > max_size do
         conn
         |> put_status(:unprocessable_entity)
@@ -308,7 +306,6 @@ defmodule GameMasterCoreWeb.AccountController do
           "/" <> key -> key
           key -> key
         end
-
       _ ->
         nil
     end

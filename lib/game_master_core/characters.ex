@@ -12,7 +12,6 @@ defmodule GameMasterCore.Characters do
   alias GameMasterCore.Images
   alias GameMasterCore.Links
   alias GameMasterCore.Factions
-  alias GameMasterCore.Authorization
 
   import GameMasterCore.Helpers
 
@@ -40,11 +39,10 @@ defmodule GameMasterCore.Characters do
 
   @doc """
   Returns this list of characters for a specific game.
-  Filters characters based on user's permissions (role-based + entity-level).
+  Only users who can access the game can see its characters.
   """
   def list_characters_for_game(%Scope{} = scope) do
     from(c in Character, where: c.game_id == ^scope.game.id)
-    |> Authorization.scope_entity_query(Character, scope)
     |> Repo.all()
   end
 
@@ -183,7 +181,6 @@ defmodule GameMasterCore.Characters do
 
   @doc """
   Updates a character.
-  Checks authorization before allowing edit.
 
   ## Examples
 
@@ -195,22 +192,18 @@ defmodule GameMasterCore.Characters do
 
   """
   def update_character(%Scope{} = scope, %Character{} = character, attrs) do
-    if Authorization.can_access_entity?(scope, character, :edit) do
-      with {:ok, character = %Character{}} <-
-             character
-             |> Character.changeset(attrs, scope, character.game_id)
-             |> Repo.update() do
-        broadcast(scope, {:updated, character})
-        {:ok, character}
-      end
-    else
-      {:error, :unauthorized}
+    # Note: game access already validated in controller before fetching the character
+    with {:ok, character = %Character{}} <-
+           character
+           |> Character.changeset(attrs, scope, character.game_id)
+           |> Repo.update() do
+      broadcast(scope, {:updated, character})
+      {:ok, character}
     end
   end
 
   @doc """
   Deletes a character.
-  Checks authorization before allowing deletion.
 
   ## Examples
 
@@ -222,28 +215,25 @@ defmodule GameMasterCore.Characters do
 
   """
   def delete_character(%Scope{} = scope, %Character{} = character) do
-    if Authorization.can_access_entity?(scope, character, :delete) do
-      Repo.transaction(fn ->
-        # First, delete all associated images
-        case Images.delete_images_for_entity(scope, "character", character.id) do
-          {:ok, _count} ->
-            # Then delete the character
-            case Repo.delete(character) do
-              {:ok, character} ->
-                broadcast(scope, {:deleted, character})
-                character
+    # Note: game access already validated in controller before fetching the character
+    Repo.transaction(fn ->
+      # First, delete all associated images
+      case Images.delete_images_for_entity(scope, "character", character.id) do
+        {:ok, _count} ->
+          # Then delete the character
+          case Repo.delete(character) do
+            {:ok, character} ->
+              broadcast(scope, {:deleted, character})
+              character
 
-              {:error, reason} ->
-                Repo.rollback(reason)
-            end
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
 
-          {:error, reason} ->
-            Repo.rollback(reason)
-        end
-      end)
-    else
-      {:error, :unauthorized}
-    end
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   @doc """
@@ -894,45 +884,4 @@ defmodule GameMasterCore.Characters do
         |> Repo.update()
     end
   end
-
-  ## Visibility and Sharing Management
-
-  @doc """
-  Update character visibility.
-  Only creator or elevated roles can change visibility.
-  """
-  def update_character_visibility(%Scope{} = scope, %Character{} = character, visibility) do
-    with {:ok, _} <- Authorization.update_entity_visibility(scope, character, visibility),
-         {:ok, character} <-
-           character
-           |> Ecto.Changeset.change(visibility: visibility)
-           |> Repo.update() do
-      broadcast(scope, {:updated, character})
-      {:ok, character}
-    end
-  end
-
-  @doc """
-  Share a character with another user.
-  Delegates to Authorization module.
-  """
-  defdelegate share_character(scope, character, user_id, permission),
-    to: Authorization,
-    as: :share_entity
-
-  @doc """
-  Remove a share for a character.
-  Delegates to Authorization module.
-  """
-  defdelegate unshare_character(scope, character, user_id),
-    to: Authorization,
-    as: :unshare_entity
-
-  @doc """
-  List all shares for a character.
-  Delegates to Authorization module.
-  """
-  defdelegate list_character_shares(scope, character),
-    to: Authorization,
-    as: :list_entity_shares
 end

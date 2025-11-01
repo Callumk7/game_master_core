@@ -142,8 +142,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
   describe "game member access" do
     test "allows game members to access locations", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
+      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)
@@ -154,8 +153,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
     test "allows game members to create locations", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
+      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Login as member
       member_conn = authenticate_api_user(build_conn(), member_scope.user)
@@ -719,8 +717,7 @@ defmodule GameMasterCoreWeb.LocationControllerTest do
 
     test "allows game members to access location tree", %{conn: _conn, game: game, scope: scope} do
       member_scope = user_scope_fixture()
-      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
-      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
+      {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
 
       # Create a location
       _location =

@@ -71,8 +71,7 @@ defmodule GameMasterCore.Accounts.Scope do
       %{role: "admin"} -> :admin
       %{role: "game_master"} -> :game_master
       %{role: "member"} -> :member
-      # Backward compatibility
-      %{role: "owner"} -> :admin
+      %{role: "owner"} -> :admin  # Backward compatibility
     end
   end
 end

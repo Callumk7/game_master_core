@@ -25,7 +25,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content_plain_text: note.content_plain_text,
       tags: note.tags,
       pinned: note.pinned,
-      visibility: note.visibility,
       created_at: note.inserted_at,
       updated_at: note.updated_at
     }
@@ -45,7 +44,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       level: character.level,
       tags: character.tags,
       pinned: character.pinned,
-      visibility: character.visibility,
       race: character.race,
       alive: character.alive,
       created_at: character.inserted_at,
@@ -65,7 +63,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content_plain_text: faction.content_plain_text,
       tags: faction.tags,
       pinned: faction.pinned,
-      visibility: faction.visibility,
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
     }
@@ -100,7 +97,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       parent_id: location.parent_id,
       tags: location.tags,
       pinned: location.pinned,
-      visibility: location.visibility,
       created_at: location.inserted_at,
       updated_at: location.updated_at
     }
@@ -119,7 +115,6 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       tags: quest.tags,
       parent_id: quest.parent_id,
       pinned: quest.pinned,
-      visibility: quest.visibility,
       status: quest.status,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
