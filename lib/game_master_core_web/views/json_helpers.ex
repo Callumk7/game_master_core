@@ -15,6 +15,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
 
   @doc """
   Formats a note for JSON response.
+  Includes permission metadata if available (populated by context layer).
   """
   def note_data(%Note{} = note) do
     %{
@@ -26,6 +27,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       tags: note.tags,
       pinned: note.pinned,
       visibility: note.visibility,
+      can_edit: note.can_edit,
+      can_delete: note.can_delete,
+      can_share: note.can_share,
       created_at: note.inserted_at,
       updated_at: note.updated_at
     }
@@ -33,6 +37,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
 
   @doc """
   Formats a character for JSON response (full data).
+  Includes permission metadata if available (populated by context layer).
   """
   def character_data(%Character{} = character) do
     %{
@@ -49,25 +54,17 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       visibility: character.visibility,
       race: character.race,
       alive: character.alive,
+      can_edit: character.can_edit,
+      can_delete: character.can_delete,
+      can_share: character.can_share,
       created_at: character.inserted_at,
       updated_at: character.updated_at
     }
   end
 
   @doc """
-  Formats a character for JSON response with permission metadata.
-  """
-  def character_data(%Character{} = character, %GameMasterCore.Accounts.Scope{} = scope) do
-    character_data(character)
-    |> Map.merge(%{
-      can_edit: GameMasterCore.Authorization.can_access_entity?(scope, character, :edit),
-      can_delete: GameMasterCore.Authorization.can_access_entity?(scope, character, :delete),
-      can_share: character.user_id == scope.user.id or scope.role in [:admin, :game_master]
-    })
-  end
-
-  @doc """
   Formats a faction for JSON response.
+  Includes permission metadata if available (populated by context layer).
   """
   def faction_data(%Faction{} = faction) do
     %{
@@ -79,6 +76,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       tags: faction.tags,
       pinned: faction.pinned,
       visibility: faction.visibility,
+      can_edit: faction.can_edit,
+      can_delete: faction.can_delete,
+      can_share: faction.can_share,
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
     }
@@ -109,6 +109,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
 
   @doc """
   Formats a location for JSON response.
+  Includes permission metadata if available (populated by context layer).
   """
   def location_data(%Location{} = location) do
     %{
@@ -122,6 +123,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       tags: location.tags,
       pinned: location.pinned,
       visibility: location.visibility,
+      can_edit: location.can_edit,
+      can_delete: location.can_delete,
+      can_share: location.can_share,
       created_at: location.inserted_at,
       updated_at: location.updated_at
     }
@@ -129,6 +133,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
 
   @doc """
   Formats a quest for JSON response.
+  Includes permission metadata if available (populated by context layer).
   """
   def quest_data(%Quest{} = quest) do
     %{
@@ -142,6 +147,9 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       pinned: quest.pinned,
       visibility: quest.visibility,
       status: quest.status,
+      can_edit: quest.can_edit,
+      can_delete: quest.can_delete,
+      can_share: quest.can_share,
       created_at: quest.inserted_at,
       updated_at: quest.updated_at
     }

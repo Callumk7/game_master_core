@@ -9,14 +9,8 @@ defmodule GameMasterCoreWeb.CharacterJSON do
   end
 
   @doc """
-  Renders a single character with permission metadata.
-  """
-  def show(%{character: character, scope: scope}) do
-    %{data: character_data(character, scope)}
-  end
-
-  @doc """
-  Renders a single character (fallback without scope).
+  Renders a single character.
+  Permission metadata is included if populated by context layer.
   """
   def show(%{character: character}) do
     %{data: character_data(character)}
