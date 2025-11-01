@@ -721,7 +721,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "viewable"
       })
 
@@ -737,7 +737,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, admin)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "editable"
       })
 
@@ -753,7 +753,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, gm)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "viewable"
       })
 
@@ -769,7 +769,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, non_owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "viewable"
       })
 
@@ -784,7 +784,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       character: character
     } do
       conn = authenticate_api_user(conn, owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "invalid"
       })
 
@@ -806,7 +806,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Change to viewable
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "viewable"
       })
       assert_success_response(conn, 200)
@@ -842,7 +842,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Change to private
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "private"
       })
       assert_success_response(conn, 200)
@@ -874,7 +874,7 @@ defmodule GameMasterCoreWeb.CharacterSharingTest do
       # Change visibility to viewable
       conn = build_conn()
       conn = authenticate_api_user(conn, owner)
-      conn = put(conn, visibility_path(:character, game.id, character.id), %{
+      conn = patch(conn, visibility_path(:character, game.id, character.id), %{
         visibility: "viewable"
       })
       assert_success_response(conn, 200)
