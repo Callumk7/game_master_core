@@ -357,6 +357,89 @@ defmodule GameMasterCore.Authorization do
   end
 
   # ------------------------------------------------------------
+  # Permission Metadata Attachment (for View Layer)
+  # ------------------------------------------------------------
+
+  @doc """
+  Attach permission metadata to an entity without making database queries.
+
+  This function populates the virtual `can_edit`, `can_delete`, and `can_share`
+  fields on an entity struct. It should be called in the context layer after
+  fetching entities, not in the view layer.
+
+  ## Parameters
+
+  - `entity` - The entity struct to attach permissions to
+  - `scope` - Scope with user and game/role context
+  - `entity_share` - Optional pre-fetched EntityShare record (default: nil)
+
+  ## Examples
+
+      # Single entity (share will be nil for most cases)
+      character = Repo.get(Character, id)
+      character_with_perms = Authorization.attach_permissions(character, scope)
+
+      # Batch loading shares for list operations
+      shares_map = batch_load_shares(entity_ids, user_id)
+      entities_with_perms = Enum.map(entities, fn entity ->
+        Authorization.attach_permissions(entity, scope, shares_map[entity.id])
+      end)
+
+  ## Returns
+
+  The entity with virtual fields populated:
+  - `can_edit` - boolean
+  - `can_delete` - boolean
+  - `can_share` - boolean
+  """
+  @spec attach_permissions(entity(), Scope.t(), EntityShare.t() | nil) :: entity()
+  def attach_permissions(entity, %Scope{user: user, role: role}, entity_share \\ nil) do
+    # Determine permissions based on role and entity access
+    can_edit = can_access_with_share?(role, user.id, entity, :edit, entity_share)
+    can_delete = can_access_with_share?(role, user.id, entity, :delete, entity_share)
+    can_share = role in [:admin, :game_master] or entity.user_id == user.id
+
+    # Populate virtual fields
+    entity
+    |> Map.put(:can_edit, can_edit)
+    |> Map.put(:can_delete, can_delete)
+    |> Map.put(:can_share, can_share)
+  end
+
+  # Check access without making DB queries (use provided share if available)
+  defp can_access_with_share?(role, user_id, entity, action, entity_share) do
+    # Layer 1: Role bypass
+    if role in [:admin, :game_master] do
+      true
+    else
+      # Layer 2: Member-level ACL (without DB query)
+      check_member_access_with_share(user_id, entity, action, entity_share)
+    end
+  end
+
+  defp check_member_access_with_share(user_id, entity, action, entity_share) do
+    case entity_share do
+      %{permission: "blocked"} ->
+        false
+
+      %{permission: "editor"} ->
+        true
+
+      %{permission: "viewer"} ->
+        action == :view
+
+      nil ->
+        # Check ownership
+        if entity.user_id == user_id do
+          true
+        else
+          # Check global visibility
+          check_global_visibility(entity.visibility, action)
+        end
+    end
+  end
+
+  # ------------------------------------------------------------
   # Helpers
   # ------------------------------------------------------------
 
