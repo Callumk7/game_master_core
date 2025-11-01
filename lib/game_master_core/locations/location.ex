@@ -17,6 +17,11 @@ defmodule GameMasterCore.Locations.Location do
     field :pinned, :boolean, default: false
     field :visibility, :string, default: "private"
 
+    # Virtual fields for permission metadata (calculated in context layer)
+    field :can_edit, :boolean, virtual: true
+    field :can_delete, :boolean, virtual: true
+    field :can_share, :boolean, virtual: true
+
     # Self-referencing relationships
     belongs_to :parent, __MODULE__, foreign_key: :parent_id
     has_many :children, __MODULE__, foreign_key: :parent_id

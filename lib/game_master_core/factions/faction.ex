@@ -16,6 +16,11 @@ defmodule GameMasterCore.Factions.Faction do
     field :pinned, :boolean, default: false
     field :visibility, :string, default: "private"
 
+    # Virtual fields for permission metadata (calculated in context layer)
+    field :can_edit, :boolean, virtual: true
+    field :can_delete, :boolean, virtual: true
+    field :can_share, :boolean, virtual: true
+
     belongs_to :game, Game
     belongs_to :user, User
 
