@@ -60,14 +60,12 @@ defmodule GameMasterCore.GamesTest do
       assert game.setting == "some updated setting"
     end
 
-    test "update_game/3 with invalid scope raises" do
+    test "update_game/3 with invalid scope returns unauthorized" do
       scope = user_scope_fixture()
       other_scope = user_scope_fixture()
       game = game_fixture(scope)
 
-      assert_raise MatchError, fn ->
-        Games.update_game(other_scope, game, %{})
-      end
+      assert {:error, :unauthorized} = Games.update_game(other_scope, game, %{})
     end
 
     test "update_game/3 with invalid data returns error changeset" do
@@ -84,11 +82,11 @@ defmodule GameMasterCore.GamesTest do
       assert_raise Ecto.NoResultsError, fn -> Games.get_game!(scope, game.id) end
     end
 
-    test "delete_game/2 with invalid scope raises" do
+    test "delete_game/2 with invalid scope returns unauthorized" do
       scope = user_scope_fixture()
       other_scope = user_scope_fixture()
       game = game_fixture(scope)
-      assert_raise MatchError, fn -> Games.delete_game(other_scope, game) end
+      assert {:error, :unauthorized} = Games.delete_game(other_scope, game)
     end
 
     test "change_game/2 returns a game changeset" do
