@@ -946,6 +946,8 @@ defmodule GameMasterCoreWeb.QuestControllerTest do
       {:ok, _} = GameMasterCore.Games.add_member(scope, game, member_scope.user.id)
       scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
       {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
+      scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+      {:ok, _} = GameMasterCore.Games.add_member(scope_with_game, game, member_scope.user.id)
       game_scope = GameMasterCore.Accounts.Scope.put_game(scope, game)
 
       # Create a quest
