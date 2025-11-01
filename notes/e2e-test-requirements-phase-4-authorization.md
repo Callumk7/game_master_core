@@ -36,7 +36,7 @@ The system implements a **Hybrid RBAC + ACL** model:
 
 ### Resolution Order
 
-1. Admin/Game Master role bypass (always allow)
+1. Admin/Game Master role bypass (always allow). This is the highest priority rule and overrides all other permissions
 2. Explicit entity shares (blocked/editor/viewer)
 3. Entity ownership check
 4. Global visibility setting
@@ -1184,11 +1184,10 @@ Implement tests in this order:
 
 Document answers to these questions during implementation:
 
-1. Should sharing with non-game-members be allowed?
-2. Should users be able to share entities with themselves?
-3. How should blocked shares interact with admin/GM access?
-4. Should visibility changes trigger notifications?
-5. What happens to shares when entity is deleted?
+1. Should sharing with non-game-members be allowed? - ANSWER: NO
+2. Should users be able to share entities with themselves? - ANSWER: NO
+3. How should blocked shares interact with admin/GM access? - ANSWER: admin GM access is higher priority
+5. What happens to shares when entity is deleted? - ANSWER: Delete the shares (should be handled on the database level)
 
 ---
 
