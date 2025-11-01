@@ -10,6 +10,7 @@ defmodule GameMasterCoreWeb.CharacterJSON do
 
   @doc """
   Renders a single character.
+  Permission metadata is included if populated by context layer.
   """
   def show(%{character: character}) do
     %{data: character_data(character)}

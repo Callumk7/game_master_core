@@ -41,11 +41,13 @@ defmodule GameMasterCore.Factions do
   @doc """
   Returns the list of factions for a game.
   Filters factions based on user's permissions (role-based + entity-level).
+  Attaches permission metadata (can_edit, can_delete, can_share) to each faction.
   """
   def list_factions_for_game(%Scope{} = scope) do
     from(f in Faction, where: f.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Faction, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   @doc """
@@ -69,6 +71,7 @@ defmodule GameMasterCore.Factions do
   @doc """
   Fetches a single faction for a specific game.
   Only users who can access the game can access its factions.
+  Attaches permission metadata (can_edit, can_delete, can_share).
 
   Returns `{:ok, faction}` if found, `{:error, :not_found}` if not found.
   """
@@ -76,8 +79,12 @@ defmodule GameMasterCore.Factions do
     case Ecto.UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get_by(Faction, id: uuid, game_id: scope.game.id) do
-          nil -> {:error, :not_found}
-          faction -> {:ok, faction}
+          nil ->
+            {:error, :not_found}
+
+          faction ->
+            faction_with_perms = Authorization.attach_permissions(faction, scope)
+            {:ok, faction_with_perms}
         end
 
       :error ->

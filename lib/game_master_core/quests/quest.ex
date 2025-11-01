@@ -17,6 +17,11 @@ defmodule GameMasterCore.Quests.Quest do
     field :status, :string, default: "preparing"
     field :visibility, :string, default: "private"
 
+    # Virtual fields for permission metadata (calculated in context layer)
+    field :can_edit, :boolean, virtual: true
+    field :can_delete, :boolean, virtual: true
+    field :can_share, :boolean, virtual: true
+
     belongs_to :game, Game
     belongs_to :user, User
     belongs_to :parent, __MODULE__, foreign_key: :parent_id

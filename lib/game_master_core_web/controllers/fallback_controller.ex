@@ -22,6 +22,14 @@ defmodule GameMasterCoreWeb.FallbackController do
     |> render(:"404")
   end
 
+  # Handle unauthorized access
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:forbidden)
+    |> put_view(html: GameMasterCoreWeb.ErrorHTML, json: GameMasterCoreWeb.ErrorJSON)
+    |> render(:"403")
+  end
+
   # Handle character/note not found errors
   def call(conn, {:error, :character_not_found}) do
     conn

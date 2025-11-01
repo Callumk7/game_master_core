@@ -31,6 +31,13 @@ defmodule GameMasterCoreWeb.UserLive.Registration do
             required
             phx-mounted={JS.focus()}
           />
+          <.input
+            field={@form[:username]}
+            type="text"
+            label="Username"
+            autocomplete="username"
+            required
+          />
 
           <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
             Create an account

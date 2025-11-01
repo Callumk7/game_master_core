@@ -77,6 +77,7 @@ defmodule GameMasterCore.Accounts do
   def register_user(attrs) do
     %User{}
     |> User.email_changeset(attrs)
+    |> User.username_changeset(attrs)
     |> User.password_changeset(attrs, require_password: false)
     |> Repo.insert()
   end

@@ -43,6 +43,7 @@ defmodule GameMasterCore.Quests do
     from(q in Quest, where: q.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Quest, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   @doc """
@@ -63,7 +64,9 @@ defmodule GameMasterCore.Quests do
       {:ok, uuid} ->
         case Repo.get_by(Quest, id: uuid, game_id: scope.game.id) do
           nil -> {:error, :not_found}
-          quest -> {:ok, quest}
+          quest ->
+            quest_with_perms = Authorization.attach_permissions(quest, scope)
+            {:ok, quest_with_perms}
         end
 
       :error ->

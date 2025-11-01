@@ -10,7 +10,12 @@ defmodule GameMasterCoreWeb.GameJSON do
 
   @doc """
   Renders a single game.
+  Includes user's role if scope is provided.
   """
+  def show(%{game: game, scope: scope}) do
+    %{data: game_data(game, scope)}
+  end
+
   def show(%{game: game}) do
     %{data: game_data(game)}
   end

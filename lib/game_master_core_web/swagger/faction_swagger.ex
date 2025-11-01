@@ -256,6 +256,117 @@ defmodule GameMasterCoreWeb.Swagger.FactionSwagger do
         response(404, "Not Found", Schema.ref(:Error))
         response(422, "Unprocessable Entity", Schema.ref(:Error))
       end
+
+      swagger_path :update_visibility do
+        put("/api/games/{game_id}/factions/{faction_id}/visibility")
+        summary("Update faction visibility")
+        description("Change the visibility level of a faction (private, viewable, or editable)")
+        operation_id("updateFactionVisibility")
+        tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+
+          body(:body, Schema.ref(:VisibilityUpdateRequest), "Visibility update data",
+            required: true
+          )
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:FactionResponse))
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :share do
+        post("/api/games/{game_id}/factions/{faction_id}/share")
+        summary("Share faction with user")
+
+        description(
+          "Grant another user explicit permission to access this faction (editor, viewer, or blocked)"
+        )
+
+        operation_id("shareFaction")
+        tag("GameMaster")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+          body(:body, Schema.ref(:ShareEntityRequest), "Share request data", required: true)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", %{
+          "type" => "object",
+          "properties" => %{
+            "success" => %{"type" => "boolean"},
+            "message" => %{"type" => "string"}
+          }
+        })
+
+        response(400, "Bad Request", Schema.ref(:Error))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:Error))
+      end
+
+      swagger_path :unshare do
+        PhoenixSwagger.Path.delete("/api/games/{game_id}/factions/{faction_id}/share")
+        summary("Remove faction share")
+        description("Remove explicit permission that was granted to another user")
+        operation_id("unshareFaction")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+          user_id(:query, :string, "User ID to remove share from", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", %{
+          "type" => "object",
+          "properties" => %{
+            "success" => %{"type" => "boolean"},
+            "message" => %{"type" => "string"}
+          }
+        })
+
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
+
+      swagger_path :list_shares do
+        get("/api/games/{game_id}/factions/{faction_id}/shares")
+        summary("List faction shares")
+        description("Get all users who have been granted explicit access to this faction")
+        operation_id("listFactionShares")
+        tag("GameMaster")
+
+        parameters do
+          game_id(:path, :string, "Game ID", required: true, format: :uuid)
+          faction_id(:path, :string, "Faction ID", required: true, format: :uuid)
+        end
+
+        security([%{Bearer: []}])
+
+        response(200, "Success", Schema.ref(:EntitySharesResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+        response(403, "Forbidden", Schema.ref(:Error))
+        response(404, "Not Found", Schema.ref(:Error))
+      end
     end
   end
 end

@@ -141,6 +141,8 @@ defmodule GameMasterCore.Games do
   @doc """
   Updates a game.
 
+  Only admins can update game settings.
+
   ## Examples
 
       iex> update_game(scope, game, %{field: new_value})
@@ -151,19 +153,25 @@ defmodule GameMasterCore.Games do
 
   """
   def update_game(%Scope{} = scope, %Game{} = game, attrs) do
-    true = can_modify_game?(scope, game)
+    scope_with_game = Scope.put_game(scope, game)
 
-    with {:ok, game = %Game{}} <-
-           game
-           |> Game.changeset(attrs, scope)
-           |> Repo.update() do
-      broadcast(scope, {:updated, game})
-      {:ok, game}
+    if Authorization.authorized?(scope_with_game, :manage_game) do
+      with {:ok, game = %Game{}} <-
+             game
+             |> Game.changeset(attrs, scope)
+             |> Repo.update() do
+        broadcast(scope, {:updated, game})
+        {:ok, game}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Deletes a game.
+
+  Only admins can delete games.
 
   ## Examples
 
@@ -175,17 +183,23 @@ defmodule GameMasterCore.Games do
 
   """
   def delete_game(%Scope{} = scope, %Game{} = game) do
-    true = can_modify_game?(scope, game)
+    scope_with_game = Scope.put_game(scope, game)
 
-    with {:ok, game = %Game{}} <-
-           Repo.delete(game) do
-      broadcast(scope, {:deleted, game})
-      {:ok, game}
+    if Authorization.authorized?(scope_with_game, :manage_game) do
+      with {:ok, game = %Game{}} <-
+             Repo.delete(game) do
+        broadcast(scope, {:deleted, game})
+        {:ok, game}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking game changes.
+
+  Only admins can modify games.
 
   ## Examples
 
@@ -194,9 +208,16 @@ defmodule GameMasterCore.Games do
 
   """
   def change_game(%Scope{} = scope, %Game{} = game, attrs \\ %{}) do
-    true = can_modify_game?(scope, game)
+    scope_with_game = Scope.put_game(scope, game)
 
-    Game.changeset(game, attrs, scope)
+    if Authorization.authorized?(scope_with_game, :manage_game) do
+      Game.changeset(game, attrs, scope)
+    else
+      # Return an invalid changeset for unauthorized access
+      game
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.add_error(:base, "Unauthorized to modify game")
+    end
   end
 
   @doc """
@@ -258,7 +279,7 @@ defmodule GameMasterCore.Games do
   end
 
   @doc """
-  Lists all members of a game.
+  Lists all members of a game with their roles and user data.
   Only accessible by the owner or existing members.
   """
   def list_members(%Scope{} = scope, %Game{} = game) do
@@ -267,7 +288,13 @@ defmodule GameMasterCore.Games do
     from(m in GameMembership,
       join: u in assoc(m, :user),
       where: m.game_id == ^game.id,
-      select: %{id: m.id, user: u, role: m.role, joined_at: m.inserted_at}
+      select: %{
+        user_id: m.user_id,
+        game_id: m.game_id,
+        user: u,
+        role: m.role,
+        joined_at: m.inserted_at
+      }
     )
     |> Repo.all()
   end
@@ -291,10 +318,6 @@ defmodule GameMasterCore.Games do
       locations: locations,
       quests: quests
     }
-  end
-
-  defp can_modify_game?(%Scope{} = scope, %Game{} = game) do
-    game.owner_id == scope.user.id
   end
 
   defp can_access_game?(%Scope{} = scope, %Game{} = game) do

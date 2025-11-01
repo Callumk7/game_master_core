@@ -18,6 +18,11 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Game content as plain text")
         setting(:string, "Game setting")
         owner_id(:string, "Owner user ID", required: true, format: :uuid)
+
+        your_role(:string, "Current user's role in this game",
+          enum: ["admin", "game_master", "member"]
+        )
+
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -29,6 +34,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text: "An epic adventure",
         setting: "Fantasy",
         owner_id: "123e4567-e89b-12d3-a456-426614174001",
+        your_role: "admin",
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })
@@ -507,10 +513,18 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level(:integer, "Character level", required: true)
         tags(Schema.array(:string), "Tags associated with this character")
         pinned(:boolean, "Whether this character is pinned", required: true)
+
+        visibility(:string, "Character visibility setting",
+          enum: ["private", "viewable", "editable"]
+        )
+
         race(:string, "Character race")
         alive(:boolean, "Whether this character is alive", required: true)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:string, "Creator user ID", required: true, format: :uuid)
+        can_edit(:boolean, "Whether the current user can edit this character")
+        can_delete(:boolean, "Whether the current user can delete this character")
+        can_share(:boolean, "Whether the current user can share this character")
         created_at(:string, "Creation timestamp", format: :datetime)
         updated_at(:string, "Last update timestamp", format: :datetime)
       end
@@ -524,10 +538,14 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         level: 20,
         tags: ["npc", "ally", "wizard"],
         pinned: false,
+        visibility: "private",
         race: "Maiar",
         alive: true,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: "123e4567-e89b-12d3-a456-426614174001",
+        can_edit: true,
+        can_delete: true,
+        can_share: true,
         created_at: "2023-08-20T12:00:00Z",
         updated_at: "2023-08-20T12:00:00Z"
       })

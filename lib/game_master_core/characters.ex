@@ -41,11 +41,13 @@ defmodule GameMasterCore.Characters do
   @doc """
   Returns this list of characters for a specific game.
   Filters characters based on user's permissions (role-based + entity-level).
+  Attaches permission metadata (can_edit, can_delete, can_share) to each character.
   """
   def list_characters_for_game(%Scope{} = scope) do
     from(c in Character, where: c.game_id == ^scope.game.id)
     |> Authorization.scope_entity_query(Character, scope)
     |> Repo.all()
+    |> Enum.map(&Authorization.attach_permissions(&1, scope))
   end
 
   @doc """
@@ -61,6 +63,7 @@ defmodule GameMasterCore.Characters do
   @doc """
   Fetches a single character for a specific game.
   Only users who can access the game can access its characters.
+  Attaches permission metadata (can_edit, can_delete, can_share).
 
   Returns `{:ok, character}` if found, `{:error, :not_found}` if not found.
   """
@@ -68,8 +71,18 @@ defmodule GameMasterCore.Characters do
     case Ecto.UUID.cast(id) do
       {:ok, uuid} ->
         case Repo.get_by(Character, id: uuid, game_id: scope.game.id) do
-          nil -> {:error, :not_found}
-          character -> {:ok, character}
+          nil ->
+            {:error, :not_found}
+
+          character ->
+            # Check if user has view permission
+            if Authorization.can_access_entity?(scope, character, :view) do
+              character_with_perms = Authorization.attach_permissions(character, scope)
+              {:ok, character_with_perms}
+            else
+              # Return :not_found to avoid information leakage about entity existence
+              {:error, :not_found}
+            end
         end
 
       :error ->
@@ -904,8 +917,7 @@ defmodule GameMasterCore.Characters do
   def update_character_visibility(%Scope{} = scope, %Character{} = character, visibility) do
     with {:ok, _} <- Authorization.update_entity_visibility(scope, character, visibility),
          {:ok, character} <-
-           character
-           |> Ecto.Changeset.change(visibility: visibility)
+           Character.changeset(character, %{visibility: visibility}, scope, character.game_id)
            |> Repo.update() do
       broadcast(scope, {:updated, character})
       {:ok, character}
