@@ -40,15 +40,23 @@ defmodule GameMasterCore.Factions do
   @doc """
   Returns the list of factions for a game.
   Only users who can access the game can see its factions.
+  Includes member_count (count of characters with is_primary == true).
   """
   def list_factions_for_game(%Scope{} = scope) do
-    from(f in Faction, where: f.game_id == ^scope.game.id)
+    from(f in Faction,
+      where: f.game_id == ^scope.game.id,
+      left_join: cf in CharacterFaction,
+      on: cf.faction_id == f.id and cf.is_primary == true,
+      group_by: f.id,
+      select_merge: %{member_count: count(cf.id)}
+    )
     |> Repo.all()
   end
 
   @doc """
   Get a single faction for a specific game.
   Only users who can access the game can access its factions.
+  Includes member_count (count of characters with is_primary == true).
 
   Raises `Ecto.NoResultsError` if the Faction does not exist.
 
@@ -61,19 +69,37 @@ defmodule GameMasterCore.Factions do
       ** (Ecto.NoResultsError)
   """
   def get_faction_for_game!(%Scope{} = scope, id) do
-    Repo.get_by!(Faction, id: id, game_id: scope.game.id)
+    from(f in Faction,
+      where: f.id == ^id and f.game_id == ^scope.game.id,
+      left_join: cf in CharacterFaction,
+      on: cf.faction_id == f.id and cf.is_primary == true,
+      group_by: f.id,
+      select_merge: %{member_count: count(cf.id)}
+    )
+    |> Repo.one!()
   end
 
   @doc """
   Fetches a single faction for a specific game.
   Only users who can access the game can access its factions.
+  Includes member_count (count of characters with is_primary == true).
 
   Returns `{:ok, faction}` if found, `{:error, :not_found}` if not found.
   """
   def fetch_faction_for_game(%Scope{} = scope, id) do
     case Ecto.UUID.cast(id) do
       {:ok, uuid} ->
-        case Repo.get_by(Faction, id: uuid, game_id: scope.game.id) do
+        result =
+          from(f in Faction,
+            where: f.id == ^uuid and f.game_id == ^scope.game.id,
+            left_join: cf in CharacterFaction,
+            on: cf.faction_id == f.id and cf.is_primary == true,
+            group_by: f.id,
+            select_merge: %{member_count: count(cf.id)}
+          )
+          |> Repo.one()
+
+        case result do
           nil -> {:error, :not_found}
           faction -> {:ok, faction}
         end

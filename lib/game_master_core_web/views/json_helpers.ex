@@ -63,6 +63,7 @@ defmodule GameMasterCoreWeb.JSONHelpers do
       content_plain_text: faction.content_plain_text,
       tags: faction.tags,
       pinned: faction.pinned,
+      member_count: Map.get(faction, :member_count, 0),
       created_at: faction.inserted_at,
       updated_at: faction.updated_at
     }

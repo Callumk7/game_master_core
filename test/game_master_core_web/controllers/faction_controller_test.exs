@@ -55,7 +55,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some content",
-               "name" => "some name"
+               "name" => "some name",
+               "member_count" => 0
              } = json_response(conn, 200)["data"]
     end
 
@@ -89,7 +90,8 @@ defmodule GameMasterCoreWeb.FactionControllerTest do
       assert %{
                "id" => ^id,
                "content" => "some updated content",
-               "name" => "some updated name"
+               "name" => "some updated name",
+               "member_count" => 0
              } = json_response(conn, 200)["data"]
     end
 

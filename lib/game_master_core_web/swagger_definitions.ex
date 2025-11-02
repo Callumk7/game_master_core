@@ -925,6 +925,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
         content_plain_text(:string, "Faction content as plain text")
         tags(Schema.array(:string), "Tags associated with this faction")
         pinned(:boolean, "Whether this faction is pinned", required: true)
+        member_count(:integer, "Number of primary faction members", required: true, minimum: 0)
         game_id(:string, "Associated game ID", required: true, format: :uuid)
         user_id(:string, "Creator user ID", required: true, format: :uuid)
         created_at(:string, "Creation timestamp", format: :datetime)
@@ -940,6 +941,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "A secretive organization that seeks to control the realm from behind the scenes.",
         tags: ["secret", "political", "antagonist"],
         pinned: false,
+        member_count: 5,
         game_id: "123e4567-e89b-12d3-a456-426614174000",
         user_id: "123e4567-e89b-12d3-a456-426614174001",
         created_at: "2023-08-20T12:00:00Z",

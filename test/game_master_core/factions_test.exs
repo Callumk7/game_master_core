@@ -152,7 +152,10 @@ defmodule GameMasterCore.FactionsTest do
       scope1 = Scope.put_game(scope, game1)
       scope2 = Scope.put_game(scope, game2)
 
-      assert Factions.get_faction_for_game!(scope1, faction1.id) == faction1
+      result = Factions.get_faction_for_game!(scope1, faction1.id)
+      assert result.id == faction1.id
+      assert result.name == faction1.name
+      assert result.game_id == faction1.game_id
 
       assert_raise Ecto.NoResultsError, fn ->
         Factions.get_faction_for_game!(scope2, faction1.id)
@@ -176,6 +179,77 @@ defmodule GameMasterCore.FactionsTest do
       assert faction.game_id == scope.game.id
       assert faction.user_id == scope.user.id
       assert faction.name == "some name"
+    end
+
+    test "list_factions_for_game/1 includes member_count" do
+      import GameMasterCore.CharactersFixtures
+      alias GameMasterCore.Characters
+
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+
+      faction1 = faction_fixture(scope, %{game_id: game.id, name: "Faction 1"})
+      faction2 = faction_fixture(scope, %{game_id: game.id, name: "Faction 2"})
+
+      # Create characters and set primary factions
+      char1 = character_fixture(scope, %{game_id: game.id})
+      char2 = character_fixture(scope, %{game_id: game.id})
+      char3 = character_fixture(scope, %{game_id: game.id})
+
+      {:ok, _} = Characters.set_primary_faction(scope, char1, faction1.id, "Leader")
+      {:ok, _} = Characters.set_primary_faction(scope, char2, faction1.id, "Member")
+      {:ok, _} = Characters.set_primary_faction(scope, char3, faction2.id, "Scout")
+
+      factions = Factions.list_factions_for_game(scope)
+
+      faction1_result = Enum.find(factions, &(&1.name == "Faction 1"))
+      faction2_result = Enum.find(factions, &(&1.name == "Faction 2"))
+
+      assert Map.get(faction1_result, :member_count) == 2
+      assert Map.get(faction2_result, :member_count) == 1
+    end
+
+    test "get_faction_for_game!/2 includes member_count" do
+      import GameMasterCore.CharactersFixtures
+      alias GameMasterCore.Characters
+
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create characters and set primary factions
+      char1 = character_fixture(scope, %{game_id: game.id})
+      char2 = character_fixture(scope, %{game_id: game.id})
+
+      {:ok, _} = Characters.set_primary_faction(scope, char1, faction.id, "Leader")
+      {:ok, _} = Characters.set_primary_faction(scope, char2, faction.id, "Member")
+
+      result = Factions.get_faction_for_game!(scope, faction.id)
+
+      assert Map.get(result, :member_count) == 2
+    end
+
+    test "fetch_faction_for_game/2 includes member_count" do
+      import GameMasterCore.CharactersFixtures
+      alias GameMasterCore.Characters
+
+      scope = game_scope_fixture()
+      game = game_fixture(scope)
+      scope = Scope.put_game(scope, game)
+
+      faction = faction_fixture(scope, %{game_id: game.id})
+
+      # Create characters with this as primary faction
+      char1 = character_fixture(scope, %{game_id: game.id})
+
+      {:ok, _} = Characters.set_primary_faction(scope, char1, faction.id, "Leader")
+
+      {:ok, result} = Factions.fetch_faction_for_game(scope, faction.id)
+
+      assert Map.get(result, :member_count) == 1
     end
   end
 

@@ -14,6 +14,7 @@ defmodule GameMasterCore.Factions.Faction do
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
+    field :member_count, :integer, virtual: true
 
     belongs_to :game, Game
     belongs_to :user, User

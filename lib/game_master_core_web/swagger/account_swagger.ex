@@ -25,7 +25,11 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
       swagger_path :update do
         patch("/api/account/profile")
         summary("Update user profile")
-        description("Update the current user's profile information (currently supports username updates)")
+
+        description(
+          "Update the current user's profile information (currently supports username updates)"
+        )
+
         operation_id("updateUserProfile")
         tag("Account")
         consumes("application/json")
@@ -45,7 +49,11 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
       swagger_path :upload_avatar do
         post("/api/account/avatar")
         summary("Upload user avatar")
-        description("Upload a new avatar image for the current user. Supports JPEG, PNG, GIF, and WebP formats up to 5MB.")
+
+        description(
+          "Upload a new avatar image for the current user. Supports JPEG, PNG, GIF, and WebP formats up to 5MB."
+        )
+
         operation_id("uploadUserAvatar")
         tag("Account")
         consumes("multipart/form-data")
@@ -78,7 +86,11 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
       swagger_path :request_email_change do
         post("/api/account/email/change-request")
         summary("Request email change")
-        description("Request to change the user's email address. Requires current password verification and sends confirmation to new email.")
+
+        description(
+          "Request to change the user's email address. Requires current password verification and sends confirmation to new email."
+        )
+
         operation_id("requestEmailChange")
         tag("Account")
         consumes("application/json")
@@ -87,7 +99,9 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
         security([%{Bearer: []}])
 
         parameters do
-          body(:body, Schema.ref(:EmailChangeRequest), "Email change request data", required: true)
+          body(:body, Schema.ref(:EmailChangeRequest), "Email change request data",
+            required: true
+          )
         end
 
         response(200, "Success", Schema.ref(:SuccessResponse))
@@ -98,7 +112,11 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
       swagger_path :confirm_email_change do
         post("/api/account/email/change-confirm")
         summary("Confirm email change")
-        description("Confirm an email address change using the token sent to the new email address")
+
+        description(
+          "Confirm an email address change using the token sent to the new email address"
+        )
+
         operation_id("confirmEmailChange")
         tag("Account")
         consumes("application/json")
@@ -107,7 +125,9 @@ defmodule GameMasterCoreWeb.Swagger.AccountSwagger do
         security([%{Bearer: []}])
 
         parameters do
-          body(:body, Schema.ref(:EmailChangeConfirm), "Email change confirmation data", required: true)
+          body(:body, Schema.ref(:EmailChangeConfirm), "Email change confirmation data",
+            required: true
+          )
         end
 
         response(200, "Success", Schema.ref(:SuccessResponse))
