@@ -6,11 +6,14 @@ defmodule GameMasterCore.Notes do
   import Ecto.Query, warn: false
   import GameMasterCore.Helpers
 
+  alias GameMasterCore.Accounts.User
   alias GameMasterCore.Repo
   alias GameMasterCore.Notes.Note
   alias GameMasterCore.Accounts.Scope
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+
+  @behaviour Bodyguard.Policy
 
   @doc """
   Subscribes to scoped notifications about any note changes.
@@ -154,6 +157,13 @@ defmodule GameMasterCore.Notes do
       {:ok, note}
     end
   end
+
+  # authorize update if the user is the note's owner
+  def authorize(:update_note, %User{id: user_id} = _user, %Note{user_id: user_id} = _note),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:update_note, _scope, _note), do: :error
 
   @doc """
   Deletes a note.

@@ -69,7 +69,8 @@ defmodule GameMasterCore.MixProject do
       {:bandit, "~> 1.5"},
       {:phoenix_swagger, "~> 0.8"},
       {:cors_plug, "~> 3.0"},
-      {:ex_json_schema, "~> 0.5"}
+      {:ex_json_schema, "~> 0.5"},
+      {:bodyguard, "~> 2.4"}
     ]
   end
 
