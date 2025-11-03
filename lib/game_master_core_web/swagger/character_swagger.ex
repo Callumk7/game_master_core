@@ -52,7 +52,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :show do
@@ -97,7 +97,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :delete do
@@ -143,7 +143,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :list_links do
@@ -246,7 +246,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :remove_primary_faction do
@@ -355,7 +355,7 @@ defmodule GameMasterCoreWeb.Swagger.CharacterSwagger do
         response(401, "Unauthorized", Schema.ref(:Error))
         response(403, "Forbidden", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
     end
   end

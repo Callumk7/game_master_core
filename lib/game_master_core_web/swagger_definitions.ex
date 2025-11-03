@@ -342,23 +342,59 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
   end
 
   # Error schemas
+
+  # Schema for simple error responses (400, 401, 404, etc.)
   def error_schema do
     swagger_schema do
       title("Error")
-      description("Error response")
+      description("Simple error response with a single error message")
 
       properties do
-        errors(Schema.ref(:ErrorDetails), "Error details")
+        error(:string, "Error message", required: true)
       end
+
+      example(%{
+        error: "Resource not found"
+      })
     end
   end
 
-  def error_details_schema do
+  # Schema for validation errors (422 Unprocessable Entity)
+  def validation_error_schema do
     swagger_schema do
-      title("Error Details")
-      description("Detailed error information")
-      type(:object)
+      title("Validation Error")
+      description("Validation error response with field-specific error messages")
+
+      properties do
+        errors(:object, "Field validation errors - maps field names to arrays of error messages",
+          required: true,
+          additionalProperties: %{
+            type: :array,
+            items: %{type: :string}
+          }
+        )
+      end
+
+      example(%{
+        errors: %{
+          name: ["can't be blank"],
+          email: ["has invalid format", "has already been taken"]
+        }
+      })
     end
+  end
+
+  # Legacy - kept for backwards compatibility, but ValidationError should be used for 422s
+  def error_details_schema do
+    %{
+      "title" => "Error Details",
+      "description" => "Legacy error details - use ValidationError for 422 responses instead",
+      "type" => "object",
+      "additionalProperties" => %{
+        "type" => "array",
+        "items" => %{"type" => "string"}
+      }
+    }
   end
 
   def note_schema do
@@ -2342,6 +2378,7 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           "Response containing all game entities"
         ),
       Error: error_schema(),
+      ValidationError: validation_error_schema(),
       ErrorDetails: error_details_schema(),
       User: user_schema(),
       ProfileUpdate: profile_update_schema(),

@@ -75,7 +75,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
         response(400, "Bad Request", Schema.ref(:Error))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :show do
@@ -129,7 +129,7 @@ defmodule GameMasterCoreWeb.Swagger.ImageSwagger do
         response(400, "Bad Request", Schema.ref(:Error))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :delete do

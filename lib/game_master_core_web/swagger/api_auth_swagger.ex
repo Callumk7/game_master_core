@@ -22,7 +22,7 @@ defmodule GameMasterCoreWeb.Swagger.ApiAuthSwagger do
         end
 
         response(201, "Created", Schema.ref(:LoginResponse))
-        response(422, "Unprocessable Entity", Schema.ref(:Error))
+        response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
       end
 
       swagger_path :login do

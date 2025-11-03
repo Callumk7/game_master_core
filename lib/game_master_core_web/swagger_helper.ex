@@ -29,7 +29,7 @@ defmodule GameMasterCoreWeb.SwaggerHelper do
       401 => {"Unauthorized", Schema.ref(:Error)},
       403 => {"Forbidden", Schema.ref(:Error)},
       404 => {"Not Found", Schema.ref(:Error)},
-      422 => {"Unprocessable Entity", Schema.ref(:Error)}
+      422 => {"Unprocessable Entity", Schema.ref(:ValidationError)}
     }
   end
 
