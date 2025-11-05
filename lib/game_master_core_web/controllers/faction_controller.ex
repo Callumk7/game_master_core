@@ -55,6 +55,8 @@ defmodule GameMasterCoreWeb.FactionController do
 
   def update(conn, %{"id" => id, "faction" => faction_params}) do
     with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id),
+         :ok <-
+           Bodyguard.permit(Factions, :update_faction, conn.assigns.current_scope.user, faction),
          {:ok, %Faction{} = faction} <-
            Factions.update_faction(conn.assigns.current_scope, faction, faction_params) do
       render(conn, :show, faction: faction)
@@ -63,6 +65,8 @@ defmodule GameMasterCoreWeb.FactionController do
 
   def delete(conn, %{"id" => id}) do
     with {:ok, faction} <- Factions.fetch_faction_for_game(conn.assigns.current_scope, id),
+         :ok <-
+           Bodyguard.permit(Factions, :delete_faction, conn.assigns.current_scope.user, faction),
          {:ok, %Faction{}} <- Factions.delete_faction(conn.assigns.current_scope, faction) do
       send_resp(conn, :no_content, "")
     end

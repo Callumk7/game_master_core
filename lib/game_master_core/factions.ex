@@ -12,8 +12,11 @@ defmodule GameMasterCore.Factions do
   alias GameMasterCore.Characters.Character
   alias GameMasterCore.Characters.CharacterFaction
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Accounts.User
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+
+  @behaviour Bodyguard.Policy
 
   @doc """
   Subscribes to scoped notifications about any faction changes.
@@ -269,6 +272,22 @@ defmodule GameMasterCore.Factions do
       end
     end)
   end
+
+  # Bodyguard policies
+
+  # authorize update if the user is the faction's owner
+  def authorize(:update_faction, %User{id: user_id} = _user, %Faction{user_id: user_id} = _faction),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:update_faction, _user, _faction), do: :error
+
+  # authorize delete if the user is the faction's owner
+  def authorize(:delete_faction, %User{id: user_id} = _user, %Faction{user_id: user_id} = _faction),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:delete_faction, _user, _faction), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking faction changes.

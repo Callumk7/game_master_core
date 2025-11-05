@@ -15,6 +15,10 @@ defmodule GameMasterCore.Characters do
 
   import GameMasterCore.Helpers
 
+  alias GameMasterCore.Accounts.User
+
+  @behaviour Bodyguard.Policy
+
   @doc """
   Subscribes to scoped notifications about any character changes.
 
@@ -235,6 +239,22 @@ defmodule GameMasterCore.Characters do
       end
     end)
   end
+
+  # Bodyguard policies
+
+  # authorize update if the user is the character's owner
+  def authorize(:update_character, %User{id: user_id} = _user, %Character{user_id: user_id} = _character),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:update_character, _user, _character), do: :error
+
+  # authorize delete if the user is the character's owner
+  def authorize(:delete_character, %User{id: user_id} = _user, %Character{user_id: user_id} = _character),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:delete_character, _user, _character), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking character changes.

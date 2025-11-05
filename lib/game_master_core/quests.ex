@@ -9,8 +9,11 @@ defmodule GameMasterCore.Quests do
   alias GameMasterCore.Repo
   alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Accounts.User
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+
+  @behaviour Bodyguard.Policy
 
   @doc """
   Subscribes to scoped notifications about any quest changes.
@@ -293,6 +296,22 @@ defmodule GameMasterCore.Quests do
       end
     end)
   end
+
+  # Bodyguard policies
+
+  # authorize update if the user is the quest's owner
+  def authorize(:update_quest, %User{id: user_id} = _user, %Quest{user_id: user_id} = _quest),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:update_quest, _user, _quest), do: :error
+
+  # authorize delete if the user is the quest's owner
+  def authorize(:delete_quest, %User{id: user_id} = _user, %Quest{user_id: user_id} = _quest),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:delete_quest, _user, _quest), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking quest changes.

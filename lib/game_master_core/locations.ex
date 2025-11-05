@@ -10,8 +10,11 @@ defmodule GameMasterCore.Locations do
 
   alias GameMasterCore.Locations.Location
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Accounts.User
   alias GameMasterCore.Images
   alias GameMasterCore.Links
+
+  @behaviour Bodyguard.Policy
 
   @doc """
   Subscribes to scoped notifications about any location changes.
@@ -290,6 +293,22 @@ defmodule GameMasterCore.Locations do
       end
     end)
   end
+
+  # Bodyguard policies
+
+  # authorize update if the user is the location's owner
+  def authorize(:update_location, %User{id: user_id} = _user, %Location{user_id: user_id} = _location),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:update_location, _user, _location), do: :error
+
+  # authorize delete if the user is the location's owner
+  def authorize(:delete_location, %User{id: user_id} = _user, %Location{user_id: user_id} = _location),
+    do: :ok
+
+  # In all other cases, deny
+  def authorize(:delete_location, _user, _location), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking location changes.
