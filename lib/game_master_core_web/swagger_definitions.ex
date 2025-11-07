@@ -1657,6 +1657,73 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def signup_response_schema do
+    swagger_schema do
+      title("Signup Response")
+      description("Response after successful signup - requires email confirmation")
+
+      properties do
+        message(:string, "Instruction message", required: true)
+        email(:string, "User email for reference", required: true)
+      end
+
+      example(%{
+        message: "Please check your email to confirm your account",
+        email: "user@example.com"
+      })
+    end
+  end
+
+  def confirm_email_request_schema do
+    swagger_schema do
+      title("Confirm Email Request")
+      description("Email confirmation token from the confirmation link")
+
+      properties do
+        token(:string, "Email confirmation token", required: true)
+      end
+
+      required([:token])
+
+      example(%{
+        token: "abc123def456ghi789"
+      })
+    end
+  end
+
+  def resend_confirmation_request_schema do
+    swagger_schema do
+      title("Resend Confirmation Request")
+      description("Request to resend confirmation email")
+
+      properties do
+        email(:string, "User email address", required: true)
+      end
+
+      required([:email])
+
+      example(%{
+        email: "user@example.com"
+      })
+    end
+  end
+
+  def message_response_schema do
+    swagger_schema do
+      title("Message Response")
+      description("Simple message response")
+
+      properties do
+        message(:string, "Response message", required: true)
+      end
+
+      example(%{
+        message:
+          "If that email is registered and unconfirmed, a new confirmation email has been sent"
+      })
+    end
+  end
+
   def profile_update_schema do
     swagger_schema do
       title("Profile Update")
@@ -2389,6 +2456,10 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
       LoginResponse: login_response_schema(),
       AuthStatusResponse: auth_status_response_schema(),
       SignupRequest: signup_request_schema(),
+      SignupResponse: signup_response_schema(),
+      ConfirmEmailRequest: confirm_email_request_schema(),
+      ResendConfirmationRequest: resend_confirmation_request_schema(),
+      MessageResponse: message_response_schema(),
       # Linked entity schemas with relationship metadata
       LinkedEntityBase: linked_entity_base_schema(),
       LinkedCharacter: linked_character_schema(),

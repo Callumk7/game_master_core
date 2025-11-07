@@ -37,6 +37,8 @@ defmodule GameMasterCoreWeb.Router do
 
     post "/signup", ApiAuthController, :signup
     post "/login", ApiAuthController, :login
+    post "/confirm-email", ApiAuthController, :confirm_email
+    post "/resend-confirmation", ApiAuthController, :resend_confirmation
   end
 
   scope "/api/auth", GameMasterCoreWeb do

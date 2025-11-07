@@ -8,6 +8,9 @@ import Config
 config :game_master_core, GameMasterCoreWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+# Configure Resend adapter for production
+config :game_master_core, GameMasterCore.Mailer, adapter: Resend.Swoosh.Adapter
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
 

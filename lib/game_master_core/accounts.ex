@@ -354,6 +354,40 @@ defmodule GameMasterCore.Accounts do
   end
 
   @doc """
+  Delivers API confirmation instructions to the given user.
+
+  ## Examples
+
+      iex> deliver_api_confirmation_instructions(user, fn token -> url(~p"/api/auth/confirm-email?token=\#{token}") end)
+      {:ok, %{to: ..., body: ...}}
+
+  """
+  def deliver_api_confirmation_instructions(%User{} = user, confirmation_url_fun)
+      when is_function(confirmation_url_fun, 1) do
+    {encoded_token, user_token} = UserToken.build_email_token(user, "api-confirmation")
+    Repo.insert!(user_token)
+    UserNotifier.deliver_api_confirmation_instructions(user, confirmation_url_fun.(encoded_token))
+  end
+
+  @doc """
+  Confirms a user by the given API confirmation token.
+
+  If the token matches, the user email is confirmed and the token is deleted.
+  Returns the confirmed user.
+  """
+  def confirm_user_by_api_token(token) do
+    with {:ok, query} <- UserToken.verify_api_confirmation_token_query(token),
+         {user, token_struct} <- Repo.one(query),
+         {:ok, confirmed_user} <- Repo.update(User.confirm_changeset(user)),
+         {:ok, _} <- Repo.delete(token_struct) do
+      {:ok, confirmed_user}
+    else
+      nil -> {:error, :invalid_token}
+      _ -> {:error, :invalid_token}
+    end
+  end
+
+  @doc """
   Deletes the signed token with the given context.
   """
   def delete_user_session_token(token) do

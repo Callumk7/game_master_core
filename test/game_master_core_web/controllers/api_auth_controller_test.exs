@@ -14,20 +14,18 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
   }
 
   describe "POST /api/auth/signup" do
-    test "creates user and returns token when data is valid", %{conn: conn} do
+    test "creates user and returns message when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/auth/signup", @valid_signup_attrs)
 
       response = json_response(conn, 201)
-      assert %{"token" => token, "user" => user} = response
-      assert is_binary(token)
+      assert %{"message" => message, "email" => email} = response
+      assert message == "Please check your email to confirm your account"
+      assert email == "test@example.com"
 
-      assert %{
-               "id" => _id,
-               "email" => "test@example.com",
-               "username" => nil,
-               "avatar_url" => nil,
-               "confirmed_at" => nil
-             } = user
+      # Verify user was created but not confirmed
+      user = Accounts.get_user_by_email("test@example.com")
+      assert user != nil
+      assert user.confirmed_at == nil
     end
 
     test "returns errors when data is invalid", %{conn: conn} do
@@ -54,10 +52,14 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
   describe "POST /api/auth/login" do
     setup do
       {:ok, user} = Accounts.register_user_api(@valid_signup_attrs)
-      %{user: user}
+      # Confirm the user for login tests
+      {:ok, confirmed_user} =
+        GameMasterCore.Repo.update(GameMasterCore.Accounts.User.confirm_changeset(user))
+
+      %{user: confirmed_user}
     end
 
-    test "returns token when credentials are valid", %{conn: conn} do
+    test "returns token when credentials are valid and email is confirmed", %{conn: conn} do
       conn = post(conn, ~p"/api/auth/login", @valid_signup_attrs)
 
       response = json_response(conn, 200)
@@ -68,8 +70,31 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
                "id" => _id,
                "email" => "test@example.com",
                "username" => nil,
-               "avatar_url" => nil
+               "avatar_url" => nil,
+               "confirmed_at" => confirmed_at
              } = user
+
+      assert confirmed_at != nil
+    end
+
+    test "returns error when email is not confirmed", %{conn: conn} do
+      # Create unconfirmed user
+      {:ok, _user} =
+        Accounts.register_user_api(%{
+          "email" => "unconfirmed@example.com",
+          "password" => "password123456"
+        })
+
+      conn =
+        post(conn, ~p"/api/auth/login", %{
+          "email" => "unconfirmed@example.com",
+          "password" => "password123456"
+        })
+
+      response = json_response(conn, 403)
+      assert %{"error" => error, "email" => email} = response
+      assert error == "Please confirm your email address before logging in"
+      assert email == "unconfirmed@example.com"
     end
 
     test "returns error when credentials are invalid", %{conn: conn} do
@@ -87,8 +112,12 @@ defmodule GameMasterCoreWeb.ApiAuthControllerTest do
   describe "GET /api/auth/status" do
     setup do
       {:ok, user} = Accounts.register_user_api(@valid_signup_attrs)
-      token = Accounts.generate_user_session_token(user)
-      %{user: user, token: Base.url_encode64(token)}
+      # Confirm the user
+      {:ok, confirmed_user} =
+        GameMasterCore.Repo.update(GameMasterCore.Accounts.User.confirm_changeset(user))
+
+      token = Accounts.generate_user_session_token(confirmed_user)
+      %{user: confirmed_user, token: Base.url_encode64(token)}
     end
 
     test "returns user when authenticated", %{conn: conn, token: token} do

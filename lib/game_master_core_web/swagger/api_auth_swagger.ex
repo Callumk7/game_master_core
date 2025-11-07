@@ -11,7 +11,11 @@ defmodule GameMasterCoreWeb.Swagger.ApiAuthSwagger do
       swagger_path :signup do
         post("/api/auth/signup")
         summary("Sign up new user")
-        description("Register a new user with email and password")
+
+        description(
+          "Register a new user with email and password. User must confirm email before logging in."
+        )
+
         operation_id("signupUser")
         tag("Authentication")
         consumes("application/json")
@@ -21,8 +25,49 @@ defmodule GameMasterCoreWeb.Swagger.ApiAuthSwagger do
           body(:body, Schema.ref(:SignupRequest), "Signup credentials", required: true)
         end
 
-        response(201, "Created", Schema.ref(:LoginResponse))
+        response(201, "Created", Schema.ref(:SignupResponse))
         response(422, "Unprocessable Entity", Schema.ref(:ValidationError))
+      end
+
+      swagger_path :confirm_email do
+        post("/api/auth/confirm-email")
+        summary("Confirm email address")
+
+        description(
+          "Confirm user email address with token from confirmation email. Returns session token on success."
+        )
+
+        operation_id("confirmEmail")
+        tag("Authentication")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          body(:body, Schema.ref(:ConfirmEmailRequest), "Confirmation token", required: true)
+        end
+
+        response(200, "Success", Schema.ref(:LoginResponse))
+        response(401, "Unauthorized", Schema.ref(:Error))
+      end
+
+      swagger_path :resend_confirmation do
+        post("/api/auth/resend-confirmation")
+        summary("Resend confirmation email")
+
+        description(
+          "Resend confirmation email to the specified address. Always returns success to prevent email enumeration."
+        )
+
+        operation_id("resendConfirmation")
+        tag("Authentication")
+        consumes("application/json")
+        produces("application/json")
+
+        parameters do
+          body(:body, Schema.ref(:ResendConfirmationRequest), "Email address", required: true)
+        end
+
+        response(200, "Success", Schema.ref(:MessageResponse))
       end
 
       swagger_path :login do

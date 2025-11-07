@@ -9,7 +9,7 @@ defmodule GameMasterCore.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"GameMasterCore", "contact@example.com"})
+      |> from({"GameMasterCore", "noreply@updates.gamemaster.callumkloos.dev"})
       |> subject(subject)
       |> text_body(body)
 
@@ -77,6 +77,28 @@ defmodule GameMasterCore.Accounts.UserNotifier do
     #{url}
 
     If you didn't create an account with us, please ignore this.
+
+    ==============================
+    """)
+  end
+
+  @doc """
+  Deliver API confirmation instructions to confirm email address.
+  """
+  def deliver_api_confirmation_instructions(user, url) do
+    deliver(user.email, "Confirm your email address", """
+
+    ==============================
+
+    Hi #{user.email},
+
+    Welcome! Please confirm your email address by clicking the link below:
+
+    #{url}
+
+    This link will expire in 60 minutes.
+
+    If you didn't create an account with us, please ignore this email.
 
     ==============================
     """)

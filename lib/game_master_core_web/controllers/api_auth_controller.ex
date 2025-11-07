@@ -15,19 +15,19 @@ defmodule GameMasterCoreWeb.ApiAuthController do
   def signup(conn, %{"email" => email, "password" => password}) do
     case Accounts.register_user_api(%{"email" => email, "password" => password}) do
       {:ok, user} ->
-        token = Accounts.generate_user_session_token(user)
+        # Send confirmation email with link to client app
+        confirmation_url_fun = fn token ->
+          client_base_url = Application.get_env(:game_master_core, :client_app_url)
+          "#{client_base_url}/confirm?token=#{token}"
+        end
+
+        Accounts.deliver_api_confirmation_instructions(user, confirmation_url_fun)
 
         conn
         |> put_status(:created)
         |> json(%{
-          token: Base.url_encode64(token),
-          user: %{
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar_url: user.avatar_url,
-            confirmed_at: user.confirmed_at
-          }
+          message: "Please check your email to confirm your account",
+          email: user.email
         })
 
       {:error, changeset} ->
@@ -44,25 +44,38 @@ defmodule GameMasterCoreWeb.ApiAuthController do
   end
 
   def login(conn, %{"email" => email, "password" => password}) do
-    if user = Accounts.get_user_by_email_and_password(email, password) do
-      token = Accounts.generate_user_session_token(user)
+    case Accounts.get_user_by_email_and_password(email, password) do
+      %{confirmed_at: nil} = _user ->
+        # User exists and password is correct, but email not confirmed
+        conn
+        |> put_status(:forbidden)
+        |> json(%{
+          error: "Please confirm your email address before logging in",
+          email: email
+        })
 
-      conn
-      |> put_status(:ok)
-      |> json(%{
-        token: Base.url_encode64(token),
-        user: %{
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          avatar_url: user.avatar_url,
-          confirmed_at: user.confirmed_at
-        }
-      })
-    else
-      conn
-      |> put_status(:unauthorized)
-      |> json(%{error: "Invalid email or password"})
+      %{} = user ->
+        # User exists, password is correct, and email is confirmed
+        token = Accounts.generate_user_session_token(user)
+
+        conn
+        |> put_status(:ok)
+        |> json(%{
+          token: Base.url_encode64(token),
+          user: %{
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
+            confirmed_at: user.confirmed_at
+          }
+        })
+
+      nil ->
+        # Invalid credentials
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "Invalid email or password"})
     end
   end
 
@@ -100,6 +113,57 @@ defmodule GameMasterCoreWeb.ApiAuthController do
     conn
     |> put_status(:ok)
     |> json(%{message: "Logged out successfully"})
+  end
+
+  def confirm_email(conn, %{"token" => confirmation_token}) do
+    case Accounts.confirm_user_by_api_token(confirmation_token) do
+      {:ok, user} ->
+        token = Accounts.generate_user_session_token(user)
+
+        conn
+        |> put_status(:ok)
+        |> json(%{
+          token: Base.url_encode64(token),
+          user: %{
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatar_url,
+            confirmed_at: user.confirmed_at
+          }
+        })
+
+      {:error, :invalid_token} ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "Invalid or expired confirmation link"})
+    end
+  end
+
+  def resend_confirmation(conn, %{"email" => email}) do
+    # Always return success to avoid email enumeration
+    # Only send email if user exists and is unconfirmed
+    case Accounts.get_user_by_email(email) do
+      %{confirmed_at: nil} = user ->
+        confirmation_url_fun = fn token ->
+          client_base_url = Application.get_env(:game_master_core, :client_app_url)
+          "#{client_base_url}/confirm?token=#{token}"
+        end
+
+        Accounts.deliver_api_confirmation_instructions(user, confirmation_url_fun)
+
+      _ ->
+        # User doesn't exist, is already confirmed, or some other issue
+        # Return success anyway to prevent email enumeration
+        :ok
+    end
+
+    conn
+    |> put_status(:ok)
+    |> json(%{
+      message:
+        "If that email is registered and unconfirmed, a new confirmation email has been sent"
+    })
   end
 
   def status(conn, _params) do

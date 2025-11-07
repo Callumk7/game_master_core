@@ -113,19 +113,31 @@ if config_env() == :prod do
 
   # ## Configuring the mailer
   #
-  # In production you need to configure the mailer to use a different adapter.
-  # Here is an example configuration for Mailgun:
+  # Configure Resend API key
+  config :game_master_core, GameMasterCore.Mailer,
+    api_key:
+      System.get_env("RESEND_API_KEY") ||
+        raise("""
+        environment variable RESEND_API_KEY is missing.
+        Get your API key from https://resend.com/api-keys
+        """)
+
+  # ## Client App URL for email confirmation links
   #
-  #     config :game_master_core, GameMasterCore.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
+  # This should point to your client application (web or mobile app)
+  # NOT the API server. The client app will handle the deep link/redirect
+  # and call the API's /api/auth/confirm-email endpoint.
   #
-  # Most non-SMTP adapters require an API client. Swoosh supports Req, Hackney,
-  # and Finch out-of-the-box. This configuration is typically done at
-  # compile-time in your config/prod.exs:
-  #
-  #     config :swoosh, :api_client, Swoosh.ApiClient.Req
-  #
-  # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  # Examples:
+  #   Web app: "https://app.example.com"
+  #   Mobile app: "myapp://confirm" (deep link scheme)
+  client_app_url =
+    System.get_env("CLIENT_APP_URL") ||
+      raise("""
+      environment variable CLIENT_APP_URL is missing.
+      Set this to your client app's base URL (e.g., https://app.example.com or myapp://confirm)
+      """)
+
+  config :game_master_core,
+    client_app_url: client_app_url
 end

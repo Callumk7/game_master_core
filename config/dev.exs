@@ -84,5 +84,18 @@ config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
+# Configure Resend with verified domain (updates.gamemaster.callumkloos.dev)
+config :game_master_core, GameMasterCore.Mailer,
+  adapter: Resend.Swoosh.Adapter,
+  api_key: System.get_env("RESEND_API_KEY")
+
+# Enable Swoosh API client for Resend
+config :swoosh, :api_client, Swoosh.ApiClient.Req
+
+# To use local mailbox instead (emails viewable at /dev/mailbox), replace above with:
+# config :game_master_core, GameMasterCore.Mailer, adapter: Swoosh.Adapters.Local
+
+# Configure client app URL for email confirmation links
+# In development, you might use localhost for web app or custom scheme for mobile app
+config :game_master_core,
+  client_app_url: System.get_env("CLIENT_APP_URL") || "http://localhost:3000"
