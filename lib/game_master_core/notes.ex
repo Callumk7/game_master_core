@@ -158,13 +158,6 @@ defmodule GameMasterCore.Notes do
     end
   end
 
-  # authorize update if the user is the note's owner
-  def authorize(:update_note, %User{id: user_id} = _user, %Note{user_id: user_id} = _note),
-    do: :ok
-
-  # In all other cases, deny
-  def authorize(:update_note, _scope, _note), do: :error
-
   @doc """
   Deletes a note.
 
@@ -197,6 +190,17 @@ defmodule GameMasterCore.Notes do
       end
     end)
   end
+
+  # Bodyguard policies
+  def authorize(:update_note, %User{id: user_id} = _user, %Note{user_id: user_id} = _note),
+    do: :ok
+
+  def authorize(:update_note, _scope, _note), do: :error
+
+  def authorize(:delete_note, %User{id: user_id} = _user, %Note{user_id: user_id} = _location),
+    do: :ok
+
+  def authorize(:delete_note, _user, _location), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking note changes.
