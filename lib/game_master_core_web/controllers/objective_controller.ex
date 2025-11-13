@@ -51,7 +51,11 @@ defmodule GameMasterCoreWeb.ObjectiveController do
   end
 
   def update(conn, %{"quest_id" => quest_id, "id" => id, "objective" => objective_params}) do
-    with {:ok, %Objective{} = objective} <-
+    with {:ok, objective} <-
+           Objectives.fetch_objective_for_quest(conn.assigns.current_scope, quest_id, id),
+         :ok <-
+           Bodyguard.permit(Objectives, :update_objective, conn.assigns.current_scope.user, objective),
+         {:ok, %Objective{} = objective} <-
            Objectives.update_objective_for_quest(
              conn.assigns.current_scope,
              quest_id,
@@ -63,7 +67,11 @@ defmodule GameMasterCoreWeb.ObjectiveController do
   end
 
   def delete(conn, %{"quest_id" => quest_id, "id" => id}) do
-    with {:ok, %Objective{}} <-
+    with {:ok, objective} <-
+           Objectives.fetch_objective_for_quest(conn.assigns.current_scope, quest_id, id),
+         :ok <-
+           Bodyguard.permit(Objectives, :delete_objective, conn.assigns.current_scope.user, objective),
+         {:ok, %Objective{}} <-
            Objectives.delete_objective_for_quest(conn.assigns.current_scope, quest_id, id) do
       send_resp(conn, :no_content, "")
     end

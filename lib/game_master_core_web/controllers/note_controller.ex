@@ -58,6 +58,7 @@ defmodule GameMasterCoreWeb.NoteController do
 
   def delete(conn, %{"id" => id}) do
     with {:ok, note} <- Notes.fetch_note_for_game(conn.assigns.current_scope, id),
+         :ok <- Bodyguard.permit(Notes, :delete_note, conn.assigns.current_scope.user, note),
          {:ok, %Note{}} <- Notes.delete_note(conn.assigns.current_scope, note) do
       send_resp(conn, :no_content, "")
     end

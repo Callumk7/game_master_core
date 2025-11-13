@@ -7,8 +7,12 @@ defmodule GameMasterCore.Objectives do
 
   alias GameMasterCore.Repo
   alias GameMasterCore.Quests.Objective
+  alias GameMasterCore.Quests.Quest
   alias GameMasterCore.Accounts.Scope
+  alias GameMasterCore.Accounts.User
   alias GameMasterCore.Quests
+
+  @behaviour Bodyguard.Policy
 
   @doc """
   Subscribes to scoped notifications about any objective changes.
@@ -128,6 +132,27 @@ defmodule GameMasterCore.Objectives do
       {:ok, deleted_objective}
     end
   end
+
+  # Bodyguard policies
+
+  # For objectives, we need to check the quest's owner since objectives don't have user_id
+  # authorize update if the user is the quest's owner (via the objective's quest)
+  def authorize(:update_objective, %User{id: user_id} = _user, %Objective{} = objective) do
+    quest = Repo.get!(Quest, objective.quest_id)
+    if quest.user_id == user_id, do: :ok, else: :error
+  end
+
+  # In all other cases, deny
+  def authorize(:update_objective, _user, _objective), do: :error
+
+  # authorize delete if the user is the quest's owner (via the objective's quest)
+  def authorize(:delete_objective, %User{id: user_id} = _user, %Objective{} = objective) do
+    quest = Repo.get!(Quest, objective.quest_id)
+    if quest.user_id == user_id, do: :ok, else: :error
+  end
+
+  # In all other cases, deny
+  def authorize(:delete_objective, _user, _objective), do: :error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking objective changes.

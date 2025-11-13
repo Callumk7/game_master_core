@@ -56,6 +56,13 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   def update(conn, %{"id" => id, "character" => character_params}) do
     with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
+         :ok <-
+           Bodyguard.permit(
+             Characters,
+             :update_character,
+             conn.assigns.current_scope.user,
+             character
+           ),
          {:ok, %Character{} = character} <-
            Characters.update_character(conn.assigns.current_scope, character, character_params) do
       render(conn, :show, character: character)
@@ -64,6 +71,13 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   def delete(conn, %{"id" => id}) do
     with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
+         :ok <-
+           Bodyguard.permit(
+             Characters,
+             :delete_character,
+             conn.assigns.current_scope.user,
+             character
+           ),
          {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
       send_resp(conn, :no_content, "")
     end
