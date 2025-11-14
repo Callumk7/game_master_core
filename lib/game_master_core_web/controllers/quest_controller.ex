@@ -2,6 +2,16 @@ defmodule GameMasterCoreWeb.QuestController do
   use GameMasterCoreWeb, :controller
   use PhoenixSwagger
 
+  # ============================================================================
+  # USE THE ENTITY CONTROLLER MACRO
+  # This provides: index, show, create, update, delete, pin, unpin, basic link management
+  # ============================================================================
+  use GameMasterCoreWeb.Controllers.EntityController,
+    context: GameMasterCore.Quests,
+    schema: GameMasterCore.Quests.Quest,
+    entity_name: :quest,
+    entity_type: "quest"
+
   alias GameMasterCore.Quests
   alias GameMasterCore.Quests.Quest
   alias GameMasterCoreWeb.SwaggerDefinitions
@@ -14,13 +24,14 @@ defmodule GameMasterCoreWeb.QuestController do
 
   use GameMasterCoreWeb.Swagger.QuestSwagger
 
-  action_fallback GameMasterCoreWeb.FallbackController
+  # ============================================================================
+  # QUEST-SPECIFIC ACTIONS
+  # ============================================================================
 
-  def index(conn, _params) do
-    quests = Quests.list_quests_for_game(conn.assigns.current_scope)
-    render(conn, :index, quests: quests)
-  end
-
+  @doc """
+  Get quest tree structure.
+  GET /api/games/:game_id/quests/tree
+  """
   def tree(conn, params) do
     start_id = Map.get(params, "start_id")
 
@@ -28,6 +39,11 @@ defmodule GameMasterCoreWeb.QuestController do
       render(conn, :tree, tree: tree)
     end
   end
+
+  # ============================================================================
+  # OVERRIDE CREATE TO HANDLE LINKS
+  # ============================================================================
+  # Quests support creating with links in a single request
 
   def create(conn, %{"quest" => quest_params, "links" => links}) when is_list(links) do
     with {:ok, %Quest{} = quest} <-
@@ -55,30 +71,29 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id) do
-      render(conn, :show, quest: quest)
+  # ============================================================================
+  # PINNING OPERATIONS
+  # ============================================================================
+  # Note: Pin/unpin are not provided by the macro because they use entity-specific
+  # parameter names (:quest_id) in nested routes
+
+  def pin(conn, %{"quest_id" => quest_id}) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, updated_quest} <- Quests.pin_quest(conn.assigns.current_scope, quest) do
+      render(conn, :show, quest: updated_quest)
     end
   end
 
-  def update(conn, %{"id" => id, "quest" => quest_params}) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id),
-         :ok <-
-           Bodyguard.permit(Quests, :update_quest, conn.assigns.current_scope.user, quest),
-         {:ok, %Quest{} = quest} <-
-           Quests.update_quest(conn.assigns.current_scope, quest, quest_params) do
-      render(conn, :show, quest: quest)
+  def unpin(conn, %{"quest_id" => quest_id}) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, updated_quest} <- Quests.unpin_quest(conn.assigns.current_scope, quest) do
+      render(conn, :show, quest: updated_quest)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, id),
-         :ok <-
-           Bodyguard.permit(Quests, :delete_quest, conn.assigns.current_scope.user, quest),
-         {:ok, %Quest{}} <- Quests.delete_quest(conn.assigns.current_scope, quest) do
-      send_resp(conn, :no_content, "")
-    end
-  end
+  # ============================================================================
+  # OVERRIDE LINK MANAGEMENT FOR CUSTOM METADATA HANDLING
+  # ============================================================================
 
   def create_link(conn, %{"quest_id" => quest_id} = params) do
     entity_type = Map.get(params, "entity_type")
@@ -133,20 +148,6 @@ defmodule GameMasterCoreWeb.QuestController do
     end
   end
 
-  def delete_link(conn, %{
-        "quest_id" => quest_id,
-        "entity_type" => entity_type,
-        "entity_id" => entity_id
-      }) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
-         {:ok, entity_type} <- validate_entity_type(entity_type),
-         {:ok, entity_id} <- validate_entity_id(entity_id),
-         {:ok, _link} <-
-           delete_quest_link(conn.assigns.current_scope, quest.id, entity_type, entity_id) do
-      send_resp(conn, :no_content, "")
-    end
-  end
-
   def update_link(
         conn,
         %{
@@ -189,6 +190,24 @@ defmodule GameMasterCoreWeb.QuestController do
       })
     end
   end
+
+  def delete_link(conn, %{
+        "quest_id" => quest_id,
+        "entity_type" => entity_type,
+        "entity_id" => entity_id
+      }) do
+    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, _link} <-
+           delete_quest_link(conn.assigns.current_scope, quest.id, entity_type, entity_id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  # ============================================================================
+  # PRIVATE HELPER FUNCTIONS FOR LINK DISPATCH
+  # ============================================================================
 
   defp create_quest_link(scope, quest_id, :character, character_id, metadata_attrs) do
     Quests.link_character(scope, quest_id, character_id, metadata_attrs)
@@ -260,21 +279,5 @@ defmodule GameMasterCoreWeb.QuestController do
 
   defp update_quest_link(_scope, _quest_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :quest, entity_type}}
-  end
-
-  # Pinning endpoints
-
-  def pin(conn, %{"quest_id" => quest_id}) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
-         {:ok, updated_quest} <- Quests.pin_quest(conn.assigns.current_scope, quest) do
-      render(conn, :show, quest: updated_quest)
-    end
-  end
-
-  def unpin(conn, %{"quest_id" => quest_id}) do
-    with {:ok, quest} <- Quests.fetch_quest_for_game(conn.assigns.current_scope, quest_id),
-         {:ok, updated_quest} <- Quests.unpin_quest(conn.assigns.current_scope, quest) do
-      render(conn, :show, quest: updated_quest)
-    end
   end
 end

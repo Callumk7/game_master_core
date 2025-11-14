@@ -2,6 +2,16 @@ defmodule GameMasterCoreWeb.CharacterController do
   use GameMasterCoreWeb, :controller
   use PhoenixSwagger
 
+  # ============================================================================
+  # USE THE ENTITY CONTROLLER MACRO
+  # This provides: index, show, create, update, delete with proper authorization
+  # ============================================================================
+  use GameMasterCoreWeb.Controllers.EntityController,
+    context: GameMasterCore.Characters,
+    schema: GameMasterCore.Characters.Character,
+    entity_name: :character,
+    entity_type: "character"
+
   alias GameMasterCore.Characters
   alias GameMasterCore.Characters.Character
   alias GameMasterCoreWeb.SwaggerDefinitions
@@ -14,12 +24,12 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   use GameMasterCoreWeb.Swagger.CharacterSwagger
 
-  action_fallback GameMasterCoreWeb.FallbackController
+  # Note: action_fallback is already set by EntityController macro
 
-  def index(conn, _params) do
-    characters = Characters.list_characters_for_game(conn.assigns.current_scope)
-    render(conn, :index, characters: characters)
-  end
+  # ============================================================================
+  # OVERRIDE CREATE TO HANDLE LINKS IN PARAMS
+  # ============================================================================
+  # Characters support creating with links in a single request
 
   def create(conn, %{"character" => character_params} = params) do
     links = Map.get(params, "links", [])
@@ -48,46 +58,92 @@ defmodule GameMasterCoreWeb.CharacterController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id) do
-      render(conn, :show, character: character)
+  # ============================================================================
+  # CHARACTER-SPECIFIC: PRIMARY FACTION MANAGEMENT
+  # ============================================================================
+
+  @doc """
+  Get the primary faction for a character.
+  GET /api/games/:game_id/characters/:character_id/primary-faction
+  """
+  def get_primary_faction(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
+      case Characters.get_primary_faction(conn.assigns.current_scope, character) do
+        {:ok, primary_faction_data} ->
+          render(conn, :primary_faction, primary_faction_data: primary_faction_data)
+
+        {:error, :no_primary_faction} ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "No primary faction set for this character"})
+      end
     end
   end
 
-  def update(conn, %{"id" => id, "character" => character_params}) do
-    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
-         :ok <-
-           Bodyguard.permit(
-             Characters,
-             :update_character,
-             conn.assigns.current_scope.user,
-             character
-           ),
-         {:ok, %Character{} = character} <-
-           Characters.update_character(conn.assigns.current_scope, character, character_params) do
-      render(conn, :show, character: character)
+  @doc """
+  Set the primary faction for a character.
+  PUT /api/games/:game_id/characters/:character_id/primary-faction
+  """
+  def set_primary_faction(conn, %{
+        "character_id" => character_id,
+        "faction_id" => faction_id,
+        "role" => role
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.set_primary_faction(conn.assigns.current_scope, character, faction_id, role) do
+      render(conn, :show, character: updated_character)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    with {:ok, character} <- Characters.fetch_character_for_game(conn.assigns.current_scope, id),
-         :ok <-
-           Bodyguard.permit(
-             Characters,
-             :delete_character,
-             conn.assigns.current_scope.user,
-             character
-           ),
-         {:ok, %Character{}} <- Characters.delete_character(conn.assigns.current_scope, character) do
-      send_resp(conn, :no_content, "")
+  @doc """
+  Remove the primary faction from a character.
+  DELETE /api/games/:game_id/characters/:character_id/primary-faction
+  """
+  def remove_primary_faction(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.remove_primary_faction(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
     end
   end
+
+  # ============================================================================
+  # PINNING OPERATIONS
+  # ============================================================================
+  # Note: Pin/unpin use entity-specific parameter names (:character_id) in nested routes
+
+  def pin(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.pin_character(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  def unpin(conn, %{"character_id" => character_id}) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, updated_character} <-
+           Characters.unpin_character(conn.assigns.current_scope, character) do
+      render(conn, :show, character: updated_character)
+    end
+  end
+
+  # ============================================================================
+  # LINK MANAGEMENT WITH CHARACTER-SPECIFIC METADATA
+  # ============================================================================
+  # Characters have extensive link metadata (relationship_type, faction_role, etc.)
 
   def create_link(conn, %{"character_id" => character_id} = params) do
     entity_type = Map.get(params, "entity_type")
     entity_id = Map.get(params, "entity_id")
 
-    # Extract metadata fields
+    # Extract metadata fields specific to character links
     metadata_attrs =
       %{
         relationship_type: Map.get(params, "relationship_type"),
@@ -141,21 +197,6 @@ defmodule GameMasterCoreWeb.CharacterController do
     end
   end
 
-  def delete_link(conn, %{
-        "character_id" => character_id,
-        "entity_type" => entity_type,
-        "entity_id" => entity_id
-      }) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
-         {:ok, entity_type} <- validate_entity_type(entity_type),
-         {:ok, entity_id} <- validate_entity_id(entity_id),
-         {:ok, _link} <-
-           delete_character_link(conn.assigns.current_scope, character.id, entity_type, entity_id) do
-      send_resp(conn, :no_content, "")
-    end
-  end
-
   def update_link(
         conn,
         %{
@@ -203,7 +244,25 @@ defmodule GameMasterCoreWeb.CharacterController do
     end
   end
 
-  # Private helpers for link management
+  def delete_link(conn, %{
+        "character_id" => character_id,
+        "entity_type" => entity_type,
+        "entity_id" => entity_id
+      }) do
+    with {:ok, character} <-
+           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
+         {:ok, entity_type} <- validate_entity_type(entity_type),
+         {:ok, entity_id} <- validate_entity_id(entity_id),
+         {:ok, _link} <-
+           delete_character_link(conn.assigns.current_scope, character.id, entity_type, entity_id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  # ============================================================================
+  # PRIVATE HELPER FUNCTIONS FOR LINK DISPATCH
+  # ============================================================================
+  # These dispatch to the appropriate Characters context functions based on entity type
 
   defp create_character_link(scope, character_id, :note, note_id, metadata_attrs) do
     Characters.link_note(scope, character_id, note_id, metadata_attrs)
@@ -275,64 +334,5 @@ defmodule GameMasterCoreWeb.CharacterController do
 
   defp update_character_link(_scope, _character_id, entity_type, _entity_id, _metadata_attrs) do
     {:error, {:unsupported_link_type, :character, entity_type}}
-  end
-
-  # Primary faction endpoints
-
-  def get_primary_faction(conn, %{"character_id" => character_id}) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id) do
-      case Characters.get_primary_faction(conn.assigns.current_scope, character) do
-        {:ok, primary_faction_data} ->
-          render(conn, :primary_faction, primary_faction_data: primary_faction_data)
-
-        {:error, :no_primary_faction} ->
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "No primary faction set for this character"})
-      end
-    end
-  end
-
-  def set_primary_faction(conn, %{
-        "character_id" => character_id,
-        "faction_id" => faction_id,
-        "role" => role
-      }) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
-         {:ok, updated_character} <-
-           Characters.set_primary_faction(conn.assigns.current_scope, character, faction_id, role) do
-      render(conn, :show, character: updated_character)
-    end
-  end
-
-  def remove_primary_faction(conn, %{"character_id" => character_id}) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
-         {:ok, updated_character} <-
-           Characters.remove_primary_faction(conn.assigns.current_scope, character) do
-      render(conn, :show, character: updated_character)
-    end
-  end
-
-  # Pinning endpoints
-
-  def pin(conn, %{"character_id" => character_id}) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
-         {:ok, updated_character} <-
-           Characters.pin_character(conn.assigns.current_scope, character) do
-      render(conn, :show, character: updated_character)
-    end
-  end
-
-  def unpin(conn, %{"character_id" => character_id}) do
-    with {:ok, character} <-
-           Characters.fetch_character_for_game(conn.assigns.current_scope, character_id),
-         {:ok, updated_character} <-
-           Characters.unpin_character(conn.assigns.current_scope, character) do
-      render(conn, :show, character: updated_character)
-    end
   end
 end
