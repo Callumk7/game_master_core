@@ -1,8 +1,0 @@
-<.form :let={f} for={@changeset} action={@action}>
-  <.input field={f[:name]} type="text" label="Name" />
-  <.input field={f[:content]} type="text" label="Content" />
-  <footer>
-    <.button variant="primary">Save Faction</.button>
-    <.button :if={@return_to} href={@return_to}>Cancel</.button>
-  </footer>
-</.form>

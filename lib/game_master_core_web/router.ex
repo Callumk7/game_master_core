@@ -223,20 +223,6 @@ defmodule GameMasterCoreWeb.Router do
     delete "/users/log-out", UserSessionController, :delete
   end
 
-  scope "/admin", GameMasterCoreWeb.Admin do
-    pipe_through [:browser, :require_authenticated_user]
-
-    resources "/games", GameController do
-      get "/members", GameController, :list_members
-      post "/members", GameController, :add_member
-      delete "/members/:user_id", GameController, :remove_member
-
-      resources "/notes", NoteController
-      resources "/characters", CharacterController
-      resources "/factions", FactionController
-    end
-  end
-
   scope "/api/swagger" do
     forward "/", PhoenixSwagger.Plug.SwaggerUI,
       otp_app: :game_master_core,
