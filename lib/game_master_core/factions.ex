@@ -276,15 +276,23 @@ defmodule GameMasterCore.Factions do
   # Bodyguard policies
 
   # authorize update if the user is the faction's owner
-  def authorize(:update_faction, %User{id: user_id} = _user, %Faction{user_id: user_id} = _faction),
-    do: :ok
+  def authorize(
+        :update_faction,
+        %User{id: user_id} = _user,
+        %Faction{user_id: user_id} = _faction
+      ),
+      do: :ok
 
   # In all other cases, deny
   def authorize(:update_faction, _user, _faction), do: :error
 
   # authorize delete if the user is the faction's owner
-  def authorize(:delete_faction, %User{id: user_id} = _user, %Faction{user_id: user_id} = _faction),
-    do: :ok
+  def authorize(
+        :delete_faction,
+        %User{id: user_id} = _user,
+        %Faction{user_id: user_id} = _faction
+      ),
+      do: :ok
 
   # In all other cases, deny
   def authorize(:delete_faction, _user, _faction), do: :error

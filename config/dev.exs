@@ -2,8 +2,7 @@ import Config
 
 # Configure your database
 config :game_master_core, GameMasterCore.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "callumkloos",
   hostname: "localhost",
   database: "game_master_core_dev",
   stacktrace: true,
