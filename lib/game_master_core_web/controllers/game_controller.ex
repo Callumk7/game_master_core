@@ -77,11 +77,14 @@ defmodule GameMasterCoreWeb.GameController do
     end
   end
 
-  def list_entities(conn, %{"game_id" => game_id}) do
+  def list_entities(conn, params) do
+    game_id = params["game_id"]
+    fields = parse_fields_param(params["fields"])
+
     with {:ok, game} <- Games.fetch_game(conn.assigns.current_scope, game_id) do
       entities = Games.get_entities(conn.assigns.current_scope, game)
 
-      render(conn, :entities, game: game, entities: entities)
+      render(conn, :entities, game: game, entities: entities, fields: fields)
     end
   end
 
@@ -182,4 +185,10 @@ defmodule GameMasterCoreWeb.GameController do
     {:error,
      "Both start_entity_type and start_entity_id must be provided together or both omitted"}
   end
+
+  # Parse the fields parameter for list_entities endpoint
+  defp parse_fields_param(nil), do: :all
+  defp parse_fields_param("minimal"), do: :minimal
+  defp parse_fields_param("plain_text"), do: :plain_text
+  defp parse_fields_param(_), do: :all
 end

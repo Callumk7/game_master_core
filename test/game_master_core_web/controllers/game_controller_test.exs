@@ -4,6 +4,13 @@ defmodule GameMasterCoreWeb.GameControllerTest do
   import GameMasterCore.GamesFixtures
   alias GameMasterCore.Games.Game
 
+  # Import additional fixtures for entities
+  alias GameMasterCore.CharactersFixtures
+  alias GameMasterCore.NotesFixtures
+  alias GameMasterCore.FactionsFixtures
+  alias GameMasterCore.LocationsFixtures
+  alias GameMasterCore.QuestsFixtures
+
   @create_attrs %{
     name: "some name",
     content: "some content",
@@ -83,6 +90,165 @@ defmodule GameMasterCoreWeb.GameControllerTest do
 
       conn = get(conn, ~p"/api/games/#{game}")
       assert json_response(conn, 404)
+    end
+  end
+
+  describe "list_entities with fields parameter" do
+    setup [:create_game_with_entities]
+
+    test "returns all fields when fields=all", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=all")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Check that a character has all expected fields
+      character = List.first(entities["characters"])
+      assert character["id"]
+      assert character["name"]
+      assert character["game_id"]
+      assert character["content"]
+      assert character["content_plain_text"]
+      assert character["class"]
+      assert character["level"]
+      assert character["tags"]
+      assert character["created_at"]
+      assert character["updated_at"]
+    end
+
+    test "returns minimal fields when fields=minimal", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=minimal")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Check that a character has only minimal fields
+      character = List.first(entities["characters"])
+      assert character["id"]
+      assert character["name"]
+      assert character["game_id"]
+      assert character["class"]
+      assert character["level"]
+      # These fields should NOT be present
+      refute Map.has_key?(character, "content")
+      refute Map.has_key?(character, "content_plain_text")
+      refute Map.has_key?(character, "tags")
+      refute Map.has_key?(character, "created_at")
+      refute Map.has_key?(character, "updated_at")
+
+      # Check that a note has only minimal fields (no entity-specific required fields)
+      note = List.first(entities["notes"])
+      assert note["id"]
+      assert note["name"]
+      assert note["game_id"]
+      refute Map.has_key?(note, "content")
+      refute Map.has_key?(note, "content_plain_text")
+    end
+
+    test "returns plain_text fields when fields=plain_text", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=plain_text")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Check that a character has plain_text fields
+      character = List.first(entities["characters"])
+      assert character["id"]
+      assert character["name"]
+      assert character["game_id"]
+      assert character["content_plain_text"]
+      assert character["class"]
+      assert character["level"]
+      # These fields should NOT be present
+      refute Map.has_key?(character, "content")
+      refute Map.has_key?(character, "tags")
+      refute Map.has_key?(character, "created_at")
+      refute Map.has_key?(character, "updated_at")
+    end
+
+    test "defaults to all fields when fields parameter is missing", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Check that a character has all expected fields (default behavior)
+      character = List.first(entities["characters"])
+      assert character["content"]
+      assert character["content_plain_text"]
+      assert character["tags"]
+      assert character["created_at"]
+    end
+
+    test "defaults to all fields when fields parameter is invalid", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=invalid_value")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Check that a character has all expected fields (fallback to default)
+      character = List.first(entities["characters"])
+      assert character["content"]
+      assert character["content_plain_text"]
+      assert character["tags"]
+      assert character["created_at"]
+    end
+
+    test "minimal fields works for all entity types", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=minimal")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Verify each entity type has minimal fields
+      character = List.first(entities["characters"])
+      assert character["id"] && character["name"] && character["class"] && character["level"]
+      refute Map.has_key?(character, "content")
+
+      note = List.first(entities["notes"])
+      assert note["id"] && note["name"] && note["game_id"]
+      refute Map.has_key?(note, "content")
+
+      faction = List.first(entities["factions"])
+      assert faction["id"] && faction["name"] && faction["game_id"]
+      refute Map.has_key?(faction, "content")
+
+      location = List.first(entities["locations"])
+      assert location["id"] && location["name"] && location["type"]
+      refute Map.has_key?(location, "content")
+
+      quest = List.first(entities["quests"])
+      assert quest["id"] && quest["name"] && quest["status"]
+      refute Map.has_key?(quest, "content")
+    end
+
+    test "plain_text fields works for all entity types", %{conn: conn, game: game} do
+      conn = get(conn, ~p"/api/games/#{game.id}/links?fields=plain_text")
+      response = json_response(conn, 200)
+
+      assert %{"data" => %{"entities" => entities}} = response
+
+      # Verify each entity type has plain_text fields
+      character = List.first(entities["characters"])
+      assert character["content_plain_text"]
+      refute Map.has_key?(character, "content")
+      refute Map.has_key?(character, "tags")
+
+      note = List.first(entities["notes"])
+      assert note["content_plain_text"]
+      refute Map.has_key?(note, "content")
+
+      faction = List.first(entities["factions"])
+      assert faction["content_plain_text"]
+      refute Map.has_key?(faction, "content")
+
+      location = List.first(entities["locations"])
+      assert location["content_plain_text"]
+      refute Map.has_key?(location, "content")
+
+      quest = List.first(entities["quests"])
+      assert quest["content_plain_text"]
+      refute Map.has_key?(quest, "content")
     end
   end
 
@@ -178,5 +344,71 @@ defmodule GameMasterCoreWeb.GameControllerTest do
     game = game_fixture(scope)
 
     %{game: game}
+  end
+
+  defp create_game_with_entities(%{scope: scope}) do
+    game = game_fixture(scope)
+
+    # Create a scope with the game for entities that need it (like quests)
+    scope_with_game = GameMasterCore.Accounts.Scope.put_game(scope, game)
+
+    # Create one entity of each type with the same game_id
+    character =
+      CharactersFixtures.character_fixture(scope_with_game, %{
+        game_id: game.id,
+        name: "Test Character",
+        content: "<p>Test character content</p>",
+        content_plain_text: "Test character content",
+        class: "Warrior",
+        level: 5,
+        tags: ["test", "character"]
+      })
+
+    note =
+      NotesFixtures.note_fixture(scope_with_game, %{
+        game_id: game.id,
+        name: "Test Note",
+        content: "<p>Test note content</p>",
+        content_plain_text: "Test note content",
+        tags: ["test", "note"]
+      })
+
+    faction =
+      FactionsFixtures.faction_fixture(scope_with_game, %{
+        game_id: game.id,
+        name: "Test Faction",
+        content: "<p>Test faction content</p>",
+        content_plain_text: "Test faction content",
+        tags: ["test", "faction"]
+      })
+
+    location =
+      LocationsFixtures.location_fixture(scope_with_game, %{
+        game_id: game.id,
+        name: "Test Location",
+        content: "<p>Test location content</p>",
+        content_plain_text: "Test location content",
+        type: "city",
+        tags: ["test", "location"]
+      })
+
+    quest =
+      QuestsFixtures.quest_fixture(scope_with_game, %{
+        game_id: game.id,
+        name: "Test Quest",
+        content: "<p>Test quest content</p>",
+        content_plain_text: "Test quest content",
+        status: "active",
+        tags: ["test", "quest"]
+      })
+
+    %{
+      game: game,
+      character: character,
+      note: note,
+      faction: faction,
+      location: location,
+      quest: quest
+    }
   end
 end

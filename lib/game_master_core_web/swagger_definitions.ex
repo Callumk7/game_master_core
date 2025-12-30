@@ -312,6 +312,221 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  def entity_minimal_note_schema do
+    swagger_schema do
+      title("Entity Minimal Note")
+      description("Minimal note entity with only essential fields")
+
+      properties do
+        id(:string, "Note ID", required: true, format: :uuid)
+        name(:string, "Note name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+      end
+    end
+  end
+
+  def entity_minimal_character_schema do
+    swagger_schema do
+      title("Entity Minimal Character")
+      description("Minimal character entity with only essential fields")
+
+      properties do
+        id(:string, "Character ID", required: true, format: :uuid)
+        name(:string, "Character name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        class(:string, "Character class", required: true)
+        level(:integer, "Character level", required: true)
+      end
+    end
+  end
+
+  def entity_minimal_faction_schema do
+    swagger_schema do
+      title("Entity Minimal Faction")
+      description("Minimal faction entity with only essential fields")
+
+      properties do
+        id(:string, "Faction ID", required: true, format: :uuid)
+        name(:string, "Faction name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+      end
+    end
+  end
+
+  def entity_minimal_location_schema do
+    swagger_schema do
+      title("Entity Minimal Location")
+      description("Minimal location entity with only essential fields")
+
+      properties do
+        id(:string, "Location ID", required: true, format: :uuid)
+        name(:string, "Location name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+
+        type(:string, "Location type",
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+      end
+    end
+  end
+
+  def entity_minimal_quest_schema do
+    swagger_schema do
+      title("Entity Minimal Quest")
+      description("Minimal quest entity with only essential fields")
+
+      properties do
+        id(:string, "Quest ID", required: true, format: :uuid)
+        name(:string, "Quest name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+
+        status(:string, "Quest status",
+          required: true,
+          enum: ["preparing", "ready", "active", "paused", "completed", "cancelled"]
+        )
+      end
+    end
+  end
+
+  def entity_plain_text_note_schema do
+    swagger_schema do
+      title("Entity Plain Text Note")
+      description("Note entity with plain text content")
+
+      properties do
+        id(:string, "Note ID", required: true, format: :uuid)
+        name(:string, "Note name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        content_plain_text(:string, "Note content as plain text")
+      end
+    end
+  end
+
+  def entity_plain_text_character_schema do
+    swagger_schema do
+      title("Entity Plain Text Character")
+      description("Character entity with plain text content")
+
+      properties do
+        id(:string, "Character ID", required: true, format: :uuid)
+        name(:string, "Character name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        content_plain_text(:string, "Character content as plain text")
+        class(:string, "Character class", required: true)
+        level(:integer, "Character level", required: true)
+      end
+    end
+  end
+
+  def entity_plain_text_faction_schema do
+    swagger_schema do
+      title("Entity Plain Text Faction")
+      description("Faction entity with plain text content")
+
+      properties do
+        id(:string, "Faction ID", required: true, format: :uuid)
+        name(:string, "Faction name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        content_plain_text(:string, "Faction content as plain text")
+      end
+    end
+  end
+
+  def entity_plain_text_location_schema do
+    swagger_schema do
+      title("Entity Plain Text Location")
+      description("Location entity with plain text content")
+
+      properties do
+        id(:string, "Location ID", required: true, format: :uuid)
+        name(:string, "Location name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        content_plain_text(:string, "Location content as plain text")
+
+        type(:string, "Location type",
+          required: true,
+          enum: ["continent", "nation", "region", "city", "settlement", "building", "complex"]
+        )
+      end
+    end
+  end
+
+  def entity_plain_text_quest_schema do
+    swagger_schema do
+      title("Entity Plain Text Quest")
+      description("Quest entity with plain text content")
+
+      properties do
+        id(:string, "Quest ID", required: true, format: :uuid)
+        name(:string, "Quest name", required: true)
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        content_plain_text(:string, "Quest content as plain text")
+
+        status(:string, "Quest status",
+          required: true,
+          enum: ["preparing", "ready", "active", "paused", "completed", "cancelled"]
+        )
+      end
+    end
+  end
+
+  def entities_minimal_schema do
+    swagger_schema do
+      title("Entities Minimal")
+      description("Collection of game entities with minimal fields")
+
+      properties do
+        notes(Schema.array(:EntityMinimalNote), "Minimal notes list")
+        characters(Schema.array(:EntityMinimalCharacter), "Minimal characters list")
+        factions(Schema.array(:EntityMinimalFaction), "Minimal factions list")
+        locations(Schema.array(:EntityMinimalLocation), "Minimal locations list")
+        quests(Schema.array(:EntityMinimalQuest), "Minimal quests list")
+      end
+    end
+  end
+
+  def entities_plain_text_schema do
+    swagger_schema do
+      title("Entities Plain Text")
+      description("Collection of game entities with plain text content")
+
+      properties do
+        notes(Schema.array(:EntityPlainTextNote), "Plain text notes list")
+        characters(Schema.array(:EntityPlainTextCharacter), "Plain text characters list")
+        factions(Schema.array(:EntityPlainTextFaction), "Plain text factions list")
+        locations(Schema.array(:EntityPlainTextLocation), "Plain text locations list")
+        quests(Schema.array(:EntityPlainTextQuest), "Plain text quests list")
+      end
+    end
+  end
+
+  def entities_minimal_data_schema do
+    swagger_schema do
+      title("Entities Minimal Data")
+      description("Game entities data structure with minimal fields")
+
+      properties do
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        game_name(:string, "Game name", required: true)
+        entities(Schema.ref(:EntitiesMinimal), "Game entities with minimal fields")
+      end
+    end
+  end
+
+  def entities_plain_text_data_schema do
+    swagger_schema do
+      title("Entities Plain Text Data")
+      description("Game entities data structure with plain text content")
+
+      properties do
+        game_id(:string, "Game ID", required: true, format: :uuid)
+        game_name(:string, "Game name", required: true)
+        entities(Schema.ref(:EntitiesPlainText), "Game entities with plain text content")
+      end
+    end
+  end
+
   # Response wrappers
   def response_schema(data_ref, title, description, example \\ nil) do
     schema =
@@ -2443,6 +2658,34 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:EntitiesData),
           "Entities Response",
           "Response containing all game entities"
+        ),
+      # Minimal entities schemas
+      EntityMinimalNote: entity_minimal_note_schema(),
+      EntityMinimalCharacter: entity_minimal_character_schema(),
+      EntityMinimalFaction: entity_minimal_faction_schema(),
+      EntityMinimalLocation: entity_minimal_location_schema(),
+      EntityMinimalQuest: entity_minimal_quest_schema(),
+      EntitiesMinimal: entities_minimal_schema(),
+      EntitiesMinimalData: entities_minimal_data_schema(),
+      EntitiesMinimalResponse:
+        response_schema(
+          Schema.ref(:EntitiesMinimalData),
+          "Entities Minimal Response",
+          "Response containing game entities with minimal fields"
+        ),
+      # Plain text entities schemas
+      EntityPlainTextNote: entity_plain_text_note_schema(),
+      EntityPlainTextCharacter: entity_plain_text_character_schema(),
+      EntityPlainTextFaction: entity_plain_text_faction_schema(),
+      EntityPlainTextLocation: entity_plain_text_location_schema(),
+      EntityPlainTextQuest: entity_plain_text_quest_schema(),
+      EntitiesPlainText: entities_plain_text_schema(),
+      EntitiesPlainTextData: entities_plain_text_data_schema(),
+      EntitiesPlainTextResponse:
+        response_schema(
+          Schema.ref(:EntitiesPlainTextData),
+          "Entities Plain Text Response",
+          "Response containing game entities with plain text content"
         ),
       Error: error_schema(),
       ValidationError: validation_error_schema(),

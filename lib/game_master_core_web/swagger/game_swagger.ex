@@ -154,9 +154,14 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
         get("/api/games/{game_id}/links")
         summary("List game entities")
 
-        description(
-          "Retrieve all entities (notes, characters, factions, locations, quests) for the specified game"
-        )
+        description("""
+        Retrieve all entities (notes, characters, factions, locations, quests) for the specified game.
+
+        The `fields` parameter controls which fields are returned:
+        - `all` (default): Returns all entity fields including content, tags, timestamps, etc.
+        - `minimal`: Returns only id, name, game_id, and entity-specific required fields (e.g., class/level for characters)
+        - `plain_text`: Returns id, name, game_id, content_plain_text, and entity-specific required fields
+        """)
 
         operation_id("listGameEntities")
 
@@ -165,9 +170,16 @@ defmodule GameMasterCoreWeb.Swagger.GameSwagger do
 
         parameters do
           game_id(:path, :string, "Game ID", required: true, format: :uuid)
+
+          fields(:query, :string, "Fields to include in response (all, minimal, plain_text)",
+            required: false,
+            enum: ["all", "minimal", "plain_text"]
+          )
         end
 
-        response(200, "Success", Schema.ref(:EntitiesResponse))
+        response(200, "Success (all fields)", Schema.ref(:EntitiesResponse))
+        response(200, "Success (minimal fields)", Schema.ref(:EntitiesMinimalResponse))
+        response(200, "Success (plain_text fields)", Schema.ref(:EntitiesPlainTextResponse))
         response(401, "Unauthorized", Schema.ref(:Error))
         response(404, "Not Found", Schema.ref(:Error))
       end
