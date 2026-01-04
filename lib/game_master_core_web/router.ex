@@ -72,6 +72,7 @@ defmodule GameMasterCoreWeb.Router do
       get "/pinned", PinnedController, :index
       get "/images", ImageController, :game_images
       get "/objectives", ObjectiveController, :game_objectives
+      get "/search", SearchController, :search
 
       resources "/notes", NoteController, except: [:new, :edit] do
         get "/links", NoteController, :list_links

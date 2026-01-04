@@ -2491,6 +2491,111 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
     end
   end
 
+  # Search schemas
+  def search_filters_schema do
+    swagger_schema do
+      title("Search Filters")
+      description("Filters applied to the search query")
+
+      properties do
+        entity_types(Schema.array(:string), "Entity types included in search",
+          example: ["character", "faction", "location", "quest", "note"]
+        )
+
+        tags(Schema.array(:string), "Tags filter (AND logic)", example: ["npc", "villain"])
+        pinned_only(:boolean, "Whether only pinned entities are returned", example: false)
+      end
+    end
+  end
+
+  def search_pagination_schema do
+    swagger_schema do
+      title("Search Pagination")
+      description("Pagination information for search results")
+
+      properties do
+        limit(:integer, "Maximum results per entity type", example: 50)
+        offset(:integer, "Pagination offset", example: 0)
+      end
+    end
+  end
+
+  def search_results_schema do
+    swagger_schema do
+      title("Search Results")
+      description("Search results grouped by entity type")
+
+      properties do
+        characters(Schema.array(:Character), "Matching characters")
+        factions(Schema.array(:Faction), "Matching factions")
+        locations(Schema.array(:Location), "Matching locations")
+        quests(Schema.array(:Quest), "Matching quests")
+        notes(Schema.array(:Note), "Matching notes")
+      end
+    end
+  end
+
+  def search_data_schema do
+    swagger_schema do
+      title("Search Data")
+      description("Search response data")
+
+      properties do
+        query(:string, "The search query that was executed", required: true, example: "dragon")
+
+        total_results(:integer, "Total number of results across all entity types",
+          required: true,
+          example: 8
+        )
+
+        filters(Schema.ref(:SearchFilters), "Applied filters", required: true)
+        pagination(Schema.ref(:SearchPagination), "Pagination information", required: true)
+
+        results(Schema.ref(:SearchResults), "Search results grouped by entity type",
+          required: true
+        )
+      end
+
+      example(%{
+        query: "dragon",
+        total_results: 8,
+        filters: %{
+          entity_types: ["character", "faction", "location", "quest", "note"],
+          tags: nil,
+          pinned_only: false
+        },
+        pagination: %{
+          limit: 50,
+          offset: 0
+        },
+        results: %{
+          characters: [
+            %{
+              id: "123e4567-e89b-12d3-a456-426614174000",
+              name: "Dragon Slayer",
+              content: "A brave warrior",
+              tags: ["hero"],
+              pinned: true
+            }
+          ],
+          factions: [],
+          locations: [
+            %{
+              id: "223e4567-e89b-12d3-a456-426614174001",
+              name: "Dragon's Lair",
+              content: "A dangerous cave",
+              type: "complex",
+              tags: ["dungeon"],
+              pinned: false
+            }
+          ],
+          quests: [],
+          notes: []
+        }
+      })
+    end
+  end
+
   # Common definitions map
   def common_definitions do
     %{
@@ -2779,6 +2884,17 @@ defmodule GameMasterCoreWeb.SwaggerDefinitions do
           Schema.ref(:ImageStats),
           "Image Statistics Response",
           "Response containing image statistics for an entity"
+        ),
+      # Search schemas
+      SearchFilters: search_filters_schema(),
+      SearchPagination: search_pagination_schema(),
+      SearchResults: search_results_schema(),
+      SearchData: search_data_schema(),
+      SearchResponse:
+        response_schema(
+          Schema.ref(:SearchData),
+          "Search Response",
+          "Response containing search results across all entity types"
         )
     }
   end

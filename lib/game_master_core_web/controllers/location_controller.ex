@@ -69,7 +69,12 @@ defmodule GameMasterCoreWeb.LocationController do
   def update(conn, %{"id" => id, "location" => location_params}) do
     with {:ok, location} <- Locations.fetch_location_for_game(conn.assigns.current_scope, id),
          :ok <-
-           Bodyguard.permit(Locations, :update_location, conn.assigns.current_scope.user, location),
+           Bodyguard.permit(
+             Locations,
+             :update_location,
+             conn.assigns.current_scope.user,
+             location
+           ),
          {:ok, %Location{} = location} <-
            Locations.update_location(conn.assigns.current_scope, location, location_params) do
       render(conn, :show, location: location)
@@ -79,7 +84,12 @@ defmodule GameMasterCoreWeb.LocationController do
   def delete(conn, %{"id" => id}) do
     with {:ok, location} <- Locations.fetch_location_for_game(conn.assigns.current_scope, id),
          :ok <-
-           Bodyguard.permit(Locations, :delete_location, conn.assigns.current_scope.user, location),
+           Bodyguard.permit(
+             Locations,
+             :delete_location,
+             conn.assigns.current_scope.user,
+             location
+           ),
          {:ok, %Location{}} <- Locations.delete_location(conn.assigns.current_scope, location) do
       send_resp(conn, :no_content, "")
     end

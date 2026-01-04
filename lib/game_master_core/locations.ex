@@ -297,15 +297,23 @@ defmodule GameMasterCore.Locations do
   # Bodyguard policies
 
   # authorize update if the user is the location's owner
-  def authorize(:update_location, %User{id: user_id} = _user, %Location{user_id: user_id} = _location),
-    do: :ok
+  def authorize(
+        :update_location,
+        %User{id: user_id} = _user,
+        %Location{user_id: user_id} = _location
+      ),
+      do: :ok
 
   # In all other cases, deny
   def authorize(:update_location, _user, _location), do: :error
 
   # authorize delete if the user is the location's owner
-  def authorize(:delete_location, %User{id: user_id} = _user, %Location{user_id: user_id} = _location),
-    do: :ok
+  def authorize(
+        :delete_location,
+        %User{id: user_id} = _user,
+        %Location{user_id: user_id} = _location
+      ),
+      do: :ok
 
   # In all other cases, deny
   def authorize(:delete_location, _user, _location), do: :error

@@ -54,7 +54,12 @@ defmodule GameMasterCoreWeb.ObjectiveController do
     with {:ok, objective} <-
            Objectives.fetch_objective_for_quest(conn.assigns.current_scope, quest_id, id),
          :ok <-
-           Bodyguard.permit(Objectives, :update_objective, conn.assigns.current_scope.user, objective),
+           Bodyguard.permit(
+             Objectives,
+             :update_objective,
+             conn.assigns.current_scope.user,
+             objective
+           ),
          {:ok, %Objective{} = objective} <-
            Objectives.update_objective_for_quest(
              conn.assigns.current_scope,
@@ -70,7 +75,12 @@ defmodule GameMasterCoreWeb.ObjectiveController do
     with {:ok, objective} <-
            Objectives.fetch_objective_for_quest(conn.assigns.current_scope, quest_id, id),
          :ok <-
-           Bodyguard.permit(Objectives, :delete_objective, conn.assigns.current_scope.user, objective),
+           Bodyguard.permit(
+             Objectives,
+             :delete_objective,
+             conn.assigns.current_scope.user,
+             objective
+           ),
          {:ok, %Objective{}} <-
            Objectives.delete_objective_for_quest(conn.assigns.current_scope, quest_id, id) do
       send_resp(conn, :no_content, "")

@@ -6,9 +6,10 @@ defmodule GameMasterCore.Repo.Migrations.ConfirmExistingUsers do
     # Count users that will be auto-confirmed
     unconfirmed_count =
       repo().one(
-        from u in "users",
+        from(u in "users",
           where: is_nil(u.confirmed_at),
           select: count(u.id)
+        )
       )
 
     IO.puts("Auto-confirming #{unconfirmed_count} existing unconfirmed users...")
