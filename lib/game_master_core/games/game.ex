@@ -10,6 +10,7 @@ defmodule GameMasterCore.Games.Game do
     field :content, :string
     field :content_plain_text, :string
     field :setting, :string
+    field :is_public, :boolean, default: false
 
     many_to_many :members, GameMasterCore.Accounts.User, join_through: "game_members"
     belongs_to :owner, GameMasterCore.Accounts.User
@@ -20,7 +21,7 @@ defmodule GameMasterCore.Games.Game do
   @doc false
   def changeset(game, attrs, _scope) do
     game
-    |> cast(attrs, [:name, :content, :content_plain_text, :setting, :owner_id])
+    |> cast(attrs, [:name, :content, :content_plain_text, :setting, :owner_id, :is_public])
     |> validate_required([:name, :owner_id])
     |> foreign_key_constraint(:owner_id)
   end

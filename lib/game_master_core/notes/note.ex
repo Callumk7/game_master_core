@@ -14,6 +14,7 @@ defmodule GameMasterCore.Notes.Note do
     field :content_plain_text, :string
     field :tags, {:array, :string}, default: []
     field :pinned, :boolean, default: false
+    field :is_public, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -37,7 +38,8 @@ defmodule GameMasterCore.Notes.Note do
       :content,
       :content_plain_text,
       :tags,
-      :pinned
+      :pinned,
+      :is_public
     ])
     |> validate_required([:name])
     |> validate_tags()

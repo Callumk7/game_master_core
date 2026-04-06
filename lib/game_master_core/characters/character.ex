@@ -18,6 +18,7 @@ defmodule GameMasterCore.Characters.Character do
     field :pinned, :boolean, default: false
     field :race, :string
     field :alive, :boolean, default: true
+    field :is_public, :boolean, default: false
 
     belongs_to :game, Game
     belongs_to :user, User
@@ -45,7 +46,8 @@ defmodule GameMasterCore.Characters.Character do
       :tags,
       :pinned,
       :race,
-      :alive
+      :alive,
+      :is_public
     ])
     |> validate_required([:name, :class, :level])
     |> validate_tags()
