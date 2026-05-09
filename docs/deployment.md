@@ -9,10 +9,10 @@ This document covers the production deployment of `game_master_core` on an
 
 The application runs as two Docker containers on a shared private network:
 
-| Container | Image | Role |
-|---|---|---|
-| `gmc-postgres` | `postgres:16-alpine` | Database |
-| `gmc-app` | `game_master_core:latest` | Phoenix app |
+| Container      | Image                     | Role        |
+| -------------- | ------------------------- | ----------- |
+| `gmc-postgres` | `postgres:16-alpine`      | Database    |
+| `gmc-app`      | `game_master_core:latest` | Phoenix app |
 
 Both containers are managed by a **systemd service** (`gmc.service`) that
 handles startup ordering, restarts on failure, and boot persistence.
@@ -44,12 +44,13 @@ Data that must survive container restarts is stored in named Docker volumes on
 the host VM's disk. These are completely independent of the containers — you
 can delete and recreate every container without losing data.
 
-| Volume | Mounted at | Contains |
-|---|---|---|
-| `gmc-pgdata` | `/var/lib/postgresql/data` (in `gmc-postgres`) | All Postgres data files |
-| `gmc-uploads` | `/uploads` (in `gmc-app`) | User-uploaded files |
+| Volume        | Mounted at                                     | Contains                |
+| ------------- | ---------------------------------------------- | ----------------------- |
+| `gmc-pgdata`  | `/var/lib/postgresql/data` (in `gmc-postgres`) | All Postgres data files |
+| `gmc-uploads` | `/uploads` (in `gmc-app`)                      | User-uploaded files     |
 
 To inspect volumes:
+
 ```bash
 docker volume ls
 docker volume inspect gmc-pgdata
@@ -69,6 +70,7 @@ automatically restarted. It is also enabled, meaning it starts automatically
 on VM boot.
 
 Useful commands:
+
 ```bash
 # Check status
 sudo systemctl status gmc
@@ -90,16 +92,16 @@ sudo systemctl stop gmc
 The app container is started with the following environment variables hardcoded
 into the systemd service file:
 
-| Variable | Value | Notes |
-|---|---|---|
-| `PHX_SERVER` | `true` | Tells the release to start the HTTP server |
-| `DATABASE_URL` | `ecto://gmc:gmc_secret@gmc-postgres/game_master_core_prod` | Postgres connection string |
-| `SECRET_KEY_BASE` | *(64-byte hex string)* | Signs/encrypts cookies and tokens. Keep secret. |
-| `PHX_HOST` | `game-master-core.exe.xyz` | Used to build absolute URLs |
-| `PORT` | `4000` | Port the app listens on inside the container |
-| `RESEND_API_KEY` | `re_...` | Resend API key for transactional email |
-| `CLIENT_APP_URL` | `https://gamemaster.callumkloos.dev` | Frontend URL used in email confirmation links |
-| `UPLOADS_DIRECTORY` | `/uploads` | Where uploaded files are stored inside the container |
+| Variable            | Value                                                      | Notes                                                |
+| ------------------- | ---------------------------------------------------------- | ---------------------------------------------------- |
+| `PHX_SERVER`        | `true`                                                     | Tells the release to start the HTTP server           |
+| `DATABASE_URL`      | `ecto://gmc:gmc_secret@gmc-postgres/game_master_core_prod` | Postgres connection string                           |
+| `SECRET_KEY_BASE`   | _(64-byte hex string)_                                     | Signs/encrypts cookies and tokens. Keep secret.      |
+| `PHX_HOST`          | `game-master-core.exe.xyz`                                 | Used to build absolute URLs                          |
+| `PORT`              | `4000`                                                     | Port the app listens on inside the container         |
+| `RESEND_API_KEY`    | `re_...`                                                   | Resend API key for transactional email               |
+| `CLIENT_APP_URL`    | `https://gamemaster.callumkloos.dev`                       | Frontend URL used in email confirmation links        |
+| `UPLOADS_DIRECTORY` | `/uploads`                                                 | Where uploaded files are stored inside the container |
 
 > **Security note:** The `SECRET_KEY_BASE` and `RESEND_API_KEY` are stored in
 > plaintext in the systemd service file. This is acceptable for a single-VM
@@ -133,6 +135,7 @@ ssh exe.dev share set-public game-master-core
 ```
 
 To revert to private:
+
 ```bash
 ssh exe.dev share set-private game-master-core
 ```
@@ -190,17 +193,20 @@ docker exec gmc-app /app/bin/game_master_core eval "YOUR_ELIXIR_EXPRESSION"
 ## Logs
 
 **App logs:**
+
 ```bash
 docker logs gmc-app
 docker logs gmc-app -f   # follow
 ```
 
 **Postgres logs:**
+
 ```bash
 docker logs gmc-postgres
 ```
 
 **Systemd journal (covers full lifecycle including restarts):**
+
 ```bash
 journalctl -u gmc -f
 ```
