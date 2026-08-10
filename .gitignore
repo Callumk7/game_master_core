@@ -22,6 +22,10 @@ erl_crash.dump
 # Temporary files, for example, from tests.
 /tmp/
 
+# Local environment files/secrets
+.env*
+!.env*.example
+
 # Ignore package tarball (built via "mix hex.build").
 game_master_core-*.tar
 

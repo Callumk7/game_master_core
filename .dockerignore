@@ -31,6 +31,10 @@
 /tmp/
 .elixir_ls
 
+# Local secrets/config should be provided at runtime, not baked into images.
+.env*
+!.env*.example
+
 # Mix artifacts
 /_build/
 /deps/

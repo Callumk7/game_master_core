@@ -83,15 +83,21 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 WORKDIR "/app"
-RUN chown nobody /app
+
+# Run the release as a dedicated, unprivileged user instead of root.
+# UID/GID 10001 are fixed so mounted volumes can be chowned predictably on the host.
+RUN groupadd --system --gid 10001 app \
+  && useradd --system --uid 10001 --gid app --home-dir /app --shell /usr/sbin/nologin app \
+  && mkdir -p /uploads \
+  && chown -R app:app /app /uploads
 
 # set runner ENV
 ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/game_master_core ./
+COPY --from=builder --chown=app:app /app/_build/${MIX_ENV}/rel/game_master_core ./
 
-USER nobody
+USER app
 
 # If using an environment that doesn't automatically reap zombie processes, it is
 # advised to add an init process such as tini via `apt-get install`

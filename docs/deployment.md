@@ -14,8 +14,13 @@ The application runs as two Docker containers on a shared private network:
 | `gmc-postgres` | `postgres:16-alpine`      | Database    |
 | `gmc-app`      | `game_master_core:latest` | Phoenix app |
 
-Both containers are managed by a **systemd service** (`gmc.service`) that
-handles startup ordering, restarts on failure, and boot persistence.
+The recommended repo-managed setup is `docker-compose.prod.yml`, which defines
+both containers, their restart policy, and their persistent volumes. If you
+prefer systemd, keep using `gmc.service` as the process supervisor and the same
+volume/container layout described below.
+
+The Phoenix container runs as a dedicated non-root `app` user (UID/GID `10001`).
+This is safer than running as root and makes upload-volume permissions explicit.
 
 The HTTPS proxy is provided by exe.dev, which terminates TLS and forwards
 traffic to port 8000 on the VM.
@@ -56,9 +61,35 @@ docker volume ls
 docker volume inspect gmc-pgdata
 ```
 
+### Docker Compose
+
+A production Compose file is included at `docker-compose.prod.yml`. Create an
+environment file from the example and fill in real secrets:
+
+```bash
+cp .env.prod.example .env.prod
+$EDITOR .env.prod
+```
+
+Start or update the app with:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+Run migrations after the containers are up:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec app /app/bin/migrate
+```
+
+Do **not** use `docker compose down -v` unless you intentionally want to delete
+the database and uploads volumes.
+
 ### Systemd Service
 
-The service file lives at `/etc/systemd/system/gmc.service`. It:
+If you choose systemd instead of Compose, the service file lives at
+`/etc/systemd/system/gmc.service`. It:
 
 1. Stops and removes any existing containers (so restarts are clean)
 2. Starts `gmc-postgres`

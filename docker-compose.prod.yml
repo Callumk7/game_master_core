@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: gmc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gmc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: game_master_core_prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gmc -d game_master_core_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: gmc-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:4000"
+    environment:
+      PHX_SERVER: "true"
+      PORT: "4000"
+      PHX_HOST: ${PHX_HOST}
+      DATABASE_URL: ecto://gmc:${POSTGRES_PASSWORD}@db/game_master_core_prod
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      CLIENT_APP_URL: ${CLIENT_APP_URL}
+      UPLOADS_DIRECTORY: /uploads
+    volumes:
+      - uploads_data:/uploads
+
+volumes:
+  postgres_data:
+    name: gmc-pgdata
+  uploads_data:
+    name: gmc-uploads
