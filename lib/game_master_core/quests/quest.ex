@@ -38,7 +38,16 @@ defmodule GameMasterCore.Quests.Quest do
   @doc false
   def changeset(quest, attrs, game_scope, game_id) do
     quest
-    |> cast(attrs, [:name, :content, :content_plain_text, :tags, :parent_id, :pinned, :status, :is_public])
+    |> cast(attrs, [
+      :name,
+      :content,
+      :content_plain_text,
+      :tags,
+      :parent_id,
+      :pinned,
+      :status,
+      :is_public
+    ])
     |> validate_required([:name])
     |> validate_tags()
     |> validate_status()

@@ -11,7 +11,7 @@ The application runs as two Docker containers on a shared private network:
 
 | Container      | Image                     | Role        |
 | -------------- | ------------------------- | ----------- |
-| `gmc-postgres` | `postgres:16-alpine`      | Database    |
+| `gmc-postgres` | `postgres:17-alpine`      | Database    |
 | `gmc-app`      | `game_master_core:latest` | Phoenix app |
 
 The recommended repo-managed setup is `docker-compose.prod.yml`, which defines
@@ -85,6 +85,38 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml exec app /app/bin
 
 Do **not** use `docker compose down -v` unless you intentionally want to delete
 the database and uploads volumes.
+
+### Resetting an empty PostgreSQL 16 database for PostgreSQL 17
+
+Production uses PostgreSQL 17 to match Railway. An existing PostgreSQL 16
+volume cannot be reused directly by PostgreSQL 17, even if it has no application
+data. For an **empty/disposable destination database only**, reset the database
+volume before redeploying:
+
+```bash
+# Compose deployment: stop and remove containers, but preserve volumes.
+docker compose --env-file .env.prod -f docker-compose.prod.yml down
+
+# Delete ONLY the database volume. This permanently deletes its contents.
+docker volume rm gmc-pgdata
+
+# Start PostgreSQL 17 and the app with a fresh database volume.
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+Do not use `down -v`: the `gmc-uploads` volume must be preserved. If the destination
+contains valuable data, back it up and use a proper dump/restore upgrade instead.
+
+For a systemd deployment, first stop `gmc.service`, remove the `gmc-app` and
+`gmc-postgres` containers if they remain, and delete only `gmc-pgdata`. Update the
+Postgres image in `/etc/systemd/system/gmc.service` to `postgres:17-alpine`, run
+`sudo systemctl daemon-reload`, then start the service. Editing this repository
+does not update the VM's systemd service file automatically.
+
+When importing Railway, use PostgreSQL 17 `pg_dump` and restore the full dump
+before running application migrations. Keep the app stopped during restoration.
+A fresh database can remain unmigrated until the import is complete; the dump
+includes the source's migration history.
 
 ### Systemd Service
 
@@ -264,7 +296,7 @@ docker run -d \
   -e POSTGRES_PASSWORD=gmc_secret \
   -e POSTGRES_DB=game_master_core_prod \
   -v gmc-pgdata:/var/lib/postgresql/data \
-  postgres:16-alpine
+  postgres:17-alpine
 
 # 4. Build the app image
 docker build -t game_master_core:latest .

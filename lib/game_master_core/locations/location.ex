@@ -38,7 +38,16 @@ defmodule GameMasterCore.Locations.Location do
   @doc false
   def changeset(location, attrs, user_scope, game_id) do
     location
-    |> cast(attrs, [:name, :content, :content_plain_text, :type, :parent_id, :tags, :pinned, :is_public])
+    |> cast(attrs, [
+      :name,
+      :content,
+      :content_plain_text,
+      :type,
+      :parent_id,
+      :tags,
+      :pinned,
+      :is_public
+    ])
     |> validate_required([:name, :type])
     |> validate_inclusion(:type, [
       "continent",

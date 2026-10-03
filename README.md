@@ -15,6 +15,14 @@
 
 This backend is designed to work with [**game-master-web**](https://github.com/Callumk7/game-master-web), a modern web interface for interacting with your campaigns.
 
+## CLI Client
+
+A standalone Go CLI lives in [`tools/gm/`](tools/gm/README.md). It currently
+supports `gm auth login` with OS keychain storage, `gm auth status`, and
+`gm auth logout`, plus `gm games list` and `gm games show <game-id>` with JSON output.
+Help, version, and shell completion are included. API commands are being added incrementally.
+See its README for build and test instructions.
+
 ## Getting Started
 
 To start your Phoenix server:
